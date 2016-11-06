@@ -195,7 +195,7 @@ struct object_type_struct otype [OBJECT_TYPES] =
 		0, // power_use_base
 	 {0, ATTACK_TYPE_BURST, 7, 40, 64, 1, 40}, }, // OBJECT_TYPE_BURST_L
 
-* consider making damage etc the same for pulse and burst, and just have pulse be more expensive
+//* consider making damage etc the same for pulse and burst, and just have pulse be more expensive
 
 	{"burst_xl", KEYWORD_OBJECT_BURST_XL, OBJECT_BASE_TYPE_ATTACK, 10,
 		80, // power_use_peak
