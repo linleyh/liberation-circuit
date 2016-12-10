@@ -537,7 +537,7 @@ static void generate_dcode(void)
 	dcode_state.indent_level ++;
  dcode_add_line(" // initialisation code goes here (not all autocoded processes have initialisation code)");
  dcode_add_line("initialised = 1;");
- dcode_add_line("attack_mode(4); // attack objects (if present) will fire only when there is enough power");
+ dcode_add_line("attack_mode(0); // attack objects (if present) will all fire together");
  if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_MOVE]
 		&& dcode_state.mobile)
 	{

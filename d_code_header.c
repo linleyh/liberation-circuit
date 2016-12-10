@@ -342,6 +342,9 @@ static int auto_classify_objects(struct template_struct* templ)
  int quadrant;
  int object_angle;
 
+ int components_protectable_by_interface = 0;
+ int this_component_protectable_by_interface;
+
 // remove auto classes, but not user-defined classes
  remove_auto_classes_from_objects(templ);
 
@@ -362,6 +365,7 @@ static int auto_classify_objects(struct template_struct* templ)
 	{
 		if (templ->member[i].exists == 0)
 			continue;
+  this_component_protectable_by_interface = 1;
 		for (j = 0; j < nshape[templ->member[i].shape].links; j++)
 		{
    dcode_state.object_type_present [templ->member[i].object[j].type] ++; // note that this counts OBJECT_TYPE_NONE
@@ -372,13 +376,17 @@ static int auto_classify_objects(struct template_struct* templ)
     	quadrant = get_object_quadrant(templ, i, j);
     	if (quadrant == QUADRANT_FORWARD)
  			 	add_auto_class_to_object(templ, i, j, AUTO_CLASS_RETRO);
+     this_component_protectable_by_interface = 0;
      break;
+    case OBJECT_TYPE_INTERFACE:
+					this_component_protectable_by_interface = 0;
+					break;
 			 case OBJECT_TYPE_PULSE:
 			 case OBJECT_TYPE_PULSE_L:
 			 case OBJECT_TYPE_PULSE_XL:
 			 case OBJECT_TYPE_STREAM_DIR:
 			 case OBJECT_TYPE_ULTRA_DIR:
-			 case OBJECT_TYPE_SURGE_DIR:
+			 case OBJECT_TYPE_SLICE:
     	quadrant = get_object_quadrant(templ, i, j);
 			 	add_auto_class_to_object(templ, i, j, AUTO_CLASS_ATTACK_FRONT_DIR + quadrant);
      break;
@@ -397,7 +405,6 @@ static int auto_classify_objects(struct template_struct* templ)
     case OBJECT_TYPE_BURST_L:
     case OBJECT_TYPE_BURST_XL:
 				case OBJECT_TYPE_ULTRA:
-				case OBJECT_TYPE_SURGE:
     	quadrant = get_object_quadrant(templ, i, j);
     	if (quadrant != QUADRANT_FORWARD)
 					{
@@ -429,7 +436,14 @@ static int auto_classify_objects(struct template_struct* templ)
 
 			}
 		}
+  components_protectable_by_interface += this_component_protectable_by_interface;
+	}
 
+	if (dcode_state.object_type_present [OBJECT_TYPE_INTERFACE]
+  && components_protectable_by_interface == 0)
+	{
+	 write_line_to_log("Problem: process has interface, but no components that can be protected by interface.", MLOG_COL_WARNING);
+	 write_line_to_log(" (a component with a move or interface object can't be protected)", MLOG_COL_WARNING);
 	}
 
 	return 1;

@@ -43,7 +43,7 @@ I may need to prevent this (by removing the >> operator from the compiler)
 if it causes compatibility problems, although I'm not sure how likely it
 is to be an issue in practice.
 
-I have tested compiling with -O2. -O3 may cause problems.
+I've tested compiling with -O2. -O3 may cause problems.
 
 
 Structure
@@ -91,8 +91,18 @@ g_proc_new.c - deals with process creation
 g_proc_run.c - runs processes
 g_shapes.c - initialises the shape (process/component design and collision information) data structures
 g_world.c - initialises and runs aspects of the game world
+g_world_back.c - map background
+g_world_map.c - map background
+g_world_map_2.c - map background
 
 g_header.h - contains a vast amount of game data declarations
+
+
+Story (starts with h for some reason)
+
+h_interface.c - story mode region selection interface
+h_mission.c - sets up story missions
+h_story.c - general story code
 
 
 Interface (runs the display)
@@ -114,7 +124,7 @@ Panels (the windows that appear on the right of the screen)
 
 - the panel code in general is a horrible mess that needs to be rebuilt completely,
   but it mostly works.
-- note that most of the editor-related code is in the e_*.c files.
+- most of the code for the editor panel is in the e_*.c files.
 
 p_draw.c - draws the panel display
 p_init.c - initialises the panels
@@ -197,8 +207,9 @@ f_turn.c - turnfiles (not implemented)
 
 Shape editor
 
-z_poly.c - an editor for the component designs. Generates code to be pasted into g_shapes.c.
- It's not user-friendly and using it at all requires recompilation.
+z_poly.c - an editor for me to use to design components. Generates code
+ to be pasted into g_shapes.c. It's not user-friendly and using it at all
+	requires recompilation.
 
 
 */
@@ -423,7 +434,7 @@ fpr("\nInitialising:");
 
 // Set up multisampled anti-aliasing
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
+    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST); // 4 seems to work okay. Any more doesn't seem to achieve anything.
 
 //settings.option [OPTION_FULLSCREEN] = 1;
 
@@ -616,6 +627,9 @@ void read_initfile(void)
 		{
 			settings.default_template_path [i] [j] [0] = 0;
 		}
+
+		settings.replace_colour [i] = -1;
+
 	}
 
 
@@ -880,6 +894,44 @@ static int default_templates_loaded [PLAYERS] = {0,0,0,0};
 				  ex_control.key_code_map [i] [0] = -1; // no key
 			}
 		}
+  return bpos;
+ }
+
+
+ if (strcmp(initfile_word, "replace_col") == 0)
+ {
+// first read in the player index
+  bpos = read_initfile_number(&read_number, buffer, buffer_length, bpos);
+  if (bpos == -1)
+   return -1;
+  if (read_number < 0
+			|| read_number >= PLAYERS)
+		{
+   fprintf(stdout, "\nreplace colour failed - invalid player %i (should be 0 to %i).", read_number, PLAYERS-1);
+// read past next number
+   bpos = read_initfile_number(&read_number, buffer, buffer_length, bpos);
+   if (bpos == -1)
+    return -1;
+   return bpos;
+		}
+		int player_index = read_number;
+// now read in the colour that will be used:
+  bpos = read_initfile_number(&read_number, buffer, buffer_length, bpos);
+  if (bpos == -1)
+   return -1;
+  if (read_number < 0
+			|| read_number >= TEAM_COLS)
+		{
+   fprintf(stdout, "\nreplace colour failed - player %i being set to invalid colour %i (should be 0 to %i).", player_index, read_number, TEAM_COLS-1);
+   return bpos;
+		}
+// now modify the keymap (which should previously have been initialised, in m_input.c)
+//  - find all key codes which are mapped to the function being remapped (there may be more than one)
+//  - first found is remapped; any others are set to -1
+					fpr("\n replacing player %i colour with colour %i", player_index, read_number);
+
+					settings.replace_colour [player_index] = read_number;
+
   return bpos;
  }
 

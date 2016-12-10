@@ -423,6 +423,10 @@ int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
 		 }
 	}
 
+// fast forward only available in world phase (not pregame or game over):
+//  (game.fast_forward is also set to 0 in game over code)
+ if (game.phase == GAME_PHASE_WORLD)
+	{
 
  if (ex_control.special_key_press [SPECIAL_KEY_F2] == BUTTON_JUST_PRESSED)
 	{
@@ -463,9 +467,10 @@ int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
 			  game.fast_forward = 0;
 	}
 
+	}
+
 #ifdef DEBUG_MODE
  if (ex_control.special_key_press [SPECIAL_KEY_F5] == BUTTON_JUST_PRESSED)
-//		&& game.type != GAME_TYPE_MISSION)
 #else
  if (ex_control.special_key_press [SPECIAL_KEY_F5] == BUTTON_JUST_PRESSED
 		&& game.type != GAME_TYPE_MISSION)
@@ -478,6 +483,17 @@ int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
 			game.user_player_index = 0;
 
 	}
+
+#ifdef DEBUG_MODE
+ if (ex_control.special_key_press [SPECIAL_KEY_F7] == BUTTON_JUST_PRESSED)
+	{
+		if (ex_control.debug_special_keys == 0)
+			ex_control.debug_special_keys = 1;
+ 		 else
+					ex_control.debug_special_keys = 0;
+	}
+#endif
+
 
 // control may not reach here (e.g. if input being captured by editor  - control.editor_captures_input == 1)
 

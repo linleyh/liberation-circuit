@@ -1510,11 +1510,32 @@ static void editor_input_keys(void)
  if (editor.overwindow_type != OVERWINDOW_TYPE_NONE)
   goto no_keys_accepted; // don't accept keypresses while overwindow open
 
+#define DEBUG_MODE
+
+#ifdef DEBUG_MODE
+ if (ex_control.special_key_press [SPECIAL_KEY_F6] == BUTTON_JUST_PRESSED)
+	{
+		if (editor.debug_keys == 0)
+			editor.debug_keys = 1;
+ 		 else
+					editor.debug_keys = 0;
+	}
+
+	if (editor.debug_keys)
+		fpr("\n - ed kd %i ign %i bp %i alr %i:", editor.key_delay, editor.ignore_previous_key_pressed, editor.special_key_being_pressed, editor.already_pressed_cursor_key_etc);
+
+
+#endif
+
  int i, j, found_word;
  struct source_edit_struct* se;
 
  if (ex_control.unichar_input != 0)
 	{
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" unichar %i", ex_control.unichar_input);
+#endif
 		editor_keypress_unichar(ex_control.unichar_input);
 
   if (ex_control.unichar_input == 6) // ctrl-f (I hope)
@@ -1532,6 +1553,11 @@ static void editor_input_keys(void)
 
 no_keys_accepted:
 
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" nokeys");
+#endif
+
   editor.key_delay = 0;
   editor.special_key_being_pressed = -1;
   editor.ignore_previous_key_pressed = -1;
@@ -1545,6 +1571,12 @@ no_keys_accepted:
 // test for modified keys here:
   if (ex_control.special_key_press [SPECIAL_KEY_CTRL] > 0)
   {
+
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ctrl");
+#endif
+
    if (editor.key_delay > 0)
    {
 // we need special rules for key delay here because the control key may be kept down while another key is being pressed multiple times:
@@ -1566,6 +1598,10 @@ no_keys_accepted:
 //     || just_pressed_ctrl_key(ALLEGRO_KEY_PAD_0))
     {
 // if changed, check code for Edit submenu in submenu_operation
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ctrl-c");
+#endif
      copy_selection();
      editor.key_delay = KEY_DELAY1;
      editor.cursor_flash = CURSOR_FLASH_MAX;
@@ -1575,6 +1611,11 @@ no_keys_accepted:
 //   if (ex_control.key_press [ALLEGRO_KEY_V] != 0)
    if (ex_control.unichar_input == 22) // ctrl-V
    {
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ctrl-v");
+#endif
+
 //    if (just_pressed_ctrl_key(ALLEGRO_KEY_V))
     {
 // if changed, check code for Edit submenu in submenu_operation
@@ -1590,6 +1631,10 @@ no_keys_accepted:
 //   if (ex_control.key_press [ALLEGRO_KEY_X] != 0)
    if (ex_control.unichar_input == 24) // ctrl-X
    {
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ctrl-x");
+#endif
 //    if (just_pressed_ctrl_key(ALLEGRO_KEY_X))
     {
 // if changed, check code for Edit submenu in submenu_operation
@@ -1639,6 +1684,10 @@ no_keys_accepted:
    if (ex_control.special_key_press [SPECIAL_KEY_LEFT] > 0
     && ex_control.special_key_press [SPECIAL_KEY_RIGHT] <= 0)
    {
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ctrl-left %i (right %i)", ex_control.special_key_press [SPECIAL_KEY_LEFT], ex_control.special_key_press [SPECIAL_KEY_RIGHT]);
+#endif
     se = get_current_source_edit();
     if (se == NULL
      || !se->active)
@@ -1721,6 +1770,11 @@ no_keys_accepted:
    if (ex_control.special_key_press [SPECIAL_KEY_RIGHT] > 0
     && ex_control.special_key_press [SPECIAL_KEY_LEFT] <= 0)
    {
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ctrl-right %i (left %i)", ex_control.special_key_press [SPECIAL_KEY_RIGHT], ex_control.special_key_press [SPECIAL_KEY_LEFT]);
+#endif
+
     se = get_current_source_edit();
     if (se == NULL
      || !se->active)
@@ -1798,8 +1852,16 @@ no_keys_accepted:
 // first: if a key was being held down, check if it still is:
  if (editor.special_key_being_pressed != -1)
  {
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" spec %i (status %i time %i) ", editor.special_key_being_pressed, ex_control.special_key_press [editor.special_key_being_pressed], ex_control.special_key_press_time [editor.special_key_being_pressed]);
+#endif
   if (ex_control.special_key_press [editor.special_key_being_pressed] <= 0) // no longer being pressed
   {
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" rel");
+#endif
    editor.special_key_being_pressed = -1;
    editor.key_delay = 0;
 // so check whether another key is being pressed instead:
@@ -1813,6 +1875,10 @@ no_keys_accepted:
 //      if (key_type [i].type == KEY_TYPE_OTHER)
 //       editor_special_keypress(i);
 //        else
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" spkp_A %i", i);
+#endif
          editor_keypress(i);
       editor.key_delay = KEY_DELAY1;
       editor.cursor_flash = CURSOR_FLASH_MAX;
@@ -1831,6 +1897,10 @@ no_keys_accepted:
      else
      {
       editor.key_delay = KEY_DELAY2;
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" spkp_B %i ", editor.special_key_being_pressed);
+#endif
       editor_keypress(editor.special_key_being_pressed);
 //   fprintf(stdout, "\nPressed: %i type %i max %i", editor.key_being_pressed, key_type [editor.key_being_pressed], ALLEGRO_KEY_MAX);
 //     return;
@@ -1849,6 +1919,10 @@ no_keys_accepted:
 //       if (key_type [i].type == KEY_TYPE_OTHER)
 //        editor_special_keypress(i);
 //         else
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" spkp_C %i", i);
+#endif
           editor_keypress(i);
        editor.key_delay = KEY_DELAY1;
        editor.cursor_flash = CURSOR_FLASH_MAX;
@@ -1876,6 +1950,10 @@ no_keys_accepted:
 //       if (key_type [i].type == KEY_TYPE_OTHER)
 //        editor_special_keypress(i);
 //         else
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" spkp_D %i", i);
+#endif
           editor_keypress(i);
        editor.key_delay = KEY_DELAY1;
        editor.cursor_flash = CURSOR_FLASH_MAX;
@@ -2091,6 +2169,11 @@ static void editor_keypress(int key_press)
  }
 #endif
 
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" ekp %i", key_press);
+#endif
+
 // fpr("\nkey_press %i", key_press);
 
  struct source_edit_struct* se = get_current_source_edit();
@@ -2098,6 +2181,12 @@ static void editor_keypress(int key_press)
  if (se == NULL
   || !se->active)
   return;
+
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(".A");
+#endif
+
 
  if (key_press == editor.ignore_previous_key_pressed)
 		return;
@@ -2111,6 +2200,10 @@ static void editor_keypress(int key_press)
     editor.already_pressed_cursor_key_etc = 1; // set to 0 again at start of editor_key_input
    }
 
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr("B");
+#endif
 
 /* switch(key_type [key_press].type)
  {
@@ -2410,6 +2503,12 @@ void update_source_lines(struct source_edit_struct* se, int sline, int lines)
 static void cursor_etc_key(int key_press)
 {
 
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" cek %i", key_press);
+#endif
+
+
  struct source_edit_struct* se = get_current_source_edit();
 
  if (se == NULL
@@ -2660,6 +2759,13 @@ void window_find_cursor(struct source_edit_struct* se)
 static void movement_keys(struct source_edit_struct* se)
 {
 
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" mov(ign %i)", editor.ignore_previous_key_pressed);
+#endif
+
+
+
  int old_line = se->cursor_line;
  int old_pos = se->cursor_pos;
  editor.cursor_flash = CURSOR_FLASH_MAX;
@@ -2671,6 +2777,15 @@ static void movement_keys(struct source_edit_struct* se)
 		&& editor.ignore_previous_key_pressed != SPECIAL_KEY_LEFT
   && ex_control.special_key_press [SPECIAL_KEY_RIGHT] <= 0)
  {
+
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" left %i (ign %i right %i)",
+			ex_control.special_key_press [SPECIAL_KEY_LEFT],
+		 editor.ignore_previous_key_pressed,
+   ex_control.special_key_press [SPECIAL_KEY_RIGHT]);
+#endif
+
     if (se->cursor_pos > 0)
     {
      se->cursor_pos --;
@@ -2693,6 +2808,15 @@ static void movement_keys(struct source_edit_struct* se)
 		&& editor.ignore_previous_key_pressed != SPECIAL_KEY_RIGHT
   && ex_control.special_key_press [SPECIAL_KEY_LEFT] <= 0)
  {
+
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" right %i (ign %i left %i)",
+			ex_control.special_key_press [SPECIAL_KEY_RIGHT],
+		 editor.ignore_previous_key_pressed,
+   ex_control.special_key_press [SPECIAL_KEY_LEFT]);
+#endif
+
 
 // the following is code for right arrow without control (right arrow with control is dealt with in editor_input_keys()):
    if (se->cursor_pos < strlen(se->text [se->line_index [se->cursor_line]]))
@@ -2718,6 +2842,16 @@ static void movement_keys(struct source_edit_struct* se)
 		&& editor.ignore_previous_key_pressed != SPECIAL_KEY_UP
   && ex_control.special_key_press [SPECIAL_KEY_DOWN] <= 0)
  {
+
+
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" up %i (ign %i dwn %i)",
+			ex_control.special_key_press [SPECIAL_KEY_UP],
+		 editor.ignore_previous_key_pressed,
+   ex_control.special_key_press [SPECIAL_KEY_DOWN]);
+#endif
+
 		if (completion.list_size > 0)
 		{
 			completion_box_select_line_up();
@@ -2743,6 +2877,15 @@ static void movement_keys(struct source_edit_struct* se)
 		&& editor.ignore_previous_key_pressed != SPECIAL_KEY_DOWN
   && ex_control.special_key_press [SPECIAL_KEY_UP] <= 0)
  {
+
+#ifdef DEBUG_MODE
+ if (editor.debug_keys)
+		fpr(" dwn %i (ign %i up %i)",
+			ex_control.special_key_press [SPECIAL_KEY_DOWN],
+		 editor.ignore_previous_key_pressed,
+   ex_control.special_key_press [SPECIAL_KEY_UP]);
+#endif
+
 		if (completion.list_size > 0)
 		{
    completion_box_select_line_down();

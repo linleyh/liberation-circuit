@@ -86,7 +86,9 @@ void init_sound(int camstate_rand_seed)
  load_in_sample(SAMPLE_STREAM2, "data/sound/stream2.wav");
  load_in_sample(SAMPLE_ZAP, "data/sound/zap.wav");
  load_in_sample(SAMPLE_SPIKE, "data/sound/spike.wav");
- load_in_sample(SAMPLE_SURGE, "data/sound/surge.wav");
+ load_in_sample(SAMPLE_SLICE, "data/sound/slice.wav");
+ load_in_sample(SAMPLE_ULTRA, "data/sound/ultra.wav");
+ load_in_sample(SAMPLE_BUBBLE, "data/sound/bubble.wav");
 
  load_in_sample(SAMPLE_DRUM1, "data/sound/music/drum1.wav");
  load_in_sample(SAMPLE_DRUM2, "data/sound/music/drum2.wav");

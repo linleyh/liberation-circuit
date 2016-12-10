@@ -21,6 +21,32 @@ struct mission_state_struct
 	int phase; // currently used only for tutorials - keeps track of where the player is up to
 	int reveal_player1; // shows player 1 on the map if p1 has no static processes left
 
+	union
+	{
+		int union_value1;
+		int tutorial1_base_chatter;
+	};
+
+	union
+	{
+		int union_value2;
+	};
+
+	union
+	{
+		int union_value3;
+	};
+
+	union
+	{
+		int union_value4;
+	};
+
+	union
+	{
+		int union_value5;
+	};
+
 };
 
 void mission_spawn_extra_processes(void);

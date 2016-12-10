@@ -235,6 +235,23 @@ void get_ex_control(int close_button_status)
     safe_exit(0);
   }
 
+#ifdef DEBUG_MODE
+ if (ex_control.debug_special_keys)
+	{
+		fpr("\n ex map %i/%i ",
+  ex_control.key_code_map [0] [0],
+  ex_control.key_code_map [0] [1]);
+		for (i = 0; i < KEY_CODES; i ++)
+		{
+			if (ex_control.key_code_map [i] [0] == 0)
+				fpr("kcm [%i][0]=0 ", i);
+			if (ex_control.key_code_map [i] [1] == 0)
+				fpr("kcm [%i][1]=0 ", i);
+		}
+	fpr("\n key0A st %i ti %i", ex_control.special_key_press [0], ex_control.special_key_press_time [0]);
+	}
+
+#endif
 
 
   for (i = 0; i < KEY_CODES; i ++)
@@ -250,6 +267,14 @@ void get_ex_control(int close_button_status)
   }
 
 // need to have two loops because some special key values have more than one key code (e.g. lshift and rshift both affect SPECIAL_KEY_SHIFT)
+
+#ifdef DEBUG_MODE
+ if (ex_control.debug_special_keys)
+	{
+ 	fpr("\n key0B st %i ti %i", ex_control.special_key_press [0], ex_control.special_key_press_time [0]);
+	}
+
+#endif
 
   for (i = 0; i < SPECIAL_KEYS; i ++)
   {
@@ -278,6 +303,13 @@ void get_ex_control(int close_button_status)
   	}
   }
 
+#ifdef DEBUG_MODE
+ if (ex_control.debug_special_keys)
+	{
+ 	fpr("\n key0C st %i ti %i", ex_control.special_key_press [0], ex_control.special_key_press_time [0]);
+	}
+
+#endif
 
 /*
   for (i = 0; i < KEY_CODES; i ++)
@@ -366,6 +398,13 @@ void get_ex_control(int close_button_status)
 
 // check_mode_buttons_and_panel_drag();
 
+#ifdef DEBUG_MODE
+ if (ex_control.debug_special_keys)
+	{
+ 	fpr("\n key0D st %i ti %i", ex_control.special_key_press [0], ex_control.special_key_press_time [0]);
+	}
+
+#endif
 }
 
 ALLEGRO_EVENT_QUEUE* char_input_queue;
@@ -406,6 +445,14 @@ static void read_character_input_event(void)
 
 void init_key_maps(void)
 {
+
+ int i;
+
+ for (i = 0; i < KEY_CODES; i ++)
+	{
+		ex_control.key_code_map [i] [0] = -1;
+		ex_control.key_code_map [i] [1] = -1;
+	}
 
 // these can be remapped later by init.txt settings ([0] values may be remapped to -1)
 

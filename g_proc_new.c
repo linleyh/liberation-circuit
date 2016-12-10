@@ -388,6 +388,14 @@ int start_setting_up_core_from_template(int c, struct core_struct* core, struct 
 
 // core's group_member struct is set up in set_group_physics_properties()
 
+ core->bubble_text [0] = '\0';
+ core->bubble_text_time = 0;
+ core->bubble_text_time_adjusted = 0;
+ core->bubble_text_length = 0;
+
+ core->special_AI_type = 0;
+ core->special_AI_value = 0;
+ core->special_AI_time = 0;
 
 
 	return 1;

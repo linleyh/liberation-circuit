@@ -91,7 +91,7 @@ void init_code_completion(void)
 #ifdef SANITY_CHECK
   if (alpha_number < 'a' || alpha_number > 'z')
 		{
-			fpr("\n Error: e_complete.c: init_code_completion(): keyword %i doesn't start with a to z (lower case).", i);
+			fpr("\n Error: e_complete.c: init_code_completion(): keyword %i doesn't start with a letter from a to z (lower case).", i);
 			error_call();
 		}
 #endif

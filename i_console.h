@@ -88,6 +88,8 @@ void display_consoles_and_buttons(void);
 void write_text_to_console(int console_index, int print_colour, int text_source, int source_core_created_timestamp, char* write_text);
 void console_newline(int console_index, int print_colour);
 
+void write_text_to_bubble(int core_index, timestamp print_timestamp, char* write_text);
+
 void check_mouse_on_consoles_etc(int mouse_x, int mouse_y, int left_button);
 void place_build_buttons(void);
 void reset_build_queue_buttons_y1(int queue_length);

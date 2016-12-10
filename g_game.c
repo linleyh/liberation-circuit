@@ -212,7 +212,6 @@ void main_game_loop(void)
 
  do // main game loop
  {
-
 //  if (game.phase != GAME_PHASE_PREGAME) // no input in pregame phase
    get_ex_control(0); // ex_control needs to be updated even when halted (control will not be updated)
 
@@ -231,7 +230,6 @@ void main_game_loop(void)
    force_display_update = 0;
   }
 
-
   game.total_time++;
 
 //  if (game.pause_hard == 0)
@@ -245,7 +243,8 @@ void main_game_loop(void)
   //  reset_proc_box_height(NULL);
 //   } // need to find a better place to put this
 
-   if (game.phase == GAME_PHASE_WORLD)
+   if (game.phase == GAME_PHASE_WORLD
+				|| game.phase == GAME_PHASE_OVER) // game continues to run while over.
 			{
 				if (game.pause_soft == 0)
     {
@@ -264,28 +263,32 @@ void main_game_loop(void)
 
       update_vision_area(); // update fog of war after w.world_time is incremented so that the vision_time timestamps are up to date
 
-      if (game.type == GAME_TYPE_BASIC)
-							run_custom_game();
-						  else
-									run_mission(); // for now ignore return values
+      if (game.phase != GAME_PHASE_OVER)
+						{
+       if (game.type == GAME_TYPE_BASIC)
+							 run_custom_game();
+						   else
+									 run_mission(); // for now ignore return values
+						}
 
       play_sound_list();
 
      }
     }
    }
-    else
-				{
-					game.fast_forward = 0;
-     if (game.phase == GAME_PHASE_PREGAME)
-      run_pregame();
-     if (game.phase == GAME_PHASE_OVER)
-					{
-      if (run_game_over())
-							break; // user clicked game over button
-					}
-				}
 
+   if (game.phase == GAME_PHASE_OVER)
+			{
+					game.fast_forward = 0;
+     if (run_game_over())
+						break; // user clicked game over button
+			}
+
+   if (game.phase == GAME_PHASE_PREGAME)
+			{
+					game.fast_forward = 0;
+     run_pregame();
+			}
 
 //   w.total_time ++; // total_time is affected by hard pause, but unlike world_time is not affected by soft pause (so it can only be used for things that don't affect gameplay, like console line highlighting)
 
@@ -297,7 +300,6 @@ void main_game_loop(void)
    run_commands();
 
    view.just_resized = 0;
-
 
 // fps_queue generates an event once each second - used for calculating fps and forcing a display update at least once per second
   if (al_get_next_event(fps_queue, &ev))
@@ -330,7 +332,6 @@ void main_game_loop(void)
    }*/
   }
 
-
   if (playing == 0)
    break;
 
@@ -340,7 +341,7 @@ void main_game_loop(void)
 
 // check for fast-forward (skip). Ignore FF if not in world, or if paused
   if (game.fast_forward > 0
-   && game.phase == GAME_PHASE_WORLD
+   && game.phase == GAME_PHASE_WORLD // let's not allow ff in GAME_PHASE_OVER
    && game.pause_soft == 0)
 //   && game.pause_hard == 0)
    {
@@ -394,7 +395,6 @@ void main_game_loop(void)
   {
    al_wait_for_event(event_queue, &ev);
   }
-
 
  } while (TRUE); // end main game loop
 
@@ -943,24 +943,30 @@ now attack
  {
 	 default:
 	 	{*/
+		if (game.phase == GAME_PHASE_WORLD) // if already GAME_OVER, don't check for other game end states
+		{
 	 		if (w.player[0].processes <= 0)
 				{
 					set_game_over();
 					game.game_over_status = GAME_END_MISSION_FAILED;
-					return 0;
+					goto finished_game_over;
 				}
 	 		if (w.player[1].processes <= 0)
 				{
 					set_game_over();
 					game.game_over_status = GAME_END_MISSION_COMPLETE;
-					return 0;
+					goto finished_game_over;
 				}
 	   if (w.world_seconds >= 7200) // 2 hour time limit
 	   {
 		   set_game_over();
 		   game.game_over_status = GAME_END_MISSION_FAILED_TIME;
-		   return 0;
+					goto finished_game_over;
 	   }
+		}
+
+		finished_game_over:
+			{
 
 	   int i;
 
@@ -984,7 +990,7 @@ now attack
 						mission_state.reveal_player1 = 1;
 					}
 				}
-
+			}
 /*	   }
 	 	}
 	 	break;

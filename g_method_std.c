@@ -36,6 +36,7 @@ Functions for calls to built-in (core) methods (i.e. ones that don't require an 
 #include "t_template.h"
 #include "x_sound.h"
 #include "g_command.h"
+#include "h_story.h"
 
 #include "i_console.h"
 #include "i_disp_in.h"
@@ -59,11 +60,11 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
 // {int parameters},
 	{3}, // *SMETHOD_CALL_SCAN_FOR_THREAT (x_offset, y_offset, process memory address)
  {3}, // *SMETHOD_CALL_CHECK_POINT (x, y, process memory address)
- {2}, // SMETHOD_CALL_CHECK_XY_VISIBLE (x, y)
+ {2}, // *SMETHOD_CALL_CHECK_XY_VISIBLE (x, y)
  {0}, // *SMETHOD_CALL_GET_COMMAND_TYPE,
  {0}, // *SMETHOD_CALL_GET_COMMAND_X,
  {0}, // *SMETHOD_CALL_GET_COMMAND_Y,
- {0}, // *SMETHOD_CALL_GET_COMMAND_NUMBER,
+ {0}, // -SMETHOD_CALL_GET_COMMAND_NUMBER,
  {0}, // *SMETHOD_CALL_GET_COMMAND_CTRL,
  {0}, // *SMETHOD_CALL_GET_COMMANDS,
  {0}, // *SMETHOD_CALL_CLEAR_COMMAND,
@@ -143,6 +144,9 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
  {1}, // *SMETHOD_CALL_LISTEN_CHANNEL,
  {0}, // *SMETHOD_CALL_IGNORE_ALL_CHANNELS,
  {1}, // *SMETHOD_CALL_COPY_COMMANDS, (target)
+ {8}, // SMETHOD_CALL_GIVE_COMMAND, (target_index, command_type, x, y, command_target, component, queued, control)
+ {8}, // SMETHOD_CALL_GIVE_BUILD_COMMAND, (target_index, template, x, y, angle, back_or_front, repeat, queued)
+
  {2}, // *SMETHOD_CALL_CHECK_BUILD_RANGE, (x, y)
  {0}, // *SMETHOD_CALL_REPAIR_SELF,
  {0}, // *SMETHOD_CALL_RESTORE_SELF,
@@ -178,12 +182,15 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
  {1}, // *SMETHOD_CALL_ATTACK_MODE, (mode)
 
 
- {0}, // SMETHOD_CALL_GET_PROCESS_COUNT,
- {0}, // SMETHOD_CALL_GET_PROCESSES_MAX,
- {0}, // SMETHOD_CALL_GET_PROCESSES_UNUSED,
- {0}, // SMETHOD_CALL_GET_COMPONENT_COUNT,
- {0}, // SMETHOD_CALL_GET_COMPONENTS_MAX,
- {0}, // SMETHOD_CALL_GET_COMPONENTS_UNUSED,
+ {0}, // *SMETHOD_CALL_GET_PROCESS_COUNT,
+ {0}, // *SMETHOD_CALL_GET_PROCESSES_MAX,
+ {0}, // *SMETHOD_CALL_GET_PROCESSES_UNUSED,
+ {0}, // *SMETHOD_CALL_GET_COMPONENT_COUNT,
+ {0}, // *SMETHOD_CALL_GET_COMPONENTS_MAX,
+ {0}, // *SMETHOD_CALL_GET_COMPONENTS_UNUSED,
+
+ {2}, // SMETHOD_CALL_SPECIAL_AI,
+
 
 /*
 To implement:
@@ -307,7 +314,8 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				if (core->command_queue[0].target_core != -1
 					&&	w.core[core->command_queue[0].target_core].exists
 					&& w.core[core->command_queue[0].target_core].created_timestamp == core->command_queue[0].target_core_created
-					&& check_proc_visible_to_user(w.core[core->command_queue[0].target_core].process_index))
+					&& w.vision_area[core->player_index][w.proc[w.core[core->command_queue[0].target_core].process_index].block_position.x][w.proc[w.core[core->command_queue[0].target_core].process_index].block_position.y].vision_time >= w.world_time - VISION_AREA_VISIBLE_TIME)
+//					&& check_proc_visible_to_user(w.core[core->command_queue[0].target_core].process_index))
 				{
      int target_member_index = core->command_queue[0].target_member;
 // if the targetted member no longer exists, target the core instead (TO DO: think about whether this is correct - could target parent component?)
@@ -329,7 +337,8 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				if (core->command_queue[0].target_core != -1
 					&&	w.core[core->command_queue[0].target_core].exists
 					&& w.core[core->command_queue[0].target_core].created_timestamp == core->command_queue[0].target_core_created
-					&& check_proc_visible_to_user(w.core[core->command_queue[0].target_core].process_index))
+					&& w.vision_area[core->player_index][w.proc[w.core[core->command_queue[0].target_core].process_index].block_position.x][w.proc[w.core[core->command_queue[0].target_core].process_index].block_position.y].vision_time >= w.world_time - VISION_AREA_VISIBLE_TIME)
+//					&& check_proc_visible_to_user(w.core[core->command_queue[0].target_core].process_index))
 				{
      int target_member_index = core->command_queue[0].target_member;
 // if the targetted member no longer exists, target the core instead (TO DO: think about whether this is correct)
@@ -644,18 +653,18 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				return 0;
 			return 1; // means there is a nearby well
 		case SMETHOD_CALL_GET_WELL_X:
-			if (vmstate.nearby_well_index == -1)
-				fpr("\n core %i at %i,%i nwi==-1", core->index, al_fixtoi(core->core_position.x), al_fixtoi(core->core_position.y));
+//			if (vmstate.nearby_well_index == -1)
+//				fpr("\n core %i at %i,%i nwi==-1", core->index, al_fixtoi(core->core_position.x), al_fixtoi(core->core_position.y));
 			if (core->number_of_harvest_objects + core->number_of_build_objects == 0)
 			{
-				fpr("\n C core %i at %i,%i nwi==-1", core->index, al_fixtoi(core->core_position.x), al_fixtoi(core->core_position.y));
+//				fpr("\n C core %i at %i,%i nwi==-1", core->index, al_fixtoi(core->core_position.x), al_fixtoi(core->core_position.y));
 				return -1; // must have at least one of either type to detect data wells
 			}
 			if (vmstate.nearby_well_index == -2) // not yet calculated
 				find_nearby_well(core); // updates vmstate.nearby_well_index
 			if (vmstate.nearby_well_index == -1)
 			{
-				fpr("\n B core %i at %i,%i nwi==-1", core->index, al_fixtoi(core->core_position.x), al_fixtoi(core->core_position.y));
+//				fpr("\n B core %i at %i,%i nwi==-1", core->index, al_fixtoi(core->core_position.x), al_fixtoi(core->core_position.y));
 				return -1;
 			}
 			return al_fixtoi(w.data_well[vmstate.nearby_well_index].position.x);
@@ -912,6 +921,109 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
   			transmit_target_core->new_command = 1;
 			}
 			return 1;
+		case SMETHOD_CALL_GIVE_COMMAND:
+			{
+    struct core_struct* transmit_target_core;
+    if (verify_friendly_target_core(core, stack_parameters [0], &transmit_target_core) != 1)
+					return 0;
+// stack_parameters:
+//  0 target
+//  1 command type
+//  2 x
+//  3 y
+//  4 target of command (index in core's process memory)
+//  5 component of target of command
+//  6 queued
+//  7 control_pressed
+				if (stack_parameters [1] < 0
+					|| stack_parameters [1] >= COM_TYPES)
+					return 0;
+// shouldn't need to bounds-check x or y
+	   int command_target = stack_parameters [4];
+				if (command_target < 0
+					|| command_target >= PROCESS_MEMORY_SIZE)
+					command_target = -1;
+				  else
+						{
+							command_target = core->process_memory [command_target]; // might be -1
+						}
+					int member_target = stack_parameters [5];
+					if (member_target < 0
+						|| member_target >= GROUP_MAX_MEMBERS)
+						member_target = 0;
+					int queued = 0;
+					if (stack_parameters [6])
+						queued = 1;
+					int control_pressed = 0;
+					if (stack_parameters [7])
+						control_pressed = 1;
+
+     return add_command(core, stack_parameters [1],
+																        stack_parameters [2],
+																        stack_parameters [3],
+																        command_target,
+																        member_target,
+																        queued,
+																        control_pressed);
+
+			}
+			return 1;
+		case SMETHOD_CALL_GIVE_BUILD_COMMAND:
+			{
+    struct core_struct* transmit_target_core;
+    if (verify_friendly_target_core(core, stack_parameters [0], &transmit_target_core) != 1)
+					return 0;
+// stack_parameters:
+//  0 target
+//  1 template
+//  2 x
+//  3 y
+//  4 angle
+//  5 back_or_front of queue
+//  6 repeat
+//  7 queued
+
+// verify the parameters:
+   if (stack_parameters [1] < 0
+				|| stack_parameters [1] >= TEMPLATES_PER_PLAYER)
+			{
+				 if (w.debug_mode)
+					 print_method_error("give_build_command invalid template index", 1, stack_parameters [1]);
+					return 0;
+			}
+
+   if (stack_parameters [2] < 255
+				|| stack_parameters [2] >= w.w_pixels - 255)
+			{
+				 if (w.debug_mode)
+					 print_method_error("give_build_command invalid build_x", 1, stack_parameters [2]);
+					return -1;
+			}
+
+   if (stack_parameters [3] < 255
+				|| stack_parameters [3] >= w.h_pixels - 255)
+			{
+				 if (w.debug_mode)
+					 print_method_error("give_build_command invalid build_y", 1, stack_parameters [3]);
+					return -1;
+			}
+// angle can be anything
+// target_index can be anything
+// back_or_front currently ignored
+// repeat dealt with below
+
+			return add_to_build_queue(core->player_index,
+																						       core->index,
+																						       stack_parameters [1], // template
+																						       stack_parameters [2], // x
+																						       stack_parameters [3], // y
+																						       stack_parameters [4] & ANGLE_MASK,  // angle
+																						       stack_parameters [5], // back_or_front
+																						       (stack_parameters [6] != 0), // repeat
+																						       (stack_parameters [7] != 0), // queue_for_this_core - maybe?
+																						       0); // failure_message - maybe?
+
+			}
 		case SMETHOD_CALL_CHECK_BUILD_RANGE:
 //			if (abs(al_fixtoi(core->core_position.x) - stack_parameters [0]) > BUILD_RANGE_BASE_PIXELS
 //				|| abs(al_fixtoi(core->core_position.y) - stack_parameters [1]) > BUILD_RANGE_BASE_PIXELS)
@@ -1141,10 +1253,23 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				}
 				return 0;
 			case SMETHOD_CALL_TARGET_DESTROYED:
+//fpr("\n TD target %i ", core->process_memory [stack_parameters [0]]);
 				if (stack_parameters [0] < 0
 					|| stack_parameters [0] >= PROCESS_MEMORY_SIZE
 					|| core->process_memory [stack_parameters [0]] == -1)
 					return -1;
+/*fpr(" at %i,%i [%i,%i] vis %i (now %i) ex %i dt %i",
+				al_fixtoi(w.core[core->process_memory [stack_parameters [0]]].core_position.x),
+				al_fixtoi(w.core[core->process_memory [stack_parameters [0]]].core_position.y),
+				w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.x,
+				w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.y,
+				w.vision_area[core->player_index]
+				                  [w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.x]
+										            [w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.y].vision_time,
+				w.world_time,
+				w.core[core->process_memory [stack_parameters [0]]].exists,
+				w.core[core->process_memory [stack_parameters [0]]].destroyed_timestamp);*/
+
 			 if (w.core[core->process_memory [stack_parameters [0]]].exists == 0
 					&& w.core[core->process_memory [stack_parameters [0]]].created_timestamp == core->process_memory_timestamp [stack_parameters [0]]
      && w.core[core->process_memory [stack_parameters [0]]].destroyed_timestamp >= w.world_time - DEALLOCATE_COUNTER
@@ -1152,7 +1277,13 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 						||	w.vision_area[core->player_index]
 				                  [w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.x]
 										            [w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.y].vision_time > w.world_time - VISION_AREA_VISIBLE_TIME))
+//				                  [w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.x]
+//										            [w.proc[w.core[core->process_memory [stack_parameters [0]]].process_index].block_position.y].vision_time > w.world_time - VISION_AREA_VISIBLE_TIME))
+    {
+//    	fpr(" ret 1");
 					return 1;
+    }
+//   	fpr(" ret 0");
 				return 0;
 
 
@@ -1174,6 +1305,9 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				return w.max_procs;
 			case SMETHOD_CALL_GET_COMPONENTS_UNUSED:
 				return w.max_procs - w.player[core->player_index].components_reserved;
+			case SMETHOD_CALL_SPECIAL_AI:
+				special_AI_method(core, stack_parameters [0], stack_parameters [1]);
+				return 0;
 
 
 
@@ -2199,14 +2333,6 @@ static s16b scan_single(struct core_struct* core, s16b* stack_parameters, int co
 	 core->process_memory_timestamp [process_memory_address] = w.core[closest_target_core].created_timestamp;
  }
 
-// if (w.debug_mode
-//		&& core->index == 3)
-	if (core->index == 3
-		&& process_memory_address == 1)
-	{
-		fpr("\n scan_single time %i mem %i core %i", w.world_time, process_memory_address, closest_target_core);
-		fpr("\n  at %i,%i", al_fixtoi(w.core[closest_target_core].core_position.x), al_fixtoi(w.core[closest_target_core].core_position.y));
-	}
 
  return 1;
 

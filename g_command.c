@@ -45,7 +45,7 @@ static void reset_select_mode(void);
 static int check_clicked_on_data_well(al_fixed mouse_x_fixed, al_fixed mouse_y_fixed);
 static void select_box(al_fixed xa, al_fixed ya, al_fixed xb, al_fixed yb);
 static void select_by_template(int core_index);
-static void add_command(struct core_struct* core, int command_type, int x, int y, int core_index, int member_index, int queued, int control_pressed);
+
 static void issue_command_to_selected(int command_type, int command_x, int command_y, int core_index, int member_index, int queued, int control_pressed);
 int check_block_visible_to_user(int block_x, int block_y);
 
@@ -154,16 +154,6 @@ void run_commands(void)
 			control_pressed = 1;
 
 	int proc_under_mouse = -1;
-/*
-	if (ex_control.mb_press [0] == BUTTON_JUST_PRESSED)
-	{
-		fpr("\n at %i,%i block_type %i", mouse_x_world / BLOCK_SIZE_PIXELS, mouse_y_world / BLOCK_SIZE_PIXELS, w.backblock[mouse_x_world / BLOCK_SIZE_PIXELS][mouse_y_world / BLOCK_SIZE_PIXELS].backblock_type);
-		int n;
-		for (n = 0; n < 9; n ++)
-		{
-			fpr(" n%i", w.backblock[mouse_x_world / BLOCK_SIZE_PIXELS][mouse_y_world / BLOCK_SIZE_PIXELS].node_exists [n]);
-		}
-	}*/
 
  if (control.mouse_panel == PANEL_MAIN)
 	{
@@ -277,7 +267,6 @@ void run_commands(void)
 
 
 //*** TO DO: make sure build queue is displayed for the user player even in non-command mode!
-//							 	fpr("A[%i,%i]", command.display_build_buttons, view.build_queue_buttons_y1);
 
 //					 else
 					 {
@@ -484,7 +473,6 @@ void run_commands(void)
   	  break;
 				}*/
 	 	 proc_clicked = proc_under_mouse;//check_fuzzy_point_collision(mouse_x_fixed, mouse_y_fixed); // should this be fuzzy?
-//	 	 fpr("\n click at %i,%i", control.mouse_x_world_pixels, control.mouse_y_world_pixels);
 	 	 if (proc_clicked != -1
 					&& check_proc_visible_to_user(proc_clicked))
 	 		{
@@ -566,8 +554,6 @@ void run_commands(void)
 	}
 
 
-
-//fpr("\nex_control.mouse_on_display == %i mouse_status == %i mouse_panel == %i", ex_control.mouse_on_display, control.mouse_status, control.mouse_panel);
 #define MOUSE_SCROLL_BORDER 100
 //#define MOUSE_SCROLL_BORDER_CORNER 80
 #define MOUSE_SCROLL_SPEED_DIVISOR 2
@@ -720,7 +706,6 @@ void run_commands(void)
 //		command.stress_level_record [command.power_use_pos] = w.core[command.selected_core [0]].stress_level;
 		command.power_use_record [command.power_use_pos] = w.core[command.selected_core [0]].power_capacity - w.core[command.selected_core [0]].power_left;
 		command.power_fail_record [command.power_use_pos] = w.core[command.selected_core [0]].power_use_excess;
-//		fpr("\n Power %i fail %i", command.power_use_record [command.power_use_pos], command.power_fail_record [command.power_use_pos]);
 		command.power_use_pos ++;
 	 if (command.power_use_pos >= POWER_DATA_RECORDS)
 			command.power_use_pos = 0;
@@ -731,6 +716,7 @@ void run_commands(void)
 	{
 		command.select_mode = SELECT_MODE_NONE;
 	}
+
 
 }
 
@@ -876,7 +862,6 @@ static void select_by_template(int core_index)
 // selects a single core, cancelling the rest of the selection array (if any)
 static void select_a_core(int core_index)
 {
-
 	if (command.select_mode == SELECT_MODE_SINGLE_CORE
 		&& command.selected_core [0] == core_index)
 	{
@@ -884,13 +869,13 @@ static void select_a_core(int core_index)
 	}
 
  play_interface_sound(SAMPLE_BLIP1, TONE_2G);
-
  clear_power_record();
 
 // if no cores selected, just select the core:
 	if (command.select_mode != SELECT_MODE_SINGLE_CORE
 		&& command.select_mode != SELECT_MODE_MULTI_CORE)
 	{
+
   sancheck(core_index, 0, w.max_cores, "select_a_core:core_index");
 		command.selected_core [0] = core_index;
 		w.core[core_index].selected = 0;
@@ -901,6 +886,7 @@ static void select_a_core(int core_index)
 			&& w.core[core_index].player_index == game.user_player_index)
 		{
 	 	open_build_buttons(core_index);
+
 //	 	command.select_box = 0;
 		}
 	 	 else
@@ -921,7 +907,9 @@ static void select_a_core(int core_index)
 
  if (w.core[core_index].number_of_build_objects
 		&& w.core[core_index].player_index == game.user_player_index)
+	{
 		open_build_buttons(core_index);
+	}
 		 else
     command.display_build_buttons = 0;
 
@@ -1166,16 +1154,18 @@ static void issue_command_to_selected(int command_type, int command_x, int comma
 }
 
 // for number commands x is used as the value
-static void add_command(struct core_struct* core, int command_type, int x, int y, int core_index, int member_index, int queued, int control_pressed)
+int add_command(struct core_struct* core, int command_type, int x, int y, int core_index, int member_index, int queued, int control_pressed)
 {
 	int new_command_index = 0;
+
+
 
 	if (queued)
 	{
 		while(TRUE)
 		{
 			if (new_command_index >= COMMAND_QUEUE)
-			 return; // can't add to queue - command queue full
+			 return 0; // can't add to queue - command queue full
 			if (core->command_queue [new_command_index].type == COM_NONE)
 				break;
 			new_command_index ++;
@@ -1199,6 +1189,8 @@ static void add_command(struct core_struct* core, int command_type, int x, int y
 		core->command_queue [new_command_index+1].type = COM_NONE; // probably not needed if commands are queued, but can't hurt.
 
 	core->new_command = 1;
+
+	return 1;
 
 }
 
@@ -1365,7 +1357,6 @@ static void build_place_selected(void)
 	{
 		command.build_mode = BUILD_MODE_NONE;
 //  play_interface_sound(SAMPLE_BLIP1, TONE_1G);
-//		fpr("\n can't build there (blocks %i,%i)", new_block_position.x, new_block_position.y);
 		return;
 	}
 
@@ -1406,8 +1397,6 @@ static void update_build_angle(void)
 	  else
 				command.build_angle = command.default_build_angle;
 
-//fpr("\n build_angle %i (%i, %i)", fixed_angle_to_int(command.build_angle), al_fixtoi(command.build_position.y - al_itofix(control.mouse_y_world_pixels)), al_fixtoi(command.build_position.x - al_itofix(control.mouse_x_world_pixels)));
-
 	check_build_validity(1);
 
 }
@@ -1429,9 +1418,6 @@ static void check_build_validity(int check_collisions)
  command.build_fail_range = 0; // 1 if core is static and target out of range
 
  block_cart new_block_position;
-
-// fpr("\n shape[0] = %i(%i) block %i,%i type %i", build_templ->member[0].shape, FIRST_MOBILE_NSHAPE, fixed_to_block(command.build_position.x), fixed_to_block(command.build_position.y),
-//					w.block[fixed_to_block(command.build_position.x)][fixed_to_block(command.build_position.y)].backblock_type);
 
 // should be able to assume that command.build_position coordinates are within the world area (see bounds-checking in update_build_position):
  if (build_templ->member[0].shape < FIRST_MOBILE_NSHAPE
@@ -1531,22 +1517,6 @@ static void give_command_after_build_angle_selected(int queued)
 	}
 
 
-/*
-	int new_command_index = 0;
-//fpr("\n Queued %i ", queued);
-	if (queued)
-	{
-		while(TRUE)
-		{
-			if (new_command_index >= BUILD_COMMAND_QUEUE)
-			 return; // can't add to queue - command queue full. Print a message?
-			if (w.core[command.selected_core[0]].build_command_queue [new_command_index].active == 0)
-				break;
-			new_command_index ++;
-		};
-	}
-*/
-//fpr(" nci %i ", new_command_index);
 
  if (!add_to_build_queue(game.user_player_index,
 																				     command.selected_core[0],
@@ -1598,6 +1568,7 @@ static void give_command_after_build_angle_selected(int queued)
 // returns 1 on success, 0 if build queue full (calling function may print an error message), -1 on error
 s16b add_to_build_queue(int player_index, int builder_core_index, int template_index, int build_x, int build_y, int angle, int back_or_front, int repeat, int queue_for_this_core, int failure_message)
 {
+
 
  sancheck(builder_core_index, 0, w.max_cores, "add_to_build_queue");
 
@@ -1919,18 +1890,14 @@ static void set_control_group(int control_group_index)
 	int i = 0;
 	int select_index = 0;
 
-//		fpr("\n Building control group %i...", control_group_index);
-
  while(command.selected_core [select_index] != SELECT_TERMINATE)
 	{
 		sancheck(select_index, 0, SELECT_MAX, "set_control_group: select_index");
-//		fpr("\n selected_core %i = %i", select_index, command.selected_core [select_index]);
 		if (command.selected_core [select_index] != SELECT_EMPTY
 			&& w.core[command.selected_core [select_index]].player_index == game.user_player_index)
 		{
  		command.control_group_core [control_group_index] [i] = command.selected_core [select_index];
  		command.control_group_core_timestamp [control_group_index] [i] = w.core[command.selected_core [select_index]].created_timestamp;
-//			fpr("\n adding core %i (select_index %i) to control group %i at %i", command.control_group_core [control_group_index] [i], select_index, control_group_index, i);
  		i ++;
 		}
 		select_index ++;
@@ -1957,12 +1924,6 @@ static void set_control_group(int control_group_index)
 
  write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LBLUE, -1, 0, temp_str);
 
-/*
-fpr("\n cg: ");
- for (i = 0; i < SELECT_MAX; i ++)
-	{
-		fpr("%i,", command.control_group_core [control_group_index] [i]);
-	}*/
 
 }
 
@@ -1977,13 +1938,10 @@ static void add_to_control_group(int control_group_index)
 	int group_full = 0;
 	int number_added = 0;
 
-//		fpr("\n Building control group %i...", control_group_index);
-
 
  while(command.selected_core [select_index] != SELECT_TERMINATE)
 	{
   sancheck(select_index, 0, SELECT_MAX, "add_to_control_group: select_index");
-//		fpr("\n selected_core %i = %i", select_index, command.selected_core [select_index]);
 		if (command.selected_core [select_index] != SELECT_EMPTY
 			&& !is_core_in_control_group(command.selected_core [select_index], control_group_index)
 			&& w.core[command.selected_core [select_index]].player_index == game.user_player_index)
@@ -2015,7 +1973,6 @@ static void add_to_control_group(int control_group_index)
 		  group_full = 1;
 		  break; // need to check for this here (unlike in set_control_group) because the user may be trying to add too many processes
 	  }
-//			fpr("\n adding core %i (select_index %i) to control group %i at %i", command.control_group_core [control_group_index] [i], select_index, control_group_index, i);
 		}
 		select_index ++;
 	}
@@ -2048,37 +2005,27 @@ static void add_to_control_group(int control_group_index)
 			}
 
 
-/*
-fpr("\n cg: ");
- for (i = 0; i < SELECT_MAX; i ++)
-	{
-		fpr("%i,", command.control_group_core [control_group_index] [i]);
-	}*/
 
 }
 
 static int is_core_in_control_group(int core_index, int control_group_index)
 {
 	int i = 0;
-//fpr("\n is core %i in control group? ", core_index);
 	while (i < SELECT_MAX)
 	{
 		if (command.control_group_core [control_group_index] [i] == SELECT_TERMINATE)
 		{
-//			fpr(" no");
 			return 0;
 		}
 		if (command.control_group_core [control_group_index] [i] == core_index
 			&& w.core[core_index].created_timestamp == command.control_group_core_timestamp [control_group_index] [i])
 		{
-// 			fpr(" yes");
 				return 1;
 		}
 
 		i ++;
 	}
 
-//			fpr(" No!");
 	return 0;
 
 }

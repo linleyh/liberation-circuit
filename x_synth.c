@@ -93,7 +93,7 @@ void set_waveform_sine(float* buffer, int buffer_length, float freq, int harmoni
  const float dt = 1.0 / SAMPLE_FREQUENCY;
  float ti;
  float angle;
- int i, j;
+ int i;
 
  switch(harmonics)
  {
@@ -155,7 +155,7 @@ void set_waveform_sine_vib(float* buffer, int buffer_length, float freq, int har
  const float dt = 1.0 / SAMPLE_FREQUENCY;
  float ti;
  float angle;
- int i, j;
+ int i;
 
  float vibr_speed = 0.000125;//0.000125;
  float vibr_amount = 0.004;
@@ -222,9 +222,9 @@ void set_waveform_sine_vib(float* buffer, int buffer_length, float freq, int har
 void set_waveform_noise(float* buffer, int buffer_length, int freq, int harmonics, float amp)
 {
 
- const float dt = 1.0 / SAMPLE_FREQUENCY;
- float ti;
- int i, j;
+// const float dt = 1.0 / SAMPLE_FREQUENCY;
+// float ti;
+ int i;
 
  int square_length = 100;
  int square_sign = 1;
@@ -232,7 +232,7 @@ void set_waveform_noise(float* buffer, int buffer_length, int freq, int harmonic
 
  for (i = 0; i < buffer_length; i ++)
  {
- 	ti = 0 + i * dt;
+ 	//ti = 0 + i * dt;
 // 	 buffer [i] += sin(TWOPI * freq * ti) * amp;
 // 	for (j = 0; j < harmonics + 1; j ++)
 		{
@@ -283,8 +283,8 @@ void set_waveform_square(float* buffer, int buffer_length, float freq, int harmo
 
  const float dt = 1.0 / SAMPLE_FREQUENCY;
  float ti;
- int i, j;
- float value;
+ int i;
+// float value;
  float angle;
 
 // amp /= (float) (harmonics + 1);
@@ -298,9 +298,9 @@ void set_waveform_square(float* buffer, int buffer_length, float freq, int harmo
  harmonic_amp [4] = amp * 0.0625;
 
 
- float vibr_speed = 0.00125;//0.0005;
- float vibr_amount = 0.004;
- float vibr_phase = sthread_rand(1000) * 0.002 * PI;
+// float vibr_speed = 0.00125;//0.0005;
+// float vibr_amount = 0.004;
+// float vibr_phase = sthread_rand(1000) * 0.002 * PI;
 
  switch(harmonics)
  {
@@ -408,8 +408,8 @@ void set_waveform_square_vib(float* buffer, int buffer_length, float freq, int h
 
  const float dt = 1.0 / SAMPLE_FREQUENCY;
  float ti;
- int i, j;
- float value;
+ int i;
+// float value;
  float angle;
 
 // amp /= (float) (harmonics + 1);

@@ -22,6 +22,8 @@
 #include "g_misc.h"
 #include "p_panels.h"
 
+#include "x_sound.h"
+
 extern struct control_struct control;
 extern struct game_struct game;
 extern struct command_struct command;
@@ -30,7 +32,7 @@ extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 extern struct fontstruct font [FONTS];
 extern struct view_struct view;
 
-
+//Check target_destroyed - is it working properly?
 
 
 
@@ -184,7 +186,6 @@ void display_consoles_and_buttons(void)
 
 		draw_menu_buttons();
 
-
 		line_index = console[c].cpos;
 	 for (i = 0; i < console[c].h_lines; i ++)
 		{
@@ -228,7 +229,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 
 	if (command.display_build_buttons)
 	{
-//  char build_button_string [TEMPLATES_PER_PLAYER] [TEMPLATE_NAME_LENGTH + 8];
+
   reset_i_buttons();
 		int button_y = view.build_buttons_y2 - (BUILD_BUTTON_H * TEMPLATES_PER_PLAYER);
 
@@ -475,7 +476,6 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 
 
 
-
   int queue_button_highlight_mouseover = -1;
   int queue_button_highlight_drag = -1;
   int button_col = COL_AQUA;
@@ -510,7 +510,6 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 					    button_shade = SHADE_MED;*/
 
 			}
-
 
   for (i = 0; i < BUILD_QUEUE_LENGTH; i ++)
 		{
@@ -570,7 +569,6 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 				}
 
 
-
     draw_vbuf();
 
   if (draw_cancel_x)
@@ -611,9 +609,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 
 
 
-
 	} // end of code to display build buttons and build queue
-
 
  if (game.phase == GAME_PHASE_PREGAME)
  {
@@ -693,18 +689,15 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 		}
 
 
-
 }
 
 
 void place_build_buttons(void)
 {
-
 	view.build_buttons_x1 = console[CONSOLE_GENERAL].x;
 	view.build_buttons_y2 = console[CONSOLE_GENERAL].y - 5;
 	view.build_buttons_x2 = view.build_buttons_x1 + BUILD_BUTTON_W;
 	view.build_buttons_y1 = view.build_buttons_y2 - (TEMPLATES_PER_PLAYER * BUILD_BUTTON_H);
-
 	if (w.command_mode == COMMAND_MODE_COMMAND)
 	 view.build_queue_buttons_y2 = view.build_buttons_y2 - (BUILD_BUTTON_H * (TEMPLATES_PER_PLAYER + 2)) - 10; //view.build_buttons_y1 - 5;
 	  else
@@ -720,7 +713,6 @@ void place_build_buttons(void)
 // if queue_length == -1, this function will work out the queue length itself
 void reset_build_queue_buttons_y1(int queue_length)
 {
-
 	if (queue_length == -1)
 	{
 		queue_length = 0;
@@ -730,8 +722,6 @@ void reset_build_queue_buttons_y1(int queue_length)
 			sancheck(queue_length, 0, BUILD_QUEUE_LENGTH, "reset_build_queue_buttons_y1: queue_length");
 		}
 	}
-
-//	fpr("\n QL %i", queue_length);
 
 	view.build_queue_buttons_y1 = view.build_queue_buttons_y2 - (queue_length * BUILD_BUTTON_H);
 
@@ -748,7 +738,6 @@ void write_text_to_console(int console_index, int print_colour, int text_source,
 
 sancheck(console_index, 0, CONSOLES, "write_text_to_console: console_index");
 
-//fpr("\n Console: [%s]", write_text);
 // if the most recently written line was written by a different core, or in a different tick, go to next line:
  if ((console[console_index].source_index != text_source
 		 || console[console_index].time_written != w.world_time)
@@ -814,3 +803,56 @@ void console_newline(int console_index, int print_colour)
 	console[console_index].cline[console[console_index].cpos].colour = print_colour;
 
 }
+
+
+
+// This function is bypassed by bubble text written as a result of special_AI calls
+//  - see special_AI_method()
+void write_text_to_bubble(int core_index, timestamp print_timestamp, char* write_text)
+{
+
+ if (w.core[core_index].bubble_text_time != print_timestamp)
+	{
+		w.core[core_index].bubble_text [0] = '\0';
+		w.core[core_index].bubble_text_length = 0;
+	 w.core[core_index].bubble_text_time = print_timestamp;
+		if (w.core[core_index].bubble_text_time >= print_timestamp - BUBBLE_TOTAL_TIME)
+   w.core[core_index].bubble_text_time_adjusted = print_timestamp - 11;
+		  else
+  		 w.core[core_index].bubble_text_time_adjusted = print_timestamp;
+	}
+
+	int bubble_text_pos = w.core[core_index].bubble_text_length;
+	int write_text_pos = 0;
+
+	while(write_text [write_text_pos] != '\0')
+	{
+  if (write_text [write_text_pos] == '\n')
+		{
+			bubble_text_pos = 0;
+ 		w.core[core_index].bubble_text [0] = '\0';
+	 	w.core[core_index].bubble_text_length = 0;
+			write_text_pos ++;
+			continue;
+		}
+		if (bubble_text_pos >= BUBBLE_TEXT_LENGTH_MAX - 3)
+		{
+ 		bubble_text_pos ++;
+			break;
+		}
+		w.core[core_index].bubble_text [bubble_text_pos] = write_text [write_text_pos];
+		write_text_pos ++;
+		bubble_text_pos ++;
+	};
+
+	w.core[core_index].bubble_text [bubble_text_pos] = '\0';
+	w.core[core_index].bubble_text_length = bubble_text_pos;
+
+
+
+ play_game_sound(SAMPLE_BUBBLE, TONE_2C, 90, 1, w.core[core_index].core_position.x, w.core[core_index].core_position.y);
+
+
+}
+
+

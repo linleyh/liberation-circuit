@@ -169,10 +169,14 @@ void draw_template_panel(void)
 		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], button_x + 8, button_y + 12, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
 		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], button_x + 88, button_y + 12, ALLEGRO_ALIGN_LEFT, "%s", draw_templ->name);
 //		 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 28, button_y + 30, ALLEGRO_ALIGN_LEFT, "Data cost %i", draw_templ->data_cost); this isn't really all that useful
+  	int file_name_shade = SHADE_MED;
   	if (!draw_templ->source_edit->saved)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MED], button_x + 26, button_y + 34, ALLEGRO_ALIGN_RIGHT, "*");
+			{
+    file_name_shade = SHADE_HIGH;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [file_name_shade], button_x + 26, button_y + 34, ALLEGRO_ALIGN_RIGHT, "*");
+			}
    snprintf(file_path_string, TEMPLATE_FILE_PATH_LENGTH, draw_templ->source_edit->src_file_path);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MED], button_x + 28, button_y + 34, ALLEGRO_ALIGN_LEFT, "%s", file_path_string);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [file_name_shade], button_x + 28, button_y + 34, ALLEGRO_ALIGN_LEFT, "%s", file_path_string);
 
 		 if (draw_templ->locked)
 			{

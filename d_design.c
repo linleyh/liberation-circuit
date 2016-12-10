@@ -333,6 +333,20 @@ void design_window_input(int mouse_x, int mouse_y)
 				 write_to_log(".");
 				 finish_log_line();
 				 dwindow.selected_link = mouse_over_link;
+
+/*				 int k;
+
+				 int conn_index = -1;
+
+				 for (k = 0; k < GROUP_CONNECTIONS; k ++)
+					{
+						if (dwindow.templ->member[dwindow.selected_member].connection[k].link_index == mouse_over_link)
+						{
+							conn_index = k;
+							break;
+						}
+					}*/
+
  			 control.mouse_drag = MOUSE_DRAG_DESIGN_OBJECT_MOVE;
      control.mouse_drag_panel = PANEL_DESIGN;
      control.mouse_drag_element = FPE_DESIGN_WINDOW;
@@ -822,8 +836,8 @@ struct design_sub_button_struct design_sub_button [DSB_STRUCT_SIZE] =
 	{DSBTYPE_OBJECT, OBJECT_TYPE_SPIKE, "spike"}, // DSB_OBJECT_ATTACK_SPIKE,
 	{DSBTYPE_OBJECT, OBJECT_TYPE_ULTRA, "ultra"}, // DSB_OBJECT_ATTACK_ULTRA,
 	{DSBTYPE_OBJECT, OBJECT_TYPE_ULTRA_DIR, "ultra_dir"}, // DSB_OBJECT_ATTACK_ULTRA_DIR,
-	{DSBTYPE_OBJECT, OBJECT_TYPE_SURGE, "surge"}, // DSB_OBJECT_ATTACK_SURGE,
-	{DSBTYPE_OBJECT, OBJECT_TYPE_SURGE_DIR, "surge_dir"}, // DSB_OBJECT_ATTACK_SURGE_DIR,
+	{DSBTYPE_OBJECT, OBJECT_TYPE_SLICE, "slice"}, // DSB_OBJECT_ATTACK_SLICE,
+//	{DSBTYPE_OBJECT, OBJECT_TYPE_SLICE_DIR, "slice_dir"}, // DSB_OBJECT_ATTACK_SLICE_DIR,
 
 	{DSBTYPE_OBJECT, OBJECT_TYPE_BUILD, "build"}, // DSB_OBJECT_STD_BUILD,
 	{DSBTYPE_OBJECT, OBJECT_TYPE_HARVEST, "harvest"}, // DSB_OBJECT_STD_HARVEST
@@ -2055,9 +2069,10 @@ int add_linked_member(int parent_mem_index, int parent_link, int check_results_o
 int change_uplink(int child_mem_index, int new_link_index, int check_results_of_change)
 {
 
+
  if (child_mem_index == 0)
 	{
-		write_line_to_log("Core has no uplink.", MLOG_COL_ERROR);
+		write_line_to_log("Cores do not have uplinks.", MLOG_COL_ERROR);
 		return 0;
 	}
 
@@ -2105,6 +2120,7 @@ int move_uplink(int child_mem_index, int new_parent_index, int new_downlink_inde
 		return 0;
 	}
 #endif
+
 //fpr("\n cmi %i npi %i ndi %i", child_mem_index, new_parent_index, new_downlink_index);
 	struct template_member_struct* child_mem = &dwindow.templ->member[child_mem_index];
 	struct template_member_struct* old_parent_mem = &dwindow.templ->member[child_mem->connection[0].template_member_index];
@@ -2115,6 +2131,7 @@ int move_uplink(int child_mem_index, int new_parent_index, int new_downlink_inde
 	int old_parent_downlink_index = old_parent_mem->connection[old_parent_connection].link_index;
 	int new_parent_connection; // set below
 	int i;
+
 
  if (old_parent_mem != new_parent_mem) // or if just moving between different links of same parent
 	{
@@ -2178,6 +2195,7 @@ int move_uplink(int child_mem_index, int new_parent_index, int new_downlink_inde
 	}
 	 else
 		{
+
 	  old_parent_mem->connection[old_parent_connection].template_member_index = -1;
 	  old_parent_mem->object[old_parent_downlink_index].type = OBJECT_TYPE_NONE;
 
@@ -2196,6 +2214,7 @@ int move_uplink(int child_mem_index, int new_parent_index, int new_downlink_inde
 //  	child_mem->connection[0].link_index = uplink_index; above
 
 		}
+
 
  update_design_member_position_recursively(dwindow.templ, child_mem_index);
 
@@ -2300,7 +2319,8 @@ void delete_downlink_object(int parent_member, int object_index)
 
  for (i = 1;	i < GROUP_CONNECTIONS; i ++)
 	{
-		if (dwindow.templ->member[parent_member].connection[i].link_index == object_index)
+		if (dwindow.templ->member[parent_member].connection[i].link_index == object_index
+			&& dwindow.templ->member[parent_member].connection[i].template_member_index != -1)
 		{
 			delete_member_and_submembers(dwindow.templ->member[parent_member].connection[i].template_member_index);
 			return;

@@ -77,7 +77,7 @@ struct cmethod_call_type_struct cmethod_call_type [CMETHOD_CALL_TYPES] =
  {0}, // *CMETHOD_CALL_GET_TOTAL_INTEGRITY_MAX
  {0}, // *CMETHOD_CALL_GET_UNHARMED_INTEGRITY_MAX
 	{0}, // *CMETHOD_CALL_VISIBLE
-	{1}, // CMETHOD_CALL_TARGET_SIGNATURE
+	{0}, // *CMETHOD_CALL_TARGET_SIGNATURE
 
 
 // note that since core might not be the calling core, all core methods should be read only
@@ -207,9 +207,10 @@ s16b call_core_method(struct core_struct* calling_core, struct core_struct* call
 			fpr("] test [");
 			print_binary(stack_parameters [0]);
 			fpr("] result %i", (called_core->scan_bitfield & stack_parameters [0]) == 0);*/
-   if ((called_core->scan_bitfield & stack_parameters [0]) == 0)
-				return 0;
-			return 1;
+//   if ((called_core->scan_bitfield & stack_parameters [0]) == 0)
+//				return 0;
+//			return 1;
+  return called_core->scan_bitfield;
 
  } // end switch(call_value)
 
@@ -451,7 +452,7 @@ This is currently not possible
 
 // *target_core = &w.core[target_core_world_index];
 
- (*target_core)->visibility_check_result = 1;
+ (*target_core)->visibility_check_result = 1; // other visibility check values set above
 	return 1;
 
 }

@@ -12,6 +12,7 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 
 
 
+
 enum
 {
 TEAM_COL_BLUE,
@@ -21,7 +22,7 @@ TEAM_COL_WHITE,
 
 TEAM_COL_PURPLE,
 TEAM_COL_ORANGE,
-TEAM_COL_DARK,
+TEAM_COL_RED,
 
 TEAM_COLS
 
@@ -35,6 +36,9 @@ PACKET_COL_WHITE_YELLOW,
 PACKET_COL_WHITE_PURPLE,
 
 PACKET_COL_ORANGE_RED,
+PACKET_COL_BLUE_PURPLE,
+PACKET_COL_ULTRAVIOLET,
+
 PACKET_COLS
 };
 

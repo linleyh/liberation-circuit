@@ -96,6 +96,42 @@ MISSION_RED_CAPITAL,
 MISSIONS
 };
 
+enum
+{
+UNLOCK_NONE,
+
+UNLOCK_KEY,
+
+UNLOCK_CORE_MOBILE_1,
+UNLOCK_CORE_MOBILE_2,
+UNLOCK_CORE_MOBILE_3,
+UNLOCK_CORE_MOBILE_4,
+UNLOCK_CORE_MOBILE_5,
+
+UNLOCK_CORE_STATIC_1,
+UNLOCK_CORE_STATIC_2,
+UNLOCK_CORE_STATIC_3,
+
+UNLOCK_COMPONENTS_1,
+UNLOCK_COMPONENTS_2,
+
+UNLOCK_OBJECT_INTERFACE,
+UNLOCK_OBJECT_REPAIR_OTHER,
+UNLOCK_OBJECT_STABILITY,
+
+UNLOCK_OBJECT_PULSE_L,
+UNLOCK_OBJECT_PULSE_XL,
+UNLOCK_OBJECT_BURST_XL,
+
+UNLOCK_OBJECT_STREAM,
+UNLOCK_OBJECT_SPIKE,
+UNLOCK_OBJECT_SLICE,
+UNLOCK_OBJECT_ULTRA,
+
+UNLOCKS
+// 20
+// 33
+};
 
 // areas are
 struct area_struct
@@ -119,6 +155,7 @@ struct region_struct
  int area_index; // which area is this region in
  int mission_index;
  int capital; // 1 if this is the main region of this area
+ int unlock_index; // one of the UNLOCK enums
 
 	int defeated; // 1 if player has beaten this region, 0 otherwise
 	int unlocked; // derived from defeated values when story mode loaded
@@ -142,5 +179,7 @@ struct story_struct
 void init_story(void);
 void enter_story_mode(void);
 
+void	special_AI_method(struct core_struct* core, int value1, int value2);
+void special_AI_destroyed(struct core_struct* core);
 
 #endif

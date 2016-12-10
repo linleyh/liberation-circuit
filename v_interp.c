@@ -459,6 +459,39 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 				}
 				break;
 
+
+
+			case OP_bubble:
+				{
+//				fpr("\nprint ");
+				i = 0;
+				int max_length = BUBBLE_TEXT_LENGTH_MAX - 2;
+				vmstate.bcode_pos++; // skip past the print instruction
+// let's just bounds-check once:
+				if (vmstate.bcode_pos >= BCODE_MAX - BUBBLE_TEXT_LENGTH_MAX - 1)
+					max_length = BCODE_MAX - vmstate.bcode_pos - 2;
+				while (i < max_length
+								&& vmstate.bcode->op [vmstate.bcode_pos] != 0)
+				{
+					print_string [i] = vmstate.bcode->op [vmstate.bcode_pos];
+					i++;
+					vmstate.bcode_pos++;
+				}
+				print_string [i] = '\0';
+				sancheck(i, 0, BUBBLE_TEXT_LENGTH_MAX, "print_string (bubble) length");
+    write_text_to_bubble(core->index, w.world_time, print_string);
+//				fpr("[%s]", print_string);
+				}
+				break;
+
+			case OP_bubbleA:
+				{
+					sprintf(print_string, "%i", vmstate.vm_register [VM_REG_A]);
+//				fpr(" [A=%i] ", vmstate.vm_register [VM_REG_A]);
+     write_text_to_bubble(core->index, w.world_time, print_string);
+				}
+				break;
+
 			case OP_call_object:
 		  vmstate.instructions_left --;
 				get_next_instr; // instr is bounds-checked in call_object()

@@ -251,6 +251,9 @@ struct editorstruct
 // text string search
  char search_string [SEARCH_STRING_LENGTH];
 
+#ifdef DEBUG_MODE
+ int debug_keys;
+#endif
 
 };
 

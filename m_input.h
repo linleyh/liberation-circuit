@@ -162,6 +162,8 @@ struct ex_control_struct // this struct holds information taken directly from in
 
  int key_code_map [KEY_CODES] [2]; // [0] is ALLEGRO_KEY_ code that maps to this key code. [1] is a SPECIAL_KEY code (more than one ALLEGRO_KEY_ code may map to a special key code)
 
+ int debug_special_keys;
+
 };
 
 

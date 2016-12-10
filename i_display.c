@@ -83,9 +83,9 @@ static void add_shaded_triangle(int layer, float x1, float y1, ALLEGRO_COLOR col
 //static void add_filled_rectangle(int layer, float x1, float y1, float x2, float y2, ALLEGRO_COLOR fill_col);
 static void add_layer_vertex(int layer, float x, float y, ALLEGRO_COLOR col);
 void draw_stream_beam(float x1, float by1, float x2, float y2, int col, int status, int counter, int hit);
-void draw_surge_beam(float x1, float by1, float x2, float y2, int col, int time_since_firing, int hit);
+void draw_slice_beam(float x1, float by1, float x2, float y2, int col, int time_since_firing, int hit);
 static void draw_beam_triangles(int layer, float x1, float by1, float x2, float y2, ALLEGRO_COLOR stream_col);
-static void draw_fade_surge_triangles(int layer, float x1, float by1, float x2, float y2, ALLEGRO_COLOR stream_col, ALLEGRO_COLOR base_col);
+static void draw_fade_slice_triangles(int layer, float x1, float by1, float x2, float y2, ALLEGRO_COLOR stream_col, ALLEGRO_COLOR base_col);
 static void draw_beam_bloom_triangles(int layer, float x1, float by1, float x2, float y2, ALLEGRO_COLOR centre_col, ALLEGRO_COLOR edge_col);
 //void draw_spike_line(float x1, float by1, float x2, float y2, int col, int counter);
 //static unsigned int packet_rand(struct packet_struct* pack, int mod);
@@ -217,7 +217,7 @@ static void draw_object_base_shape(float proc_x,
 
 
 static void select_arrows(int number, float centre_x, float centre_y, float select_arrow_angle, float dist, float out_dist, float side_angle, float side_dist, ALLEGRO_COLOR arrow_col);
-
+static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, int bubble_col, int bubble_text_length, char* bubble_text, int draw_triangle);
 
 struct ribbon_state_struct
 {
@@ -755,6 +755,7 @@ void run_display(void)
  float x, y; //, x2, y2;
  int i, j;
  int shade;
+ int bubble_list_index = -1; // part of linked list used to draw bubble text
 
  al_set_target_bitmap(vision_mask);
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
@@ -774,12 +775,11 @@ void run_display(void)
 // al_set_clipping_rectangle(0, 0, inter.display_w, inter.display_h);
 
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-// al_set_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
 
 // al_set_target_bitmap(al_get_backbuffer(display));
 // al_clear_to_color(colours.black);
 
-//#define SHOW_BLOCKS
+//#define SHOW_BLOCKS - doesn't work
 
 
 
@@ -816,8 +816,6 @@ void run_display(void)
   float camera_edge_x2 = view.window_x_zoomed;
   float camera_edge_y1 = 0;
   float camera_edge_y2 = view.window_y_zoomed;
-
-// al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
 // reset the line/poly drawing buffers (must come before these are used)
  clear_vbuf();
@@ -1005,6 +1003,19 @@ work out float x coordinate for that block in same way as for any object in worl
      break;
 
     backbl = &w.backblock [bx] [by];
+/*
+        bx2 = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [3]) * (i); //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+        by2 = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [3]) * (j); //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+        float bx4 = bx2 + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [backbl->node_depth [3]]);
+        float by4 = by2 + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [backbl->node_depth [3]]);
+        add_diamond_layer(4,
+																										bx2 + 3, by2 + 3,
+																										bx4 - 3, by2 + 3,
+																										bx4 - 3, by4 - 3,
+																										bx2 + 3, by4 - 3,
+																										colours.base_trans [COL_RED] [SHADE_LOW] [TRANS_FAINT]);
+
+*/
 
     switch(backbl->backblock_type)
     {
@@ -1067,9 +1078,19 @@ work out float x coordinate for that block in same way as for any object in worl
 
 
        add_orthogonal_hexagon((BACKBLOCK_LAYERS - 1) - backbl->node_depth [k], bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom, nsize * specific_zoom,
-//																														colours.base [COL_BLUE] [SHADE_MIN]);
-//       add_orthogonal_hexagon(backbl->node_depth [k], bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom, nsize * specific_zoom,
+//																														colours.base_trans [COL_BLUE] [SHADE_MED] [TRANS_MED]);
                                       colours.back_fill [backbl->node_depth [k]] [node_colour] [node_saturation] [nfillcol]);
+
+
+//               al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREEN] [SHADE_MAX],
+//																				bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom,
+//																				0, "%i:%i", j & 1, k);
+
+//               al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREEN] [SHADE_MAX],
+//																				bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom, 0,
+//																													"%i", backbl->node_depth [k]);
+
+
        }
 				 	}
 					 break;
@@ -1095,9 +1116,6 @@ work out float x coordinate for that block in same way as for any object in worl
 									special_i = i;
 									special_j = j;
 								}
-
-//							float lower_level_zoom = view.zoom;
-
 
 							float specific_zoom = view.zoom * w.backblock_parallax [2];
 
@@ -1138,8 +1156,7 @@ work out float x coordinate for that block in same way as for any object in worl
                                 float centre_dist = 42 + drand(30, 1);
 
                                 int bit_layer = (k+backbl->backblock_value) & 1;
-//if (!game.pause_soft)
-//	fpr("\n bit_layer %i: k %i val %i", bit_layer, k, backbl->backblock_value);
+
                                 specific_zoom = base_part_zoom [bit_layer];
                                 bx2 = bx3 [bit_layer];
                                 by2 = by3 [bit_layer];
@@ -1223,7 +1240,7 @@ work out float x coordinate for that block in same way as for any object in worl
                                 bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
                                 by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
 
-                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
                             }
 
                             specific_zoom = view.zoom * w.backblock_parallax [1];
@@ -1591,9 +1608,9 @@ default:
                                 for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
                                 {
                                     float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                    float square_dist = 100 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
-                                    float special_bx2 = bx2 + (drand(60, 1) - 30) * specific_zoom;
-                                    float special_by2 = by2 + (drand(60, 1) - 30) * specific_zoom;
+                                    float square_dist = 70 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
+                                    float special_bx2 = bx2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    float special_by2 = by2;// + (drand(60, 1) - 30) * specific_zoom;
                                     add_diamond_layer(3,
                                     special_bx2 + cos(square_angle - reserve_square_arc_inner) * square_dist,
                                     special_by2 + sin(square_angle - reserve_square_arc_inner) * square_dist,
@@ -1611,6 +1628,360 @@ default:
 
 									}
 									break; // end AREA_YELLOW
+
+
+       	case AREA_RED:
+								{
+
+                            well_size = 40;
+
+
+#define RED_WELL_BASE_LAYER 2
+                            specific_zoom = view.zoom * w.backblock_parallax [RED_WELL_BASE_LAYER];
+
+                            bx2 = top_left_corner_x [RED_WELL_BASE_LAYER] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [RED_WELL_BASE_LAYER] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            add_orthogonal_hexagon(1, bx2, by2, 112 * specific_zoom, colours.data_well_hexes [1]);
+                            add_orthogonal_hexagon(1, bx2, by2, 80 * specific_zoom, colours.world_background);
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                if ((k + backbl->backblock_value) & 1)
+																																		continue;
+
+
+                                float base_dist = 36;//drand(30, special_i) + 24;
+                                well_size = base_dist + 22;
+
+//#define BASE_WELL_ANGLE (PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+
+                                float far_dist = well_size + 100 + drand(30, special_i);
+
+                                vertex_list[0][0] = bx2 + left_xpart * 36;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 36;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 36; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 36; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+
+                                vertex_list[3][0] = vertex_list[2][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+                                vertex_list[3][1] = vertex_list[2][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+                                vertex_list[4][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+                                vertex_list[4][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+
+                                vertex_list[7][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[7][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                vertex_list[6][0] = vertex_list[7][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+                                vertex_list[6][1] = vertex_list[7][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+
+
+/*
+
+                                vertex_list[0][0] = bx2 + left_xpart * 32;// well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;// well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+*/
+
+                                add_poly_layer(1, 8, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+//                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+#define WELL_RED_RING_RADIUS (140)
+/*                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);*/
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+
+                                int l;
+
+																																float circle_base_rad = 220 - k * 70;
+
+																																int circle_distribution = w.data_well[backbl->backblock_value].reserve_squares * 12;
+
+																																float circle_thickness = w.data_well[backbl->backblock_value].reserve_data [k] * 0.005;
+																																if (circle_thickness > 10)
+																																	circle_thickness = 10;
+
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+
+                                	float circle_rad = ((w.world_time) + (l * 24)) % (circle_distribution * 2);
+                                	circle_rad *= 0.5;
+
+                                	int circle_alpha;
+                                	if (circle_rad < (circle_distribution / 2))
+																																		circle_alpha = circle_rad * 4;
+																																	  else
+  																																		circle_alpha = (circle_distribution - circle_rad) * 4;
+
+                                 ALLEGRO_COLOR res_col = al_map_rgba(250,
+                                 40 + circle_alpha,
+                                 30,
+                                 circle_alpha);
+
+//                            	    draw_ring(1, bx2, by2, circle_rad * specific_zoom, 24, 64, res_col2);
+                            	    draw_ring(1, bx2, by2, circle_base_rad - circle_rad, circle_thickness, 64, res_col);
+
+                                }
+
+/*
+                                int l;
+                                float reserve_square_arc = 0.13;
+                                float reserve_square_length = 36;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
+                                reserve_square_length *= reserve_data_proportion;
+                                if (reserve_data_proportion < 1)
+                                 reserve_square_arc *= reserve_data_proportion;
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                    add_diamond_layer(1,
+                                    bx2 + cos(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    by2 + sin(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    bx2 + cos(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    by2 + sin(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    bx2 + cos(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    by2 + sin(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    bx2 + cos(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    by2 + sin(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    reserve_colour);
+                                }
+                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
+
+*/
+                            }
+
+								}
+        break; // end AREA_RED
+
+
+       	case AREA_PURPLE:
+								{
+
+                            well_size = 40;
+
+
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            float inner_size = 42 * specific_zoom;
+                            float outer_size = 128 * specific_zoom;
+                            float far_outer_size = 240 * specific_zoom;
+
+
+                            for (k = 0; k < 3; k++)
+                            {
+
+//                            	if (k != 0)
+//																														break;
+
+
+
+                                float base_angle;
+                                if (backbl->backblock_value & 1)
+																																	base_angle = (PI/-6) + ((PI*2) / 3) * k;
+																																  else
+																																			base_angle = (PI/6) + ((PI*2) / 3) * k;
+                                float left_inner_angle = base_angle - PI/3 + 0.18;
+                                float left_outer_angle = base_angle - PI/3 + 0.05;
+                                float right_inner_angle = base_angle + PI/3 - 0.18;
+                                float right_outer_angle = base_angle + PI/3 - 0.05;
+
+
+                                vertex_list[0][0] = bx2 + cos(base_angle) * inner_size;
+                                vertex_list[0][1] = by2 + sin(base_angle) * inner_size;
+                                vertex_list[1][0] = bx2 + cos(right_inner_angle) * inner_size;
+                                vertex_list[1][1] = by2 + sin(right_inner_angle) * inner_size;
+                                vertex_list[2][0] = bx2 + cos(right_outer_angle) * outer_size;
+                                vertex_list[2][1] = by2 + sin(right_outer_angle) * outer_size;
+#define FAR_OUTER_ANGLE 0.04
+                                vertex_list[3][0] = bx2 + cos(base_angle + FAR_OUTER_ANGLE) * far_outer_size;
+                                vertex_list[3][1] = by2 + sin(base_angle + FAR_OUTER_ANGLE) * far_outer_size;
+                                vertex_list[4][0] = bx2 + cos(base_angle - FAR_OUTER_ANGLE) * far_outer_size;
+                                vertex_list[4][1] = by2 + sin(base_angle - FAR_OUTER_ANGLE) * far_outer_size;
+
+                                vertex_list[5][0] = bx2 + cos(left_outer_angle) * outer_size;
+                                vertex_list[5][1] = by2 + sin(left_outer_angle) * outer_size;
+                                vertex_list[6][0] = bx2 + cos(left_inner_angle) * inner_size;
+                                vertex_list[6][1] = by2 + sin(left_inner_angle) * inner_size;
+//                                vertex_list[5][0] = bx2 + cos(left_angle) * 36;
+//                                vertex_list[5][1] = by2 + sin(left_angle) * 36;
+
+
+
+                                add_poly_layer(1, 7, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);
+
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+                                int l;
+                                float reserve_square_arc_inner;// = 0.16;
+                                float reserve_square_arc_outer;// = 0.13;
+                                float reserve_square_length = 42;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.001;
+                                float base_dist, base_well_ring_angle;
+//                                base_well_ring_angle += (PI / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                reserve_square_length *= reserve_data_proportion * specific_zoom;
+                                if (reserve_data_proportion < 1)
+																																{
+                                 reserve_square_arc_inner *= reserve_data_proportion;
+                                 reserve_square_arc_outer *= reserve_data_proportion;
+																																}
+																																if (k == 0)
+																																{
+                                     base_dist = 180 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
+                                     base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+                                     reserve_square_arc_inner = 0.16;
+                                     reserve_square_arc_outer = 0.13;
+																																}
+																																 else
+																																	{
+                                      base_dist = 150 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
+                                      base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate * -1);
+                                      reserve_square_arc_inner = 0.24;
+                                      reserve_square_arc_outer = 0.32;
+																																	}
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float special_bx2 = bx2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    float special_by2 = by2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    if (k == 0)
+																																				{
+                                     float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                     add_diamond_layer(3,
+                                      special_bx2 + cos(square_angle - reserve_square_arc_inner) * base_dist,
+                                      special_by2 + sin(square_angle - reserve_square_arc_inner) * base_dist,
+                                      special_bx2 + cos(square_angle + reserve_square_arc_inner) * base_dist,
+                                      special_by2 + sin(square_angle + reserve_square_arc_inner) * base_dist,
+                                      special_bx2 + cos(square_angle + reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      special_by2 + sin(square_angle + reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      special_bx2 + cos(square_angle - reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      special_by2 + sin(square_angle - reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      reserve_colour);
+																																				}
+																																				   else
+																																							{
+                                        float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                        add_diamond_layer(3,
+                                         special_bx2 + cos(square_angle - reserve_square_arc_inner) * base_dist,
+                                         special_by2 + sin(square_angle - reserve_square_arc_inner) * base_dist,
+                                         special_bx2 + cos(square_angle + reserve_square_arc_inner) * base_dist,
+                                         special_by2 + sin(square_angle + reserve_square_arc_inner) * base_dist,
+                                         special_bx2 + cos(square_angle + reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         special_by2 + sin(square_angle + reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         special_bx2 + cos(square_angle - reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         special_by2 + sin(square_angle - reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         reserve_colour);
+                                       }
+//                                base_well_ring_angle += (PI/2) / w.data_well[backbl->backblock_value].reserve_squares;
+//                                     base_well_ring_angle += (PI / w.data_well[backbl->backblock_value].reserve_squares);
+                              }
+                            }
+
+								}
+        break; // end AREA_RED
+
 
        }
        break;
@@ -1907,8 +2278,6 @@ well_size = base_dist + 32;
   float camera_edge_x2 = view.window_x_zoomed;
   float camera_edge_y1 = 0;
   float camera_edge_y2 = view.window_y_zoomed;
-
-// al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
 // reset the line/poly drawing buffers (must come before these are used)
  clear_vbuf();
@@ -2337,9 +2706,6 @@ well_size = base_dist + 32;
    	shade = w.world_time - pr->created_timestamp;
    	shade -= templ[pr->player_index][w.core[pr->core_index].template_index].member[pr->group_member_index].downlinks_from_core * 8;
 
-//if (pr->index == 8)
-//	fpr("\n solidity %f", solidity);
-
     if (shade < 0)
 					continue;
 
@@ -2372,8 +2738,6 @@ well_size = base_dist + 32;
 
 
 
-//    if (pr->index == 8)
-//	    fpr("\n float_shade %f outline_scale %f fs %f fss %f", float_shade, outline_scale, (float_shade / 32), (float_shade * float_shade / 1024));
 			 ALLEGRO_COLOR outline_shade = map_rgba(200 + shade,
 																																											50 + shade * 6,
 																																											20,// + shade,
@@ -2455,7 +2819,6 @@ int damage_level = (pr->hp * (PROC_DAMAGE_COLS-1)) / pr->hp_max;
 //int solidity = 1;
    if (pr->group_member_index == 0) // is core
 			{
-//				fpr("\n A");
 /*
     int stress_tint = 0;
     if (core->stress > 0)
@@ -2749,11 +3112,11 @@ width = 6;
 
 // interface colour is based on absolute interface strength rather than a proportional value to make the colour more informative
 //  * think about this - would it be better to use absolute strength but spread over the components with active interfaces?
-				ALLEGRO_COLOR interface_colour = al_map_rgba(w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [0] * charge_shade),
+				ALLEGRO_COLOR interface_colour = map_rgba(w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [0] * charge_shade),
 																																																	w.player[pr->player_index].interface_colour_base [1] + (w.player[pr->player_index].interface_colour_hit [1] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [1] * charge_shade),
 																																																	w.player[pr->player_index].interface_colour_base [2] + (w.player[pr->player_index].interface_colour_hit [2] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [2] * charge_shade),
 																																																	16 + interface_opacity * 16 + hit_shade * 128);
-				ALLEGRO_COLOR interface_edge_colour = al_map_rgba(
+				ALLEGRO_COLOR interface_edge_colour = map_rgba(
 																																																	w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [0] * charge_shade),
 																																																	w.player[pr->player_index].interface_colour_base [1] + (w.player[pr->player_index].interface_colour_hit [1] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [1] * charge_shade),
 																																																	w.player[pr->player_index].interface_colour_base [2] + (w.player[pr->player_index].interface_colour_hit [2] * hit_shade) + (w.player[pr->player_index].interface_colour_charge [2] * charge_shade),
@@ -2774,11 +3137,11 @@ width = 6;
 
 // interface colour is based on absolute interface strength rather than a proportional value to make the colour more informative
 //  * think about this - would it be better to use absolute strength but spread over the components with active interfaces?
-				  ALLEGRO_COLOR interface_colour = al_map_rgba(w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade),
+				  ALLEGRO_COLOR interface_colour = map_rgba(w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade),
 																																																	  w.player[pr->player_index].interface_colour_base [1] + (w.player[pr->player_index].interface_colour_hit [1] * hit_shade),
 																																																	  w.player[pr->player_index].interface_colour_base [2] + (w.player[pr->player_index].interface_colour_hit [2] * hit_shade),
 																																																	  5 + hit_shade * 128);
-				  ALLEGRO_COLOR interface_edge_colour = al_map_rgba(w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade),
+				  ALLEGRO_COLOR interface_edge_colour = map_rgba(w.player[pr->player_index].interface_colour_base [0] + (w.player[pr->player_index].interface_colour_hit [0] * hit_shade),
 																																															  		w.player[pr->player_index].interface_colour_base [1] + (w.player[pr->player_index].interface_colour_hit [1] * hit_shade),
 																																																	  w.player[pr->player_index].interface_colour_base [2] + (w.player[pr->player_index].interface_colour_hit [2] * hit_shade),
 																																																	  25);
@@ -2791,8 +3154,17 @@ width = 6;
 				}
 		}
 
-  if (pr->group_member_index == 0
-			&& w.core[pr->core_index].selected != -1)
+
+  if (pr->group_member_index == 0)
+		{
+			if (w.core[pr->core_index].bubble_text_time >= w.world_time - BUBBLE_TOTAL_TIME)
+			{
+  			w.core[pr->core_index].bubble_list = bubble_list_index;
+					bubble_list_index = pr->core_index;
+		 		w.core[pr->core_index].bubble_x = x;
+				 w.core[pr->core_index].bubble_y = y - 120 * view.zoom;
+			}
+			if (w.core[pr->core_index].selected != -1)
 			{
 				int time_since_selection = game.total_time - w.core[pr->core_index].select_time;
 				if (time_since_selection > 12)
@@ -2807,6 +3179,7 @@ width = 6;
 																		colours.base [COL_GREY] [SHADE_MAX]);// [TRANS_THICK]); //ALLEGRO_COLOR arrow_col)
 
 			}
+		}
 
 
 
@@ -2862,10 +3235,16 @@ width = 6;
 		{
 			i = 0;
 			int notional_group_draw_col;
-			while(w.player[game.user_player_index].build_queue[i].active)
+			while(w.player[game.user_player_index].build_queue[i].active
+						&& i <	BUILD_QUEUE_LENGTH)
 			{
+//				sancheck(i, 0, BUILD_QUEUE_LENGTH, "command.display_build_buttons: i outside BUILD_QUEUE_LENGTH");
+				sancheck(w.player[game.user_player_index].build_queue[i].template_index, 0, TEMPLATES_PER_PLAYER, "command.display_build_buttons template index");
 				if (!templ[game.user_player_index][w.player[game.user_player_index].build_queue[i].template_index].active)
+				{
+					i ++;
 					continue;
+				}
 
 		  if (view.mouse_on_build_queue_button == i
 					&& view.mouse_on_build_queue_button_timestamp == game.total_time)
@@ -2884,6 +3263,7 @@ width = 6;
 
 
 				i++;
+
 			}
 
 
@@ -2892,18 +3272,21 @@ width = 6;
 		{
 
 
- if (command.build_mode != BUILD_MODE_NONE
-	 && templ[game.user_player_index][command.build_template_index].active)
+ if (command.build_mode != BUILD_MODE_NONE)
 	{
+		  sancheck(command.build_template_index, 0, TEMPLATES_PER_PLAYER, "command.build_mode build_template_index");
+	   if (templ[game.user_player_index][command.build_template_index].active)
+	   {
 
 
-  draw_notional_group(&templ[game.user_player_index][command.build_template_index], command.build_position.x, command.build_position.y, command.build_angle, view.zoom, PLAN_COL_BUILD_OKAY, PLAN_COL_BUILD_ERROR);
+      draw_notional_group(&templ[game.user_player_index][command.build_template_index], command.build_position.x, command.build_position.y, command.build_angle, view.zoom, PLAN_COL_BUILD_OKAY, PLAN_COL_BUILD_ERROR);
 
-  draw_data_well_exclusion_zones();
+      draw_data_well_exclusion_zones();
 
 //  draw_notional_group() checks for visibility
 
-	}
+	   }
+	  }
 		}
 /*
 
@@ -4367,7 +4750,6 @@ break;
 					int bloom_shade = cl_time_left;
 					if (bloom_shade > 30)
 						bloom_shade = 30;
-//   	 fpr("\nmcs mp %f,%f %f (%f)", x, y, main_cloud_size, main_cloud_size * 80 * view.zoom);
      float bloom_size = cl_time_left - 10;
      if (bloom_size > 0)
 					 bloom_circle(1, x, y, colours.bloom_centre [cl->colour] [bloom_shade], colours.bloom_edge [cl->colour] [0], bloom_size * 5 * view.zoom);
@@ -4419,14 +4801,11 @@ break;
 
    	 int cl_time_left = cl->lifetime - cl_time;
    	 float main_cloud_size = (cl_time_left) - (cl_time * 0.1);
-//   	 fpr("\nmcs sp %f (%f)", main_cloud_size, main_cloud_size * 10 * view.zoom);
    	 if (main_cloud_size <= 0)
 						break;
 					int bloom_shade = cl_time_left;
 					if (bloom_shade > 30)
 						bloom_shade = 30;
-//					bloom_circle(1, x, y, colours.bloom_centre [cl->colour] [bloom_shade], colours.bloom_edge [cl->colour] [bloom_shade], main_cloud_size * 10 * view.zoom);
-//   	 fpr("\nmcs sp %f,%f %f (%f)", x, y, main_cloud_size, main_cloud_size * 80 * view.zoom);
      float bloom_size = cl_time_left - 10;
      if (bloom_size > 0)
  					bloom_circle(1, x, y, colours.bloom_centre [cl->colour] [bloom_shade], colours.bloom_edge [cl->colour] [0], bloom_size * 5 * view.zoom);
@@ -4520,41 +4899,39 @@ break;
 //   case CLOUD_DSTREAM:
    //case CLOUD_SPIKE_LINE:
     draw_stream_beam(x, y, al_fixtof(cl->position2.x - view.camera_x) * view.zoom + (view.window_x_unzoomed/2), al_fixtof(cl->position2.y - view.camera_y) * view.zoom + (view.window_y_unzoomed/2), cl->colour, cl->data[0], cl->data[1], cl->data [2]);
-//fpr("\nbeam %f,%f to %f,%f", x, y, al_fixtof(cl->position2.x - view.camera_x) * view.zoom + (view.window_x_unzoomed/2), al_fixtof(cl->position2.y - view.camera_y) * view.zoom + (view.window_y_unzoomed/2));
     break;
 
-   case CLOUD_SURGE:
+   case CLOUD_SLICE:
 //   case CLOUD_DSTREAM:
    //case CLOUD_SPIKE_LINE:
-    draw_surge_beam(x, y, al_fixtof(cl->position2.x - view.camera_x) * view.zoom + (view.window_x_unzoomed/2), al_fixtof(cl->position2.y - view.camera_y) * view.zoom + (view.window_y_unzoomed/2), cl->colour, cl->data [1], cl->data [2]);
-//fpr("\nbeam %f,%f to %f,%f", x, y, al_fixtof(cl->position2.x - view.camera_x) * view.zoom + (view.window_x_unzoomed/2), al_fixtof(cl->position2.y - view.camera_y) * view.zoom + (view.window_y_unzoomed/2));
+    draw_slice_beam(x, y, al_fixtof(cl->position2.x - view.camera_x) * view.zoom + (view.window_x_unzoomed/2), al_fixtof(cl->position2.y - view.camera_y) * view.zoom + (view.window_y_unzoomed/2), cl->colour, cl->data [1], cl->data [2]);
     break;
 
 
-   case CLOUD_SURGE_FADE:
+   case CLOUD_SLICE_FADE:
    	{
 
-   		float surge_circle_size = 31 - cl_time * 2;
-   		if (surge_circle_size < 0)
-						surge_circle_size = 0;
+   		float slice_circle_size = 31 - cl_time * 2;
+   		if (slice_circle_size < 0)
+						slice_circle_size = 0;
 
     	float x2 = al_fixtof(cl->position2.x - view.camera_x) * view.zoom + (view.window_x_unzoomed/2);
     	float y2 = al_fixtof(cl->position2.y - view.camera_y) * view.zoom + (view.window_y_unzoomed/2);
 
-   	 double_circle_with_bloom(x2, y2, surge_circle_size, cl->colour, surge_circle_size);
+   	 double_circle_with_bloom(x2, y2, slice_circle_size, cl->colour, slice_circle_size);
 
-#define SURGE_FADE_RATE 8
-   	int fade_steps = (cl->data [0] - cl_time * SURGE_FADE_RATE);
+#define SLICE_FADE_RATE 8
+   	int fade_steps = (cl->data [0] - cl_time * SLICE_FADE_RATE);
    	if (fade_steps <= 1)
 					break;
-   	float surge_angle = atan2(y2 - y, x2 - x);
-   	x += cos(surge_angle) * STREAM_STEP_PIXELS * cl_time * SURGE_FADE_RATE * view.zoom;
-   	y += sin(surge_angle) * STREAM_STEP_PIXELS * cl_time * SURGE_FADE_RATE * view.zoom;
-    draw_surge_beam(x,
+   	float slice_angle = atan2(y2 - y, x2 - x);
+   	x += cos(slice_angle) * STREAM_STEP_PIXELS * cl_time * SLICE_FADE_RATE * view.zoom;
+   	y += sin(slice_angle) * STREAM_STEP_PIXELS * cl_time * SLICE_FADE_RATE * view.zoom;
+    draw_slice_beam(x,
 																				y,
 																				x2,
 																				y2,
-																				cl->colour, cl_time + SURGE_FIRING_TIME, cl->data [2]);
+																				cl->colour, cl_time + SLICE_FIRING_TIME, cl->data [2]);
    	}
     break;
 
@@ -4846,6 +5223,19 @@ break;
 */
     break;
 
+   case CLOUD_BUBBLE_TEXT:
+//			 if (w.core[pr->core_index].bubble_text_time >= w.world_time - BUBBLE_TOTAL_TIME)
+			 {
+// This cloud probably exists because the core has been destroyed.
+// However, it should be safe to refer to the core's data structure because
+//  it will still be deallocating:
+  		 	w.core[cl->data [0]].bubble_list = bubble_list_index;
+				 	bubble_list_index = cl->data [0];
+		 	 	w.core[cl->data [0]].bubble_x = x;
+				  w.core[cl->data [0]].bubble_y = y - 120 * view.zoom;
+			 }
+			 break;
+
 
 /*
     case CLOUD_HARVEST_LINE:
@@ -5119,11 +5509,6 @@ break;
 
     seed_drand(cl->created_timestamp + c);
 
-//if (!game.pause_soft)
-// fpr("\n ** w %f,%f s%f,%f", well_x, well_y, step_x, step_y);
-
-//    float side_disp_fraction = 2.0 / line_segments;
-
     lx = well_x;
     ly = well_y;
 
@@ -5155,9 +5540,6 @@ break;
 					ly = well_y + step_y * i + sin(angle_from_well - PI/2) * side_displacement;
 					add_ribbon_vertex(lx + cos(angle_from_well - PI/2) * line_thickness * view.zoom, ly + sin(angle_from_well - PI/2) * line_thickness * view.zoom, ribstate.fill_col);
 					add_ribbon_vertex(lx + cos(angle_from_well + PI/2) * line_thickness * view.zoom, ly + sin(angle_from_well + PI/2) * line_thickness * view.zoom, ribstate.fill_col);
-//if (!game.pause_soft &&
-//				i <= 4)
-//	fpr("\n sd %f l %f,%f", side_displacement, lx, ly);
      add_bloom_ribbon_vertices(
 																								lx, ly,
 																								lx + cos(angle_from_well - PI/2) * bloom_thickness, ly + sin(angle_from_well - PI/2) * bloom_thickness,
@@ -5631,6 +6013,105 @@ far_dist = 12 + (shade);//*= 0.1;
 
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen
 
+
+  int bubble_core_index = bubble_list_index; // bubble_list_index set above during main core drawing loop
+
+		while(bubble_core_index != -1)
+		{
+
+// this list can include existing cores added by the proc drawing code above,
+//  or non-existing (but still deallocating) cores added by the cloud drawing code.
+//  (deallocating cores don't exist, but data in their core_struct should still
+//   be valid for use in things like this)
+
+			 int draw_triangle;
+			 if (w.core[bubble_core_index].exists)
+					draw_triangle = 1;
+				  else
+							draw_triangle = 0;
+
+    draw_text_bubble(w.core[bubble_core_index].bubble_x,
+																					w.core[bubble_core_index].bubble_y,
+																					w.world_time - w.core[bubble_core_index].bubble_text_time_adjusted,
+																					w.core[bubble_core_index].player_index,
+																					w.core[bubble_core_index].bubble_text_length,
+																					w.core[bubble_core_index].bubble_text,
+																					draw_triangle);
+
+				bubble_core_index = w.core[bubble_core_index].bubble_list;
+
+	}
+
+
+/*
+				int bubble_shade;
+				int bubble_text_shade;
+				int bubble_time = w.world_time - w.core[bubble_core_index].bubble_text_time_adjusted;
+				float bubble_size_reduce;
+				bubble_shade = bubble_time;
+				bubble_shade = 16;
+				float adjusted_bubble_x = w.core[bubble_core_index].bubble_x - 20;
+			 if (bubble_time < 16)
+				{
+					bubble_shade = 31 - (bubble_time);
+					bubble_size_reduce = (bubble_shade - 16) * -0.2;
+					adjusted_bubble_x += bubble_size_reduce;
+				}
+				 else
+					{
+			   if (bubble_time > BUBBLE_TOTAL_TIME - 16)
+						{
+					  bubble_shade = BUBBLE_TOTAL_TIME - bubble_time;
+  					bubble_size_reduce = (16 - bubble_shade) * 0.3;
+  					adjusted_bubble_x += bubble_size_reduce;
+
+						}
+						 else
+								bubble_size_reduce = 0;
+					}
+
+				if (bubble_shade < 0)
+						bubble_shade = 0;
+
+
+
+ add_menu_button(adjusted_bubble_x - (10 - bubble_size_reduce),
+																	w.core[bubble_core_index].bubble_y - (10 - bubble_size_reduce),
+																	adjusted_bubble_x + (10) + w.core[bubble_core_index].bubble_text_length * 7,
+																	w.core[bubble_core_index].bubble_y + (20 - bubble_size_reduce),
+//																	colours.packet [pr->player_index] [bubble_shade],
+																	colours.packet [w.core[bubble_core_index].player_index] [bubble_shade],
+																	3, 8);
+
+	add_triangle(4,
+														adjusted_bubble_x,
+														w.core[bubble_core_index].bubble_y + 22,
+														adjusted_bubble_x + 19,
+														w.core[bubble_core_index].bubble_y + 22,
+														adjusted_bubble_x + 19,
+														w.core[bubble_core_index].bubble_y + 52,
+														colours.packet [w.core[bubble_core_index].player_index] [bubble_shade]);
+
+				int text_shade = bubble_shade * 2;
+				if (text_shade > 31)
+					text_shade = 31;
+
+				al_draw_textf(font[FONT_SQUARE].fnt, colours.packet [w.core[bubble_core_index].player_index] [text_shade], adjusted_bubble_x, w.core[bubble_core_index].bubble_y, ALLEGRO_ALIGN_LEFT, "%s", w.core[bubble_core_index].bubble_text);
+
+				bubble_core_index = w.core[bubble_core_index].bubble_list;
+
+	}
+*/
+
+
+
+
+
+
+
+ draw_vbuf(); // sends poly_buffer and line_buffer to the screen
+
+
 #define DRAW_VISION_BLOCKS
 
 #ifdef DRAW_VISION_BLOCKS
@@ -5675,6 +6156,9 @@ far_dist = 12 + (shade);//*= 0.1;
 
 
  al_set_target_bitmap(vision_mask);
+
+
+
  al_set_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
  al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA,
    ALLEGRO_DEST_MINUS_SRC, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
@@ -6261,6 +6745,69 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 //   if (core->interface_strength > 0) // can be < 0 if broken
 			{
 
+
+
+    int integrity_bar_max = (text_x2 - text_x - 100);
+
+    add_orthogonal_rect(2, text_x + 10, text_y - 2, text_x + integrity_bar_max + 10, text_y + 10, colours.base_trans [COL_TURQUOISE] [SHADE_MED] [TRANS_THICK]);
+
+
+
+
+    if (core->group_total_hp == core->group_total_hp_max_undamaged)
+				{
+     add_orthogonal_rect(2, text_x + 12, text_y, text_x + integrity_bar_max + 8, text_y + 8, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_THICK]);
+				}
+				 else
+					{
+						 if (core->group_total_hp == core->group_total_hp_max_current)
+							{
+        add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->group_total_hp * (integrity_bar_max-4) / core->group_total_hp_max_undamaged), text_y + 8, colours.base_trans [COL_ORANGE] [SHADE_HIGH] [TRANS_THICK]);
+							}
+							 else
+								{
+         add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->group_total_hp_max_current * (integrity_bar_max-4) / core->group_total_hp_max_undamaged), text_y + 8, colours.base_trans [COL_RED] [SHADE_MED] [TRANS_THICK]);
+         add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->group_total_hp * (integrity_bar_max-4) / core->group_total_hp_max_undamaged), text_y + 8, colours.base_trans [COL_ORANGE] [SHADE_HIGH] [TRANS_THICK]);
+								}
+					}
+/*
+							bar_col = COL_ORANGE;
+							bar_shade = SHADE_MAX;
+
+      if (core->interface_broken_time + INTERFACE_BROKEN_TIMER > w.world_time)
+						{
+							bar_col = COL_PURPLE;
+							bar_shade = SHADE_MAX;
+						}
+						 else
+							{
+					   bar_col = COL_BLUE;
+					   bar_shade = SHADE_MAX;
+							}
+					}
+
+				float bar_shade = 0.9;
+
+				ALLEGRO_COLOR integrity_bar_colour = al_map_rgba(w.player[core->player_index].interface_colour_base [0] + (w.player[core->player_index].interface_colour_charge [0] * bar_shade),
+																																																    	w.player[core->player_index].interface_colour_base [1] + (w.player[core->player_index].interface_colour_charge [1] * bar_shade),
+																																															    		w.player[core->player_index].interface_colour_base [2] + (w.player[core->player_index].interface_colour_charge [2] * bar_shade),
+																																															    		150);
+
+    add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->group_total_hp * (integrity_bar_max-4) / core->group_total_hp_max_undamaged), text_y + 8, integrity_bar_colour);
+
+				bar_shade = 0.3;
+				if (core->group_total_hp == core->group_total_hp_max_undamaged)
+					bar_shade = 0.6;
+
+				integrity_bar_colour = al_map_rgba(w.player[core->player_index].interface_colour_base [0] + (w.player[core->player_index].interface_colour_charge [0] * bar_shade),
+																																																    	w.player[core->player_index].interface_colour_base [1] + (w.player[core->player_index].interface_colour_charge [1] * bar_shade),
+																																															    		w.player[core->player_index].interface_colour_base [2] + (w.player[core->player_index].interface_colour_charge [2] * bar_shade),
+																																															    		150);
+
+    add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->group_total_hp_max_current * (integrity_bar_max-4) / core->group_total_hp_max_undamaged), text_y + 8, integrity_bar_colour);*/
+    text_y += BOX_LINE_H;
+/*
+
     int integrity_bar_max = (text_x2 - text_x - 100);
 
     add_orthogonal_rect(2, text_x + 10, text_y - 2, text_x + integrity_bar_max + 10, text_y + 10, colours.base_trans [COL_TURQUOISE] [SHADE_MED] [TRANS_THICK]);
@@ -6286,7 +6833,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
     add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->group_total_hp_max_current * (integrity_bar_max-4) / core->group_total_hp_max_undamaged), text_y + 8, integrity_bar_colour);
     text_y += BOX_LINE_H;
-
+*/
 		}
 
 
@@ -6306,6 +6853,8 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
    if (core->interface_strength > 0) // can be < 0 if broken
 			{
+/*
+
 				float bar_shade = 0.4;
 				if (core->interface_strength == core->interface_strength_max)
 					bar_shade = 0.7;
@@ -6314,8 +6863,29 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 																																																    	w.player[core->player_index].interface_colour_base [1] + (w.player[core->player_index].interface_colour_charge [1] * bar_shade),
 																																															    		w.player[core->player_index].interface_colour_base [2] + (w.player[core->player_index].interface_colour_charge [2] * bar_shade),
 																																															    		150);
+*/
 
-    add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->interface_strength * (interface_bar_max-4) / core->interface_strength_max), text_y + 8, interface_bar_colour);
+    int bar_col, bar_shade;
+
+    if (core->interface_strength == core->interface_strength_max)
+				{
+					bar_col = COL_GREY;
+					bar_shade = SHADE_MAX;
+				}
+				 else
+					{
+      if (core->interface_broken_time + INTERFACE_BROKEN_TIMER > w.world_time)
+						{
+							bar_col = COL_PURPLE;
+							bar_shade = SHADE_MAX;
+						}
+						 else
+							{
+					   bar_col = COL_BLUE;
+					   bar_shade = SHADE_MAX;
+							}
+					}
+    add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (core->interface_strength * (interface_bar_max-4) / core->interface_strength_max), text_y + 8, colours.base_trans [bar_col] [bar_shade] [TRANS_MED]);
 		}
 
    if (core->interface_broken_time + INTERFACE_BROKEN_TIMER > w.world_time)
@@ -6345,7 +6915,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], text_x2, text_y, ALLEGRO_ALIGN_RIGHT, "%i", core->group_moment);
 //  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], text_x, text_y, ALLEGRO_ALIGN_LEFT, "speed %f (%i,%i)", hypot(al_fixtof(core->group_speed.y), al_fixtof(core->group_speed.x)), al_fixtoi(core->group_speed.x * 10), al_fixtoi(core->group_speed.y * 10));
   text_y += BOX_LINE_H;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], text_x, text_y, ALLEGRO_ALIGN_LEFT, "bitfield");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], text_x, text_y, ALLEGRO_ALIGN_LEFT, "signature");
   char scan_bitfield_text [17];
   int first_nonzero_bit = 0;
   for (i = 0; i < 16; i ++)
@@ -6388,11 +6958,6 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_THICK], text_x + 70, text_y + (CONSTRUCT_BOX_Y), ALLEGRO_ALIGN_LEFT, "Ready in %i", (core->construction_complete_timestamp - w.world_time) / EXECUTION_COUNT);
    int line_pos = (core->construction_complete_timestamp - w.world_time) % 20;
 
-//   int construct_shade = (((core->construction_complete_timestamp - w.world_time) % EXECUTION_COUNT) - EXECUTION_COUNT) / 2 + SHADE_MAX + 1;
-//   if (construct_shade < 0)
-//				construct_shade = 0;
-//			int fade_thickness = construct_shade / 2;
-//   fpr("\n CS %i", construct_shade);
    add_orthogonal_rect(2, text_x + 10, text_y + CONSTRUCT_BOX_Y - 35, text_x + 210, text_y + CONSTRUCT_BOX_Y + 20, colours.base_trans [COL_ORANGE] [SHADE_MED] [TRANS_FAINT]);
    add_orthogonal_rect(2, text_x + 10 + line_pos * 10, text_y + CONSTRUCT_BOX_Y - 35, text_x + 20 + line_pos * 10, text_y + CONSTRUCT_BOX_Y + 20, colours.base_trans [COL_ORANGE] [SHADE_MAX] [TRANS_MED]);
 
@@ -6458,26 +7023,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 				if (command.power_use_record [j] != 0)
 				{
 					int power_record_level = (command.power_use_record [j] * (POWER_BOX_H/2)) / core->power_capacity;
-//					if (j == command.power_use_pos - 1)
-//					 fpr("\n power_record_level %i", power_record_level);
-/*
-					int power_record_col = COL_BLUE;
-					if (power_record_level > (POWER_BOX_H / 2))
-					{
-						if (power_record_level >= POWER_BOX_H)
-						{
-							power_record_level = POWER_BOX_H;
-							power_record_col = COL_RED;
-						}
-						 else
-							{
-								power_record_col = COL_PURPLE;
-							}
 
-					}
-*/
-//					if (j == command.power_use_pos - 1)
-//					 fpr(" prc %i power_record_level %i (PBH %i)", power_record_col, power_record_level, POWER_BOX_H);
      add_orthogonal_rect(2, text_x + POWER_BOX_W - i * 4 - 3,
 																									power_box_y - power_record_level,
 																									text_x + POWER_BOX_W - i * 4,
@@ -6537,17 +7083,17 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
     int integrity_bar_max = (text_x2 - text_x - 100);
 
-    add_orthogonal_rect(2, text_x + 10, text_y - 2, text_x + integrity_bar_max + 10, text_y + 10, colours.base_trans [COL_TURQUOISE] [SHADE_MED] [TRANS_THICK]);
+    add_orthogonal_rect(2, text_x + 10, text_y - 2, text_x + integrity_bar_max + 10, text_y + 10, colours.base_trans [COL_TURQUOISE] [SHADE_HIGH] [TRANS_THICK]);
 
-
+/*
 				float bar_shade = 0.9;
 
 				ALLEGRO_COLOR integrity_bar_colour = al_map_rgba(w.player[core->player_index].interface_colour_base [0] + (w.player[core->player_index].interface_colour_charge [0] * bar_shade),
 																																																    	w.player[core->player_index].interface_colour_base [1] + (w.player[core->player_index].interface_colour_charge [1] * bar_shade),
 																																															    		w.player[core->player_index].interface_colour_base [2] + (w.player[core->player_index].interface_colour_charge [2] * bar_shade),
 																																															    		150);
-
-    add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (selected_proc->hp * (integrity_bar_max-4) / selected_proc->hp_max), text_y + 8, integrity_bar_colour);
+*/
+    add_orthogonal_rect(2, text_x + 12, text_y, text_x + 12 + (selected_proc->hp * (integrity_bar_max-4) / selected_proc->hp_max), text_y + 8, colours.base_trans [COL_ORANGE] [SHADE_HIGH] [TRANS_THICK]);
 /*
 				bar_shade = 0.3;
 				if (core->group_total_hp == core->group_total_hp_max_undamaged)
@@ -6617,9 +7163,8 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
                print_object_information(text_x2, text_y, COL_AQUA, "ready", 0, 0);
 											}
 							 	break;
-							 case OBJECT_TYPE_SURGE:
-							 case OBJECT_TYPE_SURGE_DIR:
-							 	if (selected_proc->object_instance[i].attack_last_fire_timestamp >= w.world_time - SURGE_TOTAL_FIRING_TIME)
+							 case OBJECT_TYPE_SLICE:
+							 	if (selected_proc->object_instance[i].attack_last_fire_timestamp >= w.world_time - SLICE_TOTAL_FIRING_TIME)
           print_object_information(text_x2, text_y, COL_RED, "firing", 0, 0);
            else
 											{
@@ -6797,26 +7342,6 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
  switch(game.phase)
  {
 
-  case GAME_PHASE_WORLD:
-   if (game.pause_soft)
-    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "PAUSED");
-   if (view.following)
-    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 90, ALLEGRO_ALIGN_CENTRE, "FOLLOWING");
-//   if (view.under_attack_marker_last_time > w.world_time - UNDER_ATTACK_MARKER_DURATION)
-//    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 80, ALLEGRO_ALIGN_CENTRE, "UNDER ATTACK");
-   if (game.fast_forward > 0)
-   {
-   	switch(game.fast_forward_type)
-   	{
-   		case FAST_FORWARD_TYPE_SMOOTH:
-      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_2_Y, ALLEGRO_ALIGN_CENTRE, "FAST FORWARD"); break;
-   		case FAST_FORWARD_TYPE_NO_DISPLAY:
-      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_2_Y, ALLEGRO_ALIGN_CENTRE, "FAST FORWARD (NO DISPLAY)"); break;
-   		case FAST_FORWARD_TYPE_SKIP:
-      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_2_Y, ALLEGRO_ALIGN_CENTRE, "FAST FORWARD (SKIP)"); break;
-   	}
-   }
-   break;
 
 #define GO_LINE_1_Y 160
 #define GO_LINE_2_Y 125
@@ -6853,9 +7378,32 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
 
    }
-   break;
- }
+//   break;
 
+// fall-through...
+
+  case GAME_PHASE_WORLD:
+   if (game.pause_soft)
+    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "PAUSED");
+   if (view.following)
+    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 90, ALLEGRO_ALIGN_CENTRE, "FOLLOWING");
+//   if (view.under_attack_marker_last_time > w.world_time - UNDER_ATTACK_MARKER_DURATION)
+//    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 80, ALLEGRO_ALIGN_CENTRE, "UNDER ATTACK");
+   if (game.fast_forward > 0)
+   {
+   	switch(game.fast_forward_type)
+   	{
+   		case FAST_FORWARD_TYPE_SMOOTH:
+      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_2_Y, ALLEGRO_ALIGN_CENTRE, "FAST FORWARD"); break;
+   		case FAST_FORWARD_TYPE_NO_DISPLAY:
+      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_2_Y, ALLEGRO_ALIGN_CENTRE, "FAST FORWARD (NO DISPLAY)"); break;
+   		case FAST_FORWARD_TYPE_SKIP:
+      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_2_Y, ALLEGRO_ALIGN_CENTRE, "FAST FORWARD (SKIP)"); break;
+   	}
+   }
+   break;
+
+ }
 
  display_consoles_and_buttons();
 
@@ -8652,7 +9200,7 @@ void draw_stream_beam(float x1, float by1, float x2, float y2, int col, int stat
 
 
 
-void draw_surge_beam(float x1, float by1, float x2, float y2, int col, int time_since_firing, int hit)
+void draw_slice_beam(float x1, float by1, float x2, float y2, int col, int time_since_firing, int hit)
 {
 
  float stream_angle = atan2(y2 - by1, x2 - x1);
@@ -8661,7 +9209,7 @@ void draw_surge_beam(float x1, float by1, float x2, float y2, int col, int time_
 
  int shade_base;
  int shade_end;
-	int fade_time = time_since_firing - SURGE_FIRING_TIME;
+	int fade_time = time_since_firing - SLICE_FIRING_TIME;
 
 	shade_base = 31 - time_since_firing * 2;
  	if (shade_base < 0)
@@ -8764,8 +9312,8 @@ void draw_surge_beam(float x1, float by1, float x2, float y2, int col, int time_
  if (fade_time <= 0)
   draw_beam_triangles(1, x1, by1, x2, y2, colours.packet [col] [shade_end / 2]);
    else
-    draw_fade_surge_triangles(1, x1, by1, x2, y2, colours.packet [col] [shade_end / 2], colours.packet [col] [shade_base / 2]);
-//    draw_fade_surge_triangles(layer, x1, by1, float x2, float y2, ALLEGRO_COLOR stream_col, ALLEGRO_COLOR base_col)
+    draw_fade_slice_triangles(1, x1, by1, x2, y2, colours.packet [col] [shade_end / 2], colours.packet [col] [shade_base / 2]);
+//    draw_fade_slice_triangles(layer, x1, by1, float x2, float y2, ALLEGRO_COLOR stream_col, ALLEGRO_COLOR base_col)
 // bloom
 
 // bloom_circle(1, x1, by1, colours.bloom_centre [col] [shade], colours.bloom_edge [col] [0], beam_base_flash_size * 10);
@@ -8893,7 +9441,7 @@ void draw_surge_beam(float x1, float by1, float x2, float y2, int col, int time_
  if (fade_time <= 0)
   draw_beam_triangles(2, x1, by1, x2, y2, colours.packet [col] [shade_end]);
    else
-    draw_fade_surge_triangles(1, x1, by1, x2, y2, colours.packet [col] [shade_end], colours.packet [col] [shade_base]);
+    draw_fade_slice_triangles(1, x1, by1, x2, y2, colours.packet [col] [shade_end], colours.packet [col] [shade_base]);
 
 // finally, bloom:
 
@@ -9026,7 +9574,7 @@ static void draw_beam_triangles(int layer, float x1, float by1, float x2, float 
 }
 
 
-static void draw_fade_surge_triangles(int layer, float x1, float by1, float x2, float y2, ALLEGRO_COLOR stream_col, ALLEGRO_COLOR base_col)
+static void draw_fade_slice_triangles(int layer, float x1, float by1, float x2, float y2, ALLEGRO_COLOR stream_col, ALLEGRO_COLOR base_col)
 {
 
  add_shaded_triangle(layer,
@@ -10973,8 +11521,6 @@ void draw_proc_shape(float x, float y, al_fixed angle, int shape, int player_ind
  struct dshape_struct* dsh = &dshape [shape];
 
 
-//fpr("\ndraw %i polys %i", shape, dsh->polys);
-
  int i, poly, layer, j;
 
  f_angle = fixed_to_radians(angle);
@@ -11461,7 +12007,7 @@ void draw_object(float proc_x, float proc_y,
       shade = circle_time;// * 2;
 
 						float circle_size = (16 - circle_time) * 0.6;
-//fpr("\n col %i shade %i circle_time %i cooldown_time %i", core->player_index, shade, circle_time, cooldown_time);
+
       radial_circle(4,
 																			 inner_point_x + cos(angle_float + dshape[proc_shape].link_point_angle [proc_link_index] [1]) * 7 * zoom,
 																	   inner_point_y + sin(angle_float + dshape[proc_shape].link_point_angle [proc_link_index] [1]) * 7 * zoom,
@@ -12901,7 +13447,6 @@ void draw_object(float proc_x, float proc_y,
 
   break;
 
-//			 case OBJECT_TYPE_SURGE:
 			 case OBJECT_TYPE_PULSE:
 			 case OBJECT_TYPE_PULSE_L:
 			 case OBJECT_TYPE_PULSE_XL:
@@ -13399,8 +13944,6 @@ void draw_object(float proc_x, float proc_y,
 
        int side_angle_base = (w.world_time - obj_inst->attack_last_fire_timestamp);
 
-//       fpr("\n w.world_time %i obj_inst->stream_fire_timestamp %i side_angle_base %i", w.wo
-
        if (side_angle_base > 24)
 							{
 								if (side_angle_base < 40)
@@ -13633,8 +14176,7 @@ void draw_object(float proc_x, float proc_y,
 			}
 			break;
 
-	 case OBJECT_TYPE_SURGE:
-	 case OBJECT_TYPE_SURGE_DIR:
+	 case OBJECT_TYPE_SLICE:
 			{
     draw_object_base_shape(proc_x,
 																								   proc_y,
@@ -14139,8 +14681,8 @@ void draw_object(float proc_x, float proc_y,
     vertex_list [2] [0] = vertex_list [1] [0] + outwards_xpart * 16 * zoom;
     vertex_list [2] [1] = vertex_list [1] [1] + outwards_ypart * 16 * zoom;
 
-    vertex_list [3] [0] = vertex_list [0] [0] + outwards_xpart * 9 * zoom;
-    vertex_list [3] [1] = vertex_list [0] [1] + outwards_ypart * 9 * zoom;
+    vertex_list [3] [0] = vertex_list [0] [0] + outwards_xpart * 13 * zoom;
+    vertex_list [3] [1] = vertex_list [0] [1] + outwards_ypart * 13 * zoom;
 
     add_poly_layer(OBJECT_MAIN_LAYER, 4, proc_col [PROC_COL_OBJECT_1]);
 
@@ -14154,8 +14696,8 @@ void draw_object(float proc_x, float proc_y,
     vertex_list [2] [0] = vertex_list [1] [0] + outwards_xpart * 16 * zoom;
     vertex_list [2] [1] = vertex_list [1] [1] + outwards_ypart * 16 * zoom;
 
-    vertex_list [3] [0] = vertex_list [0] [0] + outwards_xpart * 9 * zoom;
-    vertex_list [3] [1] = vertex_list [0] [1] + outwards_ypart * 9 * zoom;
+    vertex_list [3] [0] = vertex_list [0] [0] + outwards_xpart * 13 * zoom;
+    vertex_list [3] [1] = vertex_list [0] [1] + outwards_ypart * 13 * zoom;
 
     add_poly_layer(OBJECT_MAIN_LAYER, 4, proc_col [PROC_COL_OBJECT_1]);
 
@@ -14554,14 +15096,7 @@ void draw_vbuf(void)
 // fprintf(stdout, "\ndraw: vp %i ", vbuf.vertex_pos);
 //fprintf(stdout, "\ndraw_vbuf");
 	int i;
-/*
-			 add_line(0,
-													100,
-													100,
-													300,
-													300,
-													al_map_rgb(200,200,200));*/
-//fpr("\n");
+
 	for (i = 0; i < DISPLAY_LAYERS; i ++)
 	{
 //  fprintf(stdout, "tp[%i] %i ", i, vbuf.index_pos_triangle [i]);
@@ -15894,9 +16429,6 @@ static void draw_map(void)
 // add data wells:
  for (j = 0; j < w.data_wells; j ++)
 	{
-//fpr("\n dw %i at %f,%f", j,
-//				map_base_x + al_fixtof(al_fixmul(view.map_proportion_x, w.data_well[j].position.x)) - 2,
-//																								map_base_y + al_fixtof(view.map_proportion_y * w.data_well[j].position.y) - 2);
 		 		add_orthogonal_hexagon(MAP_DETAIL_LAYER, map_base_x + al_fixtof(al_fixmul(view.map_proportion_x, w.data_well[j].position.x)),
 																												map_base_y + al_fixtof(al_fixmul(view.map_proportion_y, w.data_well[j].position.y)),
 																												3,
@@ -16385,6 +16917,65 @@ add_outline_diamond_layer(0,
 
 //static void vision_block_check(struct block_struct* bl, int base_pos);//, int* subblock_pos);
 //static void vision_block_check_corner(struct block_struct* bl, int base_pos_x, int base_pos_y);
+
+
+
+static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, int bubble_col, int bubble_text_length, char* bubble_text, int draw_triangle)
+{
+
+				int bubble_shade;
+				float bubble_size_reduce;
+				bubble_shade = bubble_time;
+				bubble_shade = 16;
+				float adjusted_bubble_x = bubble_x - 20;
+			 if (bubble_time < 16)
+				{
+					bubble_shade = 31 - (bubble_time);
+					bubble_size_reduce = (bubble_shade - 16) * -0.2;
+					adjusted_bubble_x += bubble_size_reduce;
+				}
+				 else
+					{
+			   if (bubble_time > BUBBLE_TOTAL_TIME - 16)
+						{
+					  bubble_shade = BUBBLE_TOTAL_TIME - bubble_time;
+  					bubble_size_reduce = (16 - bubble_shade) * 0.3;
+  					adjusted_bubble_x += bubble_size_reduce;
+						}
+						 else
+								bubble_size_reduce = 0;
+					}
+
+				if (bubble_shade < 0)
+						bubble_shade = 0;
+
+
+
+ add_menu_button(adjusted_bubble_x - (10 - bubble_size_reduce),
+																	bubble_y - (10 - bubble_size_reduce),
+																	adjusted_bubble_x + (10) + bubble_text_length * 7,
+																	bubble_y + (20 - bubble_size_reduce),
+//																	colours.packet [pr->player_index] [bubble_shade],
+																	colours.packet [bubble_col] [bubble_shade],
+																	3, 8);
+if (draw_triangle)
+	add_triangle(4,
+														adjusted_bubble_x,
+														bubble_y + 22,
+														adjusted_bubble_x + 19,
+														bubble_y + 22,
+														adjusted_bubble_x + 19,
+														bubble_y + 52,
+														colours.packet [bubble_col] [bubble_shade]);
+
+				int text_shade = bubble_shade * 2;
+				if (text_shade > 31)
+					text_shade = 31;
+
+				al_draw_textf(font[FONT_SQUARE].fnt, colours.packet [bubble_col] [text_shade], adjusted_bubble_x, bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
+
+
+}
 
 
 

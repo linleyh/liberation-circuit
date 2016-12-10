@@ -20,7 +20,10 @@
 #define SPIN_DRAG_BASE 1002
 #define SPIN_DRAG_BASE_FIXED (al_itofix(SPIN_DRAG_BASE) / 1024)
 
-#define DEALLOCATE_COUNTER 32
+// during deallocation, process does not exist in world, but can be interacted with in some ways
+//  and will not be replaced with another.
+// it may be useful for this to be the same as BUBBLE_TOTAL_TIME
+#define DEALLOCATE_COUNTER 200
 
 #define MAX_SPEED 4
 #define MAX_SPEED_FIXED al_itofix(MAX_SPEED)
@@ -169,12 +172,12 @@ struct object_type_struct
 #define STREAM_STEP_PIXELS 5
 #define STREAM_FIX_STEP_PIXELS al_itofix(STREAM_STEP_PIXELS)
 
-// surge works a bit differently
-//#define SURGE_WARMUP_TIME 16
-#define SURGE_FIRING_TIME 8
-#define SURGE_RECYCLE_TIME 128
-#define POWER_COST_SURGE 70
-#define SURGE_TOTAL_FIRING_TIME (SURGE_FIRING_TIME)
+// slice works a bit differently
+//#define SLICE_WARMUP_TIME 16
+#define SLICE_FIRING_TIME 8
+#define SLICE_RECYCLE_TIME 64
+#define POWER_COST_SLICE 70
+#define SLICE_TOTAL_FIRING_TIME (SLICE_FIRING_TIME)
 
 
 #define POWER_COST_REPAIR_1_INTEGRITY 16
@@ -700,6 +703,8 @@ COM_FRIEND, // clicked on friendly process
 COM_DATA_WELL, // clicked on data well
 //COM_NUMBER // user pressed a number key
 
+COM_TYPES
+
 // when adding a new command type, need to make sure the command-based methods (see g_method_std.c) work properly with it
 };
 
@@ -732,7 +737,7 @@ struct group_member_struct
 };
 typedef struct group_member_struct group_member_struct;
 
-#define MEMORY_SIZE 1024
+#define MEMORY_SIZE 512
 #define PROCESS_MEMORY_SIZE 64
 
 struct core_struct
@@ -933,7 +938,24 @@ struct core_struct
 
  int self_destruct; // may be set to 1 by the terminate instruction
 
+#define BUBBLE_TEXT_LENGTH_MAX 40
+// BUBBLE_TEXT_LENGTH_MAX must not be more than STRING_MAX_LENGTH
+ char bubble_text [BUBBLE_TEXT_LENGTH_MAX];
+ int bubble_text_length;
+ timestamp bubble_text_time; // w.world_time when bubble printed. If new text printed to bubble at same time, it is added to end.
+ timestamp bubble_text_time_adjusted; // like bubble_text_time but may be adjusted if existing bubble replaced (to reduce the bubble phase-in effect)
+ int bubble_list; // linked list of all visible cores with bubbles. terminated by -1.
+ float bubble_x, bubble_y; // used if core is drawing a bubble
+#define BUBBLE_TOTAL_TIME (DEALLOCATE_COUNTER-1)
+// BUBBLE_TOTAL_TIME should probably be DEALLOCATE_COUNTER-1
+//   to help deal with bubbles that remain visible after deallocation
+
+ int special_AI_type; // set by some story processes using the special_AI() method
+ int special_AI_value; // set by some story processes using the special_AI() method
+ timestamp special_AI_time; // set by some story processes using the special_AI() method
+
 };
+
 
 struct proc_struct
 {
@@ -1086,7 +1108,7 @@ PACKET_TYPE_SPIKE3,
 //PACKET_TYPE_SPIKE4,
 PACKET_TYPE_BURST,
 PACKET_TYPE_ULTRA,
-//PACKET_TYPE_SURGE,
+
 
 PACKET_TYPES
 };
@@ -1130,7 +1152,7 @@ struct packet_struct
 };
 
 // currently w.max_clouds is set to CLOUDS
-#define CLOUDS_BITS 10
+#define CLOUDS_BITS 11
 #define CLOUDS (1<<CLOUDS_BITS)
 #define CLOUDS_MASK (CLOUDS-1)
 
@@ -1172,8 +1194,8 @@ CLOUD_SUB_PROC_EXPLODE, // sub-processes of main proc destroyed
 CLOUD_PROC_FRAGMENT, // small fragment of proc
 CLOUD_INTERFACE_BREAK, // explosion of interface when broken. Appears in addition to interface fading away on each proc.
 CLOUD_STREAM,
-CLOUD_SURGE,
-CLOUD_SURGE_FADE,
+CLOUD_SLICE,
+CLOUD_SLICE_FADE,
 CLOUD_SPIKE_TRAIL,
 CLOUD_SPIKE_HIT,
 CLOUD_SPIKE_HIT_AT_LONG_RANGE, // when spike does max damage
@@ -1181,10 +1203,9 @@ CLOUD_SPIKE_MISS_AT_LONG_RANGE, // when spike does max damage
 CLOUD_SPIKE_MISS,
 CLOUD_BURST_HIT,
 CLOUD_BURST_MISS,
-//CLOUD_SURGE_TRAIL,
-//CLOUD_SURGE_MISS,
 CLOUD_ULTRA_HIT,
 CLOUD_ULTRA_MISS,
+CLOUD_BUBBLE_TEXT,
 // old cloud types that may be able to be removed:
 
 
@@ -1937,6 +1958,8 @@ struct settingsstruct
 
  int option [OPTIONS];
 
+ int replace_colour [PLAYERS]; // replaces a player's colour with another colour. Set in init file. is -1 if player's colour not replaced.
+
  char default_template_path [PLAYERS] [TEMPLATES_PER_PLAYER] [FILE_PATH_LENGTH]; // will be length 0 if no default template
 
 };
@@ -2255,8 +2278,7 @@ OBJECT_TYPE_REPAIR_OTHER,
 
 OBJECT_TYPE_ULTRA,
 OBJECT_TYPE_ULTRA_DIR,
-OBJECT_TYPE_SURGE,
-OBJECT_TYPE_SURGE_DIR,
+OBJECT_TYPE_SLICE,
 OBJECT_TYPE_STABILITY,
 OBJECT_TYPES
 };

@@ -193,7 +193,10 @@ static int generate_template_from_procdef(int compile_mode)
 		return 1; // successful test.
 
 	if (fstate.target_templ->locked)
+	{
+  fstate.target_templ->modified = 0; // design version of process should match source code version
 		return 1; // if template locked, process header is parsed but ignored (except to get class name identifiers)
+	}
 
  update_design_member_positions(fstate.target_templ);
 
@@ -284,6 +287,7 @@ int finalise_template_details(struct template_struct* finish_templ)
 //				case OBJECT_TYPE_INTERFACE:
 //					has_interface = 1;
 //					break;
+    case OBJECT_TYPE_INTERFACE:
 				case OBJECT_TYPE_MOVE:
 					finish_templ->member[i].interface_can_protect = 0;
 					break;
@@ -689,7 +693,7 @@ int	parse_process_definition(void)
 		 if (read_char == REACHED_END_OF_SCODE)
   		return comp_error_text("reached end of source inside string", NULL);
 		 if (read_char == 0)
-  		return comp_error_text("found null terminator inside string?", NULL);
+  		return comp_error_text("found null character inside string?", NULL);
 
    if (template_name_length >= TEMPLATE_NAME_LENGTH - 2)
   		return comp_error_text("template name too long", NULL);

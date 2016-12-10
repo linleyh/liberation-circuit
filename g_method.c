@@ -47,7 +47,7 @@ extern struct vmstate_struct vmstate; // defined in v_interp.c
 static void run_packet_object(struct core_struct* core, struct proc_struct* proc, int object_index);
 static void run_stream_object(struct core_struct* core, struct proc_struct* proc, int object_index, int object_type);
 static void run_spike_object(struct core_struct* core, struct proc_struct* proc, int object_index, int firing_angle_offset_int);
-static void run_surge_object(struct core_struct* core, struct proc_struct* proc, int object_index, int object_type);
+static void run_slice_object(struct core_struct* core, struct proc_struct* proc, int object_index, int object_type);
 //static void run_burst_object(struct core_struct* core, struct proc_struct* proc, int object_index);
 
 //static void rotate_directional_method(int* data_angle, al_fixed* ex_angle, s16b mbank_angle, int turn_speed, int shape, int vertex);
@@ -80,6 +80,7 @@ static al_fixed get_spike_target_angle(struct core_struct* firing_core,
 static void calculate_move_and_turn(struct core_struct* core, struct proc_struct* proc, int object_index, al_fixed target_angle);
 static void calculate_turn(struct core_struct* core, struct proc_struct* proc, int object_index, al_fixed target_angle);
 static void stand_off_angle(struct core_struct* core, struct proc_struct* proc, int object_index, al_fixed target_angle, al_fixed target_distance, al_fixed stand_off_distance);
+static void calculate_retro_move_and_turn(struct core_struct* core, struct proc_struct* proc, int object_index, al_fixed target_angle);
 
 static int object_uses_power(struct core_struct* core, int power_cost);
 /*
@@ -119,6 +120,7 @@ struct call_type_struct call_type [CALL_TYPES] =
 	{3}, // *CALL_APPROACH_XY (x, y, distance)
 	{3}, // *CALL_APPROACH_TARGET (<process> target, component, distance)
 	{4}, // *CALL_APPROACH_TRACK (<process> target, component, class index, distance)
+	{3}, // *CALL_REPOSITION (x, y, angle)
 	{1}, // *CALL_SET_POWER (power)
 	{1}, // *CALL_FIRE (firing delay 0-15)
 	{1}, // *CALL_ROTATE (target_angle_offset)
@@ -136,7 +138,7 @@ struct call_type_struct call_type [CALL_TYPES] =
  {2}, // *CALL_FIRE_SPIKE_XY (x, y)
 
 // spike needs some special methods because of the way it is targetted
- {1}, // *CALL_SET_INTERFACE (on/off)
+// {1}, // *CALL_SET_INTERFACE (on/off)
  {3}, // *CALL_ATTACK_SCAN (angle_offset, scan_distance, <process> target)
  {3}, // *CALL_ATTACK_SCAN_AIM (angle_offset, scan_distance, <process> target)
 // remember that parameter numbers do not include member_index and object_index, or class_index.
@@ -177,7 +179,7 @@ struct object_type_struct otype [OBJECT_TYPES] =
 	{"pulse", KEYWORD_OBJECT_PULSE, OBJECT_BASE_TYPE_ATTACK, 4,
 		20, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_PULSE, 8, 20, 64, 0, 16, 65536}, }, // OBJECT_TYPE_PULSE
+	 {0, ATTACK_TYPE_PULSE, 8, 20, 48, 0, 16, 65536}, }, // OBJECT_TYPE_PULSE
 	{"pulse_l", KEYWORD_OBJECT_PULSE_L, OBJECT_BASE_TYPE_ATTACK, 8,
 		40, // power_use_peak
 		0, // power_use_base
@@ -185,22 +187,22 @@ struct object_type_struct otype [OBJECT_TYPES] =
 	{"pulse_xl", KEYWORD_OBJECT_PULSE_XL, OBJECT_BASE_TYPE_ATTACK, 12,
 		80, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_PULSE, 5, 80, 64, 2, 96, 20000}, }, // OBJECT_TYPE_PULSE_XL
+	 {0, ATTACK_TYPE_PULSE, 5, 100, 80, 2, 96, 20000}, }, // OBJECT_TYPE_PULSE_XL
 	{"burst", KEYWORD_OBJECT_BURST, OBJECT_BASE_TYPE_ATTACK, 3,
 		20, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 8, 20, 64, 0, 20}, }, // OBJECT_TYPE_BURST
+	 {0, ATTACK_TYPE_BURST, 8, 20, 48, 0, 20}, }, // OBJECT_TYPE_BURST
 	{"burst_l", KEYWORD_OBJECT_BURST_L, OBJECT_BASE_TYPE_ATTACK, 6,
 		40, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 7, 40, 64, 1, 40}, }, // OBJECT_TYPE_BURST_L
+	 {0, ATTACK_TYPE_BURST, 6, 40, 64, 1, 40}, }, // OBJECT_TYPE_BURST_L
 
 //* consider making damage etc the same for pulse and burst, and just have pulse be more expensive
 
 	{"burst_xl", KEYWORD_OBJECT_BURST_XL, OBJECT_BASE_TYPE_ATTACK, 10,
 		80, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 6, 80, 64, 2, 120}, }, // OBJECT_TYPE_BURST_XL
+	 {0, ATTACK_TYPE_BURST, 5, 100, 80, 2, 120}, }, // OBJECT_TYPE_BURST_XL
 	{
 		"build", KEYWORD_OBJECT_BUILD, OBJECT_BASE_TYPE_STD, 64,
 		BUILD_POWER_COST, // power_use_peak
@@ -278,26 +280,20 @@ struct object_type_struct otype [OBJECT_TYPES] =
 	{"ultra", KEYWORD_OBJECT_ULTRA, OBJECT_BASE_TYPE_ATTACK, 48,
 		200, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 6, 200, 192, 3, 460}, }, // OBJECT_TYPE_ULTRA
+	 {0, ATTACK_TYPE_BURST, 6, 200, 192, 3, 800}, }, // OBJECT_TYPE_ULTRA
 	{"ultra_dir", KEYWORD_OBJECT_ULTRA_DIR, OBJECT_BASE_TYPE_ATTACK, 60,
 		200, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_PULSE, 5, 200, 192, 3, 400, 20000}, // OBJECT_TYPE_ULTRA_DIR
+	 {0, ATTACK_TYPE_PULSE, 5, 200, 192, 3, 600, 20000}, // OBJECT_TYPE_ULTRA_DIR
 	},
 	{
-		"surge", KEYWORD_OBJECT_SURGE, OBJECT_BASE_TYPE_ATTACK, 18,
-		POWER_COST_SURGE, // power_use_peak
+		"slice", KEYWORD_OBJECT_SLICE, OBJECT_BASE_TYPE_ATTACK, 18,
+		POWER_COST_SLICE, // power_use_peak
 		0, // power_use_base
-		{0, ATTACK_TYPE_BURST, 100, 40, SURGE_RECYCLE_TIME, 3, 12, 0}, // OBJECT_TYPE_SURGE
+		{0, ATTACK_TYPE_PULSE, 100, 40, SLICE_RECYCLE_TIME, 3, 4, 50000}, // OBJECT_TYPE_SLICE
 	},
 	{
-		"surge_dir", KEYWORD_OBJECT_SURGE_DIR, OBJECT_BASE_TYPE_ATTACK, 22,
-		POWER_COST_SURGE, // power_use_peak
-		0, // power_use_base
-		{0, ATTACK_TYPE_PULSE, 100, 40, SURGE_RECYCLE_TIME, 3, 9, 40000}, // OBJECT_TYPE_SURGE_DIR
-	},
-	{
-		"stability", KEYWORD_OBJECT_STABILITY, OBJECT_BASE_TYPE_DEFEND, 12,
+		"stability", KEYWORD_OBJECT_STABILITY, OBJECT_BASE_TYPE_DEFEND, 8,
 		INTERFACE_STABILITY_POWER_USE, // currently 30
 		INTERFACE_STABILITY_POWER_USE, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_STABILITY
@@ -444,6 +440,7 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
  int call_finished = 0; // set to 1 if a call does something that concludes a class call (e.g. fails to find a target)
 	al_fixed target_x, target_y, target_distance = 0, stand_off_distance = 0; // initialised to 0 to avoid compiler warning about being used uninitialised (which I'm pretty sure can't actually happen)
 	int number_of_attacks = 0; // used for attack modes with limited numbers of attacks
+	int reposition_mode; // used for reposition calls. Shouldn't be used uninitialised, whatever the compiler warning says.
 
  al_fixed target_angle = 0;
  al_fixed target_angle_offset = 0; // used for e.g. intercept call (which needs to preserve the result of lead_target between move objects)
@@ -569,11 +566,13 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
  					 || stack_parameters [1] >= GROUP_MAX_MEMBERS
 					  || target_core->group_member[stack_parameters[1]].exists == 0)
 					  {
- 						 return_value = 0;
-  						call_finished = 1; // don't bother running the rest of the class members
-						  break;
+// 						 return_value = 0;
+//  						call_finished = 1; // don't bother running the rest of the class members
+//						  break;
+        target_proc = &w.proc[target_core->process_index];
 					  }
-      target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
+					   else
+         target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
   			 target_angle = get_angle(target_proc->position.y - core->core_position.y, target_proc->position.x - core->core_position.x);
   			 call_initialised = 1;
 					}
@@ -614,9 +613,90 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
 
 			 call_initialised = 1;
 			}
-// This line generates a warning about possible uninitialised use of stand_off_distance and target_distance, but I'm pretty sure that can't happen (because of call_initialised):
+// This line may generate a warning about possible uninitialised use of stand_off_distance and target_distance, but I'm pretty sure that can't happen (because of call_initialised):
 			stand_off_angle(core, proc, object_index, target_angle, target_distance, stand_off_distance);
 //			fpr(" target_angle %i distance %i stand_off_distance %i", fixed_angle_to_int(target_angle), al_fixtoi(target_distance), al_fixtoi(stand_off_distance));
+
+			vmstate.instructions_left	-= 4;
+
+			return_value = 1;
+ 		}
+			break;
+
+		case CALL_REPOSITION:
+ 		if (proc->object[object_index].type != OBJECT_TYPE_MOVE)
+ 		{
+				return_value = 0;
+				break;
+ 		}
+ 		{ // block used to confine variable scope
+//			vmstate.instructions_left	-= 16; // ?
+			if (call_initialised == 0)
+			{
+			 target_x = al_itofix(stack_parameters [0]) - w.proc[core->process_index].position.x;
+			 target_y = al_itofix(stack_parameters [1]) - w.proc[core->process_index].position.y;
+			 target_angle = get_angle(target_y, target_x);
+			 target_angle_offset = short_angle_to_fixed(stack_parameters [2]); // this is actually the angle the process should end up facing
+			 target_distance = distance_oct(target_y, target_x);//distance(target_y, target_x);
+#define REPOSITION_MODE_MOVE 0
+#define REPOSITION_MODE_TURN 1
+#define REPOSITION_MODE_RETRO 2
+#define REPOSITION_POWER_REDUCTION_DISTANCE 400
+    stand_off_distance = -1;
+				if (target_distance < al_itofix(REPOSITION_POWER_REDUCTION_DISTANCE))
+				{
+					stand_off_distance = al_fixtoi(target_distance);
+					if (target_distance < al_itofix(180))
+					 reposition_mode = REPOSITION_MODE_TURN;
+					  else
+							{
+								if (angle_difference(target_angle, core->group_angle) > int_angle_to_fixed(2000)
+									&& angle_difference(core->group_angle, target_angle_offset) < int_angle_to_fixed(1500))
+									reposition_mode = REPOSITION_MODE_RETRO;
+								  else
+  									reposition_mode = REPOSITION_MODE_MOVE;
+							}
+				}
+				 else
+ 					reposition_mode = REPOSITION_MODE_MOVE;
+/*
+fpr("\n repos mode %i target %i,%i ta %i tao %i td %i ads %i %i",
+				reposition_mode,
+				al_fixtoi(core->core_position.x + target_x),
+				al_fixtoi(core->core_position.y + target_y),
+				fixed_angle_to_int(target_angle),
+				fixed_angle_to_int(target_angle_offset),
+				al_fixtoi(target_distance),
+				fixed_angle_to_int(angle_difference(target_angle, core->group_angle)),
+				fixed_angle_to_int(angle_difference(core->group_angle, target_angle_offset)));
+*/
+ 			vmstate.instructions_left	-= (INSTRUCTION_COST_ATAN2 + INSTRUCTION_COST_HYPOT); // expensive!
+			 call_initialised = 1;
+			}
+
+			switch(reposition_mode)
+			{
+			 case REPOSITION_MODE_MOVE:
+     calculate_move_and_turn(core, proc, object_index, target_angle);
+			 	break;
+			 case REPOSITION_MODE_TURN:
+     calculate_turn(core, proc, object_index, short_angle_to_fixed(stack_parameters [2]));
+			  break;
+			 case REPOSITION_MODE_RETRO:
+     calculate_retro_move_and_turn(core, proc, object_index, target_angle);
+			  break;
+			}
+
+			if (stand_off_distance != -1
+				&& proc->object_instance[object_index].move_power > 0)
+			{
+				core->power_left += proc->object_instance[object_index].move_power; // put back any power allocated to the object
+
+				proc->object_instance[object_index].move_power *= stand_off_distance;
+				proc->object_instance[object_index].move_power /= (REPOSITION_POWER_REDUCTION_DISTANCE + 200);
+
+ 			core->power_left -= proc->object_instance[object_index].move_power;
+			}
 
 			vmstate.instructions_left	-= 4;
 
@@ -818,11 +898,14 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
  					 || stack_parameters [1] >= GROUP_MAX_MEMBERS
 					  || target_core->group_member[stack_parameters[1]].exists == 0)
 					  {
- 						 return_value = 0;
-  						call_finished = 1; // don't bother running the rest of the class members
-						  break;
+
+// 						 return_value = 0;
+//  						call_finished = 1; // don't bother running the rest of the class members
+//						  break;
+        target_proc = &w.proc[target_core->process_index]; // target core
 					  }
-      target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
+					   else
+         target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
   			 call_initialised = 1;
 					}
 
@@ -879,11 +962,12 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
 					break; // end general packet firing
 
 			}
-			return_value = 0;
+//			return_value = 0;
 			break;
 
 		case CALL_ATTACK_SCAN: // this can change to CALL_ATTACK_SCAN_AIM if a new target found
 		case CALL_ATTACK_SCAN_AIM:
+
 // either of these can change to CALL_NO_TARGET if no target present
 			switch(otype[proc->object[object_index].type].object_details.attack_type)
 			{
@@ -910,9 +994,9 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
       if ((core->cycles_executed & 31) != 31) // should scan for a new target every now and then even if it already has one
 						{
        if (core->process_memory[target_index] != -1)
-        target_visibility = verify_target_core(core, target_index, &target_core); // will return -3 (or something, anyway it won't return 1) if no target in target_index at all
+        target_visibility = verify_target_core(core, target_index, &target_core); // will return 0 if no target in target_index at all
 						}
-//      fpr("vis %i ", target_visibility);
+//      fpr("\n as %i target %i vis %i ", core->index, core->process_memory[target_index], target_visibility);
 #define SCAN_ATTACK_ANGLE_TOLERANCE 2300
 
 
@@ -931,7 +1015,7 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
  				   call_value = CALL_NO_TARGET;
 // but no_target won't be called for this particular object, so do it here:
         proc->object_instance[object_index].rotate_to_angle_offset = proc->object[object_index].base_angle_offset; // this should be the angle the object points in on the design screen
- 				   return_value = 0;
+// 				   return_value = 0;
 /*        fpr("no target ");
         if (scan_result == 1)
          fpr("(core %i dist %i angle_diff %i (group_angle %i adjusted %i target %i) ",
@@ -954,7 +1038,6 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
       vmstate.instructions_left -= 16; // right?
       target_proc = &w.proc[target_core->group_member[0].index]; // this method always targets the core.
   			 call_initialised = 1;
-
 					}
 
 // after the call initialisation code above, we can assume that target_core is valid.
@@ -1069,7 +1152,7 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
 					break; // end stream_dir firing
 */
 			}
-			return_value = 0; // probably called on invalid object
+//			return_value = 0; // probably called on invalid object
 			break;
 
 
@@ -1104,13 +1187,15 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
  					 || stack_parameters [1] >= GROUP_MAX_MEMBERS
 					  || target_core->group_member[stack_parameters[1]].exists == 0)
 					  {
- 						 return_value = 0;
-  						core->power_left += proc->object_instance[object_index].move_power;
-  					 proc->object_instance[object_index].move_power = 0;
+// 						 return_value = 0;
+//  						core->power_left += proc->object_instance[object_index].move_power;
+//  					 proc->object_instance[object_index].move_power = 0;
 //  						call_finished = 1; // don't bother running the rest of the class members
-						  break;
+						  //break;
+        target_proc = &w.proc[target_core->process_index];
 					  }
-      target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
+					   else
+         target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
   			 call_initialised = 1;
 // Now, stack_parameters[2] should be a class index. We use the first object in the class:
       if (stack_parameters [2] >= 0
@@ -1139,23 +1224,14 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
 
 // after the verify_target_core call returned 1, we can assume that target_core is valid.
 // and after check_member_and_object_indices returned successfully, we can assume that stack_parameters[2] holds the firing member index and [3] the firing object index
-/*
-fpr("\n TEST %i", w.proc[261].object[0].type);
 
-fpr("\n core %i proc %i attack_object_member %i attack_object_object %i type %i",
-				core->index,
-				core->group_member[attack_object_member].index,
-				attack_object_member,
-				attack_object_object,
-				w.proc[core->group_member [attack_object_member].index].object[attack_object_object].type);
-*/
       target_angle_offset = lead_target_with_fixed_object(core,
 																																																										&w.proc[core->group_member[attack_object_member].index],
 																																																										attack_object_object,
 																																																										target_core,
 																																																										target_proc,
 																																																										otype[w.proc[core->group_member [attack_object_member].index].object[attack_object_object].type].object_details.packet_speed);
-//fpr(" [finished]");
+
 // since only one object is being targetted, we use the same target_angle calculation for all movement objects being called
       vmstate.instructions_left -= 8;
 					}
@@ -1271,11 +1347,13 @@ SPIKES:
  					 || stack_parameters [1] >= GROUP_MAX_MEMBERS
 					  || target_core->group_member[stack_parameters[1]].exists == 0)
 					  {
- 						 return_value = 0;
-  						call_finished = 1; // don't bother running the rest of the class members
-						  break;
+// 						 return_value = 0;
+//  						call_finished = 1; // don't bother running the rest of the class members
+//						  break;
+        target_proc = &w.proc[target_core->process_index];
 					  }
-      target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
+					   else
+         target_proc = &w.proc[target_core->group_member[stack_parameters[1]].index];
   			 call_initialised = 1;
 					}
 #define SPIKE_SIDE_TRAVEL 300
@@ -1826,6 +1904,95 @@ static void stand_off_angle(struct core_struct* core, struct proc_struct* proc, 
 
 
 
+// this is like calculate move_and_turn, but uses retro objects
+static void calculate_retro_move_and_turn(struct core_struct* core, struct proc_struct* proc, int object_index, al_fixed target_angle)
+{
+
+#define SPIN_CHANGE_THRESHOLD 50
+// SPIN_CHANGE_THRESHOLD deals with move objects on, or very close to, the process' main axis
+
+			al_fixed angle_diff;
+			int turn_direction, reduced_power_level;
+
+			al_fixed adjusted_group_angle = (core->group_angle + AFX_ANGLE_2) & AFX_MASK;
+
+		 turn_direction = delta_turn_towards_angle(fixed_angle_to_int(adjusted_group_angle) & ANGLE_MASK, fixed_angle_to_int(target_angle) & ANGLE_MASK, 1);
+
+		 angle_diff = angle_difference(adjusted_group_angle, target_angle);
+
+
+//   int divisor = 10;// + (angle_diff / 2);
+
+				if ((proc->object_instance[object_index].move_accel_angle_offset < AFX_ANGLE_4
+			 ||	proc->object_instance[object_index].move_accel_angle_offset > (AFX_ANGLE_1-AFX_ANGLE_4))
+				 && fixed_angle_to_int(angle_diff) < 800)
+			{
+// forwards-facing objects should only be used to turn, not move
+ 					core->power_left += proc->object_instance[object_index].move_power; // put back any power allocated to the object
+					 proc->object_instance[object_index].move_power = 0;
+					 return;
+			}
+
+
+			reduced_power_level = 10 - fixed_angle_to_int(angle_diff) / 100;// / divisor;
+
+			if (reduced_power_level < 0)
+				reduced_power_level = 0;
+
+// if core has spun past target angle, correct:
+   if (turn_direction == 1
+				&& core->group_spin > 0
+				&& angle_difference_signed(adjusted_group_angle + (core->group_spin * 32), target_angle) < 0
+			 && proc->object_instance[object_index].move_spin_change < 0) // SPIN_CHANGE_THRESHOLD?
+			{
+
+				reduced_power_level = MOVE_POWER_MAX;
+			}
+
+   if (turn_direction == -1
+				&& core->group_spin < 0
+				&& angle_difference_signed(adjusted_group_angle + (core->group_spin * 32), target_angle) > 0
+//				&& fixed_angle_to_int(angle_difference(core->group_angle + (core->group_spin * 16), target_angle)) > 0
+			 && proc->object_instance[object_index].move_spin_change > 0) // SPIN_CHANGE_THRESHOLD?
+			{
+				reduced_power_level = MOVE_POWER_MAX;
+			}
+
+			core->power_left += proc->object_instance[object_index].move_power; // put back any power allocated to the object
+
+
+			if ((turn_direction == 1
+				 && proc->object_instance[object_index].move_spin_change > -SPIN_CHANGE_THRESHOLD)
+				|| (turn_direction == -1
+				 && proc->object_instance[object_index].move_spin_change < SPIN_CHANGE_THRESHOLD)
+				|| turn_direction == 0)
+				{
+					 proc->object_instance[object_index].move_power = MOVE_POWER_MAX;
+				}
+					  else
+							{
+					   proc->object_instance[object_index].move_power = reduced_power_level;
+							}
+
+			if (core->power_left < proc->object_instance[object_index].move_power)
+			{
+				proc->object_instance[object_index].move_power = core->power_left;
+				core->power_left = 0;
+				return;
+			}
+
+			core->power_left -= proc->object_instance[object_index].move_power; // now use the new amount of power
+
+//			core->power_use_predicted += (proc->object_instance[object_index].move_power + 9) / 10; // need to make sure 0-9 and 100 are treated correctly. See also the code that runs objects after execution
+
+}
+
+
+
+
+
+
+
 int call_class_method(struct core_struct* calling_core, int call_value)
 {
 
@@ -2130,25 +2297,23 @@ void run_objects_each_tick(struct core_struct* core)
 										 rotate_directional_object(&w.proc[core->group_member[i].index], j, otype[w.proc[core->group_member[i].index].object[j].type].object_details.rotate_speed);
 									}
 						break;
-			 case OBJECT_TYPE_SURGE:
-			 case OBJECT_TYPE_SURGE_DIR:
+			 case OBJECT_TYPE_SLICE:
  					if (w.proc[core->group_member[i].index].object_instance[j].attack_fire_timestamp == w.world_time
 							&& w.proc[core->group_member[i].index].object_instance[j].attack_recycle_timestamp <= w.world_time)
 						{
 							 w.proc[core->group_member[i].index].object_instance[j].attack_last_fire_timestamp = w.world_time;
-							 w.proc[core->group_member[i].index].object_instance[j].attack_recycle_timestamp = w.world_time + SURGE_RECYCLE_TIME;
+							 w.proc[core->group_member[i].index].object_instance[j].attack_recycle_timestamp = w.world_time + SLICE_RECYCLE_TIME;
 // 						 core->power_used += POWER_COST_STREAM; - assume power_left was reduced when the object was called.
- 							w.proc[core->group_member[i].index].object_instance[j].ongoing_power_cost = POWER_COST_SURGE;
+ 							w.proc[core->group_member[i].index].object_instance[j].ongoing_power_cost = POWER_COST_SLICE;
 	 						w.proc[core->group_member[i].index].object_instance[j].ongoing_power_cost_finish_time = w.proc[core->group_member[i].index].object_instance[j].attack_recycle_timestamp;
- 						 play_game_sound(SAMPLE_SURGE, TONE_2C, 90, 1, w.proc[core->group_member[i].index].position.x, w.proc[core->group_member[i].index].position.y);
+ 						 play_game_sound(SAMPLE_SLICE, TONE_2C, 90, 1, w.proc[core->group_member[i].index].position.x, w.proc[core->group_member[i].index].position.y);
 						}
 
-						if (w.proc[core->group_member[i].index].object_instance[j].attack_last_fire_timestamp >= w.world_time - SURGE_TOTAL_FIRING_TIME)
-								run_surge_object(core, &w.proc[core->group_member[i].index], j, w.proc[core->group_member[i].index].object[j].type);
+						if (w.proc[core->group_member[i].index].object_instance[j].attack_last_fire_timestamp >= w.world_time - SLICE_TOTAL_FIRING_TIME)
+								run_slice_object(core, &w.proc[core->group_member[i].index], j, w.proc[core->group_member[i].index].object[j].type);
 
 
-						if (w.proc[core->group_member[i].index].object[j].type == OBJECT_TYPE_SURGE_DIR)
-						 rotate_directional_object(&w.proc[core->group_member[i].index], j, otype[w.proc[core->group_member[i].index].object[j].type].object_details.rotate_speed);
+					 rotate_directional_object(&w.proc[core->group_member[i].index], j, otype[w.proc[core->group_member[i].index].object[j].type].object_details.rotate_speed);
 
 					 break;
 
@@ -2215,36 +2380,50 @@ static void run_packet_object(struct core_struct* core, struct proc_struct* proc
 
  al_fixed packet_speed = al_itofix(otype[proc->object[object_index].type].object_details.packet_speed);
 
+  int sample_to_play = SAMPLE_ZAP;
+
 
   switch(proc->object[object_index].type)
   {
   	default:
 		 case OBJECT_TYPE_PULSE:
-		 case OBJECT_TYPE_PULSE_L:
-		 case OBJECT_TYPE_PULSE_XL:
 		 	pack->type = PACKET_TYPE_PULSE;
 			 pack->lifetime = 120;
     pack->status = otype[proc->object[object_index].type].object_details.packet_size;
 			 break;
+		 case OBJECT_TYPE_PULSE_L:
+		 	pack->type = PACKET_TYPE_PULSE;
+			 pack->lifetime = 150; //
+    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
+			 break;
+		 case OBJECT_TYPE_PULSE_XL:
+		 	pack->type = PACKET_TYPE_PULSE;
+			 pack->lifetime = 180;
+    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
+			 break;
+
 		 case OBJECT_TYPE_BURST:
-		 case OBJECT_TYPE_BURST_L:
-		 case OBJECT_TYPE_BURST_XL:
 		 	pack->type = PACKET_TYPE_BURST;
 			 pack->lifetime = 120;
+    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
+			 break;
+		 case OBJECT_TYPE_BURST_L:
+		 	pack->type = PACKET_TYPE_BURST;
+			 pack->lifetime = 150;
+    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
+			 break;
+		 case OBJECT_TYPE_BURST_XL:
+		 	pack->type = PACKET_TYPE_BURST;
+			 pack->lifetime = 180;
     pack->status = otype[proc->object[object_index].type].object_details.packet_size;
 			 break;
 			case OBJECT_TYPE_ULTRA:
 			case OBJECT_TYPE_ULTRA_DIR:
 				pack->type = PACKET_TYPE_ULTRA;
-			 pack->lifetime = 140;
-    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
-			 break;
-/*			case OBJECT_TYPE_SURGE:
-				pack->type = PACKET_TYPE_SURGE;
 			 pack->lifetime = 170;
-    pack->status = -1; // trailing cloud index
-    packet_speed = 0; // special rule needed for this one because the otype value is used for target leading and so can't be 0
-			 break;*/
+    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
+    sample_to_play = SAMPLE_ULTRA;
+			 break;
 
   }
 
@@ -2279,7 +2458,7 @@ static void run_packet_object(struct core_struct* core, struct proc_struct* proc
  proc->object_instance[object_index].attack_last_fire_timestamp = w.world_time;
  proc->object_instance[object_index].attack_recycle_timestamp = w.world_time + otype[proc->object[object_index].type].object_details.recycle_time;
 
- play_game_sound(SAMPLE_ZAP, TONE_2E - pack->status*3, 50 + pack->status * 16, 5, pack->position.x, pack->position.y);
+ play_game_sound(sample_to_play, TONE_2E - pack->status*3, 50 + pack->status * 16, 5, pack->position.x, pack->position.y);
 
 
 }
@@ -2771,7 +2950,7 @@ static void run_stream_object(struct core_struct* core, struct proc_struct* proc
 
 
 // Call this for both SURGE and SURGE_DIR objects
-static void run_surge_object(struct core_struct* core, struct proc_struct* proc, int object_index, int object_type)
+static void run_slice_object(struct core_struct* core, struct proc_struct* proc, int object_index, int object_type)
 {
 
  struct cloud_struct* cl;
@@ -2781,28 +2960,6 @@ static void run_surge_object(struct core_struct* core, struct proc_struct* proc,
  int damage = otype[object_type].object_details.damage;
 
 	int time_since_firing = w.world_time - proc->object_instance[object_index].attack_last_fire_timestamp;
-/*
-// warmup
- if (time_since_firing <= SURGE_WARMUP_TIME)
-	{
-//  firing_stage = 0;
-
-  if (time_since_firing == SURGE_WARMUP_TIME)
-		 play_game_sound(SAMPLE_STREAM2, TONE_2C, 100, 1, proc->position.x, proc->position.y);
-
-		return;
-
-	}
-	 else
-		{
-
-//				firing_stage = 2;
-//			steps += time_since_firing - STREAM_WARMUP_LENGTH;
-		}
-
-  time_since_firing -= SURGE_WARMUP_TIME;
-*/
-// cooldown doesn't affect length
 
 // Now is firing, warmup up or cooling down. Need to do collision detection for the beam:
 
@@ -2851,7 +3008,11 @@ static void run_surge_object(struct core_struct* core, struct proc_struct* proc,
 
 //  if (pr->method[m].data [MDATA_PR_STREAM_STATUS] == STREAM_STATUS_FIRING)
   //{
-    apply_packet_damage_to_proc(&w.proc[hit_proc], damage, core->player_index, core->index, core->created_timestamp);
+   if (!w.proc[hit_proc].interface_protects
+				|| !w.core[w.proc[hit_proc].core_index].interface_active)
+			 damage *= 2;
+
+  apply_packet_damage_to_proc(&w.proc[hit_proc], damage, core->player_index, core->index, core->created_timestamp);
 
   //}
   break;
@@ -2875,9 +3036,9 @@ static void run_surge_object(struct core_struct* core, struct proc_struct* proc,
 
 // now create the beam cloud thing:
 
-			if (time_since_firing == SURGE_FIRING_TIME)
+			if (time_since_firing == SLICE_FIRING_TIME)
 			{
-     cl = new_cloud(CLOUD_SURGE_FADE, 16, start_x, start_y);
+     cl = new_cloud(CLOUD_SLICE_FADE, 16, start_x, start_y);
 
      if (cl != NULL)
      {
@@ -2901,7 +3062,7 @@ static void run_surge_object(struct core_struct* core, struct proc_struct* proc,
 			}
 
 
-     cl = new_cloud(CLOUD_SURGE, 1, start_x, start_y);
+     cl = new_cloud(CLOUD_SLICE, 1, start_x, start_y);
 
      if (cl != NULL)
      {

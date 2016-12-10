@@ -580,7 +580,7 @@ void add_proc_to_blocklist(struct proc_struct* pr)
 
   if (w.block [pr->block_position.x] [pr->block_position.y].tag != w.blocktag)
   {
-// The block's blocktag is old, so we just put the new proc on top.
+// The block's blocktag is old, so we just put the new proc on top with no downlink.
    w.block [pr->block_position.x] [pr->block_position.y].tag = w.blocktag;
    pr->blocklist_down = NULL;
    pr->blocklist_up = NULL;
@@ -588,7 +588,16 @@ void add_proc_to_blocklist(struct proc_struct* pr)
   }
    else
    {
-// The block's blocktag is up to date. So we put the new proc on top and set its downlink to the top proc of the block:
+// The block's blocktag is up to date. So we put the new proc on top and set its downlink to the top proc of the block.
+// ... but first we need to make sure the proc isn't already in the list
+//      (this can happen in rare circumstances where a component is destroyed by a stream/slice (which cause damage differently from projectiles) and then restored in the same tick)
+    struct proc_struct* check_proc = w.block [pr->block_position.x] [pr->block_position.y].blocklist_down;
+    while (check_proc != NULL)
+				{
+					if (check_proc == pr)
+						return; // pr is already on blocklist
+					check_proc = check_proc->blocklist_down;
+				}
     pr->blocklist_down = w.block [pr->block_position.x] [pr->block_position.y].blocklist_down;
     pr->blocklist_up = NULL;
     w.block [pr->block_position.x] [pr->block_position.y].blocklist_down = pr;
@@ -745,7 +754,8 @@ static void check_block_collision_group_member(struct proc_struct* pr, struct bl
 
  while(check_proc != NULL)
  {
-  if (check_proc->core_index != pr->core_index // i.e. we don't check the proc against itself or against members of its own group
+  if (check_proc->core_index
+						!= pr->core_index // i.e. we don't check the proc against itself or against members of its own group
    && check_proc->exists
    && (check_proc->player_index != pr->player_index
 				|| (w.core[check_proc->core_index].mobile

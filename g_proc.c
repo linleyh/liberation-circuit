@@ -209,14 +209,36 @@ void core_proc_explodes(struct proc_struct* core_pr, int destroyer_team)
  if (templ[core->player_index][core->template_index].first_build_object_member != -1)
 		clear_build_queue_for_core(core->player_index, core->index);
 
+	if (core->special_AI_type != 0)
+		special_AI_destroyed(core); // this may create a bubble that will be turned into a cloud below.
+
 	core->exists = 0;
 	core->destroyed_timestamp = w.world_time;
+
+	if (core->bubble_text_time > w.world_time - BUBBLE_TOTAL_TIME)
+	{
+// if the core had a bubble, it stays on as a cloud (and refers to bubble data in the core's core_struct,
+//  which should still be usable because the core will be deallocating)
+  struct cloud_struct* bubble_cl = new_cloud(CLOUD_BUBBLE_TEXT, BUBBLE_TOTAL_TIME, core_pr->position.x, core_pr->position.y);
+
+  if (bubble_cl != NULL)
+  {
+  	bubble_cl->created_timestamp = core->bubble_text_time;
+   bubble_cl->destruction_timestamp = bubble_cl->created_timestamp + BUBBLE_TOTAL_TIME;
+   bubble_cl->data [0] = core->index;
+   bubble_cl->display_size_x1 = -300;
+   bubble_cl->display_size_y1 = -40;
+   bubble_cl->display_size_x2 = 300;
+   bubble_cl->display_size_y2 = 40;
+  }
+	}
 
 	destroy_a_proc(&w.proc[core->process_index], destroyer_team);
  w.proc[core->process_index].reserved = 0;
 
 	for (i = 1; i < core->group_members_max; i++) // note for i = 1
 	{
+		sancheck(core->group_member[i].index, 0, w.max_procs, "core_proc_explodes: core->group_member[i].index");
 		w.proc[core->group_member[i].index].reserved = 0; // core has been destroyed, so proc no longer reserved
 		if (core->group_member[i].exists)
 		{
@@ -419,9 +441,8 @@ void set_group_object_properties(struct core_struct* core)
 				case OBJECT_TYPE_ULTRA_DIR:
 					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_ULTRA);
 					break;
-				case OBJECT_TYPE_SURGE:
-				case OBJECT_TYPE_SURGE_DIR:
-					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_SURGE);
+				case OBJECT_TYPE_SLICE:
+					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_SLICE);
 					break;
 
 			}
@@ -494,7 +515,7 @@ static void destroy_a_proc(struct proc_struct* destroyed_pr, int destroyer_team)
 {
 
 
- if (w.core[destroyed_pr->core_index].selected == 0
+ if (w.core[destroyed_pr->core_index].selected == 0 // 0 means it's the first in the selection list
 		&& command.select_mode == SELECT_MODE_SINGLE_CORE)
 		command.selected_member = -1; // deselect this proc (but not core) if it was specifically selected
 

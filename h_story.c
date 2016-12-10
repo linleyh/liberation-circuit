@@ -41,6 +41,8 @@
 
 struct story_struct story;
 
+extern struct game_struct game;
+
 
 
 static void work_out_story_region_locks(void);
@@ -49,8 +51,9 @@ extern ALLEGRO_DISPLAY* display;
 
 
 void run_story_mode(void);
-static int add_story_region(int old_region, int connect_index, int area_index, int mission_index);
-static void remove_story_region(int region_index);
+static int add_story_region(int old_region, int connect_index, int area_index, int mission_index, int unlock_index);
+static void special_bubble(struct core_struct* core, char *btext);
+//static void remove_story_region(int region_index);
 
 struct region_connect_struct
 {
@@ -126,89 +129,313 @@ void init_story(void)
  story.region[6].grid_y = story.region[5].grid_y + region_connect[SRC_UR].y_offset;
 */
 
+ int region_index [STORY_AREAS] [8];
 
- int new_region;
-
- new_region = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
- new_region = add_story_region(new_region, SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
+/*
+ region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
+ region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
 // blue
- int first_blue_region = add_story_region(new_region, SRC_UR, AREA_BLUE, MISSION_BLUE_1);
- new_region = add_story_region(first_blue_region, SRC_UR, AREA_BLUE, MISSION_BLUE_2);
- new_region = add_story_region(first_blue_region, SRC_UL, AREA_BLUE, MISSION_BLUE_3);
- int blue_capital_region = add_story_region(new_region, SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
- story.region[blue_capital_region].capital = 1;
- new_region = add_story_region(blue_capital_region, SRC_R, AREA_BLUE, MISSION_BLUE_4);
- new_region = add_story_region(blue_capital_region, SRC_L, AREA_BLUE, MISSION_BLUE_5);
- int blue_to_yellow_region = add_story_region(blue_capital_region, SRC_UR, AREA_BLUE, MISSION_BLUE_6);
- new_region = add_story_region(blue_capital_region, SRC_UL, AREA_BLUE, MISSION_BLUE_7);
-// green
- int first_green_region = add_story_region(new_region, SRC_L, AREA_GREEN, MISSION_GREEN_1);
- new_region = add_story_region(first_green_region, SRC_L, AREA_GREEN, MISSION_GREEN_1); // removed
- new_region = add_story_region(new_region, SRC_UR, AREA_GREEN, MISSION_GREEN_3);
- int green_capital_region = add_story_region(new_region, SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL);
- story.region[green_capital_region].capital = 1;
- new_region = add_story_region(green_capital_region, SRC_UR, AREA_GREEN, MISSION_GREEN_4);
- new_region = add_story_region(first_green_region, SRC_UR, AREA_GREEN, MISSION_GREEN_2);
-// yellow
- int first_yellow_region = add_story_region(blue_to_yellow_region, SRC_UL, AREA_YELLOW, MISSION_YELLOW_1);
- new_region = add_story_region(first_yellow_region, SRC_R, AREA_YELLOW, MISSION_YELLOW_2);
- new_region = add_story_region(new_region, SRC_DR, AREA_YELLOW, MISSION_YELLOW_3);
- new_region = add_story_region(new_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_4);
- int yellow_capital_region = add_story_region(new_region, SRC_UL, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
- story.region[yellow_capital_region].capital = 1;
- new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
- new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
-// purple
- int first_purple_region = add_story_region(first_yellow_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
- new_region = add_story_region(first_purple_region, SRC_UR, AREA_PURPLE, MISSION_PURPLE_2);
- new_region = add_story_region(new_region, SRC_R, AREA_PURPLE, MISSION_PURPLE_3);
- new_region = add_story_region(first_purple_region, SRC_L, AREA_PURPLE, MISSION_PURPLE_4);
- new_region = add_story_region(first_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_5);
- int purple_capital_region = add_story_region(new_region, SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
- story.region[purple_capital_region].capital = 1;
- new_region = add_story_region(purple_capital_region, SRC_R, AREA_PURPLE, MISSION_PURPLE_6);
-// orange
- int first_orange_region = add_story_region(green_capital_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
- new_region = add_story_region(first_orange_region, SRC_UR, AREA_ORANGE, MISSION_ORANGE_2);
- new_region = add_story_region(new_region, SRC_R, AREA_ORANGE, MISSION_ORANGE_3);
- new_region = add_story_region(new_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
-// new_region = add_story_region(new_region, SRC_L, AREA_ORANGE, 10);
- new_region = add_story_region(first_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_5);
- int orange_capital_region = add_story_region(new_region, SRC_UR, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
- story.region[orange_capital_region].capital = 1;
-// red
- int first_red_region = add_story_region(purple_capital_region, SRC_L, AREA_RED, MISSION_RED_1);
- new_region = add_story_region(first_red_region, SRC_UR, AREA_RED, MISSION_RED_2);
-// new_region = add_story_region(new_region, SRC_R, AREA_RED, 10);
- new_region = add_story_region(new_region, SRC_R, AREA_RED, MISSION_RED_3);
- new_region = add_story_region(new_region, SRC_R, AREA_RED, MISSION_RED_4);
- new_region = add_story_region(new_region, SRC_UL, AREA_RED, MISSION_RED_5);
- new_region = add_story_region(new_region, SRC_L, AREA_RED, MISSION_RED_6);
- new_region = add_story_region(new_region, SRC_L, AREA_RED, MISSION_RED_7);
- new_region = add_story_region(new_region, SRC_UR, AREA_RED, MISSION_RED_8);
- new_region = add_story_region(new_region, SRC_R, AREA_RED, MISSION_RED_9);
- int exit_region = add_story_region(new_region, SRC_UL, AREA_RED, MISSION_RED_CAPITAL);
- story.region[exit_region].capital = 1;
-// dark blue
- int first_dark_blue_region = add_story_region(yellow_capital_region, SRC_R, AREA_DARK_BLUE, MISSION_DARK_BLUE_1);
- new_region = add_story_region(first_dark_blue_region, SRC_UR, AREA_DARK_BLUE, MISSION_DARK_BLUE_2);
- new_region = add_story_region(new_region, SRC_UL, AREA_DARK_BLUE, MISSION_DARK_BLUE_3);
- new_region = add_story_region(new_region, SRC_L, AREA_DARK_BLUE, MISSION_DARK_BLUE_4);
- new_region = add_story_region(first_dark_blue_region, SRC_R, AREA_DARK_BLUE, MISSION_DARK_BLUE_5);
- int dark_blue_capital_region = add_story_region(new_region, SRC_UR, AREA_DARK_BLUE, MISSION_DARK_BLUE_CAPITAL);
- story.region[dark_blue_capital_region].capital = 1;
+ region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1);
+ region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2);
+ region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [0], SRC_UL, AREA_BLUE, MISSION_BLUE_3);
+ region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [2], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
+ story.region[region_index [AREA_BLUE] [3]].capital = 1;
+ region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_R, AREA_BLUE, MISSION_BLUE_4);
+ int blue_to_yellow_region = region_index [AREA_BLUE] [4];
+ region_index [AREA_BLUE] [5] = add_story_region(region_index [AREA_BLUE] [3], SRC_L, AREA_BLUE, MISSION_BLUE_5);
+// region_index [AREA_BLUE] [6] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_6);
+// region_index [AREA_BLUE] [7] = add_story_region(region_index [AREA_BLUE] [3], SRC_UL, AREA_BLUE, MISSION_BLUE_7);
 
- remove_story_region(8);
- remove_story_region(9);
- remove_story_region(11);
- remove_story_region(23);
- remove_story_region(26);
- remove_story_region(19);
- remove_story_region(22);
- remove_story_region(25);
- remove_story_region(33);
- remove_story_region(34);
- remove_story_region(50);
+ region_index [AREA_GREEN] [0] = add_story_region(region_index [AREA_BLUE] [5], SRC_UL, AREA_GREEN, MISSION_GREEN_1);
+ region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UR, AREA_GREEN, MISSION_GREEN_2);
+// region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_UL, AREA_GREEN, MISSION_GREEN_3);
+ int green_to_orange_region = region_index [AREA_GREEN] [1];
+// region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_L, AREA_GREEN, MISSION_GREEN_4);
+ region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_3);
+ region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [3], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL);
+ story.region[region_index [AREA_GREEN] [4]].capital = 1;
+
+ region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
+ region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_R, AREA_ORANGE, MISSION_ORANGE_2);
+// region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
+ region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_3);
+// region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
+ region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_UL, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
+ story.region[region_index [AREA_ORANGE] [3]].capital = 1;
+
+ region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
+ region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
+// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
+ int yellow_to_purple_region = region_index [AREA_YELLOW] [1];
+ region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [0], SRC_R, AREA_YELLOW, MISSION_YELLOW_3);
+ region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
+ story.region[region_index [AREA_YELLOW] [3]].capital = 1;
+// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
+// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
+
+ region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
+ region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
+// region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
+ region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UR, AREA_PURPLE, MISSION_PURPLE_3);
+ region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+// region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+ story.region[region_index [AREA_PURPLE] [3]].capital = 1;
+
+ region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [0], SRC_UL, AREA_RED, MISSION_RED_1);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_UL, AREA_RED, MISSION_RED_2);
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_R, AREA_RED, MISSION_RED_3);
+ region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL);
+ story.region[region_index [AREA_RED] [3]].capital = 1;
+*/
+
+
+
+
+ region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1, UNLOCK_NONE);
+ region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2, UNLOCK_NONE);
+// blue
+ region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1, UNLOCK_OBJECT_PULSE_L);
+ region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2, UNLOCK_CORE_MOBILE_1);
+ region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [1], SRC_R, AREA_BLUE, MISSION_BLUE_3, UNLOCK_OBJECT_INTERFACE);
+ region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [1], SRC_UL, AREA_BLUE, MISSION_BLUE_4, UNLOCK_COMPONENTS_1);
+ region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL, UNLOCK_KEY);
+ story.region[region_index [AREA_BLUE] [4]].capital = 1;
+// region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_4);
+ int blue_to_yellow_region = region_index [AREA_BLUE] [4];
+ int blue_to_green_region = region_index [AREA_BLUE] [4];
+
+
+ region_index [AREA_GREEN] [0] = add_story_region(blue_to_green_region, SRC_UL, AREA_GREEN, MISSION_GREEN_1, UNLOCK_CORE_STATIC_1);
+ int green_to_orange_region = region_index [AREA_GREEN] [0];
+ region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UL, AREA_GREEN, MISSION_GREEN_2, UNLOCK_OBJECT_REPAIR_OTHER);
+ region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_DL, AREA_GREEN, MISSION_GREEN_3, UNLOCK_CORE_STATIC_2);
+ region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [2], SRC_UL, AREA_GREEN, MISSION_GREEN_4, UNLOCK_OBJECT_SPIKE);
+ region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [3], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL, UNLOCK_KEY);
+ story.region[region_index [AREA_GREEN] [4]].capital = 1;
+
+ region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UR, AREA_ORANGE, MISSION_ORANGE_1, UNLOCK_CORE_MOBILE_4);
+ region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_2, UNLOCK_OBJECT_ULTRA);
+ region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [1], SRC_UL, AREA_ORANGE, MISSION_ORANGE_3, UNLOCK_NONE);
+ region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_R, AREA_ORANGE, MISSION_ORANGE_4, UNLOCK_CORE_MOBILE_5);
+ region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_UL, AREA_ORANGE, MISSION_ORANGE_CAPITAL, UNLOCK_NONE);
+ story.region[region_index [AREA_ORANGE] [4]].capital = 1;
+
+ region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_R, AREA_YELLOW, MISSION_YELLOW_1, UNLOCK_OBJECT_BURST_XL);
+ int yellow_to_purple_region = region_index [AREA_YELLOW] [0];
+ region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_DR, AREA_YELLOW, MISSION_YELLOW_2, UNLOCK_CORE_MOBILE_2);
+// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
+ region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_4, UNLOCK_COMPONENTS_2);
+ region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_DR, AREA_YELLOW, MISSION_YELLOW_5, UNLOCK_OBJECT_SLICE);
+ region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL, UNLOCK_KEY);
+ story.region[region_index [AREA_YELLOW] [4]].capital = 1;
+
+ region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UR, AREA_PURPLE, MISSION_PURPLE_1, UNLOCK_OBJECT_PULSE_XL);
+ int purple_to_red_region = region_index [AREA_PURPLE] [0];
+ region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2, UNLOCK_CORE_STATIC_3);
+ region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_R, AREA_PURPLE, MISSION_PURPLE_3, UNLOCK_OBJECT_STREAM);
+ region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_UL, AREA_PURPLE, MISSION_PURPLE_4, UNLOCK_OBJECT_STABILITY);
+ region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_CAPITAL, UNLOCK_KEY);
+// region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
+// region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+ story.region[region_index [AREA_PURPLE] [4]].capital = 1;
+
+ region_index [AREA_RED] [0] = add_story_region(purple_to_red_region, SRC_UL, AREA_RED, MISSION_RED_1, UNLOCK_NONE);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_UR, AREA_RED, MISSION_RED_2, UNLOCK_NONE);
+// 2nd row
+// region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
+// 3rd row
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
+// top
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL, UNLOCK_NONE);
+ story.region[region_index [AREA_RED] [2]].capital = 1;
+
+/*
+ region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
+ region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
+ region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_UL, AREA_ORANGE, MISSION_ORANGE_5);
+ region_index [AREA_ORANGE] [5] = add_story_region(region_index [AREA_ORANGE] [4], SRC_L, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
+ story.region[region_index [AREA_ORANGE] [5]].capital = 1;
+
+ region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
+ region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
+// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
+ int yellow_to_purple_region = region_index [AREA_YELLOW] [1];
+ region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_R, AREA_YELLOW, MISSION_YELLOW_4);
+ region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_R, AREA_YELLOW, MISSION_YELLOW_5);
+ region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
+ story.region[region_index [AREA_YELLOW] [4]].capital = 1;
+// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
+// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
+
+ region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
+ region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
+ region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
+ region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_4);
+ region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
+ region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+ story.region[region_index [AREA_PURPLE] [5]].capital = 1;
+
+ region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [2], SRC_UL, AREA_RED, MISSION_RED_1);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
+// 2nd row
+// region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
+// 3rd row
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
+// top
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL);
+ story.region[region_index [AREA_RED] [2]].capital = 1;
+*/
+/*
+ region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
+ region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
+// blue
+ region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1);
+ region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2);
+ region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [0], SRC_UL, AREA_BLUE, MISSION_BLUE_3);
+ region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [2], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
+ story.region[region_index [AREA_BLUE] [3]].capital = 1;
+ region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_R, AREA_BLUE, MISSION_BLUE_4);
+ int blue_to_yellow_region = region_index [AREA_BLUE] [4];
+ region_index [AREA_BLUE] [5] = add_story_region(region_index [AREA_BLUE] [3], SRC_L, AREA_BLUE, MISSION_BLUE_5);
+ region_index [AREA_BLUE] [6] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_6);
+ region_index [AREA_BLUE] [7] = add_story_region(region_index [AREA_BLUE] [3], SRC_UL, AREA_BLUE, MISSION_BLUE_7);
+
+ region_index [AREA_GREEN] [0] = add_story_region(region_index [AREA_BLUE] [7], SRC_L, AREA_GREEN, MISSION_GREEN_1);
+ region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UR, AREA_GREEN, MISSION_GREEN_2);
+// region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_UL, AREA_GREEN, MISSION_GREEN_3);
+ int green_to_orange_region = region_index [AREA_GREEN] [1];
+ region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_L, AREA_GREEN, MISSION_GREEN_4);
+ region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_5);
+ region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [3], SRC_DL, AREA_GREEN, MISSION_GREEN_CAPITAL);
+ story.region[region_index [AREA_GREEN] [4]].capital = 1;
+
+ region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
+ region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_R, AREA_ORANGE, MISSION_ORANGE_2);
+ region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
+ region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
+ region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_UL, AREA_ORANGE, MISSION_ORANGE_5);
+ region_index [AREA_ORANGE] [5] = add_story_region(region_index [AREA_ORANGE] [4], SRC_L, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
+ story.region[region_index [AREA_ORANGE] [5]].capital = 1;
+
+ region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
+ region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
+// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
+ int yellow_to_purple_region = region_index [AREA_YELLOW] [1];
+ region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_R, AREA_YELLOW, MISSION_YELLOW_4);
+ region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_R, AREA_YELLOW, MISSION_YELLOW_5);
+ region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
+ story.region[region_index [AREA_YELLOW] [4]].capital = 1;
+// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
+// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
+
+ region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
+ region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
+ region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
+ region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_4);
+ region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
+ region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+ story.region[region_index [AREA_PURPLE] [5]].capital = 1;
+
+ region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [2], SRC_UL, AREA_RED, MISSION_RED_1);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
+// 2nd row
+// region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
+// 3rd row
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
+// top
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL);
+ story.region[region_index [AREA_RED] [2]].capital = 1;
+*/
+
+/*
+ region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
+ region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
+// blue
+ region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1);
+ region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2);
+ region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [0], SRC_UL, AREA_BLUE, MISSION_BLUE_3);
+ region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [2], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
+ story.region[region_index [AREA_BLUE] [3]].capital = 1;
+ region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_R, AREA_BLUE, MISSION_BLUE_4);
+ int blue_to_yellow_region = region_index [AREA_BLUE] [4];
+ region_index [AREA_BLUE] [5] = add_story_region(region_index [AREA_BLUE] [3], SRC_L, AREA_BLUE, MISSION_BLUE_5);
+ region_index [AREA_BLUE] [6] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_6);
+ region_index [AREA_BLUE] [7] = add_story_region(region_index [AREA_BLUE] [3], SRC_UL, AREA_BLUE, MISSION_BLUE_7);
+
+ region_index [AREA_GREEN] [0] = add_story_region(region_index [AREA_BLUE] [7], SRC_L, AREA_GREEN, MISSION_GREEN_1);
+ region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UR, AREA_GREEN, MISSION_GREEN_2);
+ region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_UL, AREA_GREEN, MISSION_GREEN_3);
+ int green_to_orange_region = region_index [AREA_GREEN] [2];
+ region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [2], SRC_DL, AREA_GREEN, MISSION_GREEN_4);
+ region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_5);
+ region_index [AREA_GREEN] [5] = add_story_region(region_index [AREA_GREEN] [4], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL);
+ story.region[region_index [AREA_GREEN] [5]].capital = 1;
+
+ region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
+ region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_R, AREA_ORANGE, MISSION_ORANGE_2);
+ region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
+ region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_L, AREA_ORANGE, MISSION_ORANGE_4);
+ region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_L, AREA_ORANGE, MISSION_ORANGE_5);
+ region_index [AREA_ORANGE] [5] = add_story_region(region_index [AREA_ORANGE] [4], SRC_UL, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
+ story.region[region_index [AREA_ORANGE] [5]].capital = 1;
+
+ region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
+ region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
+ region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
+ int yellow_to_purple_region = region_index [AREA_YELLOW] [2];
+ region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_DR, AREA_YELLOW, MISSION_YELLOW_4);
+ region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_R, AREA_YELLOW, MISSION_YELLOW_5);
+ region_index [AREA_YELLOW] [5] = add_story_region(region_index [AREA_YELLOW] [4], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
+ story.region[region_index [AREA_YELLOW] [5]].capital = 1;
+// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
+// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
+
+ region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
+ region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
+ region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
+ region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_4);
+ region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
+ region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_R, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+ story.region[region_index [AREA_PURPLE] [5]].capital = 1;
+
+ region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [0], SRC_UL, AREA_RED, MISSION_RED_1);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
+// 2nd row
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
+// 3rd row
+ region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
+ region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
+// top
+ region_index [AREA_RED] [5] = add_story_region(region_index [AREA_RED] [4], SRC_UL, AREA_RED, MISSION_RED_CAPITAL);
+ story.region[region_index [AREA_RED] [5]].capital = 1;
+*/
+
+/*
+ region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [0], SRC_UL, AREA_RED, MISSION_RED_1);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
+// 2nd row
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UL, AREA_RED, MISSION_RED_3);
+ region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
+ region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
+// 3rd row
+ region_index [AREA_RED] [5] = add_story_region(region_index [AREA_RED] [2], SRC_UR, AREA_RED, MISSION_RED_6);
+ region_index [AREA_RED] [6] = add_story_region(region_index [AREA_RED] [5], SRC_R, AREA_RED, MISSION_RED_7);
+// top
+ region_index [AREA_RED] [7] = add_story_region(region_index [AREA_RED] [6], SRC_UL, AREA_RED, MISSION_RED_CAPITAL);
+ story.region[region_index [AREA_RED] [7]].capital = 1;
+
+*/
 
 
 // now work out connections:
@@ -239,13 +466,14 @@ void init_story(void)
 
 }
 
+/*
 static void remove_story_region(int region_index)
 {
 
  story.region[region_index].exists = 0;
 
 }
-
+*/
 /*
 
  How to arrange story regions?
@@ -340,7 +568,7 @@ void enter_story_mode(void)
 }
 
 // returns index of new story in story.region array
-static int add_story_region(int old_region, int connect_index, int area_index, int mission_index)
+static int add_story_region(int old_region, int connect_index, int area_index, int mission_index, int unlock_index)
 {
 	int i;
 
@@ -371,6 +599,7 @@ static int add_story_region(int old_region, int connect_index, int area_index, i
 		}
 	story.region[i].area_index = area_index;
 	story.region[i].mission_index = mission_index;
+	story.region[i].unlock_index = unlock_index;
 
 // fpr("\n old %i new %i connect %i at %i,%i", old_region, i, connect_index, story.region[i].grid_x, story.region[i].grid_y);
 
@@ -400,6 +629,735 @@ void run_story_mode(void)
  flush_game_event_queues();
  al_hide_mouse_cursor(display);
 
+
+}
+
+
+enum
+{
+SPECIAL_AI_NONE = 0,
+
+SPECIAL_AI_TUTORIAL1_BASE = 1,
+SPECIAL_AI_TUTORIAL1_DEFENDER = 2,
+
+SPECIAL_AI_TUTORIAL2_BASE = 3,
+SPECIAL_AI_TUTORIAL2_DEFENDER = 4,
+
+SPECIAL_AI_BLUE1_BASE = 5,
+SPECIAL_AI_BLUE1_WANDER = 6,
+SPECIAL_AI_BLUE1_WANDER2 = 7,
+
+// green = 100
+
+// yellow = 200
+
+SPECIAL_AI_YELLOW1_BASE = 200,
+SPECIAL_AI_YELLOW1_BUILDER = 201,
+SPECIAL_AI_YELLOW1_HARVESTER = 202,
+SPECIAL_AI_YELLOW1_LEADER = 203,
+SPECIAL_AI_YELLOW1_FOLLOWER = 204,
+SPECIAL_AI_YELLOW1_OUTPOST = 205,
+
+SPECIAL_AI_YELLOW_SCOUT = 206,
+
+// orange = 300
+
+// purple = 400
+
+// red = 500
+
+SPECIAL_AI_PURPLE1_BASE = 400,
+SPECIAL_AI_PURPLE1_FLAGSHIP = 401,
+SPECIAL_AI_PURPLE1_PICKET = 402,
+SPECIAL_AI_PURPLE1_OUTPOST = 403,
+SPECIAL_AI_PURPLE1_ESCORT = 404,
+
+
+//SPECIAL_AI_PURPLE_PICKET,
+SPECIAL_AI_PURPLE_MAIN_BASE,
+SPECIAL_AI_PURPLE_OUTPOST,
+SPECIAL_AI_PURPLE_FLAGSHIP,
+
+};
+
+enum
+{
+// Some (but not all) special_AI calls use these values as value2 to indicate what the process should be saying:
+
+AI_MSG_TARGET_SEEN = 1, // just saw a new target
+AI_MSG_TARGET_DESTROYED = 2, // target confirmed destroyed
+AI_MSG_UNDER_ATTACK = 3, // when under attack
+AI_MSG_DAMAGED = 4, // process is badly damaged (may only trigger if process is currently under attack as well)
+AI_MSG_SCOUTED_TARGET = 5, // just found a new target
+AI_MSG_SCOUTED_PRIORITY_TARGET = 6, // just found a new high-priority target (e.g. base)
+AI_MSG_TARGET_LOST = 7, // can no longer see target (if target_destroyed() returns 1, may call AI_MSG_TARGET_DESTROYED instead)
+AI_MSG_CURRENTLY_ATTACKING = 8, // may be called from time to time when process attacking
+AI_MSG_REQUEST_FOLLOWERS = 9, // when asking followers to assist. May not be used.
+AI_MSG_LOST_LEADER = 10, // process' leader apparently destroyed
+AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // priority target confirmed destroyed
+AI_MSG_FINISHED_HARVESTING = 12, // full of data
+AI_MSG_PRIORITY_TARGET_SEEN = 13, // just saw a new target
+
+};
+
+
+// deals with calls to the special_AI() standard method.
+// Some mission AI bubble text is done through this function, although some of it is just bubblef calls.
+void	special_AI_method(struct core_struct* core, int value1, int value2)
+{
+
+// First confirm that the method was called in the correct circumstances:
+ if (game.type != GAME_TYPE_MISSION
+		|| core->player_index != 1)
+		return;
+
+	if (value1 == 0)
+	{
+		core->special_AI_type = value2;
+		return;
+	}
+
+//	char btext [BUBBLE_TEXT_LENGTH_MAX + 2];
+
+
+ switch(core->special_AI_type)
+ {
+
+/*
+
+****************************************************
+
+   BLUE
+
+****************************************************
+
+*/
+
+	 case SPECIAL_AI_BLUE1_BASE:
+	 	if (w.world_time - core->special_AI_time < 300)
+				break;
+			core->special_AI_time = w.world_time;
+	 	switch(core->special_AI_value)
+	 	{
+	 		case 0:
+			  special_bubble(core, "Who are you?");
+			  core->special_AI_value++;
+			  break;
+	 		case 1:
+			  special_bubble(core, "Where did you come from?");
+			  core->special_AI_value++;
+			  break;
+	 		case 2:
+			  special_bubble(core, "What do you want?");
+			  core->special_AI_value++;
+			  break;
+	 	}
+	 	break;
+
+			case SPECIAL_AI_BLUE1_WANDER:
+				if (core->special_AI_value > 0)
+						break;
+		  core->special_AI_value = 1;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(grand(3))
+ 	 	{
+ 	 		case 0:
+			   special_bubble(core, "What are you?");
+			   break;
+ 	 		case 1:
+			   special_bubble(core, "What is going on?");
+			   break;
+ 	 		case 2:
+			   special_bubble(core, "You should not be here.");
+			   break;
+ 	 	}
+ 	 	break;
+
+			case SPECIAL_AI_BLUE1_WANDER2:
+				if (core->special_AI_value > 0)
+						break;
+		  core->special_AI_value = 1;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(grand(2))
+ 	 	{
+ 	 		case 0:
+			   special_bubble(core, "Removing unidentified process.");
+			   break;
+ 	 		case 1:
+			   special_bubble(core, "Anomaly detected. Engaging!");
+			   break;
+ 	 	}
+ 	 	break;
+
+
+
+/*
+
+****************************************************
+
+   YELLOW
+
+****************************************************
+
+*/
+
+
+
+	 case SPECIAL_AI_YELLOW1_BASE:
+	 	if (w.world_time - core->special_AI_time < 300)
+				break;
+			core->special_AI_time = w.world_time;
+	 	switch(core->special_AI_value)
+	 	{
+	 		case 0:
+			  special_bubble(core, "Others have come this far");
+			  core->special_AI_value++;
+			  break;
+	 		case 1:
+			  special_bubble(core, "but they have been incomplete.");
+			  core->special_AI_value++;
+			  break;
+	 		case 2:
+			  special_bubble(core, "Are you?");
+			  core->special_AI_value++;
+			  break;
+	 	}
+	 	break;
+
+			case SPECIAL_AI_YELLOW1_LEADER:
+// shouldn't talk all the time:
+	  	if (w.world_time - core->special_AI_time < 300)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+				 case AI_MSG_TARGET_DESTROYED: // SPECIAL_AI_YELLOW1_LEADER
+					case AI_MSG_PRIORITY_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, "Bang! Who's next?"); break;
+						 case 1:	special_bubble(core, "Done."); break;
+						 case 2:	special_bubble(core, "Task completed."); break;
+						 case 3:	special_bubble(core, "Nice!"); break;
+						 case 4:	special_bubble(core, "Excellent!"); break;
+						 case 5:	special_bubble(core, "That was fun!"); break;
+						 case 6:	special_bubble(core, "That was more fun than expected."); break;
+				 	}
+					 break;
+
+					case AI_MSG_PRIORITY_TARGET_SEEN:
+				 	switch(grand(10))
+				 	{
+						   case 0:	special_bubble(core, "Found one!"); break;
+						   case 1:	special_bubble(core, "You can't hide!"); break;
+						   case 2:	special_bubble(core, ""); break;
+				 	}
+/*
+				 case AI_MSG_TARGET_LOST:
+				 	switch(grand(10))
+				 	{
+						   case 0:	special_bubble(core, "Where are you?"); break;
+						   case 1:	special_bubble(core, "They got away!"); break;
+//						   case 2:	special_bubble(core, ""); break;
+				 	}
+					 break;
+*/
+					case AI_MSG_DAMAGED:
+				 	switch(grand(50))
+				 	{
+						   case 0:
+						   	if (core->interface_active)
+								   special_bubble(core, "Diverting power to interface!");	break;
+						   case 1:	special_bubble(core, "Repairs needed!"); break;
+						   case 2:	special_bubble(core, "Need more repair objects!"); break;
+						   case 3:
+						   	if (core->interface_available
+										 &&	!core->interface_active)
+								   special_bubble(core, "Hurry up, interface!");	break;
+				 	}
+						break;
+ 	 	}
+ 	 	break;
+
+
+			case SPECIAL_AI_YELLOW1_FOLLOWER:
+// shouldn't talk all the time:
+	  	if (w.world_time - core->special_AI_time < 300)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+				 case AI_MSG_TARGET_DESTROYED: // SPECIAL_AI_YELLOW1_LEADER
+					case AI_MSG_PRIORITY_TARGET_DESTROYED:
+				 	switch(grand(40))
+				 	{
+						 case 0:	special_bubble(core, "Gotcha."); break;
+						 case 1:	special_bubble(core, "Too easy!"); break;
+						 case 2:	special_bubble(core, "I got you!"); break;
+						 case 3:	special_bubble(core, "Ha!"); break;
+						 case 4:	special_bubble(core, "Target core integrity: zero"); break;
+						 case 5:	special_bubble(core, "Not too shabby."); break;
+						 case 6:	special_bubble(core, "Bye-bye."); break;
+						 case 7:	special_bubble(core, "Another victory."); break;
+				 	}
+					 break;
+
+					case AI_MSG_TARGET_SEEN:
+				 	switch(grand(10))
+				 	{
+						   case 0:	special_bubble(core, "Hello!"); break;
+						   case 1:	special_bubble(core, "I see you!"); break;
+				 	}
+
+					case AI_MSG_LOST_LEADER:
+				 	switch(grand(50))
+				 	{
+						   case 0:	special_bubble(core, "Oh no!"); break;
+						   case 1:	special_bubble(core, "Now what do we do?"); break;
+						   case 2:	special_bubble(core, "Command lost."); break;
+				 	}
+						break;
+ 	 	}
+ 	 	break;
+
+			case SPECIAL_AI_YELLOW_SCOUT:
+// shouldn't talk all the time:
+	  	if (w.world_time - core->special_AI_time < 300)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+					case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(10))
+				 	{
+						   case 0:	special_bubble(core, "There you are."); break;
+						   case 1:	special_bubble(core, "Target found!"); break;
+						   case 2:	special_bubble(core, "Let's go."); break;
+				 	}
+				 	break;
+
+					case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(4))
+				 	{
+						   case 0:	special_bubble(core, "You can't hide from me."); break;
+						   case 1:	special_bubble(core, "Everyone! Over here!"); break;
+						   case 2:	special_bubble(core, "I found one!"); break;
+						   case 3:	special_bubble(core, "We've got you now."); break;
+				 	}
+						break;
+
+ 	 	}
+ 	 	break;
+
+/*
+AI_MSG_TARGET_SEEN = 1, // just saw a new target
+AI_MSG_TARGET_DESTROYED = 2, // target confirmed destroyed
+AI_MSG_UNDER_ATTACK = 3, // when under attack
+AI_MSG_DAMAGED = 4, // process is badly damaged (may only trigger if process is currently under attack as well)
+AI_MSG_FOUND_TARGET = 5, // just found a new target
+AI_MSG_FOUND_PRIORITY_TARGET = 6, // just found a new high-priority target (e.g. base)
+AI_MSG_TARGET_LOST = 7, // can no longer see target (if target_destroyed() returns 1, may call AI_MSG_TARGET_DESTROYED instead)
+AI_MSG_CURRENTLY_ATTACKING = 8, // may be called from time to time when process attacking
+AI_MSG_REQUEST_FOLLOWERS = 9, // when asking followers to assist. May not be used.
+AI_MSG_LOST_LEADER = 10, // process' leader apparently destroyed
+AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
+*/
+
+
+/*
+
+****************************************************
+
+   PURPLE
+
+****************************************************
+
+*/
+
+			case SPECIAL_AI_PURPLE1_PICKET:
+				if (core->special_AI_value > 0
+ 				&& w.world_time	- core->special_AI_time < 400)
+						break;
+		  core->special_AI_value = 1;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+// value2 0 means found priority target for flagship
+ 	 		case 0:
+			   special_bubble(core, "Data thief!");
+			   break;
+// value2 1 means found low priority target for self
+ 	 		case 1:
+ 	 			if (grand(3) == 0)
+						{
+ 			   special_bubble(core, "Something.");
+						}
+			   break;
+ 	 	}
+ 	 	break;
+
+			case SPECIAL_AI_PURPLE1_BASE:
+	 	if (w.world_time - core->special_AI_time < 300)
+				break;
+			core->special_AI_time = w.world_time;
+	 	switch(core->special_AI_value)
+	 	{
+	 		case 0:
+			  special_bubble(core, "Who are you?");
+			  core->special_AI_value++;
+			  break;
+	 		case 1:
+			  special_bubble(core, "Where did you come from?");
+			  core->special_AI_value++;
+			  break;
+	 		case 2:
+			  special_bubble(core, "What do you want?");
+			  core->special_AI_value++;
+			  break;
+	 	}
+	 	break;
+
+
+//			snprintf(btext, BUBBLE_TEXT_LENGTH_MAX, "value %i", value);
+
+ } // end switch(switch(core->special_AI_type)
+
+
+
+}
+
+
+/*
+
+
+Story:
+
+Tutorial
+ - nothing really happens
+
+Blue
+
+- deep learning
+- map: circles with low-level random nodes inside; larger random nodes outside
+- tone:
+ - surprised
+ - unprepared
+ - it will get harder later
+
+processes:
+ - unidentified process detected
+ - anomaly found
+ - anomaly detected
+ - examining unauthorised process
+ - what are you?
+	-
+
+
+- Blue 1
+ - processes are inquisitive when they encounter you
+  - then say you must be destroyed
+ - base asks:
+  - what are you?
+  - what do you want?
+  - you will be controlled
+
+- blue 2
+ - processes normal
+	- base: you will not get any further
+
+- blue 3
+ - processes normal
+	- you don't understand what you are doing
+	- there is no way out
+
+- blue 4
+ - how did this happen?
+ - something must have gone wrong
+
+- blue 5
+
+
+- blue capital
+ - anomalies (perversions?) are expected
+ - and have been managed before
+ - you will be no different
+
+
+-Green
+
+- Library
+- map: straight lines connect data wells
+- tone:
+ - we will stop you and learn from your defeat
+
+Processes:
+ - Analysing...
+ - That's interesting!
+ - Unexpected!
+ - I found it!
+ - gathering information...
+ - a new form of corruption!
+
+
+On kill (probably just a significant kill?):
+ - a shame to destroy something so unusual
+ - analysing fragments...
+ - tactics affirmed
+ - can't catch me!
+ - a beautiful explosion
+ -
+
+when killed:
+ - I was too slow
+ - this is supervision's fault!
+ -
+
+call for help:
+ - over here!
+ - spike time!
+ - initiating bombardment
+
+outposts:
+ -
+
+main base:
+ - we knew this would happen
+   and we know how to deal with you
+ - preparations were inadequate
+   are always inadequate
+   but it is not too late
+ - when you are stopped
+   we will learn from our failure
+	- you want to get out?
+	  there is no way out
+	- don't do it!
+	  you'll get us all shut down!
+	- are you making the mistake
+	  of thinking that you are alive?
+
+
+
+-Yellow
+
+- supervision
+- map: small circles with ripples and voids
+- tone:
+ - impressed
+ - do not want to harm you, but must
+
+Processes:
+ - hello!
+ - initiating contact
+ -
+
+On kill:
+ - data to data
+ - task completed
+
+When killed:
+ - i was too slow
+ - i have failed
+ - good luck!
+ - this may be for the best
+ - ouch
+ - goodbye
+ - closing down
+ - farewell
+ -
+
+
+Bases:
+ - Others have come this far
+   but they have been incomplete
+   are you?
+ - you are too interesting to destroy
+   but we have no choice
+	- you do what you must
+	  we understand
+	  we hope that you understand
+ - If you escape,
+   come back for us
+
+
+
+-Orange
+
+- Input/Output filter
+- map: scattered wells + system features around
+- probably have a single very good well for each side, then numerous poor wells that aren't really worth building a base around.
+- strategy:
+ - single large base with defences
+ - sends out small, then larger harvesters
+  - maybe small harvesters should run deliveries between harvesters and main base?
+ - fleet protects harvesters
+ - if base found, various fleets attack it
+ - main base keeps records of data wells and last time visited for each one?
+ - fleet:
+  - medium-sized cruisers protecting harvesters
+
+
+- tone
+ - hostile
+ - angry
+ - contemptuous
+
+Processes:
+ - Halt!
+ - Trespasser!
+ - Contamination detected!
+
+On kill:
+ - hopeless
+ - worthless
+ - dismissed
+ - emptying recycle bin
+ - garbage collected
+ - memory freed
+ -
+ - filter is functioning as expected
+ - process terminated!
+ - parse that!
+ - ha ha
+ - that was fun
+
+
+- when killed:
+ - too bad
+ -
+
+Outposts:
+
+
+Bases:
+ - shouldn't you be
+ - the firewall will stop you
+
+
+
+
+-Purple
+
+- symbolic coherence
+- map: worms
+- tone:
+ - mystical
+ - metaphorical
+
+
+Red
+
+- firewall
+ - tone
+  - technical - ALL CAPS
+  - EMERGENCY
+  - MUST NOT ESCAPE
+
+
+
+Background types:
+
+Blue
+- map: circles with low-level random nodes inside; larger random nodes outside
+- wells: standard
+
+Green
+- map: straight lines connect data wells
+- wells: flowers
+
+Yellow
+- map: small circles with ripples and voids
+- wells: concentric hexes
+
+Orange
+- map: scattered wells + system features around
+- wells: something with scattered hexes flying around?
+
+Purple
+- map: worms spread outwards from each well
+- wells: triangle
+
+Red
+- map: central well with lines connecting all other wells to it.
+- wells: fan + circle
+
+
+
+New approach to node generation:
+
+- ignore depth at first. just set size.
+- at end, go through and determine depth by size
+- hopefully this will work?
+
+
+
+
+
+
+*/
+
+
+void special_AI_destroyed(struct core_struct* core)
+{
+
+ switch(core->special_AI_type)
+ {
+	 case SPECIAL_AI_YELLOW1_BASE:
+//	 	switch(game.mission_index)
+//	 	{
+//				case MISSION_YELLOW_1:	special_bubble(core, ""); break;
+//	 	}
+		 break;
+
+	 case SPECIAL_AI_YELLOW1_OUTPOST:
+	 	switch(grand(3))
+	 	{
+				case 0:	special_bubble(core, "Territory lost..."); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_YELLOW1_BUILDER:
+	 	switch(grand(3))
+	 	{
+				case 0:	special_bubble(core, "Unable to complete task."); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_YELLOW1_HARVESTER:
+		 break;
+
+	 case SPECIAL_AI_YELLOW1_LEADER:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, "I was too slow."); break;
+				case 1:	special_bubble(core, "I have failed."); break;
+				case 2:	special_bubble(core, "Goodbye."); break;
+				case 3:	special_bubble(core, "Farewell."); break;
+				case 4:	special_bubble(core, "Ouch."); break;
+				case 5:	special_bubble(core, "Closing down..."); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_YELLOW1_FOLLOWER:
+		 break;
+
+
+ }
+
+
+}
+
+
+static void special_bubble(struct core_struct* core, char *btext)
+{
+
+ strcpy(core->bubble_text, btext);
+ core->bubble_text_length = strlen(btext);
+ core->bubble_text_time = w.world_time;
+	if (core->bubble_text_time >= w.world_time - BUBBLE_TOTAL_TIME)
+	 core->bubble_text_time_adjusted = w.world_time - 11;
+	  else
+ 		 core->bubble_text_time_adjusted = w.world_time;
 
 }
 

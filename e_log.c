@@ -240,6 +240,11 @@ void display_log(void)
 // editor.log_sub_bmp = al_create_sub_bitmap(editor.sub_bmp, EDIT_WINDOW_X, editor.mlog_window_y, editor.edit_window_w, LOG_WINDOW_H);
 
  int x1 = panel[PANEL_LOG].x1;
+
+// If player has several panels open, the log may go off the screen:
+ if (x1 < 0)
+		x1 = 0;
+
  int y1 = panel[PANEL_LOG].y1;
  int x2 = x1 + panel[PANEL_LOG].w + 10;
  int y2 = y1 + panel[PANEL_LOG].h + 20;

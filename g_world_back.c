@@ -37,9 +37,9 @@ void init_world_background(void)
 	int i, j;
 
 	w.backblock_parallax [0] = 1;
-//	w.backblock_parallax [1] = 0.985;
-//	w.backblock_parallax [2] = 0.97;
-//	w.backblock_parallax [3] = 0.955;
+//	w.backblock_parallax [1] = 0.95;
+//	w.backblock_parallax [2] = 0.92;
+//	w.backblock_parallax [3] = 0.88;
 	w.backblock_parallax [1] = 0.99;
 	w.backblock_parallax [2] = 0.98;
 	w.backblock_parallax [3] = 0.97;

@@ -77,6 +77,7 @@ int check_proc_visible_to_user(int proc_index);
 void clear_selection(void);
 void clear_control_groups(void);
 
+int add_command(struct core_struct* core, int command_type, int x, int y, int core_index, int member_index, int queued, int control_pressed);
 s16b add_to_build_queue(int player_index, int builder_core_index, int template_index, int build_x, int build_y, int angle, int back_or_front, int repeat, int queue_for_this_core, int failure_message);
 void clear_build_queue_for_core(int player_index, int remove_core_index);
 void requeue_repeat_build(int player_index);

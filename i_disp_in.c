@@ -102,7 +102,7 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 // The above go into the proc_col_ list
   {30, 50, 100}, // 9 BASE_TEAM_COL_MIN
   {80, 140, 250}, // 10 BASE_TEAM_COL_MAX
-  {50, 50, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
+  {80, 80, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
 
 	}, // end TEAM_COL_BLUE
 
@@ -156,27 +156,42 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 
 	}, // end TEAM_COL_WHITE
 	{
-		{78, 58, 108}, // 0 underlay
+		{78, 58, 128}, // 0 underlay
 		{144, 72, 220}, // 1 core (mutable - these are base values)
-		{140, 75, 190}, // 2 main 1
-		{150, 80, 230}, // 3 main 2
-		{132, 64, 230}, // 4 main 3
+		{100, 15, 170}, // 2 main 1
+		{110, 30, 210}, // 3 main 2
+		{92, 24, 210}, // 4 main 3
 		{108, 38, 148}, // 5 link
-		{120, 700, 170}, // 6 object base
-		{170, 70, 220}, // 7 object 1
-		{120, 60, 220}, // 8 object 2
+		{120, 40, 170}, // 6 object base
+		{170, 40, 220}, // 7 object 1
+		{120, 30, 220}, // 8 object 2
 // The above go into the proc_col_ list
   {90, 20, 100}, // 9 BASE_TEAM_COL_MIN
   {160, 40, 250}, // 10 BASE_TEAM_COL_MAX
   {150, 30, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
 
+/*
+		{78, 58, 128}, // 0 underlay
+		{144, 72, 220}, // 1 core (mutable - these are base values)
+		{120, 15, 170}, // 2 main 1
+		{130, 30, 210}, // 3 main 2
+		{112, 24, 210}, // 4 main 3
+		{108, 38, 148}, // 5 link
+		{120, 40, 170}, // 6 object base
+		{170, 40, 220}, // 7 object 1
+		{120, 30, 220}, // 8 object 2
+// The above go into the proc_col_ list
+  {90, 20, 100}, // 9 BASE_TEAM_COL_MIN
+  {160, 40, 250}, // 10 BASE_TEAM_COL_MAX
+  {150, 30, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
+*/
 	}, // end TEAM_COL_PURPLE
 	{
 		{130, 60, 40}, // 0 underlay
 		{230, 122, 74}, // 1 core
-		{210, 95, 54}, // 2 main 1
-		{220, 112, 64}, // 3 main 2
-		{220, 102, 54}, // 4 main 3
+		{220, 85, 54}, // 2 main 1
+		{230, 102, 64}, // 3 main 2
+		{230, 92, 54}, // 4 main 3
 		{180, 88, 44}, // 5 link
 		{190, 100, 52}, // 6 object base
 		{230, 130, 72}, // 7 object 1
@@ -189,21 +204,21 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 	}, // end TEAM_COL_ORANGE
 
 	{
-		{38, 58, 128}, // 0 underlay
-		{74, 142, 220}, // 1 core (mutable - these are base values)
-		{10, 10, 10}, // 2 main 1
-		{10, 10, 10}, // 3 main 2
-		{10, 10, 10}, // 4 main 3
-		{38, 98, 148}, // 5 link
-		{65, 110, 170}, // 6 object base
-		{64, 140, 220}, // 7 object 1
-		{52, 120, 220}, // 8 object 2
+		{110, 10, 5}, // 0 underlay
+		{230, 42, 24}, // 1 core
+		{160, 15, 8}, // 2 main 1
+		{170, 4, 12}, // 3 main 2
+		{170, 8, 10}, // 4 main 3
+		{180, 38, 14}, // 5 link
+		{180, 20, 6}, // 6 object base
+		{210, 30, 12}, // 7 object 1
+		{210, 25, 22}, // 8 object 2
 // The above go into the proc_col_ list
-  {30, 50, 100}, // 9 BASE_TEAM_COL_MIN
-  {80, 140, 250}, // 10 BASE_TEAM_COL_MAX
-  {50, 50, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
+  {70, 10, 20}, // 9 BASE_TEAM_COL_MIN
+  {220, 110, 40}, // 10 BASE_TEAM_COL_MAX
+  {250, 100, 60}, // BASE_TEAM_COL_MAP_PIXEL
 
-	}, // end TEAM_COL_BLUE
+	}, // end TEAM_COL_RED
 
 
 
@@ -231,6 +246,13 @@ const int base_packet_colours [PACKET_COLS] [6] =
  {230, 250, // min and max red values
   1, 100, // green
   1, 40}, // blue - PACKET_COL_ORANGE_RED
+
+ {140, 220, // min and max red values
+  10, 180, // green
+  200, 250}, // blue - PACKET_COL_BLUE_PURPLE
+ {10, 230, // min and max red values
+  10, 110, // green
+  230, 150}, // blue - PACKET_COL_ULTRAVIOLET
 
 
 };
@@ -275,6 +297,13 @@ const int base_interface_colours [PACKET_COLS] [9] =
  {230, 20, // min and max red values
   10, 100, // green
   5, 40}, // blue - PACKET_COL_ORANGE_RED
+
+ {30, 100, 50, // base and var red values
+  30, 100, 50, // green
+  130, 10, 100}, // blue - PACKET_COL_BLUE_PURPLE
+ {30, 100, 50, // base and var red values
+  30, 100, 50, // green
+  130, 10, 100}, // blue - PACKET_COL_ULTRAVIOLET
 
 
 /*
@@ -646,10 +675,15 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 	w.hex_base_colour [1] = back_and_hex_colours [hex_col] [4];
 	w.hex_base_colour [2] = back_and_hex_colours [hex_col] [5];
 
+//fpr("\n hex cols %i %i %i", w.hex_base_colour [0], w.hex_base_colour [1], w.hex_base_colour [2]);
+
 	int i;
 
 	for (i = 0; i < players; i ++)
 	{
+		if (settings.replace_colour [i] != -1)
+			player_base_cols [i] = settings.replace_colour [i];
+
 		map_player_colours(i, player_base_cols [i], player_packet_cols [i]);
 	}
 
@@ -661,6 +695,16 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 // *** TO DO: think about allowing users to force specific colours in init.txt to deal with colour perception issues
 void map_player_colours(int p, int base_col, int packet_col)
 {
+
+#ifdef SANITY_CHECK
+ if (base_col < 0
+		|| base_col >= TEAM_COLS)
+	{
+		fpr("\n Error: i_disp_in.c: map_player_colours(): base_col out of range (is %i; should be 0 to %i)", base_col, TEAM_COLS - 1);
+		error_call();
+	}
+#endif
+
 
 	int i;
 
@@ -974,9 +1018,14 @@ static void map_hex_colours(int p)
 
    for (l = 0; l < BACKBLOCK_LAYERS; l ++)
 			{
+
+    colours.back_fill [l] [p] [j] [k] = map_rgb(red * (1.7 - 0.212 * l),
+                                                green * (1.7 - 0.212 * l),
+                                                blue * (1.7 - 0.12 * l));
+/*
     colours.back_fill [l] [p] [j] [k] = map_rgb(red * (1.7 - 0.012 * l),
                                                 green * (1.7 - 0.012 * l),
-                                                blue * (1.7 - 0.12 * l));
+                                                blue * (1.7 - 0.12 * l));*/
 			}
 
 

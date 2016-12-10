@@ -19,6 +19,7 @@ MDETAIL_RING, // circle of raised nodes
 MDETAIL_RING_EMPTY, // circle of raised nodes with void in centre
 MDETAIL_SYSTEM, // single large node surrounded by smaller ones
 MDETAIL_SYSTEM_CLEAR, // like SYSTEM but clears around itself first
+MDETAIL_WORM_SOURCE
 
 };
 
@@ -54,14 +55,17 @@ struct map_init_struct
 
  int general_background_type;
 
- int base_background_depth;
- int background_depth_random_freq; // frequency of random addition/subtraction to background depth
- int background_depth_random_add; // size of random addition
- int background_depth_random_sub; // size of random subtraction
- int base_background_size;
- int background_size_random_freq; // frequency of random addition/subtraction to background size
- int background_size_random_add; // size of random addition
- int background_size_random_sub; // size of random subtraction
+// int base_background_depth;
+// int background_depth_random_freq; // frequency of random addition/subtraction to background depth
+// int background_depth_random_add; // size of random addition
+// int background_depth_random_sub; // size of random subtraction
+// int base_background_size;
+// int background_size_random_freq; // frequency of random addition/subtraction to background size
+// int background_size_random_add; // size of random addition
+// int background_size_random_sub; // size of random subtraction
+ int background_size_base;
+ int background_size_random;
+ int background_size_random_freq;//20;//60; // frequency of random addition/subtraction to background depth
 
 
  block_cart spawn_position [PLAYERS]; // may be nonsense for non-existent players
@@ -73,9 +77,12 @@ struct map_init_struct
 	int data_well_reserve_data [DATA_WELLS] [DATA_WELL_RESERVES];
 	int data_well_reserve_squares [DATA_WELLS]; // currently the same for both reserves
 
+	int data_well_style; // e.g. AREA_BLUE
+
 };
 
-void clear_map_init(int map_size_blocks,
+void reset_map_init(int map_size_blocks,
+																				int map_area,
 																				int players);
 void generate_random_map(int size_blocks,
 																					    int players,
@@ -88,6 +95,8 @@ int add_data_well_to_map_init(int x, int y, int reserve_A, int reserve_B, int re
 int add_mdetail_ring(int centre_x, int centre_y, int ring_size, int empty_centre);
 int add_mdetail_line(int start_x, int start_y, int end_x, int end_y, int line_thickness);
 int add_mdetail_system(int centre_x, int centre_y, int system_size);
+int add_mdetail_worm_source(int centre_x, int centre_y, int worms);
+int	add_line_between_data_wells(int well_1, int well_2, int line_thickness);
 int add_data_well_to_mdetail_ring(int mdetail_ring_index, int angle, int reserve_A, int reserve_B, int reserve_squares, float spin_rate);
 void add_extra_spawn_by_latest_well(int player_index, int template_index, int angle_from_well);
 

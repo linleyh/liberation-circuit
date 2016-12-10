@@ -108,6 +108,8 @@ struct instruction_set_struct instruction_set [INSTRUCTIONS] =
 
  {"print", 0}, // OP_print (actually kind of has operands),
  {"printA", 0}, // OP_printA
+ {"bubble", 0}, // OP_bubble (actually kind of has operands),
+ {"bubbleA", 0}, // OP_bubbleA
 
  {"call_object", 1, {OPERAND_TYPE_NUMBER}}, // OP_call_object,
  {"call_member", 1, {OPERAND_TYPE_NUMBER}}, // OP_call_member,
@@ -177,10 +179,10 @@ static int parse_for(void);
 static int parse_while(void);
 static int parse_do_while(void);
 static int parse_goto_or_gosub(void);
-static int parse_printf(void);
+static int parse_printf(int print_op, int printA_op);
 static int parse_enum(void);
 static int parse_switch(int exit_point_continue);
-static int add_print_string(char* source_string, int string_length);
+static int add_print_string(char* source_string, int string_length, int print_op);
 
 static int allocate_exit_point(int type);
 static int variable_declaration(void);
@@ -476,7 +478,11 @@ static int next_statement(int exit_point_break, int exit_point_continue, int end
 							add_intercode(IC_OP, OP_return_sub, 0, 0);
 							break;
 						case KEYWORD_C_PRINTF:
-							if (!parse_printf())
+							if (!parse_printf(OP_print, OP_printA))
+								return 0;
+							break;
+						case KEYWORD_C_BUBBLEF:
+							if (!parse_printf(OP_bubble, OP_bubbleA))
 								return 0;
 							break;
 						case KEYWORD_C_PROCESS:
@@ -1060,17 +1066,19 @@ static int parse_switch(int exit_point_continue)
 }
 
 
-static int parse_printf(void)
+// print_op and printA_op are set to the print or bubble ops as appropriate
+static int parse_printf(int print_op, int printA_op)
 {
+// assume that STRING_MAX_LENGTH >= BUBBLE_TEXT_LENGTH_MAX
  char raw_string [STRING_MAX_LENGTH];
  char target_string [STRING_MAX_LENGTH];
  raw_string [0] = '\0';
  target_string [0] = '\0';
 
  if (!expect_punctuation(CTOKEN_SUBTYPE_BRACKET_OPEN))
-		return comp_error_text("expected open bracket after printf", NULL);
+		return comp_error_text("expected open bracket after printf/bubble", NULL);
  if (!expect_punctuation(CTOKEN_SUBTYPE_QUOTES))
-		return comp_error_text("expected open quote after printf", NULL);
+		return comp_error_text("expected open quote after printf/bubble", NULL);
 
 	int read_char;
 	int raw_string_length = 0;
@@ -1083,7 +1091,7 @@ static int parse_printf(void)
 		if (read_char == 0)
  		return comp_error_text("found null terminator inside string?", NULL);
 
-  if (raw_string_length >= STRING_MAX_LENGTH - 2)
+  if (raw_string_length >= STRING_MAX_LENGTH - 2) // should probably check this against BUBBLE_TEXT_LENGTH_MAX if relevant...
  		return comp_error_text("string too long", NULL);
 
  	if (read_char == '"')
@@ -1112,7 +1120,7 @@ static int parse_printf(void)
 // if there is something in target_string_pos that needs to be printed, write intercode to print it:
 							if (target_string_pos > 0)
 							{
-								if (!add_print_string(target_string, target_string_pos))
+								if (!add_print_string(target_string, target_string_pos, print_op))
 									return 0;
 								target_string_pos = 0;
 							}
@@ -1123,7 +1131,7 @@ static int parse_printf(void)
  		     return comp_error_text("expected comma in format argument list", NULL);
  		    if (!next_expression(-1, BIND_EXPRESSION_START))
 								return 0;
-						 add_intercode(IC_OP, OP_printA, 0, 0); // prints contents of register A (which should have been set as result of parsing expression)
+						 add_intercode(IC_OP, printA_op, 0, 0); // prints contents of register A (which should have been set as result of parsing expression)
 						 target_string_pos = 0;
 //						 i--;
 						 continue;
@@ -1155,7 +1163,7 @@ static int parse_printf(void)
 
 	if (target_string_pos > 0)
 	{
-		if (!add_print_string(target_string, target_string_pos))
+		if (!add_print_string(target_string, target_string_pos, print_op))
 			return 0;
 	}
 
@@ -1166,7 +1174,7 @@ static int parse_printf(void)
 // if (!expect_punctuation(CTOKEN_SUBTYPE_QUOTES))
 //		return comp_error_text("expected closing quote at end of printf statement", NULL);
  if (!expect_punctuation(CTOKEN_SUBTYPE_BRACKET_CLOSE))
-		return comp_error_text("expected closing bracket after printf (too many arguments?)", NULL);
+		return comp_error_text("expected closing bracket after printf/bubble (too many arguments?)", NULL);
 // if (!expect_punctuation(CTOKEN_SUBTYPE_SEMICOLON))
 //		return comp_error_text("expected semicolon at end of printf", NULL);
 
@@ -1176,10 +1184,10 @@ static int parse_printf(void)
 
 // source_string shouldn't be null terminated within string_length (parse_printf checks for this)
 // formatting specifiers are ignored
-static int add_print_string(char* source_string, int string_length)
+static int add_print_string(char* source_string, int string_length, int print_op)
 {
 
-	add_intercode(IC_OP, OP_print, 0, 0);
+	add_intercode(IC_OP, print_op, 0, 0);
 
 	int i;
 
@@ -2241,7 +2249,12 @@ static int next_expression_value(int exit_point, int bind_level)
 // int dereference = 0;
 // int retval;
  int apply_not = 0;//, apply_bitwise_not = 0;
- int fix_exit_point = 0; // this should be set to 1 if exit_point is allocated within this function rather than being passed by the passing function (it makes sure the exit point is actually created)
+// int fix_exit_point = 0; // this should be set to 1 if exit_point is allocated within this function rather than being passed by the passing function (it makes sure the exit point is actually created)
+
+ int subexpression_exit_point = -1; // if the value is an open bracket, may need a new exit point for a subexpression
+// int fix_subexpression_exit_point = 0; - not needed - the subexpression exit point is always fixed.
+ //   *** TO DO: this should be optimised by combining multiple predictable jumps into a single jump
+ //     (could be done easily in intercode, or in bcode generation)
 
 /* if (check_next(CTOKEN_TYPE_OPERATOR_ARITHMETIC, CTOKEN_SUBTYPE_BITWISE_NOT)) // ~
  {
@@ -2274,26 +2287,34 @@ static int next_expression_value(int exit_point, int bind_level)
     case CTOKEN_TYPE_PUNCTUATION: // only ( is accepted
      if (ctoken.subtype != CTOKEN_SUBTYPE_BRACKET_OPEN) // this is the only punctuation accepted at this point.
       return comp_error(CERR_SYNTAX_PUNCTUATION_IN_EXPRESSION, &ctoken);
-
+/*
      if (exit_point == -1)
      {
       exit_point = allocate_exit_point(EXPOINT_TYPE_BASIC);
       if (exit_point == -1)
        return 0;
       fix_exit_point = 1;
-     }
+     }*/
 //     fpr("\n - found open bracket.");
 
-     if (!next_expression(exit_point, BIND_EXPRESSION_START)) // new sub-expression resets binding.
+     subexpression_exit_point = allocate_exit_point(EXPOINT_TYPE_BASIC);
+     if (subexpression_exit_point == -1)
+      return 0;
+
+     if (!next_expression(subexpression_exit_point, BIND_EXPRESSION_START)) // new sub-expression resets binding.
       return 0;
 
      if (!expect_punctuation(CTOKEN_SUBTYPE_BRACKET_CLOSE))
 						return comp_error_text("expected closing bracket after sub-expression", NULL);
 
-     if (fix_exit_point)
+
+      add_intercode(IC_EXIT_POINT_TRUE, subexpression_exit_point, 0, 0);// * should combine these two separate calls to just one IC
+      add_intercode(IC_EXIT_POINT_FALSE, subexpression_exit_point, 0, 0);
+
+//     if (fix_exit_point)
      {
-      add_intercode(IC_EXIT_POINT_TRUE, exit_point, 0, 0);// * should combine these two separate calls to just one IC
-      add_intercode(IC_EXIT_POINT_FALSE, exit_point, 0, 0);
+//      add_intercode(IC_EXIT_POINT_TRUE, exit_point, 0, 0);// * should combine these two separate calls to just one IC
+//      add_intercode(IC_EXIT_POINT_FALSE, exit_point, 0, 0);
      }
 
 //     dereference_loop(REGISTER_WORKING, &dereference);
@@ -2535,7 +2556,6 @@ static int next_expression_operator(struct ctokenstruct* ctoken_operator, int ex
        break;
      }
 			}
-
 			 else
 				{
 			  // if the operator isn't logical, put the existing contents of A onto the stack:
@@ -3032,7 +3052,7 @@ static void add_intercode(int ic_type, int value1, int value2, int value3)
 
 #ifdef PRINT_INTERCODE
 
- fpr("\n[%i] ", cstate.ic_pos);
+ fpr("\n[%i:%i] ", cstate.ic_pos, cstate.src_line);
 
 
  switch(ic_type)

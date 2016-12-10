@@ -126,7 +126,7 @@ void draw_design_window(void)
  if (dwindow.templ->active)
 	{
 
-#define POWER_GRAPH_X (base_x1 + 54)
+#define POWER_GRAPH_X (base_x1 + 55)
 #define POWER_GRAPH_Y (base_y2 - 30)
 #define POWER_GRAPH_H 8
 #define POWER_GRAPH_Y0 (POWER_GRAPH_Y - POWER_GRAPH_H - 2)
@@ -253,9 +253,9 @@ add_design_bquad(POWER_GRAPH_X,
 //  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], panel[PANEL_DESIGN].x1 + 140, panel[PANEL_DESIGN].y1+15, ALLEGRO_ALIGN_LEFT, "Power: capacity %i  use: peak %i average %i base %i", nshape[dwindow.templ->member[0].shape].power_capacity, dwindow.templ->power_use_peak, dwindow.templ->power_use_smoothed, dwindow.templ->power_use_base);
   if (dwindow.templ->modified)
 		{
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y2 - 39, ALLEGRO_ALIGN_RIGHT, "This template has been modified.");
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y2 - 26, ALLEGRO_ALIGN_RIGHT, "Use <Write Header> or <Autocode>");
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y2 - 13, ALLEGRO_ALIGN_RIGHT, "to keep changes.");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + 3, ALLEGRO_ALIGN_RIGHT, "This template has been modified.");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + 16, ALLEGRO_ALIGN_RIGHT, "Use <Write Header> or <Autocode>");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + 29, ALLEGRO_ALIGN_RIGHT, "to keep changes.");
 
 /*
  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x1 + 4, base_y2 - 39, ALLEGRO_ALIGN_LEFT, "This template has been modified.");
@@ -358,12 +358,12 @@ void draw_template_members(void)
 			 ALLEGRO_COLOR highlight_col = map_rgba(160 + highlight_adjust,
 																																										 		 160 + highlight_adjust,
 																																											 	 100 + highlight_adjust,
-																																												  50 + highlight_adjust);
+																																												  150 + highlight_adjust);
 
 			 ALLEGRO_COLOR highlight_col2 = map_rgba(180 + highlight_adjust,
 																																										 		 130 + highlight_adjust,
 																																											 	 80 + highlight_adjust,
-																																												  90 + highlight_adjust * 2);
+																																												  190 + highlight_adjust * 2);
 
 				float arrow_dist;
 
@@ -450,8 +450,7 @@ void draw_template_members(void)
      case OBJECT_TYPE_BURST:
      case OBJECT_TYPE_BURST_L:
      case OBJECT_TYPE_BURST_XL:
-     case OBJECT_TYPE_SURGE:
-     case OBJECT_TYPE_SURGE_DIR:
+     case OBJECT_TYPE_SLICE:
      case OBJECT_TYPE_ULTRA:
      case OBJECT_TYPE_ULTRA_DIR:
      case OBJECT_TYPE_STREAM:
@@ -608,12 +607,12 @@ void draw_template_members(void)
 			  ALLEGRO_COLOR highlight_col = map_rgba(160 + highlight_adjust,
 																																										 		 60 + highlight_adjust,
 																																											 	 30 + highlight_adjust,
-																																												  50 + highlight_adjust);
+																																												  150 + highlight_adjust);
 
 			  ALLEGRO_COLOR highlight_col2 = map_rgba(190 + highlight_adjust,
 																																										 		 70 + highlight_adjust,
 																																											 	 40 + highlight_adjust,
-																																												  90 + highlight_adjust * 2);
+																																												  190 + highlight_adjust * 2);
 
 				 float arrow_dist;
 
@@ -1222,15 +1221,12 @@ char* object_description [OBJECT_TYPES] [3] =
  {"Extremely powerful attack.",
   "Can rotate to attack its target.",
   ""}, //	OBJECT_TYPE_ULTRA_DIR,
- {"Fires a fast stream of malicious data.",
-  "",
-  ""}, //	OBJECT_TYPE_SURGE,
- {"Fires a fast stream of malicious data.",
-  "Can rotate to track its target.",
-  ""}, //	OBJECT_TYPE_SURGE_DIR,
- {"Increases stability of interface (for this component only).",
-  "",
-  ""}, //	OBJECT_TYPE_STABILITY,
+ {"Fires a fast stream of malicious data. Does",
+  "double damage against components not protected by",
+  "an interface. Can rotate to track its target."}, //	OBJECT_TYPE_SLICE,
+ {"Increases stability of interface for this component.",
+  "(Halves damage taken by this component's interface",
+  "while active.)"}, //	OBJECT_TYPE_STABILITY,
 
 };
 
@@ -1390,9 +1386,8 @@ static void design_help_highlight(int base_x, int base_y)
      	case OBJECT_TYPE_STREAM_DIR:
        al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.damage * STREAM_FIRING_TIME);
        break;
-     	case OBJECT_TYPE_SURGE:
-     	case OBJECT_TYPE_SURGE_DIR:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.damage * SURGE_FIRING_TIME);
+     	case OBJECT_TYPE_SLICE:
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * SLICE_FIRING_TIME, otype[display_object.type].object_details.damage * SLICE_FIRING_TIME * 2);
        break;
       case OBJECT_TYPE_SPIKE:
        al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage, SPIKE_MAX_DAMAGE);
@@ -1410,9 +1405,8 @@ static void design_help_highlight(int base_x, int base_y)
      	case OBJECT_TYPE_STREAM_DIR:
      		dpc = (otype[display_object.type].object_details.damage * STREAM_FIRING_TIME);
        break;
-     	case OBJECT_TYPE_SURGE:
-     	case OBJECT_TYPE_SURGE_DIR:
-     		dpc = (otype[display_object.type].object_details.damage * SURGE_FIRING_TIME);
+     	case OBJECT_TYPE_SLICE:
+     		dpc = (otype[display_object.type].object_details.damage * SLICE_FIRING_TIME);
        break;
       case OBJECT_TYPE_SPIKE:
 							dpc = SPIKE_MAX_DAMAGE;
@@ -1436,7 +1430,18 @@ static void design_help_highlight(int base_x, int base_y)
 
 #endif
      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "recycle time");
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.recycle_time);
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.recycle_time / EXECUTION_COUNT);
+     line_y += 12;
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "API type");
+     switch(otype[display_object.type].object_details.attack_type)
+     {
+     	case ATTACK_TYPE_PULSE:
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "pulse"); break;
+     	case ATTACK_TYPE_BURST:
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "burst"); break;
+     	case ATTACK_TYPE_SPIKE:
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "spike"); break;
+     }
      line_y += 12;
 				}
     line_y += 8;

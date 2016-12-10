@@ -74,22 +74,62 @@ int story_area_base_col [STORY_AREAS] [3] =
 
 };
 
-/*
-#define STORY_REGION_SIZE 24
+char *story_unlock_name [UNLOCKS] =
+{
+"Nothing", // UNLOCK_NONE,
 
-#define STORY_REGION_SEPARATION_X 16
-#define STORY_REGION_SEPARATION_Y 26
-*/
+"Key", // UNLOCK_KEY,
+
+"Mobile core", // UNLOCK_CORE_MOBILE_1,
+"Mobile core", // UNLOCK_CORE_MOBILE_2,
+"Mobile core", // UNLOCK_CORE_MOBILE_3,
+"Mobile core", // UNLOCK_CORE_MOBILE_4,
+"Mobile core", // UNLOCK_CORE_MOBILE_5,
+
+"Static core", // UNLOCK_CORE_STATIC_1,
+"Static core", // UNLOCK_CORE_STATIC_2,
+"Static core", // UNLOCK_CORE_STATIC_3,
+
+"Components", // UNLOCK_COMPONENTS_1,
+"Components", // UNLOCK_COMPONENTS_2,
+
+"Object: interface", // UNLOCK_OBJECT_INTERFACE,
+"Object: repair_other", // UNLOCK_OBJECT_REPAIR_OTHER,
+"Object: stability", // UNLOCK_OBJECT_STABILITY,
+
+"Object: pulse_l", // UNLOCK_OBJECT_PULSE_L,
+"Object: pulse_xl", // UNLOCK_OBJECT_PULSE_XL,
+"Object: burst_xl", // UNLOCK_OBJECT_BURST_XL,
+
+"Object: stream (+dir)", // UNLOCK_OBJECT_STREAM,
+"Object: spike", // UNLOCK_OBJECT_SPIKE,
+"Object: slice", // UNLOCK_OBJECT_SLICE,
+"Object: ultra (+dir)", // UNLOCK_OBJECT_ULTRA,
+
+//"", // UNLOCKS
+
+
+
+};
+
+/*
 
 #define STORY_REGION_SIZE 34
 
 #define STORY_REGION_SEPARATION_X 21
 #define STORY_REGION_SEPARATION_Y 36
+*/
+
+#define STORY_REGION_SIZE 48
+
+#define STORY_REGION_SEPARATION_X 21
+#define STORY_REGION_SEPARATION_Y 36
+
 
 #define FIXED_STORY_BOX_X 20
 #define FIXED_STORY_BOX_Y 550
 
-#define STORY_BOX_W 380
+#define STORY_BOX_W 390
 #define STORY_BOX_H 140
 
 #define GO_BUTTON_X (FIXED_STORY_BOX_X + STORY_BOX_W + 40)
@@ -372,8 +412,8 @@ void story_input(void)
 static void reset_region_screen_positions(void)
 {
 
-	story_inter.region_x_start = 180;
-	story_inter.region_y_start = 500;
+	story_inter.region_x_start = 150;
+	story_inter.region_y_start = 430;
 
 	int i;
 
@@ -592,23 +632,69 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
 	float line_y = draw_y + 10;
 
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Region %i mission %i", region_index, story.region[region_index].mission_index);
- line_y += 22;
- al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Local conditions:");
+// Will just say region %i
+ line_y += 28;
+ al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Function");
+ int region_text_col;
  switch(story.region[region_index].area_index)
  {
+#define FUNCTION_X 72
+#define LINE_HEIGHT_MID 18
  default:
- 	case AREA_BLUE:
  	case AREA_TUTORIAL:
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MED], line_x + 122, line_y, ALLEGRO_ALIGN_LEFT, "none"); break;
+ 		region_text_col = COL_BLUE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Initialisation");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "Learn how to interact with your environment");
+   break;
+ 	case AREA_BLUE:
+ 		region_text_col = COL_BLUE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Deep learning");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "X");
+   break;
  	case AREA_GREEN:
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREEN] [SHADE_HIGH], line_x + 122, line_y, ALLEGRO_ALIGN_LEFT, "static environment");
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREEN] [SHADE_MED], line_x + 122, line_y + 16, ALLEGRO_ALIGN_LEFT, "(static processes cost less data)");
+ 		region_text_col = COL_GREEN;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Library");
    break;
  	case AREA_YELLOW:
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], line_x + 122, line_y, ALLEGRO_ALIGN_LEFT, "fragile processes");
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MED], line_x + 122, line_y + 16, ALLEGRO_ALIGN_LEFT, "(all components have 60 integrity)");
+ 		region_text_col = COL_YELLOW;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Supervision");
+   break;
+ 	case AREA_PURPLE:
+ 		region_text_col = COL_PURPLE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Symbolic resonance");
+   break;
+ 	case AREA_ORANGE:
+ 		region_text_col = COL_ORANGE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Input/Output filter");
+   break;
+ 	case AREA_RED:
+ 		region_text_col = COL_RED;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MAX], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "FIREWALL");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "Is this the way out?");
    break;
  }
+
+ line_y += LINE_HEIGHT_MID + 28;
+ if (story.region[region_index].defeated)
+	{
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], line_x, line_y, ALLEGRO_ALIGN_LEFT, "You have defeated this region.");
+  line_y += 28;
+  if (story.region[region_index].area_index != AREA_TUTORIAL && story.region[region_index].area_index != AREA_RED)
+		{
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Unlocked");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "%s", story_unlock_name [story.region[region_index].unlock_index]);
+		}
+	}
+   else
+			{
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_LOW], line_x, line_y, ALLEGRO_ALIGN_LEFT, "You have not defeated this region.");
+    line_y += 28;
+    if (story.region[region_index].area_index != AREA_TUTORIAL && story.region[region_index].area_index != AREA_RED)
+  		{
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Unlock");
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "%s", story_unlock_name [story.region[region_index].unlock_index]);
+  		}
+			}
 
 
 }

@@ -333,7 +333,7 @@ struct cstatestruct
 // BCODE_POS values allow a bit of a buffer to allow instructions to refer to next and previous instructions without bounds-checking
 
 #define STRING_MAX_LENGTH 64
-
+// This must not be less than BUBBLE_TEXT_LENGTH_MAX
 
 
 
@@ -396,6 +396,8 @@ OP_pcomp_neq,
 
 OP_print, // should be followed by null-terminated string
 OP_printA, // prints contents of register A
+OP_bubble, // should be followed by null-terminated string
+OP_bubbleA, // prints contents of register A to bubble
 
 OP_call_object,
 OP_call_member,
