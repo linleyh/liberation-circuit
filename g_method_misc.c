@@ -395,9 +395,9 @@ void	print_method_error(const char* error_message, int values, int value1)
 {
 
 	if (values)
-	 sprintf(method_error_string, "\nMethod error [%s:%i] at bcode %i.", error_message, value1, vmstate.bcode_pos);
+	 sprintf(method_error_string, "\nMethod error [%s:%i] at line %i (bcode %i).", error_message, value1, (int) vmstate.bcode->src_line[vmstate.bcode_pos] + 1, vmstate.bcode_pos);
 	  else
-	   sprintf(method_error_string, "\nMethod error [%s] at bcode %i.", error_message, vmstate.bcode_pos);
+	   sprintf(method_error_string, "\nMethod error [%s] at line %i (bcode %i).", error_message, (int) vmstate.bcode->src_line[vmstate.bcode_pos] + 1, vmstate.bcode_pos);
 
 // console_newline(CONSOLE_GENERAL, PRINT_COL_LRED);
 	write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LRED, vmstate.core->index, vmstate.core->created_timestamp, method_error_string);

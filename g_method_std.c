@@ -116,6 +116,7 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
  {0}, // *SMETHOD_CALL_GET_POWER_CAPACITY,
  {0}, // *SMETHOD_CALL_GET_POWER_USED,
  {0}, // *SMETHOD_CALL_GET_POWER_LEFT,
+ {0}, // SMETHOD_CALL_GET_INSTRUCTIONS_LEFT,
 // {0}, // SMETHOD_CALL_GET_POWER_USED_ACTUAL,
 // {0}, // SMETHOD_CALL_GET_POWER_LEFT_ACTUAL,
 // {0}, // SMETHOD_CALL_GET_STRESS,
@@ -694,6 +695,8 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 			return core->power_capacity - core->power_left;
 		case SMETHOD_CALL_GET_POWER_LEFT:
 			return core->power_left;
+		case SMETHOD_CALL_GET_INSTRUCTIONS_LEFT:
+			return vmstate.instructions_left;
 /*		case SMETHOD_CALL_GET_POWER_USED_ACTUAL:
 			return core->power_used;
 		case SMETHOD_CALL_GET_POWER_LEFT_ACTUAL:
@@ -832,17 +835,20 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 
 
 		case SMETHOD_CALL_CHECK_MESSAGES:
-			return core->messages_received - core->message_reading;
+			return core->messages_received + 1 - core->message_reading; // +1 because message_reading starts at -1
 		case SMETHOD_CALL_GET_MESSAGE_TYPE:
-			if (core->message_reading >= core->messages_received)
+			if (core->message_reading < 0
+			 || core->message_reading >= core->messages_received)
 				return MESSAGE_TYPE_NONE;
 			return core->message[core->message_reading].type;
 		case SMETHOD_CALL_GET_MESSAGE_CHANNEL:
-			if (core->message_reading >= core->messages_received)
+			if (core->message_reading < 0
+			 || core->message_reading >= core->messages_received)
 				return -1;
 			return core->message[core->message_reading].channel;
 		case SMETHOD_CALL_GET_MESSAGE_SOURCE:
-			if (core->message_reading >= core->messages_received)
+			if (core->message_reading < 0
+			 || core->message_reading >= core->messages_received)
 				return 0;
 			if (stack_parameters[0] < 0
 				|| stack_parameters[0] >= PROCESS_MEMORY_SIZE)
@@ -852,15 +858,18 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 // source_index may no longer exist, but doesn't matter
 			return 1;
 		case SMETHOD_CALL_GET_MESSAGE_X:
-			if (core->message_reading >= core->messages_received)
+			if (core->message_reading < 0
+			 || core->message_reading >= core->messages_received)
 				return -1;
 			return al_fixtoi(core->message[core->message_reading].source_position.x);
 		case SMETHOD_CALL_GET_MESSAGE_Y:
-			if (core->message_reading >= core->messages_received)
+			if (core->message_reading < 0
+			 || core->message_reading >= core->messages_received)
 				return -1;
 			return al_fixtoi(core->message[core->message_reading].source_position.y);
 		case SMETHOD_CALL_GET_MESSAGE_TARGET:
 			if (core->message_reading >= core->messages_received
+				|| core->message_reading < 0
 				|| stack_parameters [0] < 0
 				|| stack_parameters [0] >= PROCESS_MEMORY_SIZE)
 				return -1;
@@ -870,11 +879,13 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				return 0;
 			return 1;
 		case SMETHOD_CALL_GET_MESSAGE_PRIORITY:
-			if (core->message_reading >= core->messages_received)
+			if (core->message_reading < 0
+			 || core->message_reading >= core->messages_received)
 				return -1;
 			return core->message[core->message_reading].priority;
 		case SMETHOD_CALL_READ_MESSAGE:
-			if (core->message_reading >= core->messages_received
+			if (core->message_reading < 0
+				||	core->message_reading >= core->messages_received
 				|| core->message_position >= core->message[core->message_reading].length)
 				return 0;
 			return core->message[core->message_reading].data [core->message_position++]; // note message_position is incremented here

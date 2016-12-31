@@ -132,6 +132,7 @@ struct call_type_struct call_type [CALL_TYPES] =
 	{3}, // *CALL_INTERCEPT (<process> target, component, class index)
  {0}, // *CALL_GATHER_DATA
  {2}, // *CALL_GIVE_DATA (<process> target, data given)
+ {2}, // CALL_TAKE_DATA (<process> target, data given)
  {1}, // *CALL_ALLOCATE_DATA
  {1}, // *CALL_FIRE_SPIKE (angle_offset)
  {2}, // *CALL_FIRE_SPIKE_AT (<process> target, component)
@@ -251,13 +252,13 @@ struct object_type_struct otype [OBJECT_TYPES] =
 		"stream", KEYWORD_OBJECT_STREAM, OBJECT_BASE_TYPE_ATTACK, 32,
 		160, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 140, 150, STREAM_RECYCLE_TIME, 5, 12}, // OBJECT_TYPE_STREAM
+	 {0, ATTACK_TYPE_BURST, 140, 150, STREAM_RECYCLE_TIME, 5, 9}, // OBJECT_TYPE_STREAM
 	},
 	{
 		"stream_dir", KEYWORD_OBJECT_STREAM_DIR, OBJECT_BASE_TYPE_ATTACK, 36,
 		160, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_PULSE, 140, 150, STREAM_RECYCLE_TIME, 5, 9, 20000}, // OBJECT_TYPE_STREAM_DIR
+	 {0, ATTACK_TYPE_PULSE, 140, 150, STREAM_RECYCLE_TIME, 5, 6, 20000}, // OBJECT_TYPE_STREAM_DIR
 	},
 	{
 		"spike", KEYWORD_OBJECT_SPIKE, OBJECT_BASE_TYPE_ATTACK, 12,
@@ -1568,6 +1569,86 @@ SPIKES:
 
 				}
 				break;
+
+			case CALL_TAKE_DATA:
+				{
+
+		 	 if (proc->object[object_index].type != OBJECT_TYPE_HARVEST
+					 || core->data_stored == core->data_storage_capacity
+					 || proc->object_instance[object_index].last_gather_or_give > w.world_time - HARVEST_RECYCLE_TIME)
+					 break;
+
+//     static int target_visibility;
+//     static struct core_struct* target_core; // is static because it may need to retain its value across a class of harvest objects
+     if (call_initialised == 0)
+					{
+      vmstate.instructions_left -= 4;
+      target_visibility = verify_target_core(core, stack_parameters [0], &target_core);
+      if (!target_visibility // != 1
+							|| distance_oct_xyxy(target_core->core_position.x, target_core->core_position.y,
+																												core->core_position.x, core->core_position.y) > core->scan_range_fixed)
+					 {
+ 						return_value = -1;
+ 						call_finished = 1; // don't bother running the rest of the class members
+						 break;
+					 }
+  			 call_initialised = 1;
+  			 if (target_core->data_stored == 0)
+							return 0;
+						if (target_core->player_index != core->player_index)
+							return 0; // can't do this, sorry
+					}
+					int data_transferred = stack_parameters [1];
+					if (data_transferred > 32)
+						data_transferred = 32;
+					if (data_transferred > target_core->data_stored)
+					 data_transferred = target_core->data_stored;
+					if (core->data_stored + data_transferred > core->data_storage_capacity)
+					 data_transferred = core->data_storage_capacity - core->data_stored;
+					if (data_transferred <= 0)
+					{
+						return_value = 0;
+						call_finished = 1;
+						break;
+					}
+				 if (!object_uses_power(core, POWER_COST_GIVE_BASE))
+						break;
+
+					core->data_stored += data_transferred;
+					target_core->data_stored -= data_transferred;
+//				 core->power_used += POWER_COST_GIVE_BASE + (POWER_COST_GIVE_1_DATA * data_transferred);
+
+				 proc->object_instance[object_index].second_last_gather_or_give = proc->object_instance[object_index].last_gather_or_give; // used for animation
+				 proc->object_instance[object_index].last_gather_or_give = w.world_time;
+				 proc->object_instance[object_index].gather_or_give = 0; // 0 = gather, 1 = give (gather also used for take)
+//				 proc->object_instance[object_index].gather_target_index = target_core->index;
+					return_value += data_transferred; // += will sum total given over a class
+
+      struct cloud_struct* cl = new_cloud(CLOUD_TAKE_LINE, 32, target_core->core_position.x, target_core->core_position.y);
+
+      if (cl != NULL)
+      {
+       cl->colour = proc->player_index;
+//       cl->position2.x = x;
+//       cl->position2.y = y;
+//      cl->data [0] = ;
+       cl->data [0] = proc->index;
+       cl->data [1] = object_index;
+       cl->associated_proc_timestamp = proc->created_timestamp;
+// work out the display bounding box:
+       cl->display_size_x1 = -80 - al_fixtof(abs(target_core->core_position.x - proc->position.x));
+       cl->display_size_y1 = -80 - al_fixtof(abs(target_core->core_position.y - proc->position.y));
+       cl->display_size_x2 = 80 + al_fixtof(abs(target_core->core_position.x - proc->position.x));
+       cl->display_size_y2 = 80 + al_fixtof(abs(target_core->core_position.y - proc->position.y));
+      }
+
+					 play_game_sound(SAMPLE_ALLOC, TONE_2D, 70, 0, proc->position.x, proc->position.y);
+
+      vmstate.instructions_left -= 4;
+
+				}
+				break;
+
 			case CALL_ALLOCATE_DATA:
 				{
 					if (core->data_stored == 0)
@@ -2905,7 +2986,16 @@ static void run_stream_object(struct core_struct* core, struct proc_struct* proc
 //  if (pr->method[m].data [MDATA_PR_STREAM_STATUS] == STREAM_STATUS_FIRING)
   //{
    if (firing_stage == 1)
+			{
+    if (!w.proc[hit_proc].interface_protects
+ 				|| !w.core[w.proc[hit_proc].core_index].interface_active)
+			  damage *= 2;
+
+//  apply_packet_damage_to_proc(&w.proc[hit_proc], damage, core->player_index, core->index, core->created_timestamp);
+
     apply_packet_damage_to_proc(&w.proc[hit_proc], damage, core->player_index, core->index, core->created_timestamp);
+
+			}
   //}
   break;
  }

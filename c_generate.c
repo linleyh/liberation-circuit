@@ -32,6 +32,8 @@ extern struct identifierstruct identifier [IDENTIFIERS];
 static int add_expoint_address_resolve(int resolve_type, int ep_index);
 static int intercode_error_text(const char* error_text);
 static int resolve_addresses(void);
+static void write_bcode(s16b new_value);
+
 
 int intercode_to_bcode(void)
 {
@@ -41,6 +43,7 @@ int intercode_to_bcode(void)
  for (i = 0; i < BCODE_MAX; i ++)
 	{
 		cstate.target_bcode->op [i] = OP_nop;
+		cstate.target_bcode->src_line [i] = 0;
 	}
 
 // the end of the bcode is filled with stop instructions
@@ -71,18 +74,15 @@ int intercode_to_bcode(void)
 					error_call();
 				}
 #endif
-    cstate.target_bcode->op[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].value [0];
+    write_bcode(cstate.intercode[cstate.ic_pos].value [0]);
     if (instruction_set[cstate.intercode[cstate.ic_pos].value [0]].operands > 0)
 				{
-     cstate.bc_pos++;
-     cstate.target_bcode->op[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].value [1];
+     write_bcode(cstate.intercode[cstate.ic_pos].value [1]);
 				}
     if (instruction_set[cstate.intercode[cstate.ic_pos].value [0]].operands > 1)
 				{
-     cstate.bc_pos++;
-     cstate.target_bcode->op[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].value [2];
+     write_bcode(cstate.intercode[cstate.ic_pos].value [2]);
 				}
-    cstate.bc_pos++;
     break;
    case IC_OP_WITH_VARIABLE_OPERAND:
 // This is like IC_OP but value [1] is an identifier index instead of a value
@@ -100,10 +100,8 @@ int intercode_to_bcode(void)
 					error_call();
 				}	// unlikely to be possible as references to undeclared variables should have been caught during compilation stage.
 #endif
-    cstate.target_bcode->op[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].value [0];
-    cstate.bc_pos++;
-    cstate.target_bcode->op[cstate.bc_pos] = identifier[cstate.intercode[cstate.ic_pos].value [1]].address;
-    cstate.bc_pos++;
+    write_bcode(cstate.intercode[cstate.ic_pos].value [0]);
+    write_bcode(identifier[cstate.intercode[cstate.ic_pos].value [1]].address);
     break;
    case IC_EXIT_POINT_TRUE:
 				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode = cstate.bc_pos;
@@ -117,23 +115,19 @@ int intercode_to_bcode(void)
 			case IC_GOTO_LABEL:
 				if (identifier[cstate.intercode[cstate.ic_pos].value [0]].type != CTOKEN_TYPE_IDENTIFIER_LABEL)
    		return intercode_error_text("goto label not defined");
-    cstate.target_bcode->op[cstate.bc_pos] = OP_jump_num;
-    cstate.bc_pos++;
+    write_bcode(OP_jump_num);
 				if (identifier[cstate.intercode[cstate.ic_pos].value [0]].address != -1)
 				{
-     cstate.target_bcode->op[cstate.bc_pos] = identifier[cstate.intercode[cstate.ic_pos].value [0]].address;
-     cstate.bc_pos++;
+     write_bcode(identifier[cstate.intercode[cstate.ic_pos].value [0]].address);
 				}
 				 else
 					{
 						if (!add_expoint_address_resolve(ADDRESS_RESOLVE_LABEL, cstate.intercode[cstate.ic_pos].value [0]))
 							return 0;
-      cstate.bc_pos++;
 					}
 				break;
 			case IC_IFFALSE_JUMP_TO_EXIT_POINT:
-    cstate.target_bcode->op[cstate.bc_pos] = OP_iffalse_jump;
-    cstate.bc_pos++;
+    write_bcode(OP_iffalse_jump);
 				if (cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode == -1)
 				{
 // exit point address not yet known, so must resolve it at the end of code generation:
@@ -141,12 +135,10 @@ int intercode_to_bcode(void)
 						return 0;
 				}
 				 else
-						cstate.target_bcode->op[cstate.bc_pos] = cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode; // address known
-    cstate.bc_pos ++;
+						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode); // address known
 				break;
 			case IC_IFTRUE_JUMP_TO_EXIT_POINT:
-    cstate.target_bcode->op[cstate.bc_pos] = OP_iftrue_jump;
-    cstate.bc_pos++;
+    write_bcode(OP_iftrue_jump);
 				if (cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode == -1)
 				{
 // exit point address not yet known, so must resolve it at the end of code generation:
@@ -154,12 +146,10 @@ int intercode_to_bcode(void)
 						return 0;
 				}
 				 else
-						cstate.target_bcode->op[cstate.bc_pos] = cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode; // address known
-    cstate.bc_pos ++;
+						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode); // address known
 				break;
 			case IC_JUMP_EXIT_POINT_TRUE:
-    cstate.target_bcode->op[cstate.bc_pos] = OP_jump_num;
-    cstate.bc_pos++;
+    write_bcode(OP_jump_num);
 				if (cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode == -1)
 				{
 // exit point address not yet known, so must resolve it at the end of code generation:
@@ -167,12 +157,10 @@ int intercode_to_bcode(void)
 						return 0;
 				}
 				 else
-						cstate.target_bcode->op[cstate.bc_pos] = cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode; // address known
-    cstate.bc_pos ++;
+						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode); // address known
 				break;
 			case IC_JUMP_EXIT_POINT_FALSE:
-    cstate.target_bcode->op[cstate.bc_pos] = OP_jump_num;
-    cstate.bc_pos++;
+    write_bcode(OP_jump_num);
 				if (cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode == -1)
 				{
 // exit point address not yet known, so must resolve it at the end of code generation:
@@ -180,21 +168,17 @@ int intercode_to_bcode(void)
 						return 0;
 				}
 				 else
-						cstate.target_bcode->op[cstate.bc_pos] = cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode; // address known
-    cstate.bc_pos ++;
+						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode); // address known
 				break;
 			case IC_NUMBER:
-    cstate.target_bcode->op[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].value [0];
-    cstate.bc_pos++;
+    write_bcode(cstate.intercode[cstate.ic_pos].value [0]);
     break;
    case IC_SWITCH:
-    cstate.target_bcode->op[cstate.bc_pos] = OP_switchA;
-    cstate.target_bcode->op[cstate.bc_pos + 2] = cstate.intercode[cstate.ic_pos].value [1];
-    cstate.target_bcode->op[cstate.bc_pos + 3] = cstate.intercode[cstate.ic_pos].value [2];
-    cstate.bc_pos++;
+    write_bcode(OP_switchA);
 				if (!add_expoint_address_resolve(ADDRESS_RESOLVE_EX_POINT_TRUE, cstate.intercode[cstate.ic_pos].value [0]))
 					return 0;
-    cstate.bc_pos+= 3;
+    write_bcode(cstate.intercode[cstate.ic_pos].value [1]);
+    write_bcode(cstate.intercode[cstate.ic_pos].value [2]);
     break;
    case IC_JUMP_TABLE:
 // this just writes a number (to be used by switch code), no instruction.
@@ -207,8 +191,7 @@ int intercode_to_bcode(void)
 						return 0;
 				}
 				 else
-						cstate.target_bcode->op[cstate.bc_pos] = cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode; // address known
-    cstate.bc_pos ++;
+						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode); // address known
     break;
 
 			default:
@@ -240,6 +223,17 @@ int intercode_to_bcode(void)
 
 }
 
+static void write_bcode(s16b new_value)
+{
+
+	cstate.target_bcode->op[cstate.bc_pos] = new_value;
+	cstate.target_bcode->src_line[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].src_line;
+//fpr("[%i:%i]", cstate.bc_pos, cstate.intercode[cstate.ic_pos].src_line);
+	cstate.bc_pos ++;
+
+}
+
+
 static int add_expoint_address_resolve(int resolve_type, int ep_index)
 {
 
@@ -259,6 +253,8 @@ static int add_expoint_address_resolve(int resolve_type, int ep_index)
  cstate.ic_address_resolution[cstate.resolve_pos].bcode_pos = cstate.bc_pos;
  cstate.ic_address_resolution[cstate.resolve_pos].value = ep_index;
  cstate.resolve_pos++;
+ cstate.target_bcode->src_line[cstate.bc_pos] = cstate.intercode[cstate.ic_pos].src_line;
+ cstate.bc_pos ++; // this bcode entry is ignored for now, but will be fixed later by resolve_addresses()
  return 1;
 
 }

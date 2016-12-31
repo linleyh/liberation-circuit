@@ -31,7 +31,7 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 	vmstate.core = core;
 	vmstate.bcode = bc;
 	vmstate.bcode_pos = -1; // will be incremented before use
-	vmstate.instructions_left = INSTRUCTION_COUNT; // current 1024
+	vmstate.instructions_left = core->instructions_per_cycle;
 	vmstate.memory = memory;
 	vmstate.stack_pos = 1;
 	vmstate.error_state = 0;
@@ -498,8 +498,10 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 #ifdef SHOW_BCODE
     fpr(" %i", instr);
 #endif
+#ifdef DEBUG_MODE
 				if (core == NULL) // currently NULL is used for debugging
 					goto object_called_by_non_core_error;
+#endif
 				vmstate.vm_register [VM_REG_A] = call_object_method(core, instr); // call_object also uses vmstate to read other values from the stack
 				if (vmstate.error_state)
 					goto generic_error;
@@ -512,8 +514,10 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 #ifdef SHOW_BCODE
     fpr(" %i", instr);
 #endif
+#ifdef DEBUG_MODE
 				if (core == NULL) // currently NULL is used for debugging
 					goto member_called_by_non_core_error;
+#endif
 				vmstate.vm_register [VM_REG_A] = call_self_member_method(core, instr);
 				if (vmstate.error_state)
 					goto generic_error;
@@ -526,8 +530,10 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 #ifdef SHOW_BCODE
     fpr(" %i", instr);
 #endif
-				if (core == NULL) // currently NULL is used for debugging
+#ifdef DEBUG_MODE
+				if (core == NULL) // this should never happen
 					goto core_called_by_non_core_error;
+#endif
 				vmstate.vm_register [VM_REG_A] = call_self_core_method(core, instr);
 				if (vmstate.error_state)
 					goto generic_error;
@@ -629,102 +635,104 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 	};
 
 finished_execution:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 //	fpr("\n core %i instructions_left %i (used %i)", core->index, vmstate.instructions_left, INSTRUCTION_COUNT - vmstate.instructions_left);
  return; // success
 
 bcode_bounds_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("execution out of bounds", 0, 0);
  return;
 
 memory_address_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("invalid memory access", 1, instr);
  return;
 
 invalid_instruction_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("invalid instruction", 1, instr);
  return;
 
 out_of_instructions_error:
-	core->instructions_used = INSTRUCTION_COUNT;// - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle;// - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("instructions exhausted", 0, 0);
  return;
 
 jump_target_bounds_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("invalid jump target", 1, vmstate.bcode->op [vmstate.bcode_pos]);
  return;
 
 stack_full_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("stack overflow", 0, 0);
  return;
 
 stack_below_zero_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("stack base reached", 0, 0);
  return;
 
+#ifdef DEBUG_MODE
 core_called_by_non_core_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("INVALID ERROR?!", 0, 0); // shouldn't happen - no non-core programs
 // fpr("\nError: self core method called by non-core program at bcode %i", vmstate.bcode_pos);
  return;
 
 member_called_by_non_core_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("INVALID ERROR?!", 0, 0); // shouldn't happen - no non-core programs
 // fpr("\nError: self member method called by non-core program at bcode %i", vmstate.bcode_pos);
  return;
 
 object_called_by_non_core_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("INVALID ERROR?!", 0, 0); // shouldn't happen - no non-core programs
 // fpr("\nError: self object method called by non-core program at bcode %i", vmstate.bcode_pos);
  return;
+#endif
 
 invalid_derefB_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("invalid B dereference", 1, vmstate.vm_register [VM_REG_B]);
 // fpr("\nError: register B dereference is out of bounds (%i) at bcode %i", vmstate.vm_register [VM_REG_B], vmstate.bcode_pos);
  return;
 
 invalid_derefA_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("invalid A dereference", 1, vmstate.vm_register [VM_REG_A]);
 // fpr("\nError: register A dereference is out of bounds (%i) at bcode %i", vmstate.vm_register [VM_REG_A], vmstate.bcode_pos);
  return;
 
 return_sub_bounds_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	if (w.debug_mode)
 		print_execution_error("invalid return address", 1, instr);
 //	fpr("\nError: subroutine return value %i out of bounds", instr);
 	return;
 
 switch_jump_table_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	 if (w.debug_mode)
 		 print_execution_error("error in switch jump table", 0, 0); // this should be caught by the compiler
 		return;
 
 generic_error:
-	core->instructions_used = INSTRUCTION_COUNT - vmstate.instructions_left;
+	core->instructions_used = core->instructions_per_cycle - vmstate.instructions_left;
 	return; // used when e.g. calling an object causes a fatal error, and an error essage has already been written.
 
 }
@@ -735,10 +743,23 @@ static void	print_execution_error(const char* error_message, int values, int val
 
  static char ex_error_string [120];
 
-	if (values)
-	 sprintf(ex_error_string, "Error [%s:%i] at bcode %i.", error_message, value1, vmstate.bcode_pos);
-	  else
-	   sprintf(ex_error_string, "Error [%s] at bcode %i.", error_message, vmstate.bcode_pos);
+ if (vmstate.bcode_pos < 0
+		|| vmstate.bcode_pos >= BCODE_MAX)
+	{
+// if bcode_pos is out of bounds, don't want to try to display the source line:
+	 if (values)
+	  sprintf(ex_error_string, "Error [%s:%i] at invalid bcode %i.", error_message, value1, vmstate.bcode_pos);
+	   else
+	    sprintf(ex_error_string, "Error [%s] at invalid bcode %i.", error_message, vmstate.bcode_pos);
+	}
+	 else
+		{
+
+  	if (values)
+  	 sprintf(ex_error_string, "Error [%s:%i] at line %i (bcode %i).", error_message, value1, (int) vmstate.bcode->src_line [vmstate.bcode_pos] + 1, vmstate.bcode_pos);
+	    else
+	     sprintf(ex_error_string, "Error [%s] at line %i (bcode %i).", error_message, (int) vmstate.bcode->src_line [vmstate.bcode_pos] + 1, vmstate.bcode_pos);
+		}
 
 	write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LRED, vmstate.core->index, vmstate.core->created_timestamp, ex_error_string);
 

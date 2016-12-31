@@ -63,6 +63,8 @@ void init_world_background(void)
   }
 
 
+  reset_map_vision_masks();
+
 // now the edges:
 // for (k = 0; k < BACKBLOCK_LEVELS; k ++)
 	{

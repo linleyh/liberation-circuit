@@ -10,6 +10,7 @@ void open_file_into_current_source_edit(void);
 
 //void save_source_edit_file(struct source_edit_struct* se);
 void save_current_file(void);
+void save_all_files(void);
 void close_source_tab(int tab, int force_close);
 int save_as(void);
 

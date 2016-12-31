@@ -208,6 +208,7 @@ EL_SETUP_COMMAND_MODE,
 //EL_SETUP_TIME,
 EL_SETUP_MAP_SIZE,
 EL_SETUP_CORES,
+EL_SETUP_DATA,
 EL_SETUP_CODE,
 EL_SETUP_RANDOMISE_CODE,
 //EL_SETUP_GEN_LIMIT,
@@ -401,6 +402,13 @@ struct menu_liststruct menu_list [ELS] =
   -1, // slider_index
 //  HELP_SETUP_PROCS, // help_type
  }, // EL_SETUP_CORES
+ {
+  EL_TYPE_SELECT, // type
+  0, // minimum value
+  3, // maximum value
+  "STARTING DATA", // name
+  -1, // slider_index
+ }, // EL_SETUP_DATA
 /* {
   EL_TYPE_SLIDER, // type
   0, // action
@@ -760,6 +768,7 @@ EL_SETUP_PLAYERS,
 //EL_SETUP_MINUTES,
 EL_SETUP_MAP_SIZE,
 EL_SETUP_CORES,
+EL_SETUP_DATA,
 EL_SETUP_CODE,
 EL_SETUP_RANDOMISE_CODE,
 //EL_SETUP_PROCS,
@@ -868,6 +877,7 @@ enum
 MAP_CODE_PLAYERS,
 MAP_CODE_SIZE,
 MAP_CODE_CORES,
+MAP_CODE_DATA,
 MAP_CODE_SEED_0,
 MAP_CODE_SEED_1,
 MAP_CODE_SEED_2,
@@ -947,7 +957,10 @@ void open_menu(int menu_index)
 
  int i = 0;
  int using_list_index;
- int x = MENU_X, y = 100;
+ int x = MENU_X;
+ int y = 50;
+ if (settings.option [OPTION_WINDOW_H] >= 800)
+		y = 100;
 // int values_from_pre [3] = {0,0,0};
  int *mlist; // this is a pointer to an array of elements, which must be -1 terminated.
 
@@ -1168,6 +1181,10 @@ SMS_SIZE_LARGE,
 SMS_SIZE_HUGE,
 SMS_COMMAND_MODE_AUTO,
 SMS_COMMAND_MODE_COMMAND,
+SMS_DATA_300,
+SMS_DATA_600,
+SMS_DATA_900,
+SMS_DATA_1200,
 SMS_STRINGS
 };
 
@@ -1187,6 +1204,10 @@ const char *setup_menu_string [SMS_STRINGS] =
 "huge", // SMS_SIZE_HUGE,
 "auto", // SMS_COMMAND_MODE_AUTO,
 "command", // SMS_COMMAND_MODE_COMMAND,
+"300", // SMS_DATA_300,
+"600", // SMS_DATA_600,
+"900", // SMS_DATA_900,
+"1200", // SMS_DATA_1200,
 
 };
 
@@ -1251,6 +1272,13 @@ void display_menu_2(void)
 							case EL_SETUP_CORES:
         add_menu_string(sb_x + SELECT_BUTTON_MIDDLE, sb_y + 3, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, setup_menu_string [SMS_CORES_FEW + j]);
         if (w_init.core_setting == j)
+         add_menu_button(sb_x - 2, sb_y - 2,
+				   																		sb_x + SELECT_BUTTON_W + 2, sb_y + SELECT_BUTTON_H + 2,
+							   															colours.base_trans [COL_CYAN] [SHADE_HIGH] [TRANS_MED], 6, 3);
+        break;
+							case EL_SETUP_DATA:
+        add_menu_string(sb_x + SELECT_BUTTON_MIDDLE, sb_y + 3, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, setup_menu_string [SMS_DATA_300 + j]);
+        if (w_init.starting_data_setting == j)
          add_menu_button(sb_x - 2, sb_y - 2,
 				   																		sb_x + SELECT_BUTTON_W + 2, sb_y + SELECT_BUTTON_H + 2,
 							   															colours.base_trans [COL_CYAN] [SHADE_HIGH] [TRANS_MED], 6, 3);
@@ -1320,7 +1348,7 @@ void display_menu_2(void)
           continue;
          case EL_SETUP_CODE:
     	     add_menu_string(menu_element[i].x1 + 145, y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, mstate.map_code_string);
-    	     add_menu_string(menu_element[i].x1 + 134, y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[       ]");
+    	     add_menu_string(menu_element[i].x1 + 134, y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[        ]");
          	break;
         }
 
@@ -1805,6 +1833,7 @@ void init_w_init(void) // also called from s_mission.c
 
 	w_init.players = 2;
 	w_init.core_setting = 2;
+	w_init.starting_data_setting = 0;
 	w_init.game_seed = 0;
 //	w_init.data_wells = 0;
 
@@ -1817,7 +1846,7 @@ void init_w_init(void) // also called from s_mission.c
 	for (i = 0; i < PLAYERS; i ++)
 	{
 		sprintf(w_init.player_name [i], "Player %i", i);
-		w_init.player_starting_data [i] = 300; // may be changed by some missions
+		w_init.player_starting_data [i] = (w_init.starting_data_setting + 1) * 300; // may be changed by some missions
 	}
 
 // this function doesn't initialise everything - it leaves some things (like player spawn positions) that must be initialised when the game is being started.
@@ -1830,6 +1859,7 @@ static void fix_map_code(void)
 	mstate.map_code_string [MAP_CODE_PLAYERS] = 'A' + w_init.players - 2;
 	mstate.map_code_string [MAP_CODE_SIZE] = 'A' + w_init.size_setting;
 	mstate.map_code_string [MAP_CODE_CORES] = 'A' + w_init.core_setting;
+	mstate.map_code_string [MAP_CODE_DATA] = 'A' + w_init.starting_data_setting;
 	mstate.map_code_string [MAP_CODE_SEED_0] = '0' + w_init.game_seed / 100;
 	mstate.map_code_string [MAP_CODE_SEED_1] = '0' + (w_init.game_seed / 10) % 10;
 	mstate.map_code_string [MAP_CODE_SEED_2] = '0' + (w_init.game_seed) % 10;
@@ -2181,6 +2211,15 @@ void run_menu_input(void)
           play_interface_sound(SAMPLE_BLIP1, TONE_2A);
 								 }
 							 break;
+						 case EL_SETUP_DATA:
+							 if (select_button >= 0
+								 && select_button <= 3)
+								 {
+								 	w_init.starting_data_setting = select_button;
+          fix_map_code();
+          play_interface_sound(SAMPLE_BLIP1, TONE_2A);
+								 }
+							 break;
 						 case EL_SETUP_MAP_SIZE:
 							 if (select_button >= 0
 								 && select_button <= 4)
@@ -2262,6 +2301,9 @@ static void enter_map_code(void)
 
 	code_value = read_map_code_value(mstate.map_code_string_temp [MAP_CODE_SIZE], 0);
 	w_init.size_setting = code_value;
+
+	code_value = read_map_code_value(mstate.map_code_string_temp [MAP_CODE_DATA], 0);
+	w_init.starting_data_setting = code_value;
 
 	w_init.game_seed = 0;
 

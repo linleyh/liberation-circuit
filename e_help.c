@@ -143,6 +143,7 @@ const char* keyword_help [] =
 "Object method for move objects.\nintercept(target_index, component, attack_class)\nUses move objects to move towards a target and aim a class of fixed attacking objects at it.\nExample: auto_move.intercept(TARGET_MAIN, 0, auto_att_main)", // KEYWORD_OMETHOD_INTERCEPT,
 "Object method for harvest objects.\ngather_data()\nGathers data from a nearby data well.\nReturns the amount of data gathered, or -1 if there is no well within range.", // KEYWORD_OMETHOD_GATHER_DATA,
 "Object method for harvest objects.\ngive_data(target_index, data_amount)\nTransfers data to another process within scanning range. Returns the amount transferred, or -1 if the target is not within range.", // KEYWORD_OMETHOD_GIVE_DATA,
+"Object method for harvest objects.\ntake_data(target_index, data_amount)\nTakes data from a friendly process within scanning range. Returns the amount transferred, or -1 if the target is not within range.", // KEYWORD_OMETHOD_TAKE_DATA,
 "Object method for allocate objects.\nallocate_data(data_amount)\nAllocates a specified amount of data stored in storage objects, so that it can be used to build new processes.\nThe maximum rate is 3 data per allocate object per cycle.\nIf data_amount is more than 3, the object will just try to allocate 3.", // KEYWORD_OMETHOD_ALLOCATE_DATA,
 "Object method for spike objects.\nfire_spike(angle_offset)\nFires a spike at a specified angle offset (-2048 to 2048).\nNot recommended; use fire_spike_at or fire_spike_xy instead.", // KEYWORD_OMETHOD_FIRE_SPIKE,
 "Object method for spike objects.\nfire_spike_at(target_index, component)\nFires a spike at the specified target and component (set component to 0 to target the core).", // KEYWORD_OMETHOD_FIRE_SPIKE_AT,
@@ -236,6 +237,7 @@ const char* keyword_help [] =
 "get_power_capacity()\nReturns this process' total power capacity (use get_power_left() for current remaining power).", // KEYWORD_SMETHOD_GET_POWER_CAPACITY,
 "get_power_used()\nReturns the power used by the process so far this cycle.", // KEYWORD_SMETHOD_GET_POWER_USED,
 "get_power_left()\nReturns the power remaining for use by the process this cycle.", // KEYWORD_SMETHOD_GET_POWER_LEFT,
+"get_instructions_left()\nReturns the instructions (used for executing code and performing calculations) remaining for use by the process this cycle.", // KEYWORD_SMETHOD_GET_INSTRUCTIONS_LEFT,
 "set_debug_mode(setting)\nSets debug mode on (0) or on (1) for this process. If on, errors caused by this process will be displayed in the console.", // KEYWORD_SMETHOD_SET_DEBUG_MODE,
 
 "transmit(target_index, priority, <message_0>, <message_1>, ...)\nSends a message to a single friendly target. Returns 1 on success, 0 on failure. See the manual for more information.", // KEYWORD_SMETHOD_TRANSMIT,

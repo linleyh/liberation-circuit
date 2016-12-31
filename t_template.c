@@ -140,6 +140,7 @@ void clear_template_but_not_source(struct template_struct* clear_template)
  for (i = 0; i < BCODE_MAX; i ++)
 	{
 		clear_template->bcode.op [i] = 0;
+		clear_template->bcode.src_line [i] = 0;
 	}
 
 	for (i = 0; i < OBJECT_CLASSES; i ++)
@@ -162,6 +163,7 @@ void clear_template_but_not_source(struct template_struct* clear_template)
 //	clear_template->power_use_smoothed = 0;
 	clear_template->power_use_base = 0;
 	clear_template->number_of_interface_objects = 0;
+	clear_template->number_of_storage_objects = 0;
 	clear_template->modified = 1;
  clear_template->mobile = 1;
 
@@ -362,6 +364,7 @@ void copy_template(struct template_struct* target_templ, struct template_struct*
 
   target_templ->has_allocator = source_templ->has_allocator;
  	target_templ->number_of_interface_objects = source_templ->number_of_interface_objects; // not sure this is correct
+ 	target_templ->number_of_storage_objects = source_templ->number_of_storage_objects;
 
 //	target_templ->esource_index = source_templ->esource_index; - shouldn't copy this
 //	target_templ->source_edit = source_templ->source_edit;  - this is not copied! (and it's a pointer anyway)
@@ -388,6 +391,7 @@ void calculate_template_cost_and_power(struct template_struct* costed_templ)
 //	costed_templ->power_use_smoothed = 0;
 	costed_templ->power_use_base = 0;
 	costed_templ->number_of_interface_objects = 0;
+	costed_templ->number_of_storage_objects = 0;
 
 #define DATA_COST_TO_INERTIA_MULTIPLIER 1
 
@@ -405,8 +409,13 @@ void calculate_template_cost_and_power(struct template_struct* costed_templ)
   	 costed_templ->power_use_peak += otype[costed_templ->member[mem].object[i].type].power_use_peak;
 //  	 costed_templ->power_use_smoothed += otype[costed_templ->member[mem].object[i].type].power_use_smoothed;
   	 costed_templ->power_use_base += otype[costed_templ->member[mem].object[i].type].power_use_base;
-  	 if (costed_templ->member[mem].object[i].type == OBJECT_TYPE_INTERFACE)
-					costed_templ->number_of_interface_objects ++;
+  	 switch(costed_templ->member[mem].object[i].type)
+  	 {
+				 case OBJECT_TYPE_INTERFACE:
+					 costed_templ->number_of_interface_objects ++; break;
+				 case OBJECT_TYPE_STORAGE:
+					 costed_templ->number_of_storage_objects ++; break;
+  	 }
   	}
 		}
 	}

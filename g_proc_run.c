@@ -81,7 +81,7 @@ void run_cores_and_procs(void)
 			}
 
    core->messages_received = 0;
-   core->message_reading = 0; // if this is >= core->messages_received, core has finished reading messages
+   core->message_reading = -1; // starts at -1 because next_message() increments it. If this is >= core->messages_received, core has finished reading messages
    core->message_position = 0;
 
    core->contact_core_index = -1;

@@ -204,20 +204,37 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 	}, // end TEAM_COL_ORANGE
 
 	{
-		{110, 10, 5}, // 0 underlay
+//		{110, 10, 5}, // 0 underlay
+		{130, 10, 5}, // 0 underlay
 		{230, 42, 24}, // 1 core
-		{160, 15, 8}, // 2 main 1
-		{170, 4, 12}, // 3 main 2
-		{170, 8, 10}, // 4 main 3
-		{180, 38, 14}, // 5 link
-		{180, 20, 6}, // 6 object base
-		{210, 30, 12}, // 7 object 1
-		{210, 25, 22}, // 8 object 2
+		{150, 30, 28}, // 2 main 1
+		{160, 36, 32}, // 3 main 2
+		{165, 36, 30}, // 4 main 3
+		{125, 38, 14}, // 5 link
+		{140, 20, 6}, // 6 object base
+		{190, 25, 10}, // 7 object 1
+		{190, 20, 18}, // 8 object 2
 // The above go into the proc_col_ list
   {70, 10, 20}, // 9 BASE_TEAM_COL_MIN
   {220, 110, 40}, // 10 BASE_TEAM_COL_MAX
   {250, 100, 60}, // BASE_TEAM_COL_MAP_PIXEL
 
+/*
+//		{110, 10, 5}, // 0 underlay
+		{130, 70, 5}, // 0 underlay
+		{230, 42, 24}, // 1 core
+		{140, 15, 8}, // 2 main 1
+		{150, 4, 12}, // 3 main 2
+		{150, 8, 10}, // 4 main 3
+		{120, 38, 14}, // 5 link
+		{180, 20, 6}, // 6 object base
+		{190, 25, 10}, // 7 object 1
+		{190, 20, 18}, // 8 object 2
+// The above go into the proc_col_ list
+  {70, 10, 20}, // 9 BASE_TEAM_COL_MIN
+  {220, 110, 40}, // 10 BASE_TEAM_COL_MAX
+  {250, 100, 60}, // BASE_TEAM_COL_MAP_PIXEL
+*/
 	}, // end TEAM_COL_RED
 
 
@@ -328,23 +345,31 @@ const int base_interface_colours [PACKET_COLS] [9] =
 };
 
 
-const int back_and_hex_colours [BACK_COLS] [6] =
+const int back_and_hex_colours [BACK_COLS] [9] =
 {
-// first 3 are background, next 3 are hexes. These can be set differently
+// first 3 are background, next 3 are hex base colours, next three are hex variable colours. These can be set differently
 	{15, 15, 40,
-	 30, 30, 70}, // BACK_COLS_BLUE
-	{10, 40, 20,
-	 20, 70, 40}, // BACK_COLS_GREEN
-	{35, 20, 5,
-	 60, 70, 10}, // BACK_COLS_YELLOW
-	{42, 15, 1,
-	 60, 40, 1}, // BACK_COLS_ORANGE
+	 30, 30, 70,
+	 0,  2, 10}, // BACK_COLS_BLUE
+	{10, 40, 12,
+	 5, 60, 10,
+	 0,  7, 6}, // BACK_COLS_GREEN
+	{55, 35, 0,
+	 75, 37, 10,
+	 12,  4, -3}, // BACK_COLS_YELLOW
+//	 23,  15, -5}, // BACK_COLS_YELLOW
+	{72, 15, 12,
+	 80, 16, 14,
+	 14,  5, -3}, // BACK_COLS_ORANGE
 	{30, 15, 35,
-	 50, 30, 55}, // BACK_COLS_PURPLE
+	 50, 30, 55,
+	 10,  5, 20}, // BACK_COLS_PURPLE
 	{9, 9, 40,
-	 20, 20, 70}, // BACK_COLS_BLUE_DARK
+	 20, 20, 70,
+	 5,  10, 20}, // BACK_COLS_BLUE_DARK
 	{50, 10, 5,
-	 70, 20, 5}, // BACK_COLS_RED
+	 70, 20, 5,
+	 20,  5, 5}, // BACK_COLS_RED
 
 
 };
@@ -494,7 +519,7 @@ int base_plan_col [PLAN_COLS] [PROC_COL_LEVELS] [3] =
 void set_default_modifiable_colours(void);
 //void init_mouse_cursors(void);
 
-static void map_player_colours(int p, int base_col, int packet_col);
+static void map_player_colours(int p, int base_col, int packet_col, int background_col);
 static void map_cloud_cols(int p, int packet_or_drive, int min_col [3], int max_col [3]);
 static void map_plan_cols(void);
 
@@ -502,7 +527,7 @@ static void map_player_base_colours(int p, int colour_index);
 static void map_player_packet_colours(int p);
 static void map_player_drive_colours(int p);
 static void map_background_colour(void);
-static void map_hex_colours(int p);
+static void map_hex_colours(int p, int base_hex_colour);
 
 //static void colour_fraction(int base_cols [3], int out_cols [3], int fraction, int subtract);
 //static int check_col(int col_in);
@@ -514,7 +539,7 @@ struct coloursstruct colours;
 
 extern ALLEGRO_BITMAP* display_window; // in i_display.c
 extern ALLEGRO_BITMAP* vision_mask;
-extern ALLEGRO_BITMAP* vision_mask_map;
+extern ALLEGRO_BITMAP* vision_mask_map [MAP_MASKS];
 
 // Much of the display initialisation is done in main.c
 void initialise_display(void)
@@ -527,14 +552,20 @@ void initialise_display(void)
 		error_call();
 	}
 
- vision_mask_map = al_create_bitmap(189, 189);
- if (!vision_mask_map)
+	int i;
+
+ for (i = 0; i < MAP_MASKS; i ++)
 	{
-	 fpr("\nError: vision_mask_map bitmap creation failed.");
-		error_call();
+
+  vision_mask_map [i] = al_create_bitmap(MAP_DISPLAY_SIZE, MAP_DISPLAY_SIZE);
+  if (!vision_mask_map [i])
+	 {
+ 	 fpr("\nError: vision_mask_map [%i] bitmap creation failed.", i);
+		 error_call();
+	 }
+
 	}
 
- int i;
 
  int j;
  int k;
@@ -684,7 +715,7 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 		if (settings.replace_colour [i] != -1)
 			player_base_cols [i] = settings.replace_colour [i];
 
-		map_player_colours(i, player_base_cols [i], player_packet_cols [i]);
+		map_player_colours(i, player_base_cols [i], player_packet_cols [i], background_col);
 	}
 
 
@@ -692,8 +723,7 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 
 // maps player p's colours to colour player_col
 //  - is called at startup and can also be called at other times.
-// *** TO DO: think about allowing users to force specific colours in init.txt to deal with colour perception issues
-void map_player_colours(int p, int base_col, int packet_col)
+void map_player_colours(int p, int base_col, int packet_col, int background_col)
 {
 
 #ifdef SANITY_CHECK
@@ -727,7 +757,7 @@ void map_player_colours(int p, int base_col, int packet_col)
  map_player_packet_colours(p);
  map_player_drive_colours(p);
 // note that interface colours are not mapped here; they're mapped when used, instead
- map_hex_colours(p);
+ map_hex_colours(p, background_col);
 
 
 
@@ -920,7 +950,7 @@ Colours:
 
 }
 
-static void map_hex_colours(int p)
+static void map_hex_colours(int p, int base_hex_colour)
 {
 
 
@@ -978,6 +1008,20 @@ static void map_hex_colours(int p)
 
  int red, green, blue;
 
+ int variable_r, variable_g, variable_b;
+
+
+for (l = 0; l < BACKBLOCK_LAYERS; l ++)
+{
+
+
+ base_r = back_and_hex_colours [base_hex_colour] [3];
+ base_g = back_and_hex_colours [base_hex_colour] [4];
+ base_b = back_and_hex_colours [base_hex_colour] [5];
+ variable_r = back_and_hex_colours [base_hex_colour] [6];
+ variable_g = back_and_hex_colours [base_hex_colour] [7];
+ variable_b = back_and_hex_colours [base_hex_colour] [8];
+
  for (j = 0; j < BACK_COL_SATURATIONS; j ++)
  {
 /*
@@ -987,6 +1031,8 @@ static void map_hex_colours(int p)
                                            60);*/
 //                                           120);
  	float base_proportion = (float) j / (BACK_COL_SATURATIONS + 6);
+
+ 	base_proportion *= 4;
 
   for (k = 0; k < BACK_COL_FADE; k ++)
   {
@@ -1016,22 +1062,18 @@ static void map_hex_colours(int p)
   	green += (min_max_gap [1] * (fade_proportion)) / 3;
   	blue += (min_max_gap [2] * (fade_proportion)) / 3;
 
-   for (l = 0; l < BACKBLOCK_LAYERS; l ++)
-			{
+    colours.back_fill [l] [p] [j] [k] = map_rgb(red + (variable_r * (BACKBLOCK_LAYERS - l - 1)),
+                                                green + (variable_g * (BACKBLOCK_LAYERS - l - 1)),
+                                                blue + (variable_b * (BACKBLOCK_LAYERS - l - 1)));
 
-    colours.back_fill [l] [p] [j] [k] = map_rgb(red * (1.7 - 0.212 * l),
-                                                green * (1.7 - 0.212 * l),
-                                                blue * (1.7 - 0.12 * l));
-/*
-    colours.back_fill [l] [p] [j] [k] = map_rgb(red * (1.7 - 0.012 * l),
-                                                green * (1.7 - 0.012 * l),
-                                                blue * (1.7 - 0.12 * l));*/
-			}
-
+//    colours.back_fill [l] [p] [j] [k] = map_rgb(red * (1.7 - 0.212 * l),
+//                                                green * (1.7 - 0.212 * l),
+//                                                blue * (1.7 - 0.12 * l));
 
 
   }
  }
+}
 
 // colours.back_fill [0] [0] [0] = map_rgba(30,30,55,60);
 // colours.back_fill [0] [0] [0] = map_rgb(20,20,55);

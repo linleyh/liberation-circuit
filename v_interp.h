@@ -4,7 +4,7 @@
 
 #define VM_STACK_SIZE 128
 
-#define INSTRUCTION_COUNT 1024
+//#define INSTRUCTION_COUNT 1024 - this is now based on core type
 
 enum
 {

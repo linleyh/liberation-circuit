@@ -369,7 +369,7 @@ int start_setting_up_core_from_template(int c, struct core_struct* core, struct 
  core->first_repair_object_link = build_templ->first_repair_object_link;
 
  core->messages_received = 0;
- core->message_reading = 0;
+ core->message_reading = -1;
  for (i = 0; i < CHANNELS; i ++)
 	{
 		core->listen_channel [i] = 0; // could default to 1 instead but 0 avoids some unnecessary calculations
@@ -423,6 +423,7 @@ void set_basic_group_properties(struct core_struct* core)
  core->group_total_hp = 0;
  core->group_total_hp_max_current = 0;
  core->power_capacity = nshape[w.proc[core->process_index].shape].power_capacity;
+ core->instructions_per_cycle = nshape[w.proc[core->process_index].shape].instructions_per_cycle;
  core->interface_charge_rate_per_object = nshape[w.proc[core->process_index].shape].interface_charge_rate;
 // core->group_total_hp_max_undamaged = ; this is only set at creation
 

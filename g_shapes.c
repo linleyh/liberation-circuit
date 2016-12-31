@@ -149,21 +149,21 @@ Need to work out what they'll look like.
 const struct nshape_init_data_struct nshape_init_data [NSHAPES] =
 {
 // data cost, hp, core power, component power, interface charge rate
-{8, 200, 100, 14, 2}, // NSHAPE_CORE_STATIC_QUAD,
-{14, 300, 120, 18, 3}, // NSHAPE_CORE_STATIC_PENT,
-{28, 400, 180, 22, 4}, // NSHAPE_CORE_STATIC_HEX_A,
-{64, 500, 240, 34, 5}, // NSHAPE_CORE_STATIC_HEX_B,
-{128, 600, 300, 56, 6}, // NSHAPE_CORE_STATIC_HEX_C,
+{8, 200, 100, 14, 2, 1024}, // NSHAPE_CORE_STATIC_QUAD,
+{14, 300, 120, 18, 3, 1280}, // NSHAPE_CORE_STATIC_PENT,
+{28, 400, 180, 22, 4, 1536}, // NSHAPE_CORE_STATIC_HEX_A,
+{64, 500, 240, 34, 5, 1792}, // NSHAPE_CORE_STATIC_HEX_B,
+{128, 600, 300, 56, 6, 2048}, // NSHAPE_CORE_STATIC_HEX_C,
 
 
-{30, 50, 50, 10, 1}, // NSHAPE_CORE_QUAD_A,
-{50, 70, 60, 16, 1}, // NSHAPE_CORE_QUAD_B,
-{80, 100, 70, 24, 2}, // NSHAPE_CORE_PENT_A,
-{100, 140, 80, 30, 2}, // NSHAPE_CORE_PENT_B,
-{130, 180, 90, 36, 3}, // NSHAPE_CORE_PENT_C,
-{180, 220, 100, 42, 3}, // NSHAPE_CORE_HEX_A,
-{230, 260, 110, 48, 4}, // NSHAPE_CORE_HEX_B,
-{300, 300, 120, 54, 5}, // NSHAPE_CORE_HEX_C,
+{30, 50, 50, 10, 1, 1024}, // NSHAPE_CORE_QUAD_A,
+{50, 70, 60, 16, 1, 1024}, // NSHAPE_CORE_QUAD_B,
+{80, 100, 70, 24, 2, 1280}, // NSHAPE_CORE_PENT_A,
+{100, 140, 80, 30, 2, 1280}, // NSHAPE_CORE_PENT_B,
+{130, 180, 90, 36, 3, 1280}, // NSHAPE_CORE_PENT_C,
+{180, 220, 100, 42, 3, 1536}, // NSHAPE_CORE_HEX_A,
+{230, 260, 110, 48, 4, 1536}, // NSHAPE_CORE_HEX_B,
+{300, 300, 120, 54, 5, 1536}, // NSHAPE_CORE_HEX_C,
 
 
 /*
@@ -3599,6 +3599,7 @@ static void start_dshape(int ds, int keyword_index)
   nshape[ds].power_capacity = nshape_init_data [ds].power_capacity;
   nshape[ds].component_power_capacity = nshape_init_data [ds].component_power_capacity;
   nshape[ds].interface_charge_rate = nshape_init_data [ds].interface_charge_rate;
+  nshape[ds].instructions_per_cycle = nshape_init_data [ds].instructions_per_cycle;
 
 
 

@@ -337,7 +337,6 @@ struct camstate_struct
 
 	unsigned int rand_seed;
 
-
 #define BAR_LENGTH_MAX 9
 
  int bar_length;
@@ -536,6 +535,12 @@ static void sthread_reset_drum_index(void)
 	{
 		camstate.drum_index [i] = 0; // this is potentially a valid index in the sample array, but we can assume that it's not meant to be a drum beat
 	}
+
+//  	camstate.drum_index [DRUM_1] = SAMPLE_THUMP;
+//  	camstate.drum_index [DRUM_2] = SAMPLE_DRUM3;
+//  	camstate.drum_index [DRUM_3] = SAMPLE_NOTE_HARM;
+//  	camstate.drum_index [DRUM_4] = SAMPLE_LOW2;
+
 
 }
 
@@ -835,7 +840,7 @@ static void sthread_change_camstate(void)
 
  while(changes > 0)
 	{
-		change_type = sthread_rand(8);
+		change_type = sthread_rand(12);
 
 		switch(change_type)
 		{
@@ -904,6 +909,10 @@ static void sthread_change_camstate(void)
 				}
 				break;
 			case 7: // change drum state
+			case 8: // change drum state
+			case 9: // change drum state
+			case 10: // change drum state
+			case 11: // change drum state
 				sthread_change_drums();
 				break;
 

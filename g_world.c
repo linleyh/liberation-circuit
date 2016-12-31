@@ -325,6 +325,10 @@ void initialise_world(void)
  w.world_time = BASE_WORLD_TIME; // currently 255 - allows subtraction of small amounts without wrapping the unsigned value
  w.debug_mode_general = 0;
 
+#ifdef DEBUG_MODE
+ w.debug_mode_general = 1;
+#endif
+
 // world_time starts after 0 so that things like deallocation counters can be subtracted from it without running into unsigned int problems
 
  for (c = 0; c < w.max_cores; c ++)

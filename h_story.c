@@ -54,6 +54,7 @@ void run_story_mode(void);
 static int add_story_region(int old_region, int connect_index, int area_index, int mission_index, int unlock_index);
 static void special_bubble(struct core_struct* core, char *btext);
 //static void remove_story_region(int region_index);
+void adjust_story_region(int area_index, int adjust_x, int adjust_y);
 
 struct region_connect_struct
 {
@@ -94,6 +95,8 @@ void init_story(void)
 		story.region[i].visible = 0;
 		story.region[i].defeated = 0;
 		story.region[i].capital = 0;
+		story.region[i].adjust_x = 0;
+		story.region[i].adjust_y = 0;
 //		story.region[i].unlocked = 0; // is done by work_out_story_region_locks
 
 		for (j = 0; j < SRC_DIRECTIONS; j ++)
@@ -102,95 +105,156 @@ void init_story(void)
 		}
 
 	}
-/*
-// place regions here
- story.region[0].exists = 1;
- story.region[0].grid_x = 0;
- story.region[0].grid_y = 0;
- story.region[1].exists = 1;
- story.region[1].grid_x = story.region[0].grid_x + region_connect[SRC_UR].x_offset;
- story.region[1].grid_y = story.region[0].grid_y + region_connect[SRC_UR].y_offset;
- story.region[2].exists = 1;
- story.region[2].grid_x = story.region[1].grid_x + region_connect[SRC_UL].x_offset;
- story.region[2].grid_y = story.region[1].grid_y + region_connect[SRC_UL].y_offset;
- story.region[3].exists = 1;
- story.region[3].grid_x = story.region[2].grid_x + region_connect[SRC_UL].x_offset;
- story.region[3].grid_y = story.region[2].grid_y + region_connect[SRC_UL].y_offset;
- story.region[4].exists = 1;
- story.region[4].grid_x = story.region[3].grid_x + region_connect[SRC_UL].x_offset;
- story.region[4].grid_y = story.region[3].grid_y + region_connect[SRC_UL].y_offset;
-
-
- story.region[5].exists = 1;
- story.region[5].grid_x = story.region[1].grid_x + region_connect[SRC_UR].x_offset;
- story.region[5].grid_y = story.region[1].grid_y + region_connect[SRC_UR].y_offset;
- story.region[6].exists = 1;
- story.region[6].grid_x = story.region[5].grid_x + region_connect[SRC_UR].x_offset;
- story.region[6].grid_y = story.region[5].grid_y + region_connect[SRC_UR].y_offset;
-*/
 
  int region_index [STORY_AREAS] [8];
 
-/*
- region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
- region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
+
+
+
+ region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1, UNLOCK_NONE);
+ region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2, UNLOCK_NONE);
 // blue
- region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1);
- region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2);
- region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [0], SRC_UL, AREA_BLUE, MISSION_BLUE_3);
- region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [2], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
- story.region[region_index [AREA_BLUE] [3]].capital = 1;
- region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_R, AREA_BLUE, MISSION_BLUE_4);
- int blue_to_yellow_region = region_index [AREA_BLUE] [4];
- region_index [AREA_BLUE] [5] = add_story_region(region_index [AREA_BLUE] [3], SRC_L, AREA_BLUE, MISSION_BLUE_5);
-// region_index [AREA_BLUE] [6] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_6);
-// region_index [AREA_BLUE] [7] = add_story_region(region_index [AREA_BLUE] [3], SRC_UL, AREA_BLUE, MISSION_BLUE_7);
+ region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1, UNLOCK_OBJECT_PULSE_L);
+ region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2, UNLOCK_CORE_MOBILE_1);
+ region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL, UNLOCK_OBJECT_INTERFACE);
+ story.region[region_index [AREA_BLUE] [2]].capital = 1;
+// region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_4);
+ int blue_to_yellow_region = region_index [AREA_BLUE] [2];
+ int blue_to_green_region = region_index [AREA_BLUE] [2];
 
- region_index [AREA_GREEN] [0] = add_story_region(region_index [AREA_BLUE] [5], SRC_UL, AREA_GREEN, MISSION_GREEN_1);
- region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UR, AREA_GREEN, MISSION_GREEN_2);
-// region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_UL, AREA_GREEN, MISSION_GREEN_3);
- int green_to_orange_region = region_index [AREA_GREEN] [1];
-// region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_L, AREA_GREEN, MISSION_GREEN_4);
- region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_3);
- region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [3], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL);
- story.region[region_index [AREA_GREEN] [4]].capital = 1;
 
- region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
- region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_R, AREA_ORANGE, MISSION_ORANGE_2);
-// region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
- region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_3);
-// region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
- region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_UL, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
- story.region[region_index [AREA_ORANGE] [3]].capital = 1;
+ region_index [AREA_GREEN] [0] = add_story_region(blue_to_green_region, SRC_UL, AREA_GREEN, MISSION_GREEN_1, UNLOCK_CORE_STATIC_1);
+ int green_to_orange_region = region_index [AREA_GREEN] [0];
+ region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_2, UNLOCK_OBJECT_REPAIR_OTHER);
+ region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL, UNLOCK_OBJECT_SPIKE);
+ story.region[region_index [AREA_GREEN] [2]].capital = 1;
 
- region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
- region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
-// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
- int yellow_to_purple_region = region_index [AREA_YELLOW] [1];
- region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [0], SRC_R, AREA_YELLOW, MISSION_YELLOW_3);
- region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
- story.region[region_index [AREA_YELLOW] [3]].capital = 1;
-// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
-// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
+ region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_R, AREA_YELLOW, MISSION_YELLOW_1, UNLOCK_OBJECT_PULSE_XL);
+ int yellow_to_purple_region = region_index [AREA_YELLOW] [0];
+ region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_DR, AREA_YELLOW, MISSION_YELLOW_2, UNLOCK_OBJECT_SLICE);
+ region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL, UNLOCK_CORE_MOBILE_2);
+ story.region[region_index [AREA_YELLOW] [2]].capital = 1;
 
- region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
- region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
-// region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
- region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UR, AREA_PURPLE, MISSION_PURPLE_3);
- region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
-// region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
- story.region[region_index [AREA_PURPLE] [3]].capital = 1;
+ region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UR, AREA_ORANGE, MISSION_ORANGE_1, UNLOCK_CORE_MOBILE_3);
+ region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_2, UNLOCK_OBJECT_STREAM);
+ region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [1], SRC_UL, AREA_ORANGE, MISSION_ORANGE_CAPITAL, UNLOCK_CORE_MOBILE_4);
+ story.region[region_index [AREA_ORANGE] [2]].capital = 1;
 
- region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [0], SRC_UL, AREA_RED, MISSION_RED_1);
- region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_UL, AREA_RED, MISSION_RED_2);
- region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_R, AREA_RED, MISSION_RED_3);
- region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL);
- story.region[region_index [AREA_RED] [3]].capital = 1;
+ region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UR, AREA_PURPLE, MISSION_PURPLE_1, UNLOCK_CORE_STATIC_2);
+ int purple_to_red_region = region_index [AREA_PURPLE] [0];
+ region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2, UNLOCK_OBJECT_STABILITY);
+ region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_R, AREA_PURPLE, MISSION_PURPLE_CAPITAL, UNLOCK_OBJECT_ULTRA);
+// region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
+// region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
+ story.region[region_index [AREA_PURPLE] [2]].capital = 1;
+
+ region_index [AREA_RED] [0] = add_story_region(purple_to_red_region, SRC_UL, AREA_RED, MISSION_RED_1, UNLOCK_NONE);
+ region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_UR, AREA_RED, MISSION_RED_2, UNLOCK_NONE);
+// 2nd row
+// region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
+// 3rd row
+// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
+// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
+// top
+ region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL, UNLOCK_NONE);
+ story.region[region_index [AREA_RED] [2]].capital = 1;
+
+ adjust_story_region(region_index [AREA_BLUE] [0], -4, -8);
+ adjust_story_region(region_index [AREA_BLUE] [2], 6, 0);
+
+ adjust_story_region(region_index [AREA_GREEN] [1], 6, -19);
+ adjust_story_region(region_index [AREA_GREEN] [2], 15, 13);
+
+ adjust_story_region(region_index [AREA_ORANGE] [1], 6, -7);
+ adjust_story_region(region_index [AREA_ORANGE] [1], 9, 8);
+
+ adjust_story_region(region_index [AREA_PURPLE] [1], -10, 17);
+ adjust_story_region(region_index [AREA_PURPLE] [2], -18, -9);
+
+ adjust_story_region(region_index [AREA_YELLOW] [1], 4, -8);
+ adjust_story_region(region_index [AREA_YELLOW] [2], -16, 12);
+
+
+ adjust_story_region(region_index [AREA_RED] [1], 2, -2);
+
+/*
+
+
+*UNLOCK_CORE_MOBILE_1, // 5c (if unlocked in order)
+*UNLOCK_CORE_MOBILE_2, // 6a
+*UNLOCK_CORE_MOBILE_3, // 6b
+*UNLOCK_CORE_MOBILE_4, // 6c
+//UNLOCK_CORE_MOBILE_5,
+
+*UNLOCK_CORE_STATIC_1, // 6b
+*UNLOCK_CORE_STATIC_2, // 6c
+//UNLOCK_CORE_STATIC_3,
+
+UNLOCK_COMPONENTS_1,
+UNLOCK_COMPONENTS_2,
+
+*UNLOCK_OBJECT_INTERFACE,
+*UNLOCK_OBJECT_REPAIR_OTHER,
+*UNLOCK_OBJECT_STABILITY,
+
+*UNLOCK_OBJECT_PULSE_L,
+*UNLOCK_OBJECT_PULSE_XL,
+*UNLOCK_OBJECT_BURST_XL,
+
+*UNLOCK_OBJECT_STREAM,
+*UNLOCK_OBJECT_SPIKE,
+*UNLOCK_OBJECT_SLICE,
+*UNLOCK_OBJECT_ULTRA,
+
+Unlocks: 15
+
+Blue:
+pulse_l/burst
+mobile core
+interface
+
+Green:
+static core
+repair_other
+spike
+
+Yellow:
+pulse/burst_xl
+slice
+mobile core
+
+Orange:
+mobile core
+stream
+mobile core
+
+Purple:
+static core
+stability
+ultra
+
+
+Components:
+ - at start, all 3 and 4 components unlocked
+ - that leaves:
+ long5
+ peak
+ snub
+ bowl
+
+ long6
+ drop
+ side
+
+7 - there are 6 core unlocks
+ - probably just have the first unlock 2 components
+
 */
 
 
-
-
+/*
  region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1, UNLOCK_NONE);
  region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2, UNLOCK_NONE);
 // blue
@@ -251,192 +315,7 @@ void init_story(void)
 // top
  region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL, UNLOCK_NONE);
  story.region[region_index [AREA_RED] [2]].capital = 1;
-
-/*
- region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
- region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
- region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_UL, AREA_ORANGE, MISSION_ORANGE_5);
- region_index [AREA_ORANGE] [5] = add_story_region(region_index [AREA_ORANGE] [4], SRC_L, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
- story.region[region_index [AREA_ORANGE] [5]].capital = 1;
-
- region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
- region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
-// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
- int yellow_to_purple_region = region_index [AREA_YELLOW] [1];
- region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_R, AREA_YELLOW, MISSION_YELLOW_4);
- region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_R, AREA_YELLOW, MISSION_YELLOW_5);
- region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
- story.region[region_index [AREA_YELLOW] [4]].capital = 1;
-// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
-// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
-
- region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
- region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
- region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
- region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_4);
- region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
- region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
- story.region[region_index [AREA_PURPLE] [5]].capital = 1;
-
- region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [2], SRC_UL, AREA_RED, MISSION_RED_1);
- region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
-// 2nd row
-// region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
-// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
-// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
-// 3rd row
-// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
-// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
-// top
- region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL);
- story.region[region_index [AREA_RED] [2]].capital = 1;
 */
-/*
- region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
- region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
-// blue
- region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1);
- region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2);
- region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [0], SRC_UL, AREA_BLUE, MISSION_BLUE_3);
- region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [2], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
- story.region[region_index [AREA_BLUE] [3]].capital = 1;
- region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_R, AREA_BLUE, MISSION_BLUE_4);
- int blue_to_yellow_region = region_index [AREA_BLUE] [4];
- region_index [AREA_BLUE] [5] = add_story_region(region_index [AREA_BLUE] [3], SRC_L, AREA_BLUE, MISSION_BLUE_5);
- region_index [AREA_BLUE] [6] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_6);
- region_index [AREA_BLUE] [7] = add_story_region(region_index [AREA_BLUE] [3], SRC_UL, AREA_BLUE, MISSION_BLUE_7);
-
- region_index [AREA_GREEN] [0] = add_story_region(region_index [AREA_BLUE] [7], SRC_L, AREA_GREEN, MISSION_GREEN_1);
- region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UR, AREA_GREEN, MISSION_GREEN_2);
-// region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_UL, AREA_GREEN, MISSION_GREEN_3);
- int green_to_orange_region = region_index [AREA_GREEN] [1];
- region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_L, AREA_GREEN, MISSION_GREEN_4);
- region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_5);
- region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [3], SRC_DL, AREA_GREEN, MISSION_GREEN_CAPITAL);
- story.region[region_index [AREA_GREEN] [4]].capital = 1;
-
- region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
- region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_R, AREA_ORANGE, MISSION_ORANGE_2);
- region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
- region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UL, AREA_ORANGE, MISSION_ORANGE_4);
- region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_UL, AREA_ORANGE, MISSION_ORANGE_5);
- region_index [AREA_ORANGE] [5] = add_story_region(region_index [AREA_ORANGE] [4], SRC_L, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
- story.region[region_index [AREA_ORANGE] [5]].capital = 1;
-
- region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
- region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
-// region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
- int yellow_to_purple_region = region_index [AREA_YELLOW] [1];
- region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_R, AREA_YELLOW, MISSION_YELLOW_4);
- region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_R, AREA_YELLOW, MISSION_YELLOW_5);
- region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
- story.region[region_index [AREA_YELLOW] [4]].capital = 1;
-// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
-// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
-
- region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
- region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
- region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
- region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_4);
- region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
- region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_UR, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
- story.region[region_index [AREA_PURPLE] [5]].capital = 1;
-
- region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [2], SRC_UL, AREA_RED, MISSION_RED_1);
- region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
-// 2nd row
-// region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
-// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
-// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
-// 3rd row
-// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
-// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
-// top
- region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_CAPITAL);
- story.region[region_index [AREA_RED] [2]].capital = 1;
-*/
-
-/*
- region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1);
- region_index [AREA_TUTORIAL] [1] = add_story_region(region_index [AREA_TUTORIAL] [0], SRC_R, AREA_TUTORIAL, MISSION_TUTORIAL2);
-// blue
- region_index [AREA_BLUE] [0] = add_story_region(region_index [AREA_TUTORIAL] [1], SRC_UR, AREA_BLUE, MISSION_BLUE_1);
- region_index [AREA_BLUE] [1] = add_story_region(region_index [AREA_BLUE] [0], SRC_UR, AREA_BLUE, MISSION_BLUE_2);
- region_index [AREA_BLUE] [2] = add_story_region(region_index [AREA_BLUE] [0], SRC_UL, AREA_BLUE, MISSION_BLUE_3);
- region_index [AREA_BLUE] [3] = add_story_region(region_index [AREA_BLUE] [2], SRC_UR, AREA_BLUE, MISSION_BLUE_CAPITAL);
- story.region[region_index [AREA_BLUE] [3]].capital = 1;
- region_index [AREA_BLUE] [4] = add_story_region(region_index [AREA_BLUE] [3], SRC_R, AREA_BLUE, MISSION_BLUE_4);
- int blue_to_yellow_region = region_index [AREA_BLUE] [4];
- region_index [AREA_BLUE] [5] = add_story_region(region_index [AREA_BLUE] [3], SRC_L, AREA_BLUE, MISSION_BLUE_5);
- region_index [AREA_BLUE] [6] = add_story_region(region_index [AREA_BLUE] [3], SRC_UR, AREA_BLUE, MISSION_BLUE_6);
- region_index [AREA_BLUE] [7] = add_story_region(region_index [AREA_BLUE] [3], SRC_UL, AREA_BLUE, MISSION_BLUE_7);
-
- region_index [AREA_GREEN] [0] = add_story_region(region_index [AREA_BLUE] [7], SRC_L, AREA_GREEN, MISSION_GREEN_1);
- region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_UR, AREA_GREEN, MISSION_GREEN_2);
- region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_UL, AREA_GREEN, MISSION_GREEN_3);
- int green_to_orange_region = region_index [AREA_GREEN] [2];
- region_index [AREA_GREEN] [3] = add_story_region(region_index [AREA_GREEN] [2], SRC_DL, AREA_GREEN, MISSION_GREEN_4);
- region_index [AREA_GREEN] [4] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_5);
- region_index [AREA_GREEN] [5] = add_story_region(region_index [AREA_GREEN] [4], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL);
- story.region[region_index [AREA_GREEN] [5]].capital = 1;
-
- region_index [AREA_ORANGE] [0] = add_story_region(green_to_orange_region, SRC_UL, AREA_ORANGE, MISSION_ORANGE_1);
- region_index [AREA_ORANGE] [1] = add_story_region(region_index [AREA_ORANGE] [0], SRC_R, AREA_ORANGE, MISSION_ORANGE_2);
- region_index [AREA_ORANGE] [2] = add_story_region(region_index [AREA_ORANGE] [0], SRC_UR, AREA_ORANGE, MISSION_ORANGE_3);
- region_index [AREA_ORANGE] [3] = add_story_region(region_index [AREA_ORANGE] [2], SRC_L, AREA_ORANGE, MISSION_ORANGE_4);
- region_index [AREA_ORANGE] [4] = add_story_region(region_index [AREA_ORANGE] [3], SRC_L, AREA_ORANGE, MISSION_ORANGE_5);
- region_index [AREA_ORANGE] [5] = add_story_region(region_index [AREA_ORANGE] [4], SRC_UL, AREA_ORANGE, MISSION_ORANGE_CAPITAL);
- story.region[region_index [AREA_ORANGE] [5]].capital = 1;
-
- region_index [AREA_YELLOW] [0] = add_story_region(blue_to_yellow_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_1);
- region_index [AREA_YELLOW] [1] = add_story_region(region_index [AREA_YELLOW] [0], SRC_UL, AREA_YELLOW, MISSION_YELLOW_2);
- region_index [AREA_YELLOW] [2] = add_story_region(region_index [AREA_YELLOW] [1], SRC_UR, AREA_YELLOW, MISSION_YELLOW_3);
- int yellow_to_purple_region = region_index [AREA_YELLOW] [2];
- region_index [AREA_YELLOW] [3] = add_story_region(region_index [AREA_YELLOW] [2], SRC_DR, AREA_YELLOW, MISSION_YELLOW_4);
- region_index [AREA_YELLOW] [4] = add_story_region(region_index [AREA_YELLOW] [3], SRC_R, AREA_YELLOW, MISSION_YELLOW_5);
- region_index [AREA_YELLOW] [5] = add_story_region(region_index [AREA_YELLOW] [4], SRC_DR, AREA_YELLOW, MISSION_YELLOW_CAPITAL);
- story.region[region_index [AREA_YELLOW] [5]].capital = 1;
-// new_region = add_story_region(yellow_capital_region, SRC_L, AREA_YELLOW, MISSION_YELLOW_5);
-// new_region = add_story_region(yellow_capital_region, SRC_UR, AREA_YELLOW, MISSION_YELLOW_6);
-
- region_index [AREA_PURPLE] [0] = add_story_region(yellow_to_purple_region, SRC_UL, AREA_PURPLE, MISSION_PURPLE_1);
- region_index [AREA_PURPLE] [1] = add_story_region(region_index [AREA_PURPLE] [0], SRC_R, AREA_PURPLE, MISSION_PURPLE_2);
- region_index [AREA_PURPLE] [2] = add_story_region(region_index [AREA_PURPLE] [1], SRC_UL, AREA_PURPLE, MISSION_PURPLE_3);
- region_index [AREA_PURPLE] [3] = add_story_region(region_index [AREA_PURPLE] [2], SRC_R, AREA_PURPLE, MISSION_PURPLE_4);
- region_index [AREA_PURPLE] [4] = add_story_region(region_index [AREA_PURPLE] [3], SRC_R, AREA_PURPLE, MISSION_PURPLE_5);
- region_index [AREA_PURPLE] [5] = add_story_region(region_index [AREA_PURPLE] [4], SRC_R, AREA_PURPLE, MISSION_PURPLE_CAPITAL);
- story.region[region_index [AREA_PURPLE] [5]].capital = 1;
-
- region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [0], SRC_UL, AREA_RED, MISSION_RED_1);
- region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
-// 2nd row
- region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UR, AREA_RED, MISSION_RED_3);
-// region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
-// region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
-// 3rd row
- region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_UL, AREA_RED, MISSION_RED_6);
- region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_7);
-// top
- region_index [AREA_RED] [5] = add_story_region(region_index [AREA_RED] [4], SRC_UL, AREA_RED, MISSION_RED_CAPITAL);
- story.region[region_index [AREA_RED] [5]].capital = 1;
-*/
-
-/*
- region_index [AREA_RED] [0] = add_story_region(region_index [AREA_PURPLE] [0], SRC_UL, AREA_RED, MISSION_RED_1);
- region_index [AREA_RED] [1] = add_story_region(region_index [AREA_RED] [0], SRC_L, AREA_RED, MISSION_RED_2);
-// 2nd row
- region_index [AREA_RED] [2] = add_story_region(region_index [AREA_RED] [1], SRC_UL, AREA_RED, MISSION_RED_3);
- region_index [AREA_RED] [3] = add_story_region(region_index [AREA_RED] [2], SRC_R, AREA_RED, MISSION_RED_4);
- region_index [AREA_RED] [4] = add_story_region(region_index [AREA_RED] [3], SRC_R, AREA_RED, MISSION_RED_5);
-// 3rd row
- region_index [AREA_RED] [5] = add_story_region(region_index [AREA_RED] [2], SRC_UR, AREA_RED, MISSION_RED_6);
- region_index [AREA_RED] [6] = add_story_region(region_index [AREA_RED] [5], SRC_R, AREA_RED, MISSION_RED_7);
-// top
- region_index [AREA_RED] [7] = add_story_region(region_index [AREA_RED] [6], SRC_UL, AREA_RED, MISSION_RED_CAPITAL);
- story.region[region_index [AREA_RED] [7]].capital = 1;
-
-*/
-
 
 // now work out connections:
  for (i = 0; i < STORY_REGIONS; i ++)
@@ -607,6 +486,14 @@ static int add_story_region(int old_region, int connect_index, int area_index, i
 
 }
 
+void adjust_story_region(int area_index, int adjust_x, int adjust_y)
+{
+
+	story.region[area_index].adjust_x = adjust_x;
+	story.region[area_index].adjust_y = adjust_y;
+
+}
+
 
 extern ALLEGRO_EVENT_QUEUE* event_queue;
 
@@ -646,6 +533,10 @@ SPECIAL_AI_TUTORIAL2_DEFENDER = 4,
 SPECIAL_AI_BLUE1_BASE = 5,
 SPECIAL_AI_BLUE1_WANDER = 6,
 SPECIAL_AI_BLUE1_WANDER2 = 7,
+SPECIAL_AI_BLUE1_HARVEST = 8,
+
+SPECIAL_AI_BLUE2_BASE = 9,
+SPECIAL_AI_BLUE3_BASE = 10,
 
 // green = 100
 
@@ -661,6 +552,11 @@ SPECIAL_AI_YELLOW1_OUTPOST = 205,
 SPECIAL_AI_YELLOW_SCOUT = 206,
 
 // orange = 300
+SPECIAL_AI_ORANGE1_BASE = 300,
+SPECIAL_AI_ORANGE1_DEFENCE = 301,
+SPECIAL_AI_ORANGE1_HARVESTER = 302, // unarmed harvester
+SPECIAL_AI_ORANGE1_HARVESTER2 = 303, // armed harvester
+SPECIAL_AI_ORANGE1_GUARD = 304,
 
 // purple = 400
 

@@ -7,6 +7,22 @@
 #define PROC_FILL_SHADES 16
 #define CLOUD_SHADES 32
 
+
+enum
+{
+MAP_MASK_BASE, // underlying map
+MAP_MASK_DRAWN, // changed each frame to indicate visibility. drawn over the base.
+MAP_MASK_OPAQUE, // blitted onto drawn if map not revealed
+MAP_MASK_TRANS, // blitted onto drawn if map revealed
+
+MAP_MASKS
+
+};
+
+#define MAP_DISPLAY_SIZE 190
+
+
+
 enum
 {
 PROC_COL_UNDERLAY,

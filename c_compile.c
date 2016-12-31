@@ -1753,8 +1753,10 @@ static int variable_declaration(void)
 	}
 
 // Now allocate memory:
+
  variable_id->address = cstate.mem_pos;
  cstate.mem_pos += storage_size;
+
 
  if (cstate.mem_pos >= MEMORY_SIZE)
 	{
@@ -2867,7 +2869,7 @@ static int get_array_element_address(int id_index)
 
 // at this point, A should hold the offset from the first element of the entire array.
 // To get the element, just add the address of the first element:
- add_intercode(IC_OP_WITH_VARIABLE_OPERAND, OP_addA_num, id_index, 0);
+ add_intercode(IC_OP_WITH_VARIABLE_OPERAND, OP_addA_num, id_index, 0); // id_index is converted to the variable's actual address later
 
  return 1;
 

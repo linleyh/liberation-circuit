@@ -644,6 +644,14 @@ void run_commands(void)
 		}
 	}
 
+	if (view.screen_shake_time > w.world_time
+		&& game.pause_soft	== 0)
+	{
+		int screen_shake_amount = view.screen_shake_time - w.world_time;
+		view.camera_x += al_itofix(grand(screen_shake_amount) - grand(screen_shake_amount));
+		view.camera_y += al_itofix(grand(screen_shake_amount) - grand(screen_shake_amount));
+	}
+
 // not sure the following bounds checks are needed but it can't hurt
  if (view.camera_x < view.camera_x_min)
   view.camera_x = view.camera_x_min;

@@ -93,7 +93,9 @@ void init_sound(int camstate_rand_seed)
  load_in_sample(SAMPLE_DRUM1, "data/sound/music/drum1.wav");
  load_in_sample(SAMPLE_DRUM2, "data/sound/music/drum2.wav");
  load_in_sample(SAMPLE_DRUM3, "data/sound/music/drum3.wav");
- load_in_sample(SAMPLE_TING, "data/sound/music/ting.wav");
+
+ load_in_sample(SAMPLE_CLICK, "data/sound/music/click.wav");
+ load_in_sample(SAMPLE_THUMP, "data/sound/music/thump.wav");
 
 // load_in_msample(MSAMPLE_NOTE, "data/sound/amb/note.wav");
 // load_in_msample(MSAMPLE_NOTE2, "data/sound/amb/note_harm.wav");

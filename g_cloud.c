@@ -18,6 +18,7 @@
 
 #include "g_cloud.h"
 
+void init_fragments(void);
 
 int new_cloud_index;
 
@@ -35,6 +36,9 @@ void init_clouds(void)
  }
 
  new_cloud_index = 0;
+
+ init_fragments();
+
 
 }
 
@@ -86,8 +90,8 @@ Should be able to:
 
 */
 
-void run_clouds(void)
-{
+//void run_clouds(void)
+//{
 
 /*
  int c;
@@ -142,9 +146,82 @@ void run_clouds(void)
  }
 */
 
+//}
+
+
+void init_fragments(void)
+{
+
+	int i;
+
+	for (i = 0; i < FRAGMENTS; i ++)
+	{
+		w.fragment[i].created_timestamp = 0;
+//		w.fragment[i].lifetime = 0;
+		w.fragment[i].destruction_timestamp = 0;
+	}
+
 }
 
 
+// returns 1 on success, 0 on failure.
+//  - will fail if there are already too many fragments
+int create_fragment(cart position, cart speed, int fragment_size, int explode_time, int lifetime, int colour)
+{
+
+// it's possible there could be a non-existent fragment later in the array, but let's not worry about that:
+	if (w.fragment[w.fragment_count].destruction_timestamp > w.world_time)
+		return 0;
+
+	w.fragment[w.fragment_count].position = position;
+	w.fragment[w.fragment_count].speed = speed;
+//	fpr("\n fr %i sp %i,%i", w.fragment_count, w.fragment[w.fragment_count].speed.x, w.fragment[w.fragment_count].speed.y);
+	w.fragment[w.fragment_count].fragment_size = fragment_size;
+	w.fragment[w.fragment_count].colour = colour;
+	w.fragment[w.fragment_count].created_timestamp = w.world_time;
+	w.fragment[w.fragment_count].explosion_timestamp = w.world_time + explode_time;
+	w.fragment[w.fragment_count].destruction_timestamp = w.world_time + lifetime;
+	if (grand(2))
+  w.fragment[w.fragment_count].spin = (50 + grand(50)) * 0.0006;//(grand(200) - 100) * 0.0006; // spin
+   else
+    w.fragment[w.fragment_count].spin = (50 + grand(50)) * -0.0006;
+
+	w.fragment_count ++;
+	w.fragment_count &= FRAGMENT_MASK;
+
+	return 1;
+
+}
+
+void run_fragments(void)
+{
+	int i;
+//fpr("\n%i", al_ftofix(0.94));
+	for (i = 0; i < FRAGMENTS; i ++)
+	{
+ 	if (w.fragment[i].destruction_timestamp >= w.world_time)
+	 {
+  	if (w.fragment[i].explosion_timestamp >= w.world_time)
+			{
+   	if (w.fragment[i].explosion_timestamp == w.world_time)
+	 		{
+     pulse_block_node(w.fragment[i].position.x, w.fragment[i].position.y);
+// explosion_affects_block_nodes(w.fragment[i].position.x, w.fragment[i].position.y, 60 + w.fragment[i].fragment_size * 5, w.fragment[i].colour);
+
+//     w.fragment[i].speed.x = 0;
+//     w.fragment[i].speed.y = 0;
+	 		}
+    w.fragment[i].position.x += w.fragment[i].speed.x;
+    w.fragment[i].position.y += w.fragment[i].speed.y;
+			}
+	 }
+	 w.fragment[i].speed.x = al_fixmul(w.fragment[i].speed.x, 61604); // 61604 is 0.94
+	 w.fragment[i].speed.y = al_fixmul(w.fragment[i].speed.y, 61604); // if this is changed, also change the 0.94 in draw_fragment_tail() in i_display.c
+//  w.fragment[i].speed.x *= 0.94;
+//  w.fragment[i].speed.y *= 0.94;
+	}
+
+}
 
 
 

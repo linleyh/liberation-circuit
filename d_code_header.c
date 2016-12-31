@@ -397,7 +397,7 @@ static int auto_classify_objects(struct template_struct* templ)
  			 	 add_auto_class_to_object(templ, i, j, AUTO_CLASS_SPIKE_FRONT);
 							 else
 								{
-	   					 write_line_to_log("Problem: spike objects should be aimed forwards or sidewards.", MLOG_COL_WARNING);
+	   					 write_line_to_log("Warning: spike objects should be aimed forwards or sidewards.", MLOG_COL_WARNING);
 								}
      break;
     case OBJECT_TYPE_STREAM:
@@ -410,7 +410,7 @@ static int auto_classify_objects(struct template_struct* templ)
 					{
 						{
 						 object_autoclass_failure_message(templ, i, j);
-						 write_line_to_log("Problem: fixed attacking objects should be aimed forwards.", MLOG_COL_WARNING);
+						 write_line_to_log("Warning: fixed attacking objects should be aimed forwards.", MLOG_COL_WARNING);
 // could probably give a more useful warning than that...
 						}
 						break;
@@ -442,7 +442,7 @@ static int auto_classify_objects(struct template_struct* templ)
 	if (dcode_state.object_type_present [OBJECT_TYPE_INTERFACE]
   && components_protectable_by_interface == 0)
 	{
-	 write_line_to_log("Problem: process has interface, but no components that can be protected by interface.", MLOG_COL_WARNING);
+	 write_line_to_log("Warning: process has interface, but no components that can be protected.", MLOG_COL_WARNING);
 	 write_line_to_log(" (a component with a move or interface object can't be protected)", MLOG_COL_WARNING);
 	}
 

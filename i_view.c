@@ -1,4 +1,5 @@
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include <stdio.h>
 
@@ -10,6 +11,7 @@
 #include "g_misc.h"
 #include "m_globvars.h"
 #include "m_maths.h"
+#include "i_header.h"
 #include "i_view.h"
 #include "e_inter.h"
 #include "t_template.h"
@@ -45,8 +47,8 @@ void init_view_at_startup(int window_w, int window_h)
 void initialise_view(int window_w, int window_h)
 {
 
- view.map_w = 190;
- view.map_h = 190;
+ view.map_w = MAP_DISPLAY_SIZE;
+ view.map_h = MAP_DISPLAY_SIZE;
 
  reset_view_values(window_w, window_h);
 
@@ -90,6 +92,7 @@ void initialise_view(int window_w, int window_h)
 	}
 	view.under_attack_marker_last_time = 0;
 
+ view.screen_shake_time = 0;
 
 }
 

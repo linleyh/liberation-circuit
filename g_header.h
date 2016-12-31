@@ -57,6 +57,8 @@ struct bcode_struct
 {
  s16b op [BCODE_MAX];
 
+ s16b src_line [BCODE_MAX]; // used for debugging
+
 // IMPORTANT - this structure can be copied by assignment in copy_template in template.c!
 
 };
@@ -615,6 +617,7 @@ struct template_struct
  int has_allocator; // 1 if has an allocator. used for LOCAL_CONDITION_SINGLE_ALLOCATOR
 
  int number_of_interface_objects; // currently this should only be used for d_draw display code. It's recalculated for individual cores when created (and when damaged etc.)
+ int number_of_storage_objects; // like number_of_interface_objects
 
 // *** IMPORTANT!!
 // When adding any fields to this struct, may also need to add them to copy_template in template.c!
@@ -765,6 +768,7 @@ struct core_struct
  int power_use_excess; // amount of power that objects tried to use but couldn't because there wasn't enough. Not super-accurate and really just used for the power use record display for the selected process.
 // int power_use_predicted; // guess of how much power used in addition to power_used - includes power that will probably be used by objects like packet and move (which use power after execution), but may be inaccurate
 // int power_used_old; // previous cycle's power use
+ int instructions_per_cycle; // based on core type
  int instructions_used; // this is updated from the virtual machine state at the end of execution
 // int stress;
 //#define STRESS_REDUCTION_FACTOR 4
@@ -824,7 +828,7 @@ struct core_struct
 
  struct message_struct message [MESSAGES]; // note that this is not initialised - it relies on messages_received to ignore uninitialised parts
  int messages_received;
- int message_reading; // index of current message being read by process
+ int message_reading; // index of current message being read by process. Is -1 if next_message() not yet called.
   // if message_reading is >= core->messages_received, core has finished reading messages
  int message_position; // position in current message
  int listen_channel [CHANNELS];
@@ -1160,7 +1164,7 @@ struct packet_struct
 
 struct cloud_struct
 {
-// REMEMBER: When anything is added to this structure, it may need to be added to load/save routines in f_load.c/f_save.c
+
  int exists; // needed?
  timestamp created_timestamp;
  timestamp lifetime; // cloud should cease to exist after world_time > created+lifetime. this may not be needed.
@@ -1223,6 +1227,7 @@ CLOUD_PROC_EXPLODE_SMALL2,
 
 CLOUD_HARVEST_LINE, // line from harvest object to data well
 CLOUD_GIVE_LINE, // line from harvest object to target of data transfer
+CLOUD_TAKE_LINE, // line from source of data transfer to harvest object
 CLOUD_BUILD_LINE, // line from build harvest object to new core
 CLOUD_BUILD_FAIL, // tried to build but failed. cloud appears around build object.
 CLOUD_REPAIR_LINE, // line from repair object to repaired proc
@@ -1232,7 +1237,30 @@ CLOUD_TYPES
 
 };
 
+#define FRAGMENT_BITS 7
+#define FRAGMENTS (1<<FRAGMENT_BITS)
+#define FRAGMENT_MASK (FRAGMENTS - 1)
+#define FRAGMENT_MAX_LIFETIME 128
 
+struct fragment_struct
+{
+
+// int exists; // needed?
+ timestamp created_timestamp;
+// timestamp lifetime;
+ timestamp explosion_timestamp; // when fragment explodes
+ timestamp destruction_timestamp; // when fragment ceases to exist at all
+
+// int type;
+ int colour;
+ int fragment_size;
+
+ cart position;
+// cart position2;
+ cart speed;
+ float spin; // only used for display
+
+};
 
 #define DATA_WELLS 24
 #define DATA_WELL_RESERVES 2
@@ -1397,15 +1425,19 @@ struct world_struct
 
 #else
 
+#define MAXIMUM_BLOCK_SIZE 120
+
   struct core_struct core [MAX_CORES];
   struct proc_struct proc [MAX_PROCS];
   struct packet_struct packet [MAX_PACKETS];
   struct cloud_struct cloud [CLOUDS];
-  struct block_struct block [120] [120];
-  struct backblock_struct backblock [120] [120];
+		int fragment_count;
+  struct fragment_struct fragment [FRAGMENTS];
+  struct block_struct block [MAXIMUM_BLOCK_SIZE] [MAXIMUM_BLOCK_SIZE];
+  struct backblock_struct backblock [MAXIMUM_BLOCK_SIZE] [MAXIMUM_BLOCK_SIZE];
   float backblock_parallax [BACKBLOCK_LAYERS];
-  struct vision_block_struct vision_block [120] [120];
-  struct vision_area_struct vision_area [PLAYERS] [120] [120];
+  struct vision_block_struct vision_block [MAXIMUM_BLOCK_SIZE] [MAXIMUM_BLOCK_SIZE];
+  struct vision_area_struct vision_area [PLAYERS] [MAXIMUM_BLOCK_SIZE] [MAXIMUM_BLOCK_SIZE];
 
 #endif
 
@@ -1500,6 +1532,7 @@ struct view_struct
  float zoom;
  int zoom_level; // 1 to ZOOM_MAX_LEVEL
  int zoom_int; // integer zoom
+ int screen_shake_time;
 
  int map_visible; // 0 or 1
  int map_x, map_y;
@@ -2122,6 +2155,7 @@ struct world_init_struct
 
  char player_name [PLAYERS] [PLAYER_NAME_LENGTH];
  int player_starting_data [PLAYERS];
+ int starting_data_setting; // 0-3 (actual amount is (this + 1) * 300) - only used for custom games as missions have their own settings
 
 // the following map-related information is generated from the various settings above
  int map_size_blocks; // generated for convenience

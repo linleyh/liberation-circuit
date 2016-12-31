@@ -67,18 +67,18 @@ void reset_map_init(int map_size_blocks,
  {
  	default:
  	case AREA_BLUE:
-   map_init.background_size_base = 8;
-   map_init.background_size_random = 8;
+   map_init.background_size_base = 11;
+   map_init.background_size_random = 5;
    map_init.background_size_random_freq = 50;//20;//60; // frequency of random addition/subtraction to background depth
    break;
  	case AREA_YELLOW:
-   map_init.background_size_base = 8;
-   map_init.background_size_random = 15;
+   map_init.background_size_base = 11;
+   map_init.background_size_random = 12;
    map_init.background_size_random_freq = 80;//20;//60; // frequency of random addition/subtraction to background depth
    break;
- 	case AREA_ORANGE:
-   map_init.background_size_base = 8;
-   map_init.background_size_random = 15;
+ 	case AREA_RED:
+   map_init.background_size_base = 11;
+   map_init.background_size_random = 12;
    map_init.background_size_random_freq = 90;//20;//60; // frequency of random addition/subtraction to background depth
    break;
  }
@@ -129,6 +129,7 @@ void generate_random_map(int size_blocks,
 //  may then be copied to other parts of the map for symmetry
 struct map_gen_state_struct
 {
+
  int base_data_wells;
  int base_data_well_x [DATA_WELLS];
  int base_data_well_y [DATA_WELLS];
@@ -443,6 +444,18 @@ void add_extra_spawn_by_latest_well(int player_index, int template_index, int an
 
 }
 
+block_cart get_well_block_position(int well_index)
+{
+
+	block_cart return_position;
+
+	return_position.x = map_init.data_well_position[well_index].x;
+	return_position.y = map_init.data_well_position[well_index].y;
+
+	return return_position;
+
+
+}
 
 void set_player_spawn_position(int player_index, int block_x, int block_y, int angle)
 {
@@ -460,8 +473,8 @@ static int check_map_gen_state_data_well_position(int block_x, int block_y)
 
 				 	for (i = 0; i < map_gen_state.base_data_wells; i ++)
 						{
-		     if (abs(map_gen_state.base_data_well_x [map_gen_state.base_data_wells] - map_gen_state.base_data_well_x [i]) < 5
-				    && abs(map_gen_state.base_data_well_y [map_gen_state.base_data_wells] - map_gen_state.base_data_well_y [i]) < 5)
+		     if (abs(map_gen_state.base_data_well_x [map_gen_state.base_data_wells] - map_gen_state.base_data_well_x [i]) < 8
+				    && abs(map_gen_state.base_data_well_y [map_gen_state.base_data_wells] - map_gen_state.base_data_well_y [i]) < 8)
 				   {
 				   	return 0;
   		   }

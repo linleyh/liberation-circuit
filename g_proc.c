@@ -33,16 +33,18 @@
 extern struct command_struct command;
 extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 extern struct nshape_struct nshape [NSHAPES];
+extern struct view_struct view;
 
 void hurt_proc(int p, int damage, int cause_team);
 
 
 static void noncore_proc_explodes(struct proc_struct* destroyed_pr, int destroyer_team);
-static void explosion_fragments(al_fixed x, al_fixed y, int fragments, int player_index);
+static void explosion_fragments(al_fixed x, al_fixed y, al_fixed x_speed, al_fixed y_speed, int fragments, int player_index);
 
 void reset_group_after_composition_change(struct core_struct* core);
 static void destroy_procs_recursively(struct core_struct* core, struct proc_struct* destroyed_pr, int destroyer_team);
 static void destroy_a_proc(struct proc_struct* destroyed_pr, int destroyer_team);
+void shake_screen(al_fixed x, al_fixed y, int shaken);
 
 // wrapper around hurt_proc for cases where the damage is caused by something that can be caught by virtual interface.
 // damage sources that are not caught by virtual interface should call hurt_proc directly
@@ -199,7 +201,7 @@ void core_proc_explodes(struct proc_struct* core_pr, int destroyer_team)
   cl->display_size_x2 = 300;
   cl->display_size_y2 = 300;
  }
- explosion_fragments(core_pr->position.x, core_pr->position.y, 6, core_pr->player_index);
+ explosion_fragments(core_pr->position.x, core_pr->position.y, core_pr->speed.x, core_pr->speed.y, 6, core_pr->player_index);
  explosion_affects_block_nodes(core_pr->position.x, core_pr->position.y, 200 + (core->group_members_current * 20), core_pr->player_index);
 
 	int i;
@@ -257,7 +259,7 @@ void core_proc_explodes(struct proc_struct* core_pr, int destroyer_team)
      cl->display_size_y2 = 200;
 	   }
    procs_destroyed_in_this_explosion ++;
-   explosion_fragments(w.proc[core->group_member[i].index].position.x, w.proc[core->group_member[i].index].position.y, 6, core->player_index);
+   explosion_fragments(w.proc[core->group_member[i].index].position.x, w.proc[core->group_member[i].index].position.y, w.proc[core->group_member[i].index].speed.x, w.proc[core->group_member[i].index].speed.y, 6, core->player_index);
 			destroy_a_proc(&w.proc[core->group_member[i].index], destroyer_team);
 		}
 	}
@@ -268,10 +270,28 @@ void core_proc_explodes(struct proc_struct* core_pr, int destroyer_team)
 		bang_sample = SAMPLE_BANG2;
  play_game_sound(bang_sample, TONE_2C - (procs_destroyed_in_this_explosion / 3), 50, 10, core->core_position.x, core->core_position.y);
 
+ shake_screen(core->core_position.x, core->core_position.y, 16 + procs_destroyed_in_this_explosion);
 
 }
 
+void shake_screen(al_fixed x, al_fixed y, int shaken)
+{
 
+//if (game.fast_forward != FAST_FORWARD_OFF
+ if (abs(x - view.camera_x) > (view.centre_x_zoomed + al_itofix(100))
+  || abs(y - view.camera_y) > (view.centre_y_zoomed + al_itofix(100)))
+//		|| (game.vision_mask
+//			&& w.vision_area[game.user_player_index]
+//			                [fixed_to_block(x)]
+//									          [fixed_to_block(y)].vision_time < w.world_time - VISION_AREA_VISIBLE_TIME))
+   return;
+
+
+ if (view.screen_shake_time < w.world_time + shaken)
+  view.screen_shake_time = w.world_time + shaken;
+
+
+}
 // This function destroys a non-core process and everything downlinked from it
 static void noncore_proc_explodes(struct proc_struct* destroyed_pr, int destroyer_team)
 {
@@ -294,7 +314,7 @@ static void noncore_proc_explodes(struct proc_struct* destroyed_pr, int destroye
 
 // parent_pr->group_connection [parent_connection_index] = NULL;
  parent_pr->group_connection_exists [parent_connection_index] = 0;
-	procs_destroyed_in_this_explosion = 1;
+	procs_destroyed_in_this_explosion = w.core[destroyed_pr->core_index].group_members_current; // subtracted from below
 
 	int i;
 
@@ -305,6 +325,18 @@ static void noncore_proc_explodes(struct proc_struct* destroyed_pr, int destroye
    destroy_procs_recursively(&w.core[destroyed_pr->core_index], destroyed_pr->group_connection_ptr[i], destroyer_team);
 		}
 	}
+
+ w.core[destroyed_pr->core_index].group_member[destroyed_pr->group_member_index].exists = 0;
+// core->group_members--; this is dealt with by set_basic_group_properties()
+ destroy_a_proc(destroyed_pr, destroyer_team);
+
+ play_game_sound(SAMPLE_BANG, TONE_2C, 60, 10, destroyed_pr->position.x, destroyed_pr->position.y);
+
+ reset_group_after_composition_change(&w.core[destroyed_pr->core_index]);
+
+ procs_destroyed_in_this_explosion -= w.core[destroyed_pr->core_index].group_members_current;
+
+ fpr("\n procs_destroyed_in_this_explosion %i", procs_destroyed_in_this_explosion);
 
  struct cloud_struct* cl = new_cloud(CLOUD_SUB_PROC_EXPLODE, 64, destroyed_pr->position.x, destroyed_pr->position.y);
  if (cl != NULL)
@@ -320,16 +352,13 @@ static void noncore_proc_explodes(struct proc_struct* destroyed_pr, int destroye
   cl->display_size_x2 = 200;
   cl->display_size_y2 = 200;
  }
- explosion_fragments(destroyed_pr->position.x, destroyed_pr->position.y, 6, destroyed_pr->player_index);
+ explosion_fragments(destroyed_pr->position.x, destroyed_pr->position.y, destroyed_pr->speed.x, destroyed_pr->speed.y, 6, destroyed_pr->player_index);
  explosion_affects_block_nodes(destroyed_pr->position.x, destroyed_pr->position.y, 200 + (procs_destroyed_in_this_explosion * 20), destroyed_pr->player_index);
 
- w.core[destroyed_pr->core_index].group_member[destroyed_pr->group_member_index].exists = 0;
-// core->group_members--; this is dealt with by set_basic_group_properties()
- destroy_a_proc(destroyed_pr, destroyer_team);
 
- play_game_sound(SAMPLE_BANG, TONE_2C, 60, 10, destroyed_pr->position.x, destroyed_pr->position.y);
 
- reset_group_after_composition_change(&w.core[destroyed_pr->core_index]);
+ shake_screen(destroyed_pr->position.x, destroyed_pr->position.y, 6 + procs_destroyed_in_this_explosion);
+
 
 }
 
@@ -503,7 +532,7 @@ static void destroy_procs_recursively(struct core_struct* core, struct proc_stru
     cl->display_size_x2 = 200;
     cl->display_size_y2 = 200;
 	  }
-   explosion_fragments(destroyed_pr->group_connection_ptr[i]->position.x, destroyed_pr->group_connection_ptr[i]->position.y, 6, destroyed_pr->player_index);
+   explosion_fragments(destroyed_pr->group_connection_ptr[i]->position.x, destroyed_pr->group_connection_ptr[i]->position.y, destroyed_pr->group_connection_ptr[i]->speed.x, destroyed_pr->group_connection_ptr[i]->speed.y, 6, destroyed_pr->player_index);
 
 			destroy_procs_recursively(core, destroyed_pr->group_connection_ptr[i], destroyer_team);
 		}
@@ -525,32 +554,39 @@ static void destroy_a_proc(struct proc_struct* destroyed_pr, int destroyer_team)
 
 }
 
-static void explosion_fragments(al_fixed x, al_fixed y, int fragments, int player_index)
+static void explosion_fragments(al_fixed x, al_fixed y, al_fixed x_speed, al_fixed y_speed, int fragments, int player_index)
 {
 
 	int i;
-	struct cloud_struct* cl;
+//	struct cloud_struct* cl;
 	al_fixed base_fragment_angle = grand(AFX_ANGLE_1);
+	int fragment_speed_int;
 	al_fixed fragment_speed;
+	cart fragment_position;
+	cart fragment_vel;
+	al_fixed fragment_angle;
+	int explode_time;
 
 	for (i = 0; i < fragments; i ++)
 	{
-  cl = new_cloud(CLOUD_PROC_FRAGMENT, 64 + grand(64), x, y);
-  if (cl == NULL)
-			return;
-  cl->angle = base_fragment_angle + (AFX_ANGLE_1 * i / fragments) + grand(AFX_ANGLE_8);
-  cl->colour = player_index;
-  cl->data [0] = 6 + grand(8); // fragment size
-  cl->data [1] = int_angle_to_fixed(-100 + grand(200)); // spin
-  fragment_speed = al_itofix(2 + grand(3));
-  cl->speed.x = fixed_xpart(cl->angle, fragment_speed);
-  cl->speed.y = fixed_ypart(cl->angle, fragment_speed);
-  cl->position.x = x + cl->speed.x * 10;
-  cl->position.y = y + cl->speed.y * 10;
-  cl->display_size_x1 = -300;
-  cl->display_size_y1 = -300;
-  cl->display_size_x2 = 300;
-  cl->display_size_y2 = 300;
+  fragment_angle = base_fragment_angle + (AFX_ANGLE_1 * i / fragments) + grand(AFX_ANGLE_8);
+  fragment_speed_int = 2 + grand(12);
+  fragment_speed = al_itofix(fragment_speed_int);
+  fragment_vel.x = fixed_xpart(fragment_angle, fragment_speed);
+  fragment_vel.y = fixed_ypart(fragment_angle, fragment_speed);
+//  fragment_vel.x = x_speed + fixed_xpart(fragment_angle, fragment_speed);
+//  fragment_vel.y = y_speed + fixed_ypart(fragment_angle, fragment_speed);
+  fragment_position.x = x + fragment_vel.x * 5;
+  fragment_position.y = y + fragment_vel.y * 5;
+  explode_time = fragment_speed_int * 5;// + //grand(20) + fragment_speed_int * 4;
+
+
+  if (!create_fragment(fragment_position, fragment_vel,
+																							6 + grand(10), // size
+																							explode_time, // explosion_time
+																							explode_time + 32, // lifetime
+																							player_index)) // colour
+			return; // fragment array full.
 	}
 
 }

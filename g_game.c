@@ -253,7 +253,8 @@ void main_game_loop(void)
       run_world(); // runs the world and also the mission, if this is a mission. Can end the game.
 // should run_world be after the next three function calls? Maybe.
 
-      run_clouds();
+//      run_clouds(); clouds don't need to be run
+      run_fragments();
       run_cores_and_procs();
       run_packets();
 
@@ -367,7 +368,7 @@ void main_game_loop(void)
       break;
      case FAST_FORWARD_TYPE_SKIP:
       game.fast_forward = FAST_FORWARD_ON;
-      if (w.world_time % 4 != 0)
+      if (w.world_time % 8 != 0)
 							skip_frame = 1;
       break;
 /*     case FAST_FORWARD_TYPE_8X:

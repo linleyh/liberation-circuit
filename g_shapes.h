@@ -119,6 +119,7 @@ struct nshape_struct
 	int power_capacity;
 	int component_power_capacity;
 	int interface_charge_rate;
+	int instructions_per_cycle;
 
 };
 
@@ -180,6 +181,7 @@ struct nshape_init_data_struct
 	int power_capacity;
 	int component_power_capacity;
 	int interface_charge_rate;
+	int instructions_per_cycle;
 };
 
 

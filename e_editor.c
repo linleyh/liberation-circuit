@@ -171,6 +171,7 @@ struct submenustruct submenu [SUBMENUS] =
    {"Open", ""},
    {"Save", ""},
    {"Save as", ""},
+   {"Save all", ""},
 //   {"Close", "", HELP_SUBMENU_CLOSE_FILE},
 //   {"Quit", ""},
   }
@@ -1202,6 +1203,9 @@ static void submenu_operation(int sm, int line)
      break;
     case SUBMENU_FILE_SAVE:
      save_current_file();
+     break;
+    case SUBMENU_FILE_SAVE_ALL:
+     save_all_files();
      break;
     case SUBMENU_FILE_SAVE_AS:
      save_as();

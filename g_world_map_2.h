@@ -34,10 +34,12 @@ BNC_OUTER_NONE,
 BNC_OUTER_GRADIENT,
 BNC_OUTER_RANDOM_GRADIENT,
 BNC_OUTER_LINE, // line then upwards gradient outwards
+BNC_OUTER_ORANGE
 };
 
 
 void generate_map_from_map_init(void);
 void clear_background_circle(int centre_block_x, int centre_block_y, int clear_size, int edge_thickness);
+void reset_map_vision_masks(void);
 
 #endif

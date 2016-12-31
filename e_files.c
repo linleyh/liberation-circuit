@@ -32,7 +32,7 @@
 extern ALLEGRO_DISPLAY* display;
 extern struct editorstruct editor;
 extern struct design_window_struct dwindow;
-
+extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 
 int open_file_into_source_or_binary(struct source_struct* src);
 int check_file_already_open(const char* file_path);
@@ -429,19 +429,6 @@ void save_current_file(void)
   return;
 	}
 
-
- save_source_edit_file(se);
-
-}
-
-
-// assumes se is a valid source_edit_struct
-
-void save_source_edit_file(struct source_edit_struct* se)
-{
-
-// now we know that se is a valid source_edit.
-// first make sure it's not saved:
  if (se->saved == 1)
 	{
 		write_line_to_log("File already saved.", MLOG_COL_EDITOR);
@@ -454,6 +441,62 @@ void save_source_edit_file(struct source_edit_struct* se)
   save_as(); // handles both binary and source
   return;
  }
+
+
+ save_source_edit_file(se);
+
+}
+
+// tries to save all files for currently open player
+void save_all_files(void)
+{
+
+	int saving_player = dwindow.templ->player_index;
+
+	sancheck(saving_player, 0, PLAYERS, "save_all_files: saving_player");
+
+	int i;
+
+	for (i = 0; i < TEMPLATES_PER_PLAYER; i ++)
+	{
+		if (!templ[saving_player][i].active
+   || !templ[saving_player][i].source_edit->active
+   || templ[saving_player][i].source_edit->saved)
+		 continue;
+		if	(templ[saving_player][i].source_edit->type != SOURCE_EDIT_TYPE_SOURCE)
+		{
+			start_log_line(MLOG_COL_WARNING);
+ 		write_to_log("Template ");
+ 		write_number_to_log(i);
+ 		write_to_log(" not saved (no source code).");
+ 		finish_log_line();
+		 continue;
+		}
+		if	(templ[saving_player][i].source_edit->from_a_file == 0)
+		{
+			start_log_line(MLOG_COL_WARNING);
+ 		write_to_log("Template ");
+ 		write_number_to_log(i);
+ 		write_to_log(" not saved (not from a file).");
+ 		finish_log_line();
+		 continue;
+		}
+
+		 save_source_edit_file(templ[saving_player][i].source_edit);
+
+	}
+
+
+
+}
+
+// assumes se is a valid source_edit_struct
+
+void save_source_edit_file(struct source_edit_struct* se)
+{
+
+// now we know that se is a valid source_edit.
+// first make sure it's not saved:
 
  save_source_edit_source_to_file(se);
 
@@ -533,7 +576,14 @@ void save_source_buffer_to_file(char buffer [WRITE_SIZE], int buf_length, struct
  if (se->from_a_file == 0)
   se->from_a_file = 1;
 
- write_line_to_log("File saved.", MLOG_COL_EDITOR);
+  start_log_line(MLOG_COL_EDITOR);
+  write_to_log("File ");
+  write_to_log(se->src_file_name);
+  write_to_log(" saved.");
+  finish_log_line();
+
+
+// write_line_to_log("File saved.", MLOG_COL_EDITOR);
  se->saved = 1;
 
 }

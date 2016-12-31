@@ -221,24 +221,50 @@ add_design_bquad(POWER_GRAPH_X,
 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MED], data_cost_x + 12, POWER_GRAPH_Y3, ALLEGRO_ALIGN_LEFT, "cost %i", dwindow.templ->data_cost);
 
 
+  float possible_graph_y = POWER_GRAPH_Y0;
+
   if (dwindow.templ->number_of_interface_objects > 0)
 		{
 // the word "interface" is only displayed if the template actually has an interface
-	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, POWER_GRAPH_Y0, ALLEGRO_ALIGN_RIGHT, "interface");
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, possible_graph_y, ALLEGRO_ALIGN_RIGHT, "interface");
 
 	  int interface_strength = dwindow.templ->number_of_interface_objects * nshape[dwindow.templ->member[0].shape].base_hp_max;
 	  float interface_strength_x = POWER_GRAPH_X + interface_strength * 0.1;
 
    add_design_bquad(POWER_GRAPH_X,
-																	   POWER_GRAPH_Y0,
+																	   possible_graph_y,
 																	   interface_strength_x,
-																	   POWER_GRAPH_Y0 + POWER_GRAPH_H,
+																	   possible_graph_y + POWER_GRAPH_H,
 																	   3,
 																	   2,
 																	   colours.base_trans [COL_PURPLE] [SHADE_MAX] [TRANS_MED]);
 
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_PURPLE] [SHADE_HIGH], interface_strength_x + 12, POWER_GRAPH_Y0, ALLEGRO_ALIGN_LEFT, "interface %i charge +%i", interface_strength, dwindow.templ->number_of_interface_objects * nshape[dwindow.templ->member[0].shape].interface_charge_rate);
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_PURPLE] [SHADE_HIGH], interface_strength_x + 12, possible_graph_y, ALLEGRO_ALIGN_LEFT, "interface %i charge +%i", interface_strength, dwindow.templ->number_of_interface_objects * nshape[dwindow.templ->member[0].shape].interface_charge_rate);
 
+   possible_graph_y -= (POWER_GRAPH_H + 2);
+
+		}
+
+
+  if (dwindow.templ->number_of_storage_objects > 0)
+		{
+// only displayed if the template actually has storage
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, possible_graph_y, ALLEGRO_ALIGN_RIGHT, "storage");
+
+	  int data_storage = dwindow.templ->number_of_storage_objects * 64;
+	  float data_storage_x = POWER_GRAPH_X + data_storage * 0.3;
+
+   add_design_bquad(POWER_GRAPH_X,
+																	   possible_graph_y,
+																	   data_storage_x,
+																	   possible_graph_y + POWER_GRAPH_H,
+																	   3,
+																	   2,
+																	   colours.base_trans [COL_ORANGE] [SHADE_MAX] [TRANS_MED]);
+
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], data_storage_x + 12, possible_graph_y, ALLEGRO_ALIGN_LEFT, "data storage %i", data_storage);
+
+   possible_graph_y -= (POWER_GRAPH_H + 2);
 
 		}
 
@@ -1200,14 +1226,14 @@ char* object_description [OBJECT_TYPES] [3] =
  {"Allocates data so that it can be used to build processes.",
   "Requires at least one storage object.",
    ""}, //	OBJECT_TYPE_ALLOCATE,
- {"Fires a stream of malicious data. Cannot rotate.",
-  "Very powerful, but expensive.",
-  ""}, //	OBJECT_TYPE_STREAM,
- {"Fires a stream of malicious data.",
-  "Can rotate to track its target.",
-  "Very powerful, but expensive."}, //	OBJECT_TYPE_STREAM_DIR,
- {"Long-range attacking object. Does maximum damage only at",
-  "a distance.",
+ {"Fires a powerful stream of malicious data. Does",
+  "double damage against components not protected by",
+  "an interface. Cannot rotate."}, //	OBJECT_TYPE_STREAM,
+ {"Fires a powerful stream of malicious data. Does",
+  "double damage against components not protected by",
+  "an interface. Can rotate to track its target."}, //	OBJECT_TYPE_STREAM_DIR,
+ {"Long-range attacking object. Does maximum damage only near",
+  "maximum range.",
   ""}, //	OBJECT_TYPE_SPIKE,
  {"Repairs damage to components of this process, and restores",
   "destroyed components. Multiple repair objects speed up",
@@ -1303,6 +1329,9 @@ static void design_help_highlight(int base_x, int base_y)
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "component power");
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "+%i", nshape[help_shape].component_power_capacity);
     line_y += 12;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "instructions");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].instructions_per_cycle);
+    line_y += 12;
 /*    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_RIGHT, "build recycle");
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 340, line_y, ALLEGRO_ALIGN_RIGHT, "%i", nshape[help_shape].build_or_restore_time);*/
 			}
@@ -1384,7 +1413,7 @@ static void design_help_highlight(int base_x, int base_y)
      {
      	case OBJECT_TYPE_STREAM:
      	case OBJECT_TYPE_STREAM_DIR:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.damage * STREAM_FIRING_TIME);
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * STREAM_FIRING_TIME, otype[display_object.type].object_details.damage * STREAM_FIRING_TIME * 2);
        break;
      	case OBJECT_TYPE_SLICE:
        al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * SLICE_FIRING_TIME, otype[display_object.type].object_details.damage * SLICE_FIRING_TIME * 2);
