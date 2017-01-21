@@ -116,7 +116,7 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
  {0}, // *SMETHOD_CALL_GET_POWER_CAPACITY,
  {0}, // *SMETHOD_CALL_GET_POWER_USED,
  {0}, // *SMETHOD_CALL_GET_POWER_LEFT,
- {0}, // SMETHOD_CALL_GET_INSTRUCTIONS_LEFT,
+ {0}, // *SMETHOD_CALL_GET_INSTRUCTIONS_LEFT,
 // {0}, // SMETHOD_CALL_GET_POWER_USED_ACTUAL,
 // {0}, // SMETHOD_CALL_GET_POWER_LEFT_ACTUAL,
 // {0}, // SMETHOD_CALL_GET_STRESS,
@@ -145,8 +145,8 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
  {1}, // *SMETHOD_CALL_LISTEN_CHANNEL,
  {0}, // *SMETHOD_CALL_IGNORE_ALL_CHANNELS,
  {1}, // *SMETHOD_CALL_COPY_COMMANDS, (target)
- {8}, // SMETHOD_CALL_GIVE_COMMAND, (target_index, command_type, x, y, command_target, component, queued, control)
- {8}, // SMETHOD_CALL_GIVE_BUILD_COMMAND, (target_index, template, x, y, angle, back_or_front, repeat, queued)
+ {8}, // *SMETHOD_CALL_GIVE_COMMAND, (target_index, command_type, x, y, command_target, component, queued, control)
+ {8}, // *SMETHOD_CALL_GIVE_BUILD_COMMAND, (target_index, template, x, y, angle, back_or_front, repeat, queued)
 
  {2}, // *SMETHOD_CALL_CHECK_BUILD_RANGE, (x, y)
  {0}, // *SMETHOD_CALL_REPAIR_SELF,
@@ -190,7 +190,7 @@ struct smethod_call_type_struct smethod_call_type [SMETHOD_CALL_TYPES] =
  {0}, // *SMETHOD_CALL_GET_COMPONENTS_MAX,
  {0}, // *SMETHOD_CALL_GET_COMPONENTS_UNUSED,
 
- {2}, // SMETHOD_CALL_SPECIAL_AI,
+ {2}, // *SMETHOD_CALL_SPECIAL_AI,
 
 
 /*
@@ -308,8 +308,9 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 	 case SMETHOD_CALL_GET_COMMAND_TYPE:
 			return core->command_queue[0].type;
 	 case SMETHOD_CALL_GET_COMMAND_X:
-	 	if (core->command_queue[0].type == COM_NONE)
+/*	 	if (core->command_queue[0].type == COM_NONE)
 				return 0;
+
 	 	if (core->command_queue[0].type == COM_TARGET)
 			{
 				if (core->command_queue[0].target_core != -1
@@ -326,11 +327,13 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				}
 				  else
 							return 0;
-			}
+ - No - now it just returns the location when the command was issued
+ - commands with no location should have set x/y to 0 when given
+			}*/
 // must be COM_LOCATION or COM_DATA_WELL
 			return core->command_queue[0].x;
 	 case SMETHOD_CALL_GET_COMMAND_Y:
-	 	if (core->command_queue[0].type == COM_NONE)
+/*	 	if (core->command_queue[0].type == COM_NONE)
 				return 0;
 	 	if (core->command_queue[0].type == COM_TARGET)
 			{
@@ -351,7 +354,7 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				  else
 							return 0;
 			}
-// must be COM_LOCATION or COM_DATA_WELL
+// must be COM_LOCATION or COM_DATA_WELL*/
 			return core->command_queue[0].y;
 		case SMETHOD_CALL_GET_COMMAND_NUMBER: // not currently supported
 //	 	if (core->command_queue[0].type != COM_NUMBER)
@@ -1695,6 +1698,7 @@ static s16b write_message(struct core_struct* target_core, int channel, int prio
  target_core->message[msg_index].priority = priority;
  target_core->message[msg_index].source_index = source_core->index;
  target_core->message[msg_index].source_index_timestamp = source_core->created_timestamp;
+ target_core->message[msg_index].source_position = source_core->core_position;
  target_core->message[msg_index].type = message_type;
  target_core->message[msg_index].length = message_length;
  target_core->message[msg_index].target_core_index = transmitted_target_core_index;

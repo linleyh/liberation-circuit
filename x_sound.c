@@ -229,11 +229,13 @@ void *thread_check_sound_queue(ALLEGRO_THREAD *thread, void *arg)
 
 
 // If data1 is -1, this is a message to reset camstate
-// data2 should be the random seed to use.
+// data 2 should be the area index
+// data 3 should be the region index
+// data 4 is the random seed to use
    if (received_sound_event.user.data1 == -1
 				|| received_sound_event.user.data1 == -2)
 			{
-				init_camstate(received_sound_event.user.data1, received_sound_event.user.data2);
+				init_camstate(received_sound_event.user.data1, received_sound_event.user.data2, received_sound_event.user.data3, received_sound_event.user.data4);
 				continue;
 			}
 
@@ -267,17 +269,22 @@ void *thread_check_sound_queue(ALLEGRO_THREAD *thread, void *arg)
 
 
 // call this (from anywhere in the main game thread) when it's time to restart the music
-void reset_music(unsigned int rand_seed)
+void reset_music(int area_index, int region_index, unsigned int rand_seed)
 {
 
+   if (settings.option [OPTION_VOL_MUSIC] == 0)
+				return;
+
    sound_event.user.data1 = -1; // tells code in x_music to reset camstate
-   sound_event.user.data2 = rand_seed;
+   sound_event.user.data2 = area_index;
+   sound_event.user.data3 = region_index;
+   sound_event.user.data4 = rand_seed;
 
    al_emit_user_event(&sound_event_source, &sound_event, NULL);
 
 }
 
-// call this (from anywhere in the main game thread) when it's time to restart the music
+// call this (from anywhere in the main game thread) to turn off the music
 void turn_music_off(void)
 {
 

@@ -84,6 +84,7 @@ void start_game(void)
  game.game_over_status = GAME_END_BASIC; // ignored until game.phase is set to GAME_PHASE_OVER
  game.game_over_value = 0;
 
+
 	if (game.type == GAME_TYPE_MISSION)
   game.vision_mask = 1;
    else
@@ -92,6 +93,7 @@ void start_game(void)
 #ifdef DEBUG_MODE
     game.vision_mask = 0;
 #endif
+
 
  game.user_player_index = 0;
 
@@ -146,7 +148,8 @@ void init_main_loop(void)
  init_commands();
 
  clear_sound_list();
- reset_music(rand());
+//fpr("\n iml: ai %i riai %i", game.area_index, game.region_in_area_index);
+ reset_music(game.area_index, game.region_in_area_index, rand());
 
  flush_game_event_queues();
 
@@ -187,7 +190,7 @@ void run_game(void)
 
  deallocate_world(); // must be called at end of game (it frees memory allocated by init_main_loop())
 
- reset_music(rand());
+ reset_music(0, 0, rand());
 
 }
 

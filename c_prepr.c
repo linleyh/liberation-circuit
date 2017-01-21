@@ -120,9 +120,22 @@ int preprocess(struct source_edit_struct* source_edit)
 			 writing_space = 0;
 	 cstate.scode.text [prstate.scode_pos] = read_char;
 	 cstate.scode.src_line [prstate.scode_pos] = prstate.src_line;
+/*
+		if (prstate.scode_pos < 100)
+		{
+			char tempstr [2];
+			tempstr [0] = read_char;
+			tempstr [1] = 0;
+			fpr("\n scode_pos %i src_line %i [%s]", prstate.scode_pos, prstate.src_line, tempstr);
+		}*/
+
 
 	 prstate.scode_pos ++;
 		prstate.src_pos ++;
+
+		if (prstate.scode_pos >= SCODE_LENGTH - 3)
+			return prepr_error("source code too long");
+
 	} // end while loop
 
  cstate.scode.text [prstate.scode_pos] = '\0';

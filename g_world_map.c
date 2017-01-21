@@ -42,7 +42,7 @@ void generate_scattered_map(int size_blocks,
 																					       int players,
 																					       unsigned int map_seed);
 static int check_map_gen_state_data_well_position(int block_x, int block_y);
-void set_player_spawn_position_by_specified_well(int player_index, int well_index, int angle_from_well);
+void set_player_spawn_position_by_specified_well(int player_index, int well_index, int angle_from_well, int distance_from_well);
 static int new_mdetail(int mdetail_type);
 
 
@@ -160,8 +160,8 @@ void generate_scattered_map(int size_blocks,
  map_gen_state.base_data_wells = 0;
 
 
- int base_min_x = 8;
- int base_min_y = 8;
+ int base_min_x = 9;
+ int base_min_y = 9;
  int base_max_x;
  int base_max_y;
  int total_base_data_wells;
@@ -178,7 +178,7 @@ void generate_scattered_map(int size_blocks,
     symmetry_mode = mrand(4);
     if (symmetry_mode < 2) // left/right
 				{
- 	 	 base_max_x = (map_init.map_size_blocks / 2) - 8;
+ 	 	 base_max_x = (map_init.map_size_blocks / 2) - 9;
  	 	 base_max_y = map_init.map_size_blocks - base_min_y;
      base_var_x = base_max_x - base_min_x;
      base_var_y = base_max_y - base_min_y;
@@ -188,7 +188,7 @@ void generate_scattered_map(int size_blocks,
 				 else // up/down
 					{
  	 	  base_max_x = map_init.map_size_blocks - base_min_x;
- 	 	  base_max_y = (map_init.map_size_blocks / 2) - 8;
+ 	 	  base_max_y = (map_init.map_size_blocks / 2) - 9;
       base_var_x = base_max_x - base_min_x;
       base_var_y = base_max_y - base_min_y;
       map_gen_state.base_spawn_position_x = base_min_x + mrand(base_var_x - 4);
@@ -196,8 +196,8 @@ void generate_scattered_map(int size_blocks,
 					}
  	 	break;
  	 case 3:
- 	 	base_max_x = (map_init.map_size_blocks / 2) - 8;
- 	 	base_max_y = (map_init.map_size_blocks / 2) - 8;
+ 	 	base_max_x = (map_init.map_size_blocks / 2) - 9;
+ 	 	base_max_y = (map_init.map_size_blocks / 2) - 9;
  	 	total_base_data_wells = 2 + mrand(DATA_WELLS / 3 - 1);
     base_var_x = base_max_x - base_min_x;
     base_var_y = base_max_y - base_min_y;
@@ -205,8 +205,8 @@ void generate_scattered_map(int size_blocks,
     map_gen_state.base_spawn_position_y = base_min_y + mrand((base_var_y / 3) * 2);
  	 	break;
  	 case 4:
- 	 	base_max_x = (map_init.map_size_blocks / 2) - 8;
- 	 	base_max_y = (map_init.map_size_blocks / 2) - 8;
+ 	 	base_max_x = (map_init.map_size_blocks / 2) - 9;
+ 	 	base_max_y = (map_init.map_size_blocks / 2) - 9;
  	 	total_base_data_wells = 2 + mrand(DATA_WELLS / 4 - 1);
     base_var_x = base_max_x - base_min_x;
     base_var_y = base_max_y - base_min_y;
@@ -388,7 +388,7 @@ static void set_player_map_init_spawn_angle(int player_index, int nearby_data_we
 // Call this to set a player's spawn position to near the latest well in the map_init structure,
 //  and a particular angle from that well.
 // Is called from s_mission.c (from which map_init may not be accessible - not sure)
-void set_player_spawn_position_by_latest_well(int player_index, int angle_from_well)
+void set_player_spawn_position_by_latest_well(int player_index, int angle_from_well, int distance_from_well)
 {
 
 #ifdef SANITY_CHECK
@@ -399,18 +399,18 @@ void set_player_spawn_position_by_latest_well(int player_index, int angle_from_w
 	}
 #endif
 
-	set_player_spawn_position_by_specified_well(player_index, map_init.data_wells - 1, angle_from_well);
+	set_player_spawn_position_by_specified_well(player_index, map_init.data_wells - 1, angle_from_well, distance_from_well);
 
 }
 
-void set_player_spawn_position_by_specified_well(int player_index, int well_index, int angle_from_well)
+void set_player_spawn_position_by_specified_well(int player_index, int well_index, int angle_from_well, int distance_from_well)
 {
 
 	al_fixed well_x = block_to_fixed(map_init.data_well_position[well_index].x) + BLOCK_SIZE_FIXED / 2;
 	al_fixed well_y = block_to_fixed(map_init.data_well_position[well_index].y) + BLOCK_SIZE_FIXED / 2;
 
-	al_fixed spawn_x = well_x + fixed_xpart(int_angle_to_fixed(angle_from_well), al_itofix(512));
-	al_fixed spawn_y = well_y + fixed_ypart(int_angle_to_fixed(angle_from_well), al_itofix(512));
+	al_fixed spawn_x = well_x + fixed_xpart(int_angle_to_fixed(angle_from_well), al_itofix(distance_from_well));
+	al_fixed spawn_y = well_y + fixed_ypart(int_angle_to_fixed(angle_from_well), al_itofix(distance_from_well));
 
 	map_init.spawn_position[player_index].x = fixed_to_block(spawn_x);
 	map_init.spawn_position[player_index].y = fixed_to_block(spawn_y);
@@ -575,6 +575,26 @@ int add_mdetail_worm_source(int centre_x, int centre_y, int worms)
 
 }
 
+
+void add_mdetail_worm_source_to_all_wells(void)
+{
+
+
+	int i;
+	int worms;
+
+	for (i = 0; i < map_init.data_wells; i ++)
+	{
+		worms = 15;
+		worms += map_init.data_well_reserve_squares [i] * 3;
+		if (map_init.data_well_reserve_data [i] [0] > 0
+			&& map_init.data_well_reserve_data [i] [1] > 0)
+				worms += 5;
+
+		add_mdetail_worm_source(map_init.data_well_position[i].x, map_init.data_well_position[i].y, worms);
+	}
+
+}
 
 // adds a data well to an mdetail ring at a particular angle.
 // returns the index of the data well.

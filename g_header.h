@@ -668,8 +668,9 @@ struct command_queue_struct
 {
  int type;
  int new_command; // is 1 if command hasn't been read by process yet
- int x, y; // note that these are *not* used for command types with target_core set. For those, x/y are worked out when command methods are called.
-  // also, x is used for value of number command
+ int x, y; // this is the target location of the command. For targetted commands, it's the target location when the command is issued by the user
+  //  (although autocoded processes use process methods to find the target)
+  // also, x is used for value of number command (not currently implemented)
  timestamp command_time; // game.total_time when command was given
  int target_core; // proc index - not directly available
  timestamp target_core_created;
@@ -983,7 +984,7 @@ struct proc_struct
 // int deselected; // just used to animate the selection graphics going away (not currently used)
 // int map_selected; // similar to selected but appears on the map instead of the main view.
 
- timestamp hit_pulse_time;
+ timestamp hit_pulse_time; // used when component (without interface) hit by packet, or when component collides
  timestamp repaired_timestamp;
 
  int mass;
@@ -1076,6 +1077,11 @@ struct proc_struct
  timestamp interface_lowered_time; // if interface turned off (but not broken) for this proc. May be because whole core's interface lowered, or just this proc's.
 #define INTERFACE_STABILITY_POWER_USE 30
  int interface_stability;
+
+ timestamp component_hit_time; // last time component was hit. Use for the hit-checking component method.
+ int component_hit_source_index; // I haven't bothered to initialise these so they will only be valid if component_hit_time is not zero.
+ timestamp component_hit_source_timestamp;
+
 // timestamp interface_stability_on_time; - currently just does a hit pulse when raised or lowered
 // timestamp interface_stability_off_time;
 // To check whether proc is actually protected by an interface, need to check:
@@ -2076,6 +2082,7 @@ struct game_struct
  int type; // GAME_TYPE_? enums
  int mission_index; // only relevant in GAME_TYPE_MISSION
  int area_index; // only relevant in GAME_TYPE_MISSION
+ int region_in_area_index; // currently 0, 1 or 2. Used for sound stuff
 //  file names may be used in future if file naming conventions are adopted, allowing automatic turnfile loading.
 // char file_path [FILE_PATH_LENGTH]; // path where turnfiles etc are stored. Is determined by path to gamefile/savefile.
 // char name [FILE_NAME_LENGTH]; // name of game (actually limited to just a few letters). Is put at start of all turn files.
@@ -2154,8 +2161,8 @@ struct world_init_struct
  int game_seed; // 0-999
 
  char player_name [PLAYERS] [PLAYER_NAME_LENGTH];
- int player_starting_data [PLAYERS];
- int starting_data_setting; // 0-3 (actual amount is (this + 1) * 300) - only used for custom games as missions have their own settings
+// int player_starting_data [PLAYERS]; - this is derived from starting_data_setting
+ int starting_data_setting [PLAYERS]; // 0-3 (actual amount is (this + 1) * 300)
 
 // the following map-related information is generated from the various settings above
  int map_size_blocks; // generated for convenience

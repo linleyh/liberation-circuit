@@ -132,7 +132,7 @@ void draw_design_window(void)
 #define POWER_GRAPH_Y0 (POWER_GRAPH_Y - POWER_GRAPH_H - 2)
 #define POWER_GRAPH_Y2 (POWER_GRAPH_Y + POWER_GRAPH_H + 2)
 #define POWER_GRAPH_Y3 (POWER_GRAPH_Y2 + POWER_GRAPH_H + 2)
-#define POWER_GRAPH_SCALE 0.6
+#define POWER_GRAPH_SCALE 0.4
 
   int i;
 
@@ -1175,7 +1175,7 @@ static void design_help_unhighlighted(int base_x, int base_y)
 
 }
 
-char* object_description [OBJECT_TYPES] [3] =
+const char* object_description [OBJECT_TYPES] [3] =
 {
  {"No object.","",""}, //	OBJECT_TYPE_NONE,
  {"Connects a component to its parent component.",
@@ -1448,13 +1448,13 @@ static void design_help_highlight(int base_x, int base_y)
      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%f",
 																			(float) dpc / (float) otype[display_object.type].object_details.recycle_time);
      line_y += 12;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "per data");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "per cycle per data");
      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%f",
-																			(float) dpc / (float) otype[display_object.type].data_cost);
+																			((float) dpc / (float) otype[display_object.type].data_cost) / (float) otype[display_object.type].object_details.recycle_time);
      line_y += 12;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "per power");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "per cycle per power");
      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%f",
-																			(float) dpc / (float) otype[display_object.type].power_use_peak);
+																			((float) dpc / (float) otype[display_object.type].power_use_peak) / (float) otype[display_object.type].object_details.recycle_time);
      line_y += 12;
 
 #endif

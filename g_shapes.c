@@ -377,10 +377,6 @@ int poly_index;
 
 
 
-#ifdef Z_POLY
- zshape_start();
-#endif
-
 
 
  start_dshape(NSHAPE_CORE_QUAD_B, KEYWORD_CORE_QUAD_B);
@@ -2074,8 +2070,6 @@ int poly_index;
 
 // ******* NSHAPE_COMPONENT_DROP *******
 
-
-
  start_dshape(NSHAPE_COMPONENT_DROP, KEYWORD_COMPONENT_DROP);
 
 	poly_index = POLY_0;
@@ -2088,20 +2082,20 @@ int poly_index;
 	               45, 0); // object
 
 	add_link_at_xy(1, // link_index
-	               15, -8, // centre
-	               11, -20, // left
-	               23, -17, // right
-	               19, -23, // far
-	               20, -25, // link
-	               19, -22); // object
+	               11, -14, // centre
+	               8, -22, // left
+	               24, -18, // right
+	               18, -26, // far
+	               19, -28, // link
+	               17, -24); // object
 
 	add_link_at_xy(2, // link_index
-	               15, 8, // centre
-	               23, 17, // left
-	               11, 20, // right
-	               19, 23, // far
-	               20, 25, // link
-	               19, 22); // object
+	               11, 14, // centre
+	               24, 18, // left
+	               8, 22, // right
+	               18, 26, // far
+	               19, 28, // link
+	               17, 24); // object
 
 	add_link_at_xy(3, // link_index
 	               -34, 0, // centre
@@ -2112,102 +2106,89 @@ int poly_index;
 	               -45, 0); // object
 
 	add_link_at_xy(4, // link_index
-	               -12, -18, // centre
-	               -20, -22, // left
-	               -6, -25, // right
-	               -16, -29, // far
-	               -17, -31, // link
-	               -15, -27); // object
+	               -14, -18, // centre
+	               -23, -23, // left
+	               -7, -25, // right
+	               -17, -29, // far
+	               -18, -30, // link
+	               -16, -27); // object
 
 	add_link_at_xy(5, // link_index
-	               -12, 18, // centre
-	               -6, 25, // left
-	               -20, 22, // right
-	               -16, 29, // far
-	               -17, 31, // link
-	               -15, 27); // object
+	               -14, 18, // centre
+	               -7, 25, // left
+	               -23, 23, // right
+	               -17, 29, // far
+	               -18, 30, // link
+	               -16, 27); // object
 
 
 	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
 
 	add_vertex(44, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(19, 17, 0);
+	add_vertex(18, 20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-14, 26, 1);
+	add_vertex(-17, 25, 1);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-43, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-14, -26, 1);
+	add_vertex(-17, -25, 1);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(19, -17, 0);
+	add_vertex(18, -20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_poly_fill_source(1, 0);
+	add_poly_fill_source(0, 0);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-32, 0, 0);
-	add_vertex(-12, -16, 0);
-	add_vertex(31, 0, 0);
-	add_vertex(-12, 16, 0);
-	add_poly_fill_source(-6, 0);
+	add_vertex(-26, 0, 0);
+	add_vertex(-4, -26, 1);
+	add_vertex(5, -24, 0);
+	add_vertex(15, 0, 0);
+	add_vertex(5, 24, 0);
+	add_vertex(-4, 26, 1);
+	add_poly_fill_source(-1, 0);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-14, -17, 0);
-	add_vertex(-23, -22, 0);
+	add_vertex(-15, -16, 0);
+	add_vertex(-26, -23, 0);
 	add_vertex(-40, -10, 1);
 	add_vertex(-33, -1, 0);
-	add_poly_fill_source(-27, -12);
+	add_vertex(-28, -1, 0);
+	add_poly_fill_source(-28, -10);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-14, 17, 0);
-	add_vertex(-23, 22, 0);
+	add_vertex(-15, 16, 0);
+	add_vertex(-26, 23, 0);
 	add_vertex(-40, 10, 1);
 	add_vertex(-33, 1, 0);
-	add_poly_fill_source(-27, 12);
+	add_vertex(-28, 1, 0);
+	add_poly_fill_source(-28, 10);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(26, -18, 1);
+	add_vertex(27, -17, 0);
 	add_vertex(40, -10, 1);
 	add_vertex(32, -1, 0);
-	add_vertex(17, -7, 0);
-	add_poly_fill_source(28, -9);
+	add_vertex(17, -1, 0);
+	add_vertex(12, -12, 0);
+	add_poly_fill_source(25, -8);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(26, 18, 1);
+	add_vertex(27, 17, 0);
 	add_vertex(40, 10, 1);
 	add_vertex(32, 1, 0);
-	add_vertex(17, 7, 0);
-	add_poly_fill_source(28, 9);
+	add_vertex(17, 1, 0);
+	add_vertex(12, 12, 0);
+	add_poly_fill_source(25, 8);
 	fix_display_triangles_fan();
-
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-4, -26, 0);
-	add_vertex(-11, -17, 0);
-	add_vertex(13, -9, 0);
-	add_vertex(8, -24, 0);
-	add_poly_fill_source(1, -19);
-	fix_display_triangles_fan();
-
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-4, 26, 0);
-	add_vertex(-10, 18, 0);
-	add_vertex(13, 9, 0);
-	add_vertex(8, 24, 0);
-	add_poly_fill_source(1, 19);
-	fix_display_triangles_fan();
-
 
 
 // noncore shapes have mirrored_object_noncentre, for use when they're not on the design centreline
@@ -2232,153 +2213,162 @@ int poly_index;
 
 
 
-
  start_dshape(NSHAPE_COMPONENT_SIDE, KEYWORD_COMPONENT_SIDE);
 
 	poly_index = POLY_0;
 	add_link_at_xy(0, // link_index
-	               0, -14, // centre
-	               -8, -21, // left
-	               8, -21, // right
-	               0, -27, // far
-	               0, -29, // link
-	               0, -25); // object
+	               0, -18, // centre
+	               -8, -24, // left
+	               8, -24, // right
+	               0, -30, // far
+	               0, -31, // link
+	               0, -27); // object
 
 	add_link_at_xy(1, // link_index
-	               0, 14, // centre
-	               8, 21, // left
-	               -8, 21, // right
-	               0, 27, // far
-	               0, 29, // link
-	               0, 25); // object
+	               0, 18, // centre
+	               8, 24, // left
+	               -8, 24, // right
+	               0, 30, // far
+	               0, 31, // link
+	               0, 27); // object
 
 	add_link_at_xy(2, // link_index
-	               19, -14, // centre
-	               14, -21, // left
-	               29, -13, // right
-	               25, -25, // far
-	               26, -26, // link
-	               24, -23); // object
+	               20, -14, // centre
+	               18, -22, // left
+	               32, -10, // right
+	               27, -22, // far
+	               28, -23, // link
+	               26, -20); // object
 
 	add_link_at_xy(3, // link_index
-	               19, 14, // centre
-	               29, 13, // left
-	               14, 21, // right
-	               25, 25, // far
-	               26, 26, // link
-	               24, 23); // object
+	               20, 14, // centre
+	               32, 10, // left
+	               18, 22, // right
+	               27, 22, // far
+	               28, 23, // link
+	               26, 20); // object
 
 	add_link_at_xy(4, // link_index
-	               -19, -14, // centre
-	               -29, -13, // right
-	               -14, -21, // left
-	               -25, -25, // far
-	               -26, -26, // link
-	               -24, -23); // object
+	               -20, -14, // centre
+	               -32, -10, // left
+	               -18, -22, // right
+	               -27, -22, // far
+	               -28, -23, // link
+	               -26, -20); // object
 
 	add_link_at_xy(5, // link_index
-	               -19, 14, // centre
-	               -14, 21, // right
-	               -29, 13, // left
-	               -25, 25, // far
-	               -26, 26, // link
-	               -24, 23); // object
+	               -20, 14, // centre
+	               -18, 22, // left
+	               -32, 10, // right
+	               -27, 22, // far
+	               -28, 23, // link
+	               -26, 20); // object
 
 
 	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
 
-	add_vertex(38, 0, 0);
+	add_vertex(37, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(23, 20, 0);
+	add_vertex(25, 19, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(12, 18, 0);
+	add_vertex(12, 20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(0, 23, 0);
+	add_vertex(0, 26, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-11, 18, 0);
+	add_vertex(-12, 20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-23, 20, 0);
+	add_vertex(-25, 19, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-38, 0, 0);
+	add_vertex(-37, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-23, -20, 0);
+	add_vertex(-25, -19, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-11, -18, 0);
+	add_vertex(-12, -20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(0, -23, 0);
+	add_vertex(0, -26, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(11, -18, 0);
+	add_vertex(12, -20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(23, -20, 0);
+	add_vertex(25, -19, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(0, 0);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(10, 0, 0);
-	add_vertex(1, -13, 0);
-	add_vertex(12, -22, 1);
-	add_vertex(27, 0, 0);
-	add_vertex(12, 22, 1);
-	add_vertex(1, 13, 0);
-	add_poly_fill_source(10, 0);
+	add_vertex(-1, -17, 0);
+	add_vertex(-11, -25, 0);
+	add_vertex(-16, -24, 1);
+	add_vertex(-18, -13, 0);
+	add_vertex(-7, -3, 0);
+	add_vertex(-1, -7, 0);
+	add_poly_fill_source(-9, -14);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-10, 0, 0);
-	add_vertex(-1, -13, 0);
-	add_vertex(-12, -22, 1);
-	add_vertex(-27, 0, 0);
-	add_vertex(-12, 22, 1);
-	add_vertex(-1, 13, 0);
-	add_poly_fill_source(-10, 0);
+	add_vertex(-1, 17, 0);
+	add_vertex(-11, 25, 0);
+	add_vertex(-16, 24, 1);
+	add_vertex(-18, 13, 0);
+	add_vertex(-7, 3, 0);
+	add_vertex(-1, 7, 0);
+	add_poly_fill_source(-9, 14);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(20, -13, 0);
-	add_vertex(33, -12, 1);
-	add_vertex(44, -1, 1);
-	add_vertex(28, -1, 0);
-	add_poly_fill_source(31, -6);
+	add_vertex(1, -17, 0);
+	add_vertex(11, -25, 0);
+	add_vertex(16, -24, 1);
+	add_vertex(18, -13, 0);
+	add_vertex(7, -3, 0);
+	add_vertex(1, -7, 0);
+	add_poly_fill_source(9, -14);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(20, 13, 0);
-	add_vertex(33, 12, 1);
-	add_vertex(44, 1, 1);
-	add_vertex(28, 1, 0);
-	add_poly_fill_source(31, 6);
+	add_vertex(1, 17, 0);
+	add_vertex(11, 25, 0);
+	add_vertex(16, 24, 1);
+	add_vertex(18, 13, 0);
+	add_vertex(7, 3, 0);
+	add_vertex(1, 7, 0);
+	add_poly_fill_source(9, 14);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-20, -13, 0);
-	add_vertex(-33, -12, 1);
-	add_vertex(-44, -1, 1);
-	add_vertex(-28, -1, 0);
-	add_poly_fill_source(-31, -6);
-	fix_display_triangles_fan();
-
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-20, 13, 0);
-	add_vertex(-33, 12, 1);
-	add_vertex(-44, 1, 1);
-	add_vertex(-28, 1, 0);
-	add_poly_fill_source(-31, 6);
-	fix_display_triangles_fan();
-
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(0, -12, 0);
-	add_vertex(-8, 0, 0);
-	add_vertex(0, 11, 0);
-	add_vertex(8, 0, 0);
+	add_vertex(0, -6, 0);
+	add_vertex(-6, -2, 0);
+	add_vertex(-6, 2, 0);
+	add_vertex(0, 6, 0);
+	add_vertex(6, 2, 0);
+	add_vertex(6, -2, 0);
 	add_poly_fill_source(0, 0);
+	fix_display_triangles_fan();
+
+	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
+
+	add_vertex(20, -12, 0);
+	add_vertex(43, -5, 1);
+	add_vertex(43, 4, 1);
+	add_vertex(20, 12, 0);
+	add_vertex(8, 2, 0);
+	add_vertex(8, -2, 0);
+	add_poly_fill_source(23, 0);
+	fix_display_triangles_fan();
+
+	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
+
+	add_vertex(-20, -12, 0);
+	add_vertex(-43, -5, 1);
+	add_vertex(-43, 4, 1);
+	add_vertex(-20, 12, 0);
+	add_vertex(-8, 2, 0);
+	add_vertex(-8, -2, 0);
+	add_poly_fill_source(-23, 0);
 	fix_display_triangles_fan();
 
 // noncore shapes have mirrored_object_noncentre, for use when they're not on the design centreline
@@ -2409,100 +2399,100 @@ int poly_index;
 	               36, 0, // centre
 	               42, -7, // left
 	               42, 7, // right
-	               47, 0, // far
-	               50, 0, // link
-	               45, 0); // object
+	               52, 0, // far
+	               54, 0, // link
+	               49, 0); // object
 
 	add_link_at_xy(1, // link_index
-	               0, 19, // centre
-	               8, 25, // left
-	               -8, 25, // right
-	               0, 31, // far
-	               0, 33, // link
-	               0, 29); // object
+	               0, 15, // centre
+	               7, 21, // left
+	               -7, 21, // right
+	               0, 27, // far
+	               0, 29, // link
+	               0, 25); // object
 
 	add_link_at_xy(2, // link_index
-	               -36, 0, // centre
-	               -42, 7, // left
-	               -42, -7, // right
-	               -47, 0, // far
-	               -50, 0, // link
-	               -45, 0); // object
+	               -25, 0, // centre
+	               -28, 8, // left
+	               -28, -8, // right
+	               -39, 0, // far
+	               -41, 0, // link
+	               -35, 0); // object
 
 	add_link_at_xy(3, // link_index
-	               0, -19, // centre
-	               -8, -25, // left
-	               8, -25, // right
-	               0, -31, // far
-	               0, -33, // link
-	               0, -29); // object
+	               0, -15, // centre
+	               -7, -21, // left
+	               7, -21, // right
+	               0, -27, // far
+	               0, -29, // link
+	               0, -25); // object
 
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_UNDERLAY);
 
-	add_vertex(46, 0, 0);
+	add_vertex(50, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(0, -28, 0);
+	add_vertex(0, -23, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-46, 0, 0);
+	add_vertex(-37, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(0, 28, 0);
+	add_vertex(0, 23, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_poly_fill_source(0, 0);
+	add_poly_fill_source(3, 0);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(1, 17, 0);
-	add_vertex(20, 1, 0);
+	add_vertex(1, 13, 0);
+	add_vertex(1, 9, 0);
+	add_vertex(24, 1, 0);
 	add_vertex(34, 1, 0);
-	add_vertex(41, 9, 1);
-	add_vertex(10, 24, 1);
-	add_poly_fill_source(21, 10);
+	add_vertex(42, 10, 1);
+	add_vertex(10, 21, 1);
+	add_poly_fill_source(18, 9);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(1, -17, 0);
-	add_vertex(20, -1, 0);
+	add_vertex(1, -13, 0);
+	add_vertex(1, -9, 0);
+	add_vertex(24, -1, 0);
 	add_vertex(34, -1, 0);
-	add_vertex(41, -9, 1);
-	add_vertex(10, -24, 1);
-	add_poly_fill_source(21, -10);
+	add_vertex(42, -10, 1);
+	add_vertex(10, -21, 1);
+	add_poly_fill_source(18, -9);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-1, -17, 0);
-	add_vertex(-20, -1, 0);
-	add_vertex(-34, -1, 0);
-	add_vertex(-41, -9, 1);
-	add_vertex(-10, -24, 1);
-	add_poly_fill_source(-21, -10);
+	add_vertex(-1, -13, 0);
+	add_vertex(-1, -9, 0);
+	add_vertex(-12, -1, 0);
+	add_vertex(-23, -1, 0);
+	add_vertex(-27, -11, 1);
+	add_vertex(-10, -21, 1);
+	add_poly_fill_source(-12, -9);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(-1, 17, 0);
-	add_vertex(-20, 1, 0);
-	add_vertex(-34, 1, 0);
-	add_vertex(-41, 9, 1);
-	add_vertex(-10, 24, 1);
-	add_poly_fill_source(-21, 10);
+	add_vertex(-1, 13, 0);
+	add_vertex(-1, 9, 0);
+	add_vertex(-12, 1, 0);
+	add_vertex(-23, 1, 0);
+	add_vertex(-27, 11, 1);
+	add_vertex(-10, 21, 1);
+	add_poly_fill_source(-12, 9);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(0, -15, 0);
-	add_vertex(-18, 0, 0);
-	add_vertex(0, 15, 0);
-	add_vertex(18, 0, 0);
-	add_poly_fill_source(0, 0);
+	add_vertex(0, -7, 0);
+	add_vertex(-10, 0, 0);
+	add_vertex(0, 7, 0);
+	add_vertex(21, 0, 0);
+	add_poly_fill_source(2, 0);
 	fix_display_triangles_fan();
-
-	// remember to deal with mirror vertices here!
-
-//	finish_shape();
 
  nshape[NSHAPE_COMPONENT_LONG4].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_LONG4].mirrored_object_noncentre [1] = 3;
@@ -2766,6 +2756,11 @@ int poly_index;
 // ******* NSHAPE_COMPONENT_SNUB *******
 
 
+#ifdef Z_POLY
+ zshape_start();
+#endif
+
+
  start_dshape(NSHAPE_COMPONENT_SNUB, KEYWORD_COMPONENT_SNUB);
 
 	poly_index = POLY_0;
@@ -2794,7 +2789,7 @@ int poly_index;
 	               -35, 17); // object
 
 	add_link_at_xy(3, // link_index
-	               7, -16, // centre
+	               6, -17, // centre
 	               -1, -27, // left
 	               16, -22, // right
 	               7, -28, // far
@@ -2802,7 +2797,7 @@ int poly_index;
 	               7, -26); // object
 
 	add_link_at_xy(4, // link_index
-	               7, 16, // centre
+	               6, 17, // centre
 	               16, 22, // left
 	               -1, 27, // right
 	               7, 28, // far
@@ -2829,12 +2824,14 @@ int poly_index;
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(7, -14, 0);
-	add_vertex(23, 0, 0);
-	add_vertex(7, 14, 0);
+	add_vertex(-25, -9, 0);
+	add_vertex(-2, -3, 0);
+	add_vertex(1, 0, 0);
+	add_vertex(-2, 3, 0);
+	add_vertex(-25, 9, 0);
 	add_vertex(-44, 6, 1);
 	add_vertex(-44, -6, 1);
-	add_poly_fill_source(-10, 0);
+	add_poly_fill_source(-20, 0);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
@@ -2842,8 +2839,9 @@ int poly_index;
 	add_vertex(-3, -28, 1);
 	add_vertex(-24, -21, 1);
 	add_vertex(-26, -11, 0);
+	add_vertex(-2, -5, 0);
 	add_vertex(5, -16, 0);
-	add_poly_fill_source(-12, -19);
+	add_poly_fill_source(-10, -16);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
@@ -2851,26 +2849,31 @@ int poly_index;
 	add_vertex(-3, 28, 1);
 	add_vertex(-24, 21, 1);
 	add_vertex(-26, 11, 0);
+	add_vertex(-2, 5, 0);
 	add_vertex(5, 16, 0);
-	add_poly_fill_source(-12, 19);
+	add_poly_fill_source(-10, 16);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(8, -15, 0);
+	add_vertex(6, -15, 0);
 	add_vertex(18, -21, 0);
 	add_vertex(34, -10, 1);
 	add_vertex(24, -1, 0);
-	add_poly_fill_source(21, -11);
+	add_vertex(2, -1, 0);
+	add_vertex(-1, -4, 0);
+	add_poly_fill_source(13, -8);
 	fix_display_triangles_fan();
 
 	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
 
-	add_vertex(8, 15, 0);
+	add_vertex(6, 15, 0);
 	add_vertex(18, 21, 0);
 	add_vertex(34, 10, 1);
 	add_vertex(24, 1, 0);
-	add_poly_fill_source(21, 11);
+	add_vertex(2, 1, 0);
+	add_vertex(-1, 4, 0);
+	add_poly_fill_source(13, 8);
 	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
@@ -3575,6 +3578,7 @@ int poly_index;
 
 static void start_dshape(int ds, int keyword_index)
 {
+
 	 nshape[ds].vertices = 0;
 	 nshape[ds].links = 0;
 	 nshape[ds].max_length = 1;
@@ -3600,14 +3604,6 @@ static void start_dshape(int ds, int keyword_index)
   nshape[ds].component_power_capacity = nshape_init_data [ds].component_power_capacity;
   nshape[ds].interface_charge_rate = nshape_init_data [ds].interface_charge_rate;
   nshape[ds].instructions_per_cycle = nshape_init_data [ds].instructions_per_cycle;
-
-
-
-//   DEAR SAM YOUNG,
-//   HAPPY BIRTHDAY
-//   FROM MERI
-
-
 
 // now, add a collision vertex near the middle (this will prevent things like shapes spawning on top of other shapes):
   nshape[ds].vertex_angle_fixed [nshape[ds].vertices] = 0;

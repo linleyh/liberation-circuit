@@ -431,8 +431,6 @@ static int next_statement(int exit_point_break, int exit_point_continue, int end
 
      add_intercode(IC_LABEL_DEFINITION, ctoken.identifier_index, 0, 0);
 
-//* need to work out how to deal with label address
-
 // no semicolon here
 					goto dont_need_any_punctuation; // end undefined labels
 
@@ -1186,7 +1184,7 @@ static int parse_printf(int print_op, int printA_op)
 // formatting specifiers are ignored
 static int add_print_string(char* source_string, int string_length, int print_op)
 {
-
+//fpr("\n*** add_print_string line %i [%s] length %i", cstate.src_line, source_string, string_length);
 	add_intercode(IC_OP, print_op, 0, 0);
 
 	int i;
@@ -1195,8 +1193,8 @@ static int add_print_string(char* source_string, int string_length, int print_op
 	{
 		add_intercode(IC_NUMBER, source_string[i], 0, 0);
 	}
-	char temp_string [100];
-	snprintf(temp_string, string_length, source_string);
+//	char temp_string [100];
+//	snprintf(temp_string, string_length, source_string);
 //fpr("\n add_string<%s>", temp_string);
 // terminate string with zero:
 	add_intercode(IC_NUMBER, 0, 0, 0);

@@ -318,7 +318,7 @@ void setup_sysmenu_panel(void)
 #define SYSMENU_W 300
 
  int button_y = SYSMENU_Y;
-
+/*
 	init_element_button(PANEL_SYSMENU,
 																					FSP_SYSMENU_WHOLE,
 																					FPE_SYSMENU_PAUSE,
@@ -328,8 +328,8 @@ void setup_sysmenu_panel(void)
 																					SYSMENU_W,
 																					SYSMENU_H,
 																					sysmenu_button_name [0]);
-
 	button_y += SYSMENU_H + SYSMENU_Y_GAP;
+*/
 /*
 	init_element_button(PANEL_SYSMENU,
 																					FSP_SYSMENU_WHOLE,

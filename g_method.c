@@ -132,7 +132,7 @@ struct call_type_struct call_type [CALL_TYPES] =
 	{3}, // *CALL_INTERCEPT (<process> target, component, class index)
  {0}, // *CALL_GATHER_DATA
  {2}, // *CALL_GIVE_DATA (<process> target, data given)
- {2}, // CALL_TAKE_DATA (<process> target, data given)
+ {2}, // *CALL_TAKE_DATA (<process> target, data given)
  {1}, // *CALL_ALLOCATE_DATA
  {1}, // *CALL_FIRE_SPIKE (angle_offset)
  {2}, // *CALL_FIRE_SPIKE_AT (<process> target, component)
@@ -188,7 +188,7 @@ struct object_type_struct otype [OBJECT_TYPES] =
 	{"pulse_xl", KEYWORD_OBJECT_PULSE_XL, OBJECT_BASE_TYPE_ATTACK, 12,
 		80, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_PULSE, 5, 100, 80, 2, 96, 20000}, }, // OBJECT_TYPE_PULSE_XL
+	 {0, ATTACK_TYPE_PULSE, 5, 80, 80, 2, 96, 20000}, }, // OBJECT_TYPE_PULSE_XL
 	{"burst", KEYWORD_OBJECT_BURST, OBJECT_BASE_TYPE_ATTACK, 3,
 		20, // power_use_peak
 		0, // power_use_base
@@ -203,7 +203,7 @@ struct object_type_struct otype [OBJECT_TYPES] =
 	{"burst_xl", KEYWORD_OBJECT_BURST_XL, OBJECT_BASE_TYPE_ATTACK, 10,
 		80, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 5, 100, 80, 2, 120}, }, // OBJECT_TYPE_BURST_XL
+	 {0, ATTACK_TYPE_BURST, 5, 80, 80, 2, 120}, }, // OBJECT_TYPE_BURST_XL
 	{
 		"build", KEYWORD_OBJECT_BUILD, OBJECT_BASE_TYPE_STD, 64,
 		BUILD_POWER_COST, // power_use_peak
@@ -249,16 +249,17 @@ struct object_type_struct otype [OBJECT_TYPES] =
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_ALLOCATE
 	},
 	{
+#define POWER_COST_STREAM 160
 		"stream", KEYWORD_OBJECT_STREAM, OBJECT_BASE_TYPE_ATTACK, 32,
-		160, // power_use_peak
+		POWER_COST_STREAM, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_BURST, 140, 150, STREAM_RECYCLE_TIME, 5, 9}, // OBJECT_TYPE_STREAM
+	 {0, ATTACK_TYPE_BURST, 140, POWER_COST_STREAM, STREAM_RECYCLE_TIME, 5, 7}, // OBJECT_TYPE_STREAM
 	},
 	{
 		"stream_dir", KEYWORD_OBJECT_STREAM_DIR, OBJECT_BASE_TYPE_ATTACK, 36,
-		160, // power_use_peak
+		POWER_COST_STREAM, // power_use_peak
 		0, // power_use_base
-	 {0, ATTACK_TYPE_PULSE, 140, 150, STREAM_RECYCLE_TIME, 5, 6, 20000}, // OBJECT_TYPE_STREAM_DIR
+	 {0, ATTACK_TYPE_PULSE, 140, POWER_COST_STREAM, STREAM_RECYCLE_TIME, 5, 5, 20000}, // OBJECT_TYPE_STREAM_DIR
 	},
 	{
 		"spike", KEYWORD_OBJECT_SPIKE, OBJECT_BASE_TYPE_ATTACK, 12,
@@ -291,7 +292,7 @@ struct object_type_struct otype [OBJECT_TYPES] =
 		"slice", KEYWORD_OBJECT_SLICE, OBJECT_BASE_TYPE_ATTACK, 18,
 		POWER_COST_SLICE, // power_use_peak
 		0, // power_use_base
-		{0, ATTACK_TYPE_PULSE, 100, 40, SLICE_RECYCLE_TIME, 3, 4, 50000}, // OBJECT_TYPE_SLICE
+		{0, ATTACK_TYPE_PULSE, 100, POWER_COST_SLICE, SLICE_RECYCLE_TIME, 3, 3, 50000}, // OBJECT_TYPE_SLICE
 	},
 	{
 		"stability", KEYWORD_OBJECT_STABILITY, OBJECT_BASE_TYPE_DEFEND, 8,
@@ -1760,7 +1761,8 @@ Not currently supported - not entirely sure why but it probably doesn't matter t
 
 static int object_uses_power(struct core_struct* core, int power_cost)
 {
-
+//if (core->player_index == 1 && core->template_index == 7)
+	//fpr("\n core %i using power: left %i cost %i excess %i (%i)", core->index, core->power_left, power_cost, core->power_use_excess, core->power_use_excess + power_cost);
 					   if (core->power_left < power_cost)
 					   {
 					    core->power_use_excess += power_cost;
@@ -2298,10 +2300,11 @@ void set_motion_from_move_objects(struct core_struct* core)
  				case OBJECT_TYPE_MOVE:
  					if (w.proc[core->group_member[i].index].object_instance[j].move_power > 0)
 						{
+#define MOVE_DIVISOR 300
 							accel_x += fixed_xpart(core->group_angle + w.proc[core->group_member[i].index].object_instance[j].move_accel_angle_offset,
-																														w.proc[core->group_member[i].index].object_instance[j].move_power * w.proc[core->group_member[i].index].object_instance[j].move_accel_rate) / 500;
+																														w.proc[core->group_member[i].index].object_instance[j].move_power * w.proc[core->group_member[i].index].object_instance[j].move_accel_rate) / MOVE_DIVISOR;
 							accel_y += fixed_ypart(core->group_angle + w.proc[core->group_member[i].index].object_instance[j].move_accel_angle_offset,
-																														w.proc[core->group_member[i].index].object_instance[j].move_power * w.proc[core->group_member[i].index].object_instance[j].move_accel_rate) / 500;
+																														w.proc[core->group_member[i].index].object_instance[j].move_power * w.proc[core->group_member[i].index].object_instance[j].move_accel_rate) / MOVE_DIVISOR;
 							core->constant_spin_change += w.proc[core->group_member[i].index].object_instance[j].move_power * w.proc[core->group_member[i].index].object_instance[j].move_spin_change / 300;
 						}
 	 				break;
@@ -2499,10 +2502,16 @@ static void run_packet_object(struct core_struct* core, struct proc_struct* proc
     pack->status = otype[proc->object[object_index].type].object_details.packet_size;
 			 break;
 			case OBJECT_TYPE_ULTRA:
+				pack->type = PACKET_TYPE_ULTRA;
+			 pack->lifetime = 170;
+// status is shade of packet centre (outer is status - 6)
+    pack->status = 31;////otype[proc->object[object_index].type].object_details.packet_size;
+    sample_to_play = SAMPLE_ULTRA;
+			 break;
 			case OBJECT_TYPE_ULTRA_DIR:
 				pack->type = PACKET_TYPE_ULTRA;
 			 pack->lifetime = 170;
-    pack->status = otype[proc->object[object_index].type].object_details.packet_size;
+    pack->status = 24;//otype[proc->object[object_index].type].object_details.packet_size;
     sample_to_play = SAMPLE_ULTRA;
 			 break;
 
@@ -2669,7 +2678,7 @@ static void run_spike_object(struct core_struct* core, struct proc_struct* proc,
  proc->object_instance[object_index].attack_last_fire_timestamp = w.world_time;
  proc->object_instance[object_index].attack_recycle_timestamp = w.world_time + otype[proc->object[object_index].type].object_details.recycle_time;
 
- play_game_sound(SAMPLE_SPIKE, TONE_2C, 70, 5, pack->position.x, pack->position.y);
+ play_game_sound(SAMPLE_CHIRP, TONE_2C, 70, 5, pack->position.x, pack->position.y); // was SAMPLE_SPIKE but that may be a bit too harsh
 
 }
 
@@ -2968,7 +2977,7 @@ static void run_stream_object(struct core_struct* core, struct proc_struct* proc
 
  if (hit_proc != -1)
  {
-  w.proc[hit_proc].hit_pulse_time = w.world_time;
+//  w.proc[hit_proc].hit_pulse_time = w.world_time;
 /*
     if (firing_stage == 1)
 //				&& (w.world_time & 3) == 3)
@@ -2985,11 +2994,21 @@ static void run_stream_object(struct core_struct* core, struct proc_struct* proc
 
 //  if (pr->method[m].data [MDATA_PR_STREAM_STATUS] == STREAM_STATUS_FIRING)
   //{
+
+   w.proc[hit_proc].component_hit_time = w.world_time;
+   w.proc[hit_proc].component_hit_source_index = core->index;
+   w.proc[hit_proc].component_hit_source_timestamp = core->created_timestamp;
+// Not sure whether component_hit_time should be set if attack is not in the damaging stage. Maybe.
+
    if (firing_stage == 1)
 			{
+
     if (!w.proc[hit_proc].interface_protects
  				|| !w.core[w.proc[hit_proc].core_index].interface_active)
+ 			{
+     w.proc[hit_proc].hit_pulse_time = w.world_time;
 			  damage *= 2;
+ 			}
 
 //  apply_packet_damage_to_proc(&w.proc[hit_proc], damage, core->player_index, core->index, core->created_timestamp);
 
@@ -3081,7 +3100,10 @@ static void run_slice_object(struct core_struct* core, struct proc_struct* proc,
 
  if (hit_proc != -1)
  {
-  w.proc[hit_proc].hit_pulse_time = w.world_time;
+  w.proc[hit_proc].component_hit_time = w.world_time;
+  w.proc[hit_proc].component_hit_source_index = core->index;
+  w.proc[hit_proc].component_hit_source_timestamp = core->created_timestamp;
+
 /*
     if (firing_stage == 1)
 //				&& (w.world_time & 3) == 3)
@@ -3100,7 +3122,10 @@ static void run_slice_object(struct core_struct* core, struct proc_struct* proc,
   //{
    if (!w.proc[hit_proc].interface_protects
 				|| !w.core[w.proc[hit_proc].core_index].interface_active)
+			{
+    w.proc[hit_proc].hit_pulse_time = w.world_time;
 			 damage *= 2;
+			}
 
   apply_packet_damage_to_proc(&w.proc[hit_proc], damage, core->player_index, core->index, core->created_timestamp);
 

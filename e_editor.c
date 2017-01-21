@@ -127,6 +127,7 @@ static void editor_keypress_unichar(int unichar_value);
 //static void editor_special_keypress(int key_press);
 //static void update_source_lines(struct source_edit_struct* se, int sline, int lines);
 static void cursor_etc_key(int key_press);
+static void reset_cursor_after_action(void);
 //static void window_find_cursor(struct source_edit_struct* se);
 //static int insert_empty_lines(struct source_edit_struct* se, int before_line, int lines);
 //static void delete_lines(struct source_edit_struct* se, int start_line, int lines);
@@ -1222,12 +1223,14 @@ static void submenu_operation(int sm, int line)
     case SUBMENU_EDIT_UNDO:
 //    	if (!dwindow.templ->locked)
       call_undo();
+      reset_cursor_after_action();
 //					  else
 //						  template_locked_editor_message();
      break;
     case SUBMENU_EDIT_REDO:
 //    	if (!dwindow.templ->locked)
       call_redo();
+      reset_cursor_after_action();
 //					  else
 //						  template_locked_editor_message();
      break;
@@ -1248,6 +1251,7 @@ static void submenu_operation(int sm, int line)
     case SUBMENU_EDIT_PASTE:
 //    	if (!dwindow.templ->locked)
       paste_clipboard();
+      reset_cursor_after_action();
 //					  else
 //						  template_locked_editor_message();
      break;
@@ -1372,6 +1376,8 @@ static void click_in_edit_window(int x, int y)
  get_cursor_position_from_mouse(se, x, y, &se->cursor_line, &se->cursor_pos);
  se->cursor_base = se->cursor_pos;
  editor.cursor_flash = CURSOR_FLASH_MAX;
+
+ window_find_cursor(se);
 
 // if (editor.selecting)
 // if (se->selected)
@@ -1514,7 +1520,7 @@ static void editor_input_keys(void)
  if (editor.overwindow_type != OVERWINDOW_TYPE_NONE)
   goto no_keys_accepted; // don't accept keypresses while overwindow open
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 #ifdef DEBUG_MODE
  if (ex_control.special_key_press [SPECIAL_KEY_F6] == BUTTON_JUST_PRESSED)
@@ -1666,6 +1672,7 @@ no_keys_accepted:
 //							 template_locked_editor_message();
      editor.key_delay = KEY_DELAY1;
      editor.cursor_flash = CURSOR_FLASH_MAX;
+     reset_cursor_after_action();
     }
     return;
    }
@@ -2080,6 +2087,22 @@ no_keys_accepted:
 // return 0;
 
 //}
+
+// like window_find_cursor() but verifies source edit first
+static void reset_cursor_after_action(void)
+{
+	    struct source_edit_struct* se = get_current_source_edit();
+
+     if (se != NULL
+						&& se->active == 1
+      && se->type == SOURCE_EDIT_TYPE_SOURCE)
+     {
+      window_find_cursor(se);
+     }
+
+
+}
+
 
 
 static int get_skip_word_type(char current_char)

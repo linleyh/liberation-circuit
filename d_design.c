@@ -310,9 +310,9 @@ void design_window_input(int mouse_x, int mouse_y)
 			if (mouse_over_link == -1)
 			{
 				start_log_line(MLOG_COL_TEMPLATE);
-				write_to_log("Selected component.");
-//				write_number_to_log(mouse_over_member); - this member index is misleading because it may be different from the index in the process header
-//				write_to_log(".");
+				write_to_log("Selected component ");
+				write_number_to_log(mouse_over_member); // - this member index can be misleading because it may be different from the index in the process header
+				write_to_log(".");
 				finish_log_line();
 // component number may not actually be useful as I think the number in the template can differ from the number
 //  in the process header (if the component has been added in the designed and not yet compiled from the header)
@@ -328,7 +328,9 @@ void design_window_input(int mouse_x, int mouse_y)
 				 start_log_line(MLOG_COL_TEMPLATE);
 //				 write_to_log("Selected component ");
 //				 write_number_to_log(mouse_over_member); - this member index is misleading because it may be different from the index in the process header
-				 write_to_log("Selected link ");
+				 write_to_log("Selected component ");
+				 write_number_to_log(mouse_over_member); // - this member index can be misleading because it may be different from the index in the process header
+				 write_to_log(" link ");
 				 write_number_to_log(mouse_over_link);
 				 write_to_log(".");
 				 finish_log_line();
@@ -2020,6 +2022,8 @@ int add_linked_member(int parent_mem_index, int parent_link, int check_results_o
 	parent_mem->connection[parent_connection].reverse_connection_index = 0;
 	parent_mem->connection[parent_connection].reverse_link_index = 0;
 	parent_mem->object [parent_link].type = OBJECT_TYPE_DOWNLINK;
+	parent_mem->object [parent_link].base_angle_offset = 0;
+	parent_mem->object [parent_link].base_angle_offset_angle = 0;
  set_special_highlight_object();
 
  struct nshape_struct* parent_nshape = &nshape[parent_mem->shape];
@@ -2263,7 +2267,7 @@ static int move_downlink(int old_parent_index, int old_downlink_index, int new_p
 	}
 
 
- return move_uplink(child_mem_index, new_parent_index, new_downlink_index, 0);
+ return move_uplink(child_mem_index, new_parent_index, new_downlink_index, 1);
 
 }
 

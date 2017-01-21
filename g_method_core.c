@@ -85,7 +85,7 @@ struct cmethod_call_type_struct cmethod_call_type [CMETHOD_CALL_TYPES] =
 };
 
 s16b call_core_method(struct core_struct* calling_core, struct core_struct* called_core, int call_value, s16b* stack_parameters);
-s16b call_member_method(struct core_struct* called_core, int member_world_proc_index, int call_value, s16b* stack_parameters);
+s16b call_member_method(struct core_struct* calling_core, struct core_struct* called_core, int member_world_proc_index, int call_value, s16b* stack_parameters);
 
 int verify_target_core(struct core_struct* calling_core, int target_core_index, struct core_struct** target_core);
 int verify_friendly_target_core(struct core_struct* calling_core, int target_core_index, struct core_struct** target_core);
@@ -525,11 +525,13 @@ Member methods
 struct mmethod_call_type_struct mmethod_call_type [MMETHOD_CALL_TYPES] =
 {
 // {int parameters},
-	{0}, // MMETHOD_CALL_GET_COMPONENT_X
-	{0}, // MMETHOD_CALL_GET_COMPONENT_Y
-	{0}, // MMETHOD_CALL_COMPONENT_EXISTS
-	{0}, // MMETHOD_CALL_GET_INTEGRITY
-	{0}, // MMETHOD_CALL_GET_INTEGRITY_MAX
+	{0}, // *MMETHOD_CALL_GET_COMPONENT_X
+	{0}, // *MMETHOD_CALL_GET_COMPONENT_Y
+	{0}, // *MMETHOD_CALL_COMPONENT_EXISTS
+	{0}, // *MMETHOD_CALL_GET_INTEGRITY
+	{0}, // *MMETHOD_CALL_GET_INTEGRITY_MAX
+	{0}, // *MMETHOD_CALL_GET_COMPONENT_HIT
+	{1}, // *MMETHOD_CALL_GET_COMPONENT_HIT_SOURCE
 
 //	{0}, // MMETHOD_CALL_GET_MEMBER_SHAPE
 //	{0}, // MMETHOD_CALL_GET_MEMBER_INTEGRITY
@@ -541,7 +543,7 @@ struct mmethod_call_type_struct mmethod_call_type [MMETHOD_CALL_TYPES] =
 // core may be the calling core, but might not be.
 // core must be valid (and not NULL), though.
 // member_world_proc_index must be valid and the member must exist
-s16b call_member_method(struct core_struct* called_core, int member_world_proc_index, int call_value, s16b* stack_parameters)
+s16b call_member_method(struct core_struct* calling_core, struct core_struct* called_core, int member_world_proc_index, int call_value, s16b* stack_parameters)
 {
 
  switch(call_value)
@@ -556,6 +558,23 @@ s16b call_member_method(struct core_struct* called_core, int member_world_proc_i
 			return w.proc[member_world_proc_index].hp;
 		case MMETHOD_CALL_GET_INTEGRITY_MAX:
 			return w.proc[member_world_proc_index].hp_max;
+		case MMETHOD_CALL_GET_COMPONENT_HIT:
+			if (w.proc[member_world_proc_index].component_hit_time > w.world_time - EXECUTION_COUNT)
+				return 1;
+			return 0;
+		case MMETHOD_CALL_GET_COMPONENT_HIT_SOURCE:
+			if (w.proc[member_world_proc_index].component_hit_time > w.world_time - EXECUTION_COUNT)
+			{
+// remember: can't assume that the proc is a component of calling_core
+				if (stack_parameters [0] >= 0
+					&& stack_parameters [0] < PROCESS_MEMORY_SIZE)
+				{
+					calling_core->process_memory [stack_parameters [0]] = w.proc[member_world_proc_index].component_hit_source_index;
+					calling_core->process_memory_timestamp	[stack_parameters [0]] = w.proc[member_world_proc_index].component_hit_source_timestamp;
+				}
+				return 1;
+			}
+			return 0;
  }
 
  vmstate.error_state = 1;
@@ -603,7 +622,7 @@ s16b call_self_member_method(struct core_struct* calling_core, int call_value)
 	if (calling_core->group_member[group_member_index].exists == 0)
 	 return 0; // not an error
 
-	return call_member_method(calling_core, calling_core->group_member[group_member_index].index, call_value, &stack_parameters [1]);
+	return call_member_method(calling_core, calling_core, calling_core->group_member[group_member_index].index, call_value, &stack_parameters [1]);
 
 }
 
@@ -661,7 +680,7 @@ s16b call_extern_member_method(struct core_struct* calling_core, int call_value)
 
 // shouldn't need to verify target_core->group_member[group_member_index].index (the group member's index in the w.proc[] array) here.
 
-	return call_member_method(target_core, target_core->group_member[group_member_index].index, call_value, &stack_parameters [2]);
+	return call_member_method(calling_core, target_core, target_core->group_member[group_member_index].index, call_value, &stack_parameters [2]);
 
 }
 

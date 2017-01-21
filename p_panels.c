@@ -679,7 +679,7 @@ void system_panel_button(int el_index)
 		 play_interface_sound(SAMPLE_BLIP1, TONE_2CS);
 		 break;
 		case FPE_SYSMENU_CONFIRM_QUIT:
-			game.phase = GAME_PHASE_FORCE_QUIT; // force the main game loop in g_game.c to exit
+			game.phase = GAME_PHASE_FORCE_QUIT; // force the main game loop in g_game.c, or the story loop in h_story.c, to exit
 		 play_interface_sound(SAMPLE_BLIP1, TONE_2DS);
 			break;
 	}

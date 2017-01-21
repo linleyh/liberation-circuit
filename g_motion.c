@@ -131,6 +131,8 @@ void run_motion(void)
 
   co->group_speed.x = (co->group_speed.x * 1014) / 1024;
   co->group_speed.y = (co->group_speed.y * 1014) / 1024;
+//  co->group_speed.x = (co->group_speed.x * 1010) / 1024;
+  //co->group_speed.y = (co->group_speed.y * 1010) / 1024;
 
 /*
   int drag_table_x = al_fixtoi(abs(co->group_speed.x) * 10);

@@ -294,6 +294,8 @@ void get_ex_control(int close_button_status)
 				case BUTTON_JUST_PRESSED:
 					if (ex_control.special_key_press_time [i] == inter.running_time)
 						ex_control.special_key_press [i] = BUTTON_HELD;
+						 else
+  						ex_control.special_key_press [i] = BUTTON_JUST_RELEASED;
 					break;
 				case BUTTON_HELD:
 					if (ex_control.special_key_press_time [i] != inter.running_time)

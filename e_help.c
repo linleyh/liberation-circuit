@@ -149,7 +149,7 @@ const char* keyword_help [] =
 "Object method for spike objects.\nfire_spike_at(target_index, component)\nFires a spike at the specified target and component (set component to 0 to target the core).", // KEYWORD_OMETHOD_FIRE_SPIKE_AT,
 "Object method for spike objects.\nfire_spike_xy(x_target, y_target)\nFires a spike at the specified location.\nx_target and y_target are absolute values.", // KEYWORD_OMETHOD_FIRE_SPIKE_XY,
 //"Object method for interface objects.\nset_interface(setting)\nSets the ", // KEYWORD_OMETHOD_SET_INTERFACE,
-"Object method for rotating attack objects.\nattack_scan(scan_angle, scan_distance, target_index)\nScans for a target and, if one is found, fires at it.\nscan_angle and scan_distance indicate the centre of the scan. The target is stored in targettng memory at target_index.\nReturns 1 if a target is found, 0 otherwise.", // KEYWORD_OMETHOD_ATTACK_SCAN,
+"Object method for rotating attack objects.\nattack_scan(scan_angle, scan_distance, target_index)\nScans for a target and, if one is found, fires at it.\nscan_angle (an offset from core angle) and scan_distance are a vector to the centre of the scan. The target is stored in targettng memory at target_index.\nReturns 1 if a target is found, 0 otherwise.", // KEYWORD_OMETHOD_ATTACK_SCAN,
 "Object method for rotating attack objects.\nattack_scan_aim(scan_angle, scan_distance, target_index)\nLike attack_scan, but objects only aim and do not fire.", // KEYWORD_OMETHOD_ATTACK_SCAN_AIM,
 "Object method for stability object.\nset_stability(setting)\nTurns a stability object off (setting = 0) or on (setting != 0). Turning a stability object off can save power.", // KEYWORD_OMETHOD_SET_STABILITY,
 
@@ -158,6 +158,8 @@ const char* keyword_help [] =
 "component_exists()\nReturns 1 if the component exists, 0 if it does not.", // KEYWORD_MMETHOD_COMPONENT_EXISTS,
 "get_integrity()\nReturns the integrity of the component.\n(Use the get_total_integrity() process method for the process' total integrity.)", // KEYWORD_MMETHOD_GET_INTEGRITY,
 "get_integrity_max()\nReturns the maximum integrity of the component.", // KEYWORD_MMETHOD_GET_INTEGRITY_MAX,
+"get_component_hit()\nReturns 1 if the component was hit by an attack in the previous cycle (including if the hit was absorbed by an interface).", // KEYWORD_MMETHOD_GET_COMPONENT_HIT,
+"get_component_hit_source(target_index)\nReturns 1 if the component was hit by an attack in the previous cycle (including if the hit was absorbed by an interface), and saves the source of the hit to targetting memory at target_index.", // KEYWORD_MMETHOD_GET_COMPONENT_HIT_SOURCE,
 
 "get_core_x()\nReturns the (absolute) x coordinate of the process' core.", // KEYWORD_CMETHOD_GET_CORE_X,
 "get_core_y()\nReturns the (absolute) y coordinate of the process' core.", // KEYWORD_CMETHOD_GET_CORE_Y,
@@ -242,7 +244,7 @@ const char* keyword_help [] =
 
 "transmit(target_index, priority, <message_0>, <message_1>, ...)\nSends a message to a single friendly target. Returns 1 on success, 0 on failure. See the manual for more information.", // KEYWORD_SMETHOD_TRANSMIT,
 "broadcast(range, channel, priority, <message_0>, <message_1>, ...)\nBroadcasts a message to any friendly targets within range that are listening to the specified channel. For unlimited range, set range to -1. See the manual for more information.", // KEYWORD_SMETHOD_BROADCAST,
-"transmit_target(target_of_transmission, priority, target_to_transmit,\n  <message_0>, <message_1>, ...)Sends a message to a single friendly target, with a target attached to the message. Returns 1 on success, 0 on failure. See the manual for more information.", // KEYWORD_SMETHOD_TRANSMIT_TARGET,
+"transmit_target(target_of_transmission, priority, target_to_transmit,\n  <message_0>, <message_1>, ...)\nSends a message to a single friendly target, with a target attached to the message. Returns 1 on success, 0 on failure. See the manual for more information.", // KEYWORD_SMETHOD_TRANSMIT_TARGET,
 "broadcast_target(range, channel, priority, target_to_broadcast,\n  <message_0>, <message_1>, ...)\nLike broadcast(), but with an attached target. Returns 1 on success, 0 on failure. See the manual for more information.", // KEYWORD_SMETHOD_BROADCAST_TARGET,
 "check_messages()\nReturns the number of unread messages the process has received since the last cycle.", // KEYWORD_SMETHOD_CHECK_MESSAGES,
 "get_message_type()\nReturns the way the current message was sent (0=transmit, 1=transmit_target, 2=broadcast, 3=broadcast_target)", // KEYWORD_SMETHOD_GET_MESSAGE_TYPE,
@@ -253,7 +255,7 @@ const char* keyword_help [] =
 "get_message_target(target_index)\nIf the current message has a target attached, saves the target to targetting memory at target_index and returns 1. Otherwise, returns 0.", // KEYWORD_SMETHOD_GET_MESSAGE_TARGET,
 "get_message_priority()\nReturns the priority (0 or 1) of the current message.", // KEYWORD_SMETHOD_GET_MESSAGE_PRIORITY,
 "read_message()\nReturns the contents of the current message. Message values are read sequentially.", // KEYWORD_SMETHOD_READ_MESSAGE,
-"next_message()\nDiscards the current message and starts reading the next message. Returns 1 if there is a next message, 0 otherwise.", // KEYWORD_SMETHOD_NEXT_MESSAGE,
+"next_message()\nDiscards the current message and starts reading the next message. Returns 1 if there is a next message, 0 otherwise. Must be called before any messages can be read.", // KEYWORD_SMETHOD_NEXT_MESSAGE,
 "ignore_channel(channel)\nStop listening to a channel.", // KEYWORD_SMETHOD_IGNORE_CHANNEL,
 "listen_channel(channel)\nStart listening to a channel. This method only needs to be called once (e.g. during initialisation) and the process will continue to listen until stopped by ignore_channel().", // KEYWORD_SMETHOD_LISTEN_CHANNEL,
 "ignore_all_channels()\nStop listening to any channels.", // KEYWORD_SMETHOD_IGNORE_ALL_CHANNELS,

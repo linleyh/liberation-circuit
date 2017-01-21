@@ -106,6 +106,7 @@ int	fix_template_design_from_scode(void)
 
 	fstate.target_templ = cstate.templ;
 
+
  init_template_for_design(fstate.target_templ);
 
  if (!parse_process_definition())
@@ -115,6 +116,25 @@ int	fix_template_design_from_scode(void)
 
 }
 
+/*
+void test_src_lines(const char* nametext)
+{
+
+ int i;
+
+ fpr("\n\n text: %s", nametext);
+
+ for (i = 0; i < 30; i ++)
+	{
+
+			char tempstr [2];
+			tempstr [0] = cstate.scode.text[i];
+			tempstr [1] = 0;
+			fpr("(%i:%i[%s]),", i, cstate.scode.src_line[i], tempstr);
+	}
+
+}
+*/
 // generates process structure definition from procdef that's already been filled in
 // used when loading template files from disk
 // doesn't need to use cstate
@@ -654,6 +674,16 @@ static int init_procdef(void)
 int	parse_process_definition(void)
 {
 
+/*fpr("\n A sc_pos %i src_line %i", cstate.scode_pos, cstate.src_line);
+
+int k;
+
+for (k = 0; k < 100; k ++)
+{
+	fpr("\n scode_pos %i src_line %i", k, cstate.scode.src_line [k]);
+}
+*/
+
 	fstate.target_templ = cstate.templ;
 
  init_procdef();
@@ -1055,7 +1085,7 @@ static int procdef_read_member_recursively(void)//, int parent_connection_index)
 // This is a bit of a hack - it declares a class that will be used later when the template is being generated from the procdef.
 static int procdef_declare_new_class(struct ctokenstruct* ctoken)
 {
-
+//fpr("\n procdef_declare_new_class(%s) scp %i srcl %i", identifier[ctoken->identifier_index].name, cstate.scode_pos, cstate.src_line);
 	int i;
 
 	for (i = 0; i < OBJECT_CLASSES; i ++)

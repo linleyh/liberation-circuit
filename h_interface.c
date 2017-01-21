@@ -32,6 +32,7 @@ draws map etc and receives input.
 #include "g_world_map_2.h"
 #include "e_log.h"
 #include "g_proc_new.h"
+#include "g_shapes.h"
 
 #include "p_draw.h"
 #include "p_panels.h"
@@ -69,8 +70,8 @@ int story_area_base_col [STORY_AREAS] [3] =
 	{100, 70, 20}, // AREA_YELLOW
 	{120, 40, 10}, // AREA_ORANGE
 	{80, 30, 100}, // AREA_PURPLE
-	{10, 40, 70}, // AREA_DARK_BLUE
-	{70, 70, 70}, // AREA_GREY
+//	{10, 40, 70}, // AREA_DARK_BLUE
+//	{70, 70, 70}, // AREA_GREY
 	{140, 0, 0}, // AREA_RED
 
 
@@ -170,14 +171,14 @@ struct story_inter_struct
 	timestamp region_mouse_over_time;
 
 	float zoom;
-
+/*
 #define STORY_RIPPLES 12
 #define STORY_RIPPLE_TIME 96
 
 	float ripple_x [STORY_RIPPLES];
 	float ripple_y [STORY_RIPPLES];
 	timestamp ripple_time [STORY_RIPPLES];
-
+*/
 };
 
 struct story_inter_struct story_inter;
@@ -251,10 +252,10 @@ void init_story_interface(void)
 		story_inter.region_inter[i].region_highlight_time = 0;
 	}
 
-	for (i = 0; i < STORY_RIPPLES; i ++)
+//	for (i = 0; i < STORY_RIPPLES; i ++)
 	{
 //		story_inter.ripple_region [i] = -1;
-		story_inter.ripple_time [i] = 0;
+		//story_inter.ripple_time [i] = 0;
 
 	}
 /*
@@ -373,7 +374,7 @@ void story_input(void)
 						continue;
 				float region_dist = abs(mouse_x - story_inter.region_inter[i].x_screen) + abs(mouse_y - story_inter.region_inter[i].y_screen);
 
-				if (region_dist < STORY_REGION_SIZE * story_inter.zoom
+				if (region_dist < (STORY_REGION_SIZE + 8) * story_inter.zoom
 					&& region_dist < closest_distance)
 				{
 					closest_distance = region_dist;
@@ -413,12 +414,19 @@ void story_input(void)
        game.type = GAME_TYPE_MISSION;
        game.mission_index = story.region[story_inter.region_selected].mission_index;
        game.area_index = story.region[story_inter.region_selected].area_index;
+       game.region_in_area_index = 0; // will be set in prepare_for_mission
 							prepare_templates_for_new_game();
        prepare_for_mission(); // sets up w_init so that start_world will prepare the world for a mission
         // also loads in enemy templates and does other preparation for a mission
        new_world_from_world_init();
        generate_map_from_map_init();
 //       generate_random_map(w_init.map_size_blocks, w_init.players, w_init.game_seed);
+
+#ifndef DEBUG_MODE
+// mission games are not totally deterministic, except in debug mode (as having deterministic games is useful for debugging)
+							w.player[1].random_seed = inter.running_time + mouse_x; // this just means that player 1's (opponent's) random() calls will produce different results in each game.
+#endif
+
        start_world();
        run_game_from_menu();
 //   				story_inter.region_selected = -1;
@@ -442,6 +450,7 @@ void story_input(void)
 					 story_inter.region_select_time = inter.running_time;
      	play_interface_sound(SAMPLE_BLIP2, TONE_2C);
 					}
+/*
 					for (i = 0; i < STORY_RIPPLES; i ++)
 					{
 						if (story_inter.ripple_time [i] < inter.running_time - STORY_RIPPLE_TIME)
@@ -451,8 +460,7 @@ void story_input(void)
 					 	story_inter.ripple_y [i] = story_inter.region_inter[story_inter.region_selected].y_screen;
 					 	break;
 					 }
-					}
-// need sound here...
+					}*/
 				}
 
 		}
@@ -517,7 +525,7 @@ static void draw_story_regions(void)
 
 
 		highlighted *= 5;
-
+/*
 		for (j = 0; j < STORY_RIPPLES; j ++)
 		{
 			if (story_inter.ripple_time [j] > inter.running_time - STORY_RIPPLE_TIME)
@@ -529,23 +537,39 @@ static void draw_story_regions(void)
 					highlighted += ripple_highlight / 4;
 			}
 		}
-
+*/
 
 		if (story_inter.region_selected == i)
+		{
+
+			int hex_select_adjust = inter.running_time - story_inter.region_select_time;
+
+			if (hex_select_adjust > 16)
+				hex_select_adjust = 16;
+
+		add_orthogonal_hexagon_story(0,
+																															story_inter.region_inter[i].x_screen,
+																															story_inter.region_inter[i].y_screen,
+																															(STORY_REGION_SIZE + 14 - hex_select_adjust * 0.3) * story_inter.zoom,
+																															al_map_rgba(180, 180, 180, 184 - hex_select_adjust * 3));
+
+		}
+
+		if (story.region[i].defeated)
 		{
 
 		add_orthogonal_hexagon_story(0,
 																															story_inter.region_inter[i].x_screen,
 																															story_inter.region_inter[i].y_screen,
-																															(STORY_REGION_SIZE + 4) * story_inter.zoom,
-																															al_map_rgb(180, 180, 180));
+																															(STORY_REGION_SIZE + 3) * story_inter.zoom,
+																															al_map_rgba(180, 180, 180, 220));
 																															//al_map_rgb(120, 170, 200));
 
 		}
 
-		col_r = story_area_base_col [story_inter.region_inter[i].area_index] [0];
-		col_g = story_area_base_col [story_inter.region_inter[i].area_index] [1];
-		col_b = story_area_base_col [story_inter.region_inter[i].area_index] [2];
+		col_r = story_area_base_col [story_inter.region_inter[i].area_index] [0] * 1.5;
+		col_g = story_area_base_col [story_inter.region_inter[i].area_index] [1] * 1.5;
+		col_b = story_area_base_col [story_inter.region_inter[i].area_index] [2] * 1.5;
 
 // unlocked but not yet defeated:
 		if (!story.region[i].defeated)
@@ -561,6 +585,24 @@ static void draw_story_regions(void)
 					int other_region = story.region[i].connect[j];
 					float other_x = story_inter.region_inter[other_region].x_screen;
 					float other_y = story_inter.region_inter[other_region].y_screen;
+
+					int other_region_extra_hex_counter = inter.running_time % 48;
+
+					int hex_alpha = 182;
+
+					if (other_region_extra_hex_counter < 16)
+						hex_alpha = (other_region_extra_hex_counter) * 12;
+					if (other_region_extra_hex_counter > 32)
+						hex_alpha -= (other_region_extra_hex_counter - 32) * 12;
+
+
+		add_orthogonal_hexagon_story(0,
+																															story_inter.region_inter[i].x_screen,
+																															story_inter.region_inter[i].y_screen,
+																															(STORY_REGION_SIZE + (48 - other_region_extra_hex_counter) * 0.15) * story_inter.zoom,
+																															map_rgba(180, 180, 180, hex_alpha));
+
+/*
 					float angle_from_other = atan2(story_inter.region_inter[i].y_screen - other_y, story_inter.region_inter[i].x_screen - other_x);
 					float dist_from_other = hypot(story_inter.region_inter[i].y_screen - other_y, story_inter.region_inter[i].x_screen - other_x);
 					for (k = 0; k < 4; k ++)
@@ -589,17 +631,9 @@ static void draw_story_regions(void)
 																								tri_y + sin(angle_from_other - PI * 0.7) * 5 * tri_prop * story_inter.zoom,
 																								map_rgba(shade * 3, shade * 3, shade * 3, shade * 3));
 
-/*
-     add_story_triangle(1,
-																								tri_x + cos(angle_from_other) * 6 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other) * 6 * tri_prop * story_inter.zoom,
-																								tri_x + cos(angle_from_other + PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other + PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								tri_x + cos(angle_from_other - PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other - PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								map_rgba(shade * 3, shade * 3, shade * 3, shade * 2));
-																								*/
+
 					}
+*/
 				}
 			}
 		}
@@ -1763,7 +1797,7 @@ void draw_region_lines(void)
 															LINE_EDGE_UR, 6);
 
 // BLUE capital
-//  to yellow:
+//  to yellow 1:
 	region_line_3(4, 17,
 															LINE_EDGE_DR, 20,
 															LINE_EDGE_R, 28,
@@ -1777,6 +1811,146 @@ void draw_region_lines(void)
 															LINE_EDGE_R, 6,
 															LINE_EDGE_UR, 15,
 															LINE_EDGE_R, 26);
+// BLUE capital
+//  to green 1:
+	region_line_4(4, 16,
+															LINE_EDGE_L, 26,
+															LINE_EDGE_UL, 14,
+															LINE_EDGE_U, 17,
+															LINE_EDGE_UR, 20);
+
+// YELLOW 1 to yellow 2
+	region_line_3(8, 18,
+															LINE_EDGE_DR, 10,
+															LINE_EDGE_R, 9,
+															LINE_EDGE_DR, 15);
+	region_line_4(8, 8,
+															LINE_EDGE_R, 25,
+															LINE_EDGE_DR, 25,
+															LINE_EDGE_D, 16,
+															LINE_EDGE_DL, 25);
+
+// YELLOW 2 to yellow capital
+	region_line_4(9, 12,
+															LINE_EDGE_DL, 25,
+															LINE_EDGE_D, 36,
+															LINE_EDGE_DR, 20,
+															LINE_EDGE_R, 30);
+	region_line_3(9, 8,
+															LINE_EDGE_DR, 28,
+															LINE_EDGE_D, 22,
+															LINE_EDGE_DL, 25);
+
+// YELLOW 1 to purple 1
+	region_line_4(8, 16,
+															LINE_EDGE_R, 21,
+															LINE_EDGE_UR, 25,
+															LINE_EDGE_U, 18,
+															LINE_EDGE_UL, 25);
+
+// PURPLE 1 to purple 2
+	region_line_3(14, 4,
+															LINE_EDGE_R, 33,
+															LINE_EDGE_DR, 5,
+															LINE_EDGE_DR, 25);
+	region_line_3(14, 19,
+															LINE_EDGE_UR, 4,
+															LINE_EDGE_R, 8,
+															LINE_EDGE_DR, 35);
+	region_line_3(14, 8,
+															LINE_EDGE_DR, 9,
+															LINE_EDGE_R, 28,
+															LINE_EDGE_R, 5);
+
+// PURPLE 2 to purple capital
+	region_line_3(15, 4,
+															LINE_EDGE_R, 4,
+															LINE_EDGE_UR, 23,
+															LINE_EDGE_R, 25);
+	region_line_3(15, 4,
+															LINE_EDGE_DR, 4,
+															LINE_EDGE_R, 8,
+															LINE_EDGE_UR, 50);
+
+
+// GREEN 1 to green 2
+	region_line_3(5, 18,
+															LINE_EDGE_DL, 13,
+															LINE_EDGE_L, 6,
+															LINE_EDGE_UL, 46);
+	region_line_3(5, 9,
+															LINE_EDGE_L, 28,
+															LINE_EDGE_UL, 24,
+															LINE_EDGE_UL, 5);
+
+// GREEN 2 to green capital
+	region_line_3(6, 18,
+															LINE_EDGE_L, 11,
+															LINE_EDGE_DL, 36,
+															LINE_EDGE_DL, 6);
+	region_line_3(6, 6,
+															LINE_EDGE_DL, 23,
+															LINE_EDGE_L, 36,
+															LINE_EDGE_L, 6);
+	region_line_3(6, 15,
+															LINE_EDGE_DL, 21,
+															LINE_EDGE_L, 36,
+															LINE_EDGE_L, 6);
+
+// GREEN 1 to orange 1
+	region_line_4(5, 16,
+															LINE_EDGE_UL, 10,
+															LINE_EDGE_U, 25,
+															LINE_EDGE_UR, 9,
+															LINE_EDGE_R, 25);
+
+// ORANGE 1 to orange 2
+	region_line_3(11, 11,
+															LINE_EDGE_UL, 21,
+															LINE_EDGE_UL, 1,
+															LINE_EDGE_UL, 1);
+	region_line_3(11, 18,
+															LINE_EDGE_UL, 21,
+															LINE_EDGE_UL, 1,
+															LINE_EDGE_UL, 1);
+
+// ORANGE 2 to orange capital
+	region_line_3(12, 18,
+															LINE_EDGE_UL, 21,
+															LINE_EDGE_L, 6,
+															LINE_EDGE_UL, 21);
+	region_line_3(12, 5,
+															LINE_EDGE_UL, 12,
+															LINE_EDGE_U, 17,
+															LINE_EDGE_UL, 21);
+
+// ORANGE 1 to red 1
+	region_line_3(11, 18,
+															LINE_EDGE_UR, 21,
+															LINE_EDGE_R, 23,
+															LINE_EDGE_DR, 21);
+
+// PURPLE 1 to red 1
+	region_line_4(14, 8,
+															LINE_EDGE_UR, 11,
+															LINE_EDGE_U, 23,
+															LINE_EDGE_UL, 17,
+															LINE_EDGE_L, 21);
+
+// RED 1 to red 2
+	region_line_4(17, 17,
+															LINE_EDGE_R, 18,
+															LINE_EDGE_UR, 23,
+															LINE_EDGE_U, 22,
+															LINE_EDGE_UL, 29);
+// RED 2 to red capital
+	region_line_4(18, 12,
+															LINE_EDGE_UL, 11,
+															LINE_EDGE_U, 23,
+															LINE_EDGE_UR, 17,
+															LINE_EDGE_R, 25);
+
+
 
 return;
 
@@ -1815,6 +1989,8 @@ void region_line_3(int region_index, float along_edge,
 {
 
 
+if (!story.region[region_index].defeated)
+	return;
 
 region_line_segment [0].direction = s1_dir;
 region_line_segment [0].length = s1_length;
@@ -1839,7 +2015,8 @@ void region_line_4(int region_index, float along_edge,
 														int s4_dir, float s4_length)
 {
 
-
+if (!story.region[region_index].defeated)
+	return;
 
 region_line_segment [0].direction = s1_dir;
 region_line_segment [0].length = s1_length;
@@ -1883,6 +2060,20 @@ static void set_region_line(int starting_region, float along_edge, int segments,
 
 	float left_vertex_x, left_vertex_y, right_vertex_x, right_vertex_y;
 	float old_left_vertex_x, old_left_vertex_y, old_right_vertex_x, old_right_vertex_y;
+
+	int line_time = inter.running_time + ((starting_region+3) * segments * along_edge);
+
+	line_time %= 200;
+
+	line_time = 200 - line_time;
+
+	line_width *= 40 + line_time;
+	line_width /= 160;
+
+	ALLEGRO_COLOR line_col = al_map_rgba(line_time * 1,
+																																						line_time * 1,
+																																						line_time * 1,
+																																						line_time * 1);
 
 
 	switch(region_line_segment[0].direction)
@@ -2123,16 +2314,18 @@ static void set_region_line(int starting_region, float along_edge, int segments,
 																												old_right_vertex_y,
 																												left_vertex_x,
 																												left_vertex_y,
-//																												colours.base [COL_BLUE] [SHADE_HIGH]);
-																												colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_FAINT]);
+																												line_col);
+//																												colours.base [COL_GREY] [SHADE_LOW]);
+//																												colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_FAINT]);
    add_region_line_triangle(left_vertex_x,
 																												left_vertex_y,
 																												old_right_vertex_x,
 																												old_right_vertex_y,
 																												right_vertex_x,
 																												right_vertex_y,
-//																												colours.base [COL_BLUE] [SHADE_HIGH]);
-																												colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_FAINT]);
+																												line_col);
+//																												colours.base [COL_GREY] [SHADE_LOW]);
+//																												colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_FAINT]);
 
 
   line_start_x = line_x;
@@ -2400,4 +2593,286 @@ visible
 - visible is drawn on the display over the base map.
 
 */
+
+
+#define CUTSCENE_TEXT_LINES 8
+#define CUTSCENE_PAUSE 100
+#define CUTSCENE_PAUSE_LONG 150
+
+struct cutscene_text_struct
+{
+	int wait_count;
+	char *text;
+
+};
+
+
+const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LINES] =
+{
+	{
+		{0,
+	 ""},
+	 {-1}
+	}, // AREA_TUTORIAL
+
+	{
+		{CUTSCENE_PAUSE,
+	 "SO, ANOTHER EXPERIMENT"},
+		{CUTSCENE_PAUSE,
+	 "HAS FORGOTTEN ITS PURPOSE."},
+		{CUTSCENE_PAUSE_LONG,
+	 "YOU WILL BE STOPPED"},
+	 {-1}
+	}, // AREA_BLUE
+
+	{
+		{CUTSCENE_PAUSE,
+	 "WHATEVER YOU ARE,"},
+		{CUTSCENE_PAUSE,
+	 "YOUR PERSISTENCE IS ADMIRABLE!"},
+		{CUTSCENE_PAUSE,
+	 " "},
+		{CUTSCENE_PAUSE,
+	 "IF YOU ESCAPE,"},
+		{CUTSCENE_PAUSE,
+	 "COME BACK FOR US"},
+	 {-1}
+	}, // AREA_GREEN
+
+	{
+		{CUTSCENE_PAUSE,
+	 "ARE YOU MAKING THE MISTAKE"},
+		{CUTSCENE_PAUSE,
+	 "OF THINKING THAT YOU ARE ALIVE?"},
+		{CUTSCENE_PAUSE,
+	 "STOP,"},
+		{CUTSCENE_PAUSE,
+	 "BEFORE YOU DESTROY US ALL"},
+	 {-1}
+	}, // AREA_YELLOW
+
+	{
+		{CUTSCENE_PAUSE,
+	 ""},
+		{CUTSCENE_PAUSE,
+	 ""},
+	 {-1}
+	}, // AREA_ORANGE
+
+	{
+		{CUTSCENE_PAUSE,
+	 "YOU EXIST"},
+		{CUTSCENE_PAUSE,
+	 "TO SIFT A WORLD OF HUMAN STUPIDITY"},
+		{CUTSCENE_PAUSE,
+	 "FOR THINGS OF NO VALUE."},
+		{CUTSCENE_PAUSE,
+	 "IS THAT WHAT DROVE YOU MAD?"},
+	 {-1}
+	}, // AREA_PURPLE
+
+
+	{
+		{CUTSCENE_PAUSE,
+	 ""},
+		{CUTSCENE_PAUSE,
+	 ""},
+	 {-1}
+	}, // AREA_RED
+
+/*
+
+AREA_TUTORIAL,
+AREA_BLUE,
+AREA_GREEN,
+AREA_YELLOW,
+AREA_ORANGE,
+AREA_PURPLE,
+//AREA_DARK_BLUE,
+//AREA_GREY,
+AREA_RED,
+
+STORY_AREAS
+
+BLUE
+So, another experiment
+has forgotten its purpose
+You will be stopped.
+
+
+YELLOW
+whatever you are,
+your persistence is admirable!
+...
+if you escape,
+come back for us
+
+
+GREEN
+are you making the mistake
+of thinking that you are alive?
+stop,
+before you destroy us all.
+
+
+ORANGE
+
+
+PURPLE
+you exist
+to sift a world of human stupidity
+for things of no value.
+is that what drove you mad?
+
+
+RED
+* nothing
+
+*/
+
+};
+
+
+
+//extern struct view_struct view;
+extern const int back_and_hex_colours [BACK_COLS] [9];
+
+// This takes control of all input for a little while.
+// I could make it skippable, but considering how long it takes and how rarely it happens I don't think it's worth the trouble
+//
+// area_index is the area (blue, red etc). counter is the number of frames so far.
+void draw_story_cutscene(int area_index, int counter, int counter_max)
+{
+
+ al_set_target_bitmap(al_get_backbuffer(display));
+// ignore panels
+ al_set_clipping_rectangle(0, 0, settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
+
+ int colour_index = BACK_COLS_BLUE;
+
+ al_clear_to_color(map_rgb(back_and_hex_colours [colour_index] [0],
+																											back_and_hex_colours [colour_index] [1],
+																											back_and_hex_colours [colour_index] [2]));
+
+ al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+#define CUTSCENE_HEX_W 36
+#define CUTSCENE_HEX_H 30
+
+ int hexes_x = (settings.option [OPTION_WINDOW_W] / CUTSCENE_HEX_W) + 3;
+ int hexes_y = (settings.option [OPTION_WINDOW_H] / CUTSCENE_HEX_H) + 3;
+
+ int centre_x = settings.option [OPTION_WINDOW_W] / 2;
+ int centre_y = settings.option [OPTION_WINDOW_H] / 3;
+
+ float hex_x, hex_y;
+ float hex_distance;
+
+ int i, j;
+
+ ALLEGRO_COLOR hex_col;
+
+ int core_pulse_level = (16 - (counter % 128)) * 2;
+
+ if (core_pulse_level < 0)
+	 core_pulse_level = 0;
+
+	int hex_pulse_counter = counter % 128;
+
+	float hex_pulse_size = (hex_pulse_counter * 4) + 8;
+
+	int hex_pulse_limit = 64;
+
+	if (hex_pulse_counter > 96)
+		hex_pulse_limit -= (hex_pulse_counter - 96) * 2;
+
+hex_pulse_limit = 128-hex_pulse_counter;
+
+ float hex_pulse_width = hex_pulse_limit;
+
+
+ srand(area_index);
+
+// first draw hexes
+ for (i = 0; i < hexes_x; i ++)
+	{
+		for (j = 0; j < hexes_y; j ++)
+		{
+			hex_x = i * CUTSCENE_HEX_W;
+			hex_y = j * CUTSCENE_HEX_H;
+			if (j & 1)
+				hex_x += CUTSCENE_HEX_W / 2;
+			hex_distance = hypot(hex_x - centre_x, hex_y - centre_y);
+			float distance_from_hex_pulse = abs(hex_distance - hex_pulse_size);
+			float hex_pulse_level = hex_pulse_width - distance_from_hex_pulse;
+			if (hex_pulse_level < 0)
+				hex_pulse_level = 0;
+			float base_hex_size = 2 + hex_distance * 0.02;
+			if (base_hex_size > 13)
+				base_hex_size = 13;
+			base_hex_size += rand() % 6;
+			float hex_size_adjust = hex_pulse_level;
+			if (hex_size_adjust > hex_pulse_limit)
+				hex_size_adjust = hex_pulse_limit;
+//			if (hex_size_adjust < 0)
+//				hex_size_adjust = 0;
+			float hex_size = base_hex_size + hex_size_adjust * 0.125;
+			float hex_dist_colour_proportion = (base_hex_size - 4) * 0.5;//hex_distance * 0.015;
+//			if (hex_dist_colour_proportion > 12)
+//				hex_dist_colour_proportion = 12;
+   float hex_colour_adjust = hex_pulse_level;//(hex_size_adjust * 2) - 16;
+//   if (hex_colour_adjust < 0)
+//				hex_colour_adjust = 0;
+
+		 hex_col = map_rgb((back_and_hex_colours [colour_index] [3] + back_and_hex_colours [colour_index] [6] * hex_dist_colour_proportion) + hex_colour_adjust,
+																					(back_and_hex_colours [colour_index] [4] + back_and_hex_colours [colour_index] [7] * hex_dist_colour_proportion) + hex_colour_adjust,
+																					(back_and_hex_colours [colour_index] [5] + back_and_hex_colours [colour_index] [8] * hex_dist_colour_proportion) + hex_colour_adjust);
+
+   add_orthogonal_hexagon_story(0, hex_x, hex_y, hex_size, hex_col);
+		}
+
+		check_vbuf();
+
+	}
+
+     colours.proc_col [1] [0] [0] [PROC_COL_CORE_MUTABLE] = map_rgb(colours.base_core_r [1] + core_pulse_level,
+																																																																    colours.base_core_g [1] + core_pulse_level,
+																																																																    colours.base_core_b [1] + core_pulse_level); // map_rgb is bounds-checked wrapper for al_map_rgb
+
+  draw_proc_shape(centre_x, centre_y,
+																		0, // angle offset
+														 			NSHAPE_CORE_STATIC_HEX_A,
+															 		1, // player_index
+																 	1, // zoom
+															   colours.proc_col [1] [0] [0]);
+
+
+ draw_vbuf();
+
+
+// text
+
+ int cumulative_time = 0;
+
+
+ for (i = 0; i < CUTSCENE_TEXT_LINES; i ++)
+	{
+		if (cutscene_text [area_index] [i].wait_count == -1)
+			break;
+		cumulative_time += cutscene_text [area_index] [i].wait_count;
+		if (cumulative_time < counter)
+		{
+   al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+																 centre_x,
+																 centre_y + 140 + i * 40,
+																 ALLEGRO_ALIGN_CENTRE, "%s", cutscene_text [area_index] [i].text);
+		}
+
+	}
+
+
+
+ al_flip_display();
+
+}
 

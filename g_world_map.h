@@ -88,8 +88,9 @@ void generate_random_map(int size_blocks,
 																					    int players,
 																					    unsigned int map_seed);
 
-void set_player_spawn_position_by_latest_well(int player_index, int angle_from_well);
+void set_player_spawn_position_by_latest_well(int player_index, int angle_from_well, int distance_from_well);
 void set_player_spawn_position(int player_index, int block_x, int block_y, int angle);
+void set_player_spawn_position_by_specified_well(int player_index, int well_index, int angle_from_well, int distance_from_well);
 
 int add_data_well_to_map_init(int x, int y, int reserve_A, int reserve_B, int reserve_squares, float spin_rate);
 int add_mdetail_ring(int centre_x, int centre_y, int ring_size, int empty_centre);
@@ -100,5 +101,6 @@ int	add_line_between_data_wells(int well_1, int well_2, int line_thickness);
 int add_data_well_to_mdetail_ring(int mdetail_ring_index, int angle, int reserve_A, int reserve_B, int reserve_squares, float spin_rate);
 void add_extra_spawn_by_latest_well(int player_index, int template_index, int angle_from_well);
 block_cart get_well_block_position(int well_index);
+void add_mdetail_worm_source_to_all_wells(void);
 
 #endif

@@ -20,6 +20,9 @@ Every function with a name starting with "sthread" should run in the separate mu
 #include "m_config.h"
 #include "m_globvars.h"
 
+#include "g_header.h"
+#include "h_story.h"
+
 //#include "g_misc.h"
 //#include "g_header.h"
 
@@ -27,7 +30,6 @@ Every function with a name starting with "sthread" should run in the separate mu
 #include "x_init.h"
 #include "x_synth.h"
 #include "x_music.h"
-
 
 
 extern ALLEGRO_SAMPLE *sample [SAMPLES];
@@ -70,11 +72,11 @@ NOTES
 };
 
 
-#define SCALE_NOTE_TYPE 6
+
 
 //#define CHOOSE_SCALE_INDEX 2
 
-#define CHOOSE_SCALE_INDEX sthread_rand(SCALE_NOTE_TYPE)
+//#define CHOOSE_SCALE_INDEX sthread_rand(SCALE_TYPES)
 
 /*
 //Just temperament for a scale starting with C
@@ -109,7 +111,24 @@ Equal temperament:
 #define RATIO_B 1.887749
 
 
-float scale_ratio [SCALE_NOTE_TYPE] [SCALE_TONES] =
+enum
+{
+SCALE_C_E_G_A_AS,
+SCALE_C_G_GS_AS_C_D,
+SCALE_C_DS_F_FS_G_AS,
+SCALE_CS_DS_FS_GS_AS,
+SCALE_C_E_G,
+SCALE_C_F_A,
+SCALE_C_G,
+SCALE_C_F_A_B,
+SCALE_C_CS_E_FS,
+SCALE_C_DS_FS_AS,
+
+SCALE_TYPES
+
+};
+
+float scale_ratio [SCALE_TYPES] [SCALE_TONES] =
 {
 
 	{
@@ -189,6 +208,58 @@ float scale_ratio [SCALE_NOTE_TYPE] [SCALE_TONES] =
 	}, // 5
 
 
+	{
+		RATIO_C,
+		RATIO_G,
+		RATIO_C * 2,
+		RATIO_G * 2,
+		RATIO_C * 2,
+		RATIO_C * 4,
+		RATIO_G * 4,
+		RATIO_C * 4,
+		RATIO_C *2,
+	}, // SCALE_C_G
+
+
+	{
+		RATIO_C,
+		RATIO_F,
+		RATIO_A,
+		RATIO_B,
+		RATIO_C * 2,
+		RATIO_F * 2,
+		RATIO_A * 2,
+		RATIO_B * 2,
+		RATIO_C * 4,
+	}, // SCALE_C_F_A_B
+
+
+	{
+		RATIO_C,
+		RATIO_CS,
+		RATIO_E,
+		RATIO_FS,
+		RATIO_GS,
+		RATIO_B,
+		RATIO_C * 2,
+		RATIO_CS * 2,
+		RATIO_E * 2,
+	}, // SCALE_C_CS_E_FS
+
+
+	{
+		RATIO_C,
+		RATIO_DS,
+		RATIO_FS,
+		RATIO_AS,
+		RATIO_C * 2,
+		RATIO_DS * 2,
+		RATIO_FS * 2,
+		RATIO_AS * 2,
+		RATIO_C * 4,
+	}, // SCALE_C_DS_FS_AS
+
+
 /*
 	{
 		1, // C
@@ -244,7 +315,7 @@ INSTRUMENT_TYPES
 };
 
 #define INSTRUMENT_TYPES_COMMON INSTRUMENT_TYPE_SQUARE
-// instrument types below INSTRUMENT_TYPES_COMMON will be more common
+// instrument types with values less than INSTRUMENT_TYPES_COMMON will be more common
 
 enum
 {
@@ -305,12 +376,230 @@ DRUMS
 
 };
 
+//#define AREA_MUSIC_BAR_TYPES - only ever 1 of these (maybe could have one for each region?)
+#define AREA_MUSIC_KEY_TYPES 3
+#define AREA_MUSIC_INSTRUMENTS 6
+#define AREA_MUSIC_EFFECTS 6
+#define AREA_MUSIC_DRUMS 4
 
+struct area_music_struct
+{
+	int bar_type;
+	int region_seed [3];
+	int key_type [AREA_MUSIC_KEY_TYPES];
+	int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	int effect_type [AREA_MUSIC_EFFECTS];
+	int drum_type [AREA_MUSIC_DRUMS];
+
+};
+
+const struct area_music_struct area_music [STORY_AREAS] =
+{
+	{
+	 1, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+	 {
+	  SCALE_C_E_G_A_AS,
+	  SCALE_C_E_G,
+	  SCALE_C_E_G,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {-1}, // int drum_type [AREA_MUSIC_DRUMS];
+
+	}, // AREA_TUTORIAL
+
+	{
+	 2, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+	 {
+	  SCALE_C_F_A_B,
+	  SCALE_C_E_G,
+	  SCALE_C_G,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM2,
+	  INSTRUMENT_TYPE_SINE_HARM2,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_SHORT,
+	  INSTRUMENT_EFFECT_LONG
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {0,0,1,1}, // int drum_type [AREA_MUSIC_DRUMS];
+	}, // AREA_BLUE
+
+
+	{
+	 3, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+	 {
+	  SCALE_C_E_G_A_AS,
+	  SCALE_C_G_GS_AS_C_D,
+	  SCALE_C_DS_F_FS_G_AS,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_SQUARE,
+	  INSTRUMENT_TYPE_SINE_SQUARE,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SQUARE,
+	  INSTRUMENT_TYPE_SINE_SQUARE,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_SHORT,
+	  INSTRUMENT_EFFECT_LONG
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {2,2,3,3}, // int drum_type [AREA_MUSIC_DRUMS];
+	}, // AREA_GREEN
+
+
+	{
+	 3, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+	 {
+	  SCALE_C_F_A,
+	  SCALE_C_F_A_B,
+	  SCALE_C_CS_E_FS,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM2,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SQUARE_HARM2,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_SHORT,
+	  INSTRUMENT_EFFECT_LONG
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {3,3,4,4}, // int drum_type [AREA_MUSIC_DRUMS];
+	}, // AREA_YELLOW
+
+	{
+	 4, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+
+//One of these is good!
+
+	 {
+	  SCALE_C_DS_F_FS_G_AS,
+	  SCALE_CS_DS_FS_GS_AS,
+	  SCALE_C_DS_FS_AS,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_SINE_SQUARE,
+	  INSTRUMENT_TYPE_SQUARE_HARM2,
+	  INSTRUMENT_TYPE_SQUARE,
+	  INSTRUMENT_TYPE_SINE_SQUARE,
+	  INSTRUMENT_TYPE_SQUARE,
+	  INSTRUMENT_TYPE_SQUARE_HARM1,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_LONG,
+	  INSTRUMENT_EFFECT_VIB,
+	  INSTRUMENT_EFFECT_VIB
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {0,1,2,3}, // int drum_type [AREA_MUSIC_DRUMS];
+	}, // AREA_ORANGE
+
+
+	{
+	 5, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+	 {
+	  SCALE_C_CS_E_FS,
+	  SCALE_C_G,
+	  SCALE_C_DS_F_FS_G_AS,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SQUARE,
+	  INSTRUMENT_TYPE_SINE_SQUARE,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_LONG,
+	  INSTRUMENT_EFFECT_SHORT,
+	  INSTRUMENT_EFFECT_VIB
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {1,2,3,4}, // int drum_type [AREA_MUSIC_DRUMS];
+	}, // AREA_PURPLE
+
+	{
+	 6, //int bar_type;
+	 {1, 2, 0}, // int region_seed [3];
+	 {
+	  SCALE_C_E_G_A_AS,
+	  SCALE_C_G_GS_AS_C_D,
+	  SCALE_CS_DS_FS_GS_AS,
+	 }, // int key_type [AREA_MUSIC_KEY_TYPES];
+	 {
+	  INSTRUMENT_TYPE_BASIC_SINE,
+	  INSTRUMENT_TYPE_SINE_HARM1,
+	  INSTRUMENT_TYPE_SINE_HARM2,
+	  INSTRUMENT_TYPE_SINE_SQUARE,
+	  INSTRUMENT_TYPE_SQUARE,
+	  INSTRUMENT_TYPE_SQUARE_HARM2,
+	 }, // int instrument_type [AREA_MUSIC_INSTRUMENTS];
+	 {
+	  INSTRUMENT_EFFECT_NONE,
+	  INSTRUMENT_EFFECT_LOW_PITCH,
+	  INSTRUMENT_EFFECT_HIGH_PITCH,
+	  INSTRUMENT_EFFECT_LONG,
+	  INSTRUMENT_EFFECT_SHORT,
+	  INSTRUMENT_EFFECT_VIB
+	 }, // int effect_type [AREA_MUSIC_EFFECTS];
+	 {0,1,2,4}, // int drum_type [AREA_MUSIC_DRUMS];
+	}, // AREA_RED
+
+};
 
 
 struct camstate_struct
 {
 	int active; // is 0 if music currently off.
+
+	int area_index;
+	int region_index;
 
 	int scale_index; // shared by all instruments
 	int note_offset; // shared by all instruments
@@ -362,9 +651,9 @@ static void sthread_create_samples_for_scale(int flip, int instrument, int scale
 
 // This function is usually only called from the sound thread. reset_music is called from outside (see x_sound.c).
 //  However this function is called from the main thread during initialisation (before the sound thread has started)
-void init_camstate(int status, unsigned int rand_seed)
+void init_camstate(int status, int area_index, int region_index, unsigned int rand_seed)
 {
-
+//fpr("\n st %i area %i r %i rs %i", status, area_index, region_index, rand_seed);
 	if (status == -2)
 	{
 		camstate.active = 0;
@@ -373,8 +662,11 @@ void init_camstate(int status, unsigned int rand_seed)
 
 	camstate.active = 1;
 
+	camstate.area_index = area_index;
+	camstate.region_index = region_index;
+
 //return;
- camstate.rand_seed = rand_seed;
+ camstate.rand_seed = area_music [area_index].region_seed [region_index]; //rand_seed;
 
 	camstate.tempo = 1;
 	camstate.counter = 8 + camstate.tempo; // 8 is to put a short delay at the start
@@ -430,13 +722,13 @@ void init_camstate(int status, unsigned int rand_seed)
 	camstate.base_echo_strength [1] = 6;//sthread_rand(12);
 	camstate.base_echo_strength [2] = 6;//sthread_rand(12);
 
- camstate.scale_index = CHOOSE_SCALE_INDEX; //2;//sthread_rand(SCALE_NOTE_TYPE);
+ camstate.scale_index = area_music [area_index].key_type [sthread_rand(AREA_MUSIC_KEY_TYPES)];//CHOOSE_SCALE_INDEX; //2;//sthread_rand(SCALE_NOTE_TYPE);
  camstate.note_offset = 0;
 
- sthread_new_instrument(0, camstate.scale_index, sthread_random_instrument_type(), sthread_rand(INSTRUMENT_EFFECTS), camstate.note_offset);
+ sthread_new_instrument(0, camstate.scale_index, sthread_random_instrument_type(), area_music [area_index].key_type [sthread_rand(AREA_MUSIC_EFFECTS)], camstate.note_offset);
 // sthread_new_instrument(0, camstate.scale_index, sthread_random_instrument_type(), INSTRUMENT_TYPE_DRUM, camstate.note_offset);
- sthread_new_instrument(1, camstate.scale_index, sthread_random_instrument_type(), sthread_rand(INSTRUMENT_EFFECTS), camstate.note_offset);
- sthread_new_instrument(2, camstate.scale_index, sthread_random_instrument_type(), sthread_rand(INSTRUMENT_EFFECTS), camstate.note_offset);
+ sthread_new_instrument(1, camstate.scale_index, sthread_random_instrument_type(), area_music [area_index].key_type [sthread_rand(AREA_MUSIC_EFFECTS)], camstate.note_offset);
+ sthread_new_instrument(2, camstate.scale_index, sthread_random_instrument_type(), area_music [area_index].key_type [sthread_rand(AREA_MUSIC_EFFECTS)], camstate.note_offset);
 
  sthread_reset_drum_index();
 
@@ -515,14 +807,14 @@ static void sthread_remove_agent(void)
 
 }
 
-// returns a random new instrument, weighted towards the sine wave ones
+
 static int sthread_random_instrument_type(void)
 {
 
-	if (sthread_rand(3) == 0)
-		return sthread_rand(INSTRUMENT_TYPES);
+//	if (sthread_rand(3) == 0)
+//		return sthread_rand(INSTRUMENT_TYPES);
 
- return sthread_rand(INSTRUMENT_TYPES_COMMON);
+ return area_music[camstate.area_index].instrument_type [sthread_rand(AREA_MUSIC_INSTRUMENTS)];
 
 }
 
@@ -548,6 +840,9 @@ static void sthread_reset_drum_index(void)
 static void sthread_change_drums(void)
 {
 
+ if (area_music[camstate.area_index].drum_type [0] == -1)
+		return;
+
 	switch(sthread_rand(7))
 	{
 		default:
@@ -555,16 +850,16 @@ static void sthread_change_drums(void)
 		 sthread_reset_drum_index();
 		 break;
 		case 1:
-  	camstate.drum_index [DRUM_1] = FIRST_DRUM_SAMPLE + sthread_rand(DRUM_SAMPLES);
+  	camstate.drum_index [DRUM_1] = FIRST_DRUM_SAMPLE + area_music[camstate.area_index].drum_type [0];
   	break;
 		case 2:
-  	camstate.drum_index [DRUM_2] = FIRST_DRUM_SAMPLE + sthread_rand(DRUM_SAMPLES);
+  	camstate.drum_index [DRUM_2] = FIRST_DRUM_SAMPLE + area_music[camstate.area_index].drum_type [1];
   	break;
 		case 3:
-  	camstate.drum_index [DRUM_3] = FIRST_DRUM_SAMPLE + sthread_rand(DRUM_SAMPLES);
+  	camstate.drum_index [DRUM_3] = FIRST_DRUM_SAMPLE + area_music[camstate.area_index].drum_type [2];
   	break;
 		case 4:
-  	camstate.drum_index [DRUM_4] = FIRST_DRUM_SAMPLE + sthread_rand(DRUM_SAMPLES);
+  	camstate.drum_index [DRUM_4] = FIRST_DRUM_SAMPLE + area_music[camstate.area_index].drum_type [3];
   	break;
 	}
 }
@@ -801,6 +1096,7 @@ unsigned int sthread_rand(unsigned int rand_max)
 
 static void sthread_cam_note(int agent_index, int tone_index, float stress)
 {
+//fpr("\n sthread_cam_note agent %i tone %i stress %f", agent_index, tone_index, stress);
 
  camstate.agent[agent_index].echo_pan = -50 + (camstate.agent[agent_index].x * 100) / CAM_W;
 // sthread_play_msample(camstate.agent[agent_index].msample_index, scale [camstate.scale_index] [tone_index] + camstate.note_offset, 100, camstate.agent[agent_index].echo_pan);
@@ -846,7 +1142,7 @@ static void sthread_change_camstate(void)
 		{
 		 case 0: // scale change - applies to all instruments
 		 	{
-		 		camstate.scale_index = CHOOSE_SCALE_INDEX;//2;//sthread_rand(SCALE_NOTE_TYPE);
+		 		camstate.scale_index = area_music [camstate.area_index].key_type [sthread_rand(AREA_MUSIC_KEY_TYPES)];//2;//sthread_rand(SCALE_NOTE_TYPE);
      for (i = 0; i < INSTRUMENTS; i ++)
 					{
 						sthread_new_instrument(i, camstate.scale_index, camstate.instrument_type [i], camstate.instrument_effect [i], camstate.note_offset);
@@ -864,7 +1160,7 @@ static void sthread_change_camstate(void)
 		 	return; // return, not break
 		 case 2: // one instrument is changed
 				{
-						sthread_new_instrument(sthread_rand(INSTRUMENTS), camstate.scale_index, sthread_random_instrument_type(), sthread_rand(INSTRUMENT_EFFECTS), camstate.note_offset);
+						sthread_new_instrument(sthread_rand(INSTRUMENTS), camstate.scale_index, sthread_random_instrument_type(), area_music[camstate.area_index].effect_type[sthread_rand(AREA_MUSIC_EFFECTS)], camstate.note_offset);
 				}
 				return; // return, not break
 			case 3: // echo strength change
@@ -1134,6 +1430,7 @@ static void sthread_create_samples_for_scale(int flip, int instrument, int scale
       else
        set_waveform_square_vib(current_buffer, buffer_length, base_freq * scale_ratio [scale_type] [i], instrument_type - INSTRUMENT_TYPE_SQUARE, 0, 0.5);
 
+
 //    if (i % 3 == 0)
 //				{
 
@@ -1240,9 +1537,7 @@ static void sthread_set_bar_type(void)
 	}
 
 
-	int new_bar_type = sthread_rand(9);
-
-	switch(new_bar_type)
+	switch(area_music[camstate.area_index].bar_type)
 	{
 	 case 0:
 		default:
@@ -1411,7 +1706,7 @@ static void sthread_set_bar_type(void)
 
 static void sthread_play_scale_sample(int instrument_flip, int instrument, int play_note, float vol, int pan, float freq)
 {
-//fpr("\n play sti %i note %i", scale_type_index, play_note);
+//fpr("\n play flip %i instr %i note %i", instrument_flip, instrument, play_note);
 // if (instrument == 0)
   //al_play_sample(scale_sample [instrument_flip] [instrument] [play_note], vol * 0.01 * sound_config.music_volume, pan * 0.01, 1.0 + (sthread_rand(100) * 0.001), ALLEGRO_PLAYMODE_ONCE, NULL);
    //else

@@ -8,5 +8,6 @@ void init_story_interface(void);
 void open_story_interface(void);
 void draw_story_interface(void);
 void story_input(void);
+void draw_story_cutscene(int area_index, int counter, int counter_max);
 
 #endif

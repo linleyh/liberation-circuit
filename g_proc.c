@@ -22,6 +22,7 @@
 #include "g_proc_new.h"
 #include "g_world.h"
 #include "g_shapes.h"
+#include "h_story.h"
 #include "i_error.h"
 #include "t_template.h"
 #include "x_sound.h"
@@ -145,6 +146,8 @@ void apply_packet_damage_to_proc(struct proc_struct* pr, int damage, int cause_t
 */
  if (damage <= 0)
   return;
+
+ pr->hit_pulse_time = w.world_time;
 
  hurt_proc(pr->index, damage, cause_team);
 
@@ -336,7 +339,7 @@ static void noncore_proc_explodes(struct proc_struct* destroyed_pr, int destroye
 
  procs_destroyed_in_this_explosion -= w.core[destroyed_pr->core_index].group_members_current;
 
- fpr("\n procs_destroyed_in_this_explosion %i", procs_destroyed_in_this_explosion);
+// fpr("\n procs_destroyed_in_this_explosion %i", procs_destroyed_in_this_explosion);
 
  struct cloud_struct* cl = new_cloud(CLOUD_SUB_PROC_EXPLODE, 64, destroyed_pr->position.x, destroyed_pr->position.y);
  if (cl != NULL)

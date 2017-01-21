@@ -479,7 +479,9 @@ How to do the trail?
     proc_hit = check_packet_collision(pack, &w.block [bx] [by], pack->position.x, pack->position.y);
     if (proc_hit != -1)
     {
-     w.proc[proc_hit].hit_pulse_time = w.world_time;
+    	w.proc[proc_hit].component_hit_time = w.world_time; // hit_pulse_time set (in apply_packet_damage_to_proc()) only if component not protected by interface
+     w.proc[proc_hit].component_hit_source_index = pack->source_core_index;
+     w.proc[proc_hit].component_hit_source_timestamp = pack->source_core_timestamp;
      apply_packet_damage_to_proc(&w.proc[proc_hit], pack->damage, pack->player_index, pack->source_core_index, pack->source_core_timestamp);
      packet_explodes(pack, &w.proc[proc_hit]);
      destroy_packet(pack);
@@ -847,7 +849,7 @@ void packet_explodes(struct packet_struct* pk, struct proc_struct* pr_hit)
    if (pr_hit != NULL)
    {
 
-     cl = new_cloud(CLOUD_ULTRA_HIT, 16 + pk->status * 12, pk->position.x, pk->position.y);
+     cl = new_cloud(CLOUD_ULTRA_HIT, 16 + 3 * 12, pk->position.x, pk->position.y);
 
     if (cl != NULL)
     {
@@ -865,7 +867,7 @@ void packet_explodes(struct packet_struct* pk, struct proc_struct* pr_hit)
    }
     else
     {
-     cl = new_cloud(CLOUD_ULTRA_MISS, 16 + pk->status * 12, pk->position.x, pk->position.y);
+     cl = new_cloud(CLOUD_ULTRA_MISS, 16 + 3 * 12, pk->position.x, pk->position.y);
 //     cl = new_cloud(CLOUD_ULTRA_HIT, 16 + pk->status * 12, pk->position.x, pk->position.y);
 
      if (cl != NULL)

@@ -292,7 +292,8 @@ void new_world_from_world_init(void)
 //  w.player[i].default_print_colour = PRINT_COL_LGREY;
   w.player[i].error_console = 0;
 
-  w.player[i].data = w_init.player_starting_data [i]; // should usually be 300
+//  w.player[i].data = w_init.player_starting_data [i]; // should usually be 300
+  w.player[i].data = (w_init.starting_data_setting [i] + 1) * 300;
   w.player[i].build_queue[0].active = 0;
   w.player[i].build_queue_fail_reason = BUILD_SUCCESS; // just means no error
 
@@ -759,9 +760,10 @@ void load_mission_source(char* filename, int player_index, int template_index)
 //		error_call();
 	}
 
-//	templ[player_index][template_index].locked = 1; // load_source_file_into_template should do enough for it to be okay to lock these templates.
-//  * can't do this yet as the static environment local condition may be applied later
-
+#ifndef DEBUG_MODE
+// don't automatically lock enemy templates in debug mode
+	templ[player_index][template_index].locked = 1; // load_source_file_into_template calls compile(), which should do enough for it to be okay to lock these templates.
+#endif
 
 }
 
@@ -821,131 +823,4 @@ int load_source_file_into_template(char* filename, int player_index, int templat
 }
 
 
-
-
-
-/*
-
-PLAN for single-player game (maybe also multi)
- - each player starts with a certain amount of data, from which process 0 is built
-  - player then starts with a proportion of leftover data - maybe 1/2 or 1/4?
-
-
-PLAN for single-player autonomous enemies
-
-Builder:
- - basic hex core with:
-  - harvest, storage, allocator
-  - build
-- How does it behave?
- - just gathers data and allocates it.
- - keeps track of harvesters, builders and commanders using targetting memory
-  - if < 3 harvesters, builds more
-  - if < 1 builders, builds one
-  - if < 3 commanders, builds more
-  - otherwise, builds attackers.
-
-Templates:
-0 - static builder/allocator
-1 - mobile builder
-2 - harvester
-3 - commander
-4 - attacker
-
-
-More advanced versions might have extra components with other objects on them
-
-Mobile builder:
- - wanders until it finds a data well. looks around for friendly builder. If none found, builds one.
-
-mobile harvester:
- - wanders until it finds a data well. harvests data well then returns.
-  - can store a few data wells and will go to another if it goes to an empty one.
-  - if return fails, wanders until it finds a friendly allocator then reassigns
-
-wandering attacker (can have various designs)
- - just wanders randomly attacking things
- - listens for "follow me" messages and obeys
-
-commander
- - wanders randomly
- - broadcasts "follow me" messages now and then
- - well-protected and probably has repair_other objects
-
-
-Later:
-
-How to coordinate attacks?
- - Each static builder controls everything built by it.
- - when one of its processes finds an enemy builder/allocator it sends a low priority message to the builder.
-
-
-
-BUT FIRST really need to do repair.
-
-OBJECT_TYPE_REPAIR
-OBJECT_TYPE_REPAIR_OTHER
-
-standard methods:
-
-repair_component(int component)
-repair_auto()
- - repairs most damaged component
-
-restore_component(int component)
- - tries to restore target component.
-  - ideally this would try to fix any inner components that the target component requires
-  - but maybe implement this later
-restore_auto()
- - restores first component in template list
- - not sure whether this should run auto_repair. Maybe not - leave this to user
-
-repair_component_other(int target_index, int component)
-repair_auto_other(int target_index)
- - runs repair_auto on target process
-repair_auto_scan()
- - first tries to repair self
- - then scans for friendly targets
- - probably repairs closest damaged one? not sure
-
-restore_component_other(int target_index, int component)
-restore_auto_other(int target_index)
-restore_auto_scan()
-
-
-repairing costs something like 20 power to repair 10hp each cycle?
-multiple repair objects increase power and repair rate proportionally, but can't call them separately
-
-restoring:
- - costs a lot of power - say 120?
- - restored component has minimal hp - say 20?
- - cooldown is determined by data cost of restored component
-  - and reduced by number of repair objects
-
-During cooldown can repair, but not restore.
-
-
-*** alternative approach:
-
-repair_self()
- - finds the first damaged component and repairs it.
-restore_self()
- - finds the first destroyed component and repairs it.
-  - query: can we assume that a group member with a lower group index will be upstream from a group member with a higher group index?
-   - I think so but check
-
-* costs a lot of power - the purpose of repair is to allow processes to retreat and recover. It's not meant to replace an interface.
-
-repair_other(int target_index)
- - runs repair_self() on target
-repair_scan()
- - finds nearest damaged friendly process and runs repair_other() on it
-restore_other(int target_index)
- - runs restore_self() on target
-restore_scan()
- - guess what
-
-
-
-*/
 

@@ -66,6 +66,13 @@ void init_sound(int camstate_rand_seed)
   return;
  }
 
+ if (settings.option [OPTION_VOL_MUSIC] == 0
+		&& settings.option [OPTION_VOL_EFFECT] == 0)
+	{
+  settings.sound_on = 0;
+  return;
+	}
+
 
  load_in_sample(SAMPLE_BLIP1, "data/sound/blip.wav");
  load_in_sample(SAMPLE_BLIP2, "data/sound/blip2.wav");
@@ -93,7 +100,6 @@ void init_sound(int camstate_rand_seed)
  load_in_sample(SAMPLE_DRUM1, "data/sound/music/drum1.wav");
  load_in_sample(SAMPLE_DRUM2, "data/sound/music/drum2.wav");
  load_in_sample(SAMPLE_DRUM3, "data/sound/music/drum3.wav");
-
  load_in_sample(SAMPLE_CLICK, "data/sound/music/click.wav");
  load_in_sample(SAMPLE_THUMP, "data/sound/music/thump.wav");
 
@@ -131,9 +137,13 @@ void init_sound(int camstate_rand_seed)
 
  sthread_init_sample_pointers();
 
- init_camstate(-1, camstate_rand_seed); // this is usually only called from within the sound thread
-  // but can be called here because the sound thread hasn't been started yet.
-  // -1 means start new music
+ if (settings.option [OPTION_VOL_MUSIC] != 0)
+  init_camstate(-1, 0, 0, camstate_rand_seed); // this is usually only called from within the sound thread
+   // but can be called here because the sound thread hasn't been started yet.
+   // -1 means start new music
+    else
+     init_camstate(-2, 0, 0, 0); // -2 means turn the music off
+
 
  sound_thread = al_create_thread(thread_check_sound_queue, NULL);
  al_start_thread(sound_thread);

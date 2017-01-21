@@ -123,6 +123,7 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 
 	}, // end TEAM_COL_YELLOW
 	{
+/*
 		{20, 80, 50}, // 0 underlay
 		{44, 140, 112}, // 1 core
 		{34, 130, 102}, // 2 main 1
@@ -132,6 +133,20 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 		{42, 140, 110}, // 6 object base
 		{62, 160, 140}, // 7 object 1
 		{62, 160, 150}, // 8 object 2
+// The above go into the proc_col_ list
+  {20, 80, 60}, // 9 BASE_TEAM_COL_MIN
+  {70, 240, 140}, // 10 BASE_TEAM_COL_MAX
+  {50, 250, 80}, // BASE_TEAM_COL_MAP_PIXEL
+*/
+		{20, 80, 50}, // 0 underlay
+		{44, 140, 112}, // 1 core
+		{14, 140, 12}, // 2 main 1
+		{14, 130, 22}, // 3 main 2
+		{14, 140, 22}, // 4 main 3
+		{20, 100, 38}, // 5 link
+		{42, 140, 80}, // 6 object base
+		{62, 160, 90}, // 7 object 1
+		{62, 160, 80}, // 8 object 2
 // The above go into the proc_col_ list
   {20, 80, 60}, // 9 BASE_TEAM_COL_MIN
   {70, 240, 140}, // 10 BASE_TEAM_COL_MAX
@@ -156,11 +171,11 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 
 	}, // end TEAM_COL_WHITE
 	{
-		{78, 58, 128}, // 0 underlay
+		{58, 28, 78}, // 0 underlay
 		{144, 72, 220}, // 1 core (mutable - these are base values)
-		{100, 15, 170}, // 2 main 1
-		{110, 30, 210}, // 3 main 2
-		{92, 24, 210}, // 4 main 3
+		{100, 15, 150}, // 2 main 1
+		{110, 30, 190}, // 3 main 2
+		{110, 24, 190}, // 4 main 3
 		{108, 38, 148}, // 5 link
 		{120, 40, 170}, // 6 object base
 		{170, 40, 220}, // 7 object 1
@@ -205,7 +220,7 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 
 	{
 //		{110, 10, 5}, // 0 underlay
-		{130, 10, 5}, // 0 underlay
+		{110, 5, 5}, // 0 underlay
 		{230, 42, 24}, // 1 core
 		{150, 30, 28}, // 2 main 1
 		{160, 36, 32}, // 3 main 2
@@ -361,15 +376,15 @@ const int back_and_hex_colours [BACK_COLS] [9] =
 	{72, 15, 12,
 	 80, 16, 14,
 	 14,  5, -3}, // BACK_COLS_ORANGE
-	{30, 15, 35,
-	 50, 30, 55,
+	{40, 10, 45,
+	 50, 10, 55,
 	 10,  5, 20}, // BACK_COLS_PURPLE
 	{9, 9, 40,
 	 20, 20, 70,
 	 5,  10, 20}, // BACK_COLS_BLUE_DARK
-	{50, 10, 5,
-	 70, 20, 5,
-	 20,  5, 5}, // BACK_COLS_RED
+	{50, 5, 5,
+	 50, 5, 5,
+	 15,  0, 0}, // BACK_COLS_RED
 
 
 };
@@ -1032,7 +1047,7 @@ for (l = 0; l < BACKBLOCK_LAYERS; l ++)
 //                                           120);
  	float base_proportion = (float) j / (BACK_COL_SATURATIONS + 6);
 
- 	base_proportion *= 4;
+// 	base_proportion *= 2;
 
   for (k = 0; k < BACK_COL_FADE; k ++)
   {

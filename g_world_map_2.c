@@ -56,7 +56,7 @@ static void block_node_circle(int centre_block_x,
 void block_node_system(int centre_block_x, int centre_block_y, int system_size);
 static void add_background_worms(int start_block_x, int start_block_y, int worms, int segments, int node_size);
 static int add_worm_to_map(int* start_x, int* start_y, int length_in_blocks, int move_dir, int node_size, int fade);
-static void add_red_area_details(void);
+//static void add_red_area_details(void);
 static void finalise_node_depths(void);
 void add_mark_for_map_vision_masks(int block_x, int block_y, int fill_col);
 void draw_map_mask_pixels(void);
@@ -91,8 +91,8 @@ void generate_map_from_map_init(void)
 	}
 
 
-	if (map_init.data_well_style == AREA_RED)
-		add_red_area_details();
+//	if (map_init.data_well_style == AREA_RED)
+//		add_red_area_details();
 
 
 	for (i = 0; i < MDETAILS; i ++)
@@ -222,11 +222,50 @@ void add_data_well(int block_x, int block_y)
 																			  BNC_OUTER_GRADIENT);
 		break;
 		case AREA_YELLOW:
+			switch(w.data_well[w.data_wells].reserve_squares)
+			{
+				case 4:
+     block_node_circle(block_x, block_y, 3, 2, 2, 2,
+																			    BNC_CENTRE_EMPTY,
+																			    BNC_INNER_LINE,
+																			    BNC_MIDDLE_LINE,
+																			    BNC_OUTER_LINE);
+																			    break;
+				default:
+				case 3:
+				if (w.data_well[w.data_wells].reserve_data [1] != 0)
+				{
+     block_node_circle(block_x, block_y, 3, 2, 1, 2,
+																			    BNC_CENTRE_EMPTY,
+																			    BNC_INNER_LINE,
+																			    BNC_MIDDLE_LINE,
+																			    BNC_OUTER_LINE);
+				}
+				 else
+      block_node_circle(block_x, block_y, 2, 1, 1, 2,
+																			     BNC_CENTRE_EMPTY,
+																			     BNC_INNER_EMPTY,
+																			     BNC_MIDDLE_LINE,
+  																		    BNC_OUTER_LINE);
+
+    break;
+
+/*
+				default:
+				case 2:
+    block_node_circle(block_x, block_y, 2, 2, 1, 2,
+																			  BNC_CENTRE_EMPTY,
+																			  BNC_INNER_EMPTY,
+																			  BNC_MIDDLE_LINE,
+																			  BNC_OUTER_LINE); break;*/
+   }
+
+/*
    block_node_circle(block_x, block_y, 3, 2, 1, 3,
 																			  BNC_CENTRE_EMPTY,
 																			  BNC_INNER_LINE,
 																			  BNC_MIDDLE_LINE,
-																			  BNC_OUTER_LINE);
+																			  BNC_OUTER_LINE);*/
 		break;
 		case AREA_GREEN:
    block_node_circle(block_x, block_y, 3, 1, 1, 2,
@@ -238,7 +277,7 @@ void add_data_well(int block_x, int block_y)
 		case AREA_RED:
     clear_background_circle(block_x,
 																			         block_y,
-																			         6, 800);
+																			         6, 500);
 			break;
 		case AREA_ORANGE:
 			switch(w.data_well[w.data_wells].reserve_squares)
@@ -1710,18 +1749,20 @@ void clear_background_circle(int centre_block_x, int centre_block_y, int clear_s
 				|| j >= w.blocks.y - 4)
 				continue;
 			dist = distance(al_itofix(centre_block_y - j), al_itofix(centre_block_x - i));
-			if (dist < al_itofix(clear_size - edge_thickness - 1))
+
+			if (dist < al_itofix(clear_size - (edge_thickness / BLOCK_SIZE_PIXELS) - 1))
 			{
-			 w.backblock[i][j].backblock_type = BACKBLOCK_BASIC_HEX_NO_NODES;
+			 w.backblock[i][j].backblock_type = BACKBLOCK_EMPTY;//BACKBLOCK_BASIC_HEX_NO_NODES;
 			 continue;
 			}
-			if (dist > al_itofix(clear_size + 1))
+			if (dist > al_itofix(size_pixels + 1))
 			{
 //			 w.block[i][j].backblock_type = BACKBLOCK_EMPTY; - do nothing
 			 continue;
 			}
 			if (w.backblock[i][j].backblock_type == BACKBLOCK_BASIC_HEX)
 			{
+
 				int nodes_cleared = 0;
 
 			 for (k = 0; k < BLOCK_NODES; k ++)
@@ -1744,6 +1785,13 @@ void clear_background_circle(int centre_block_x, int centre_block_y, int clear_s
 						  w.backblock[i][j].node_size [k] *= 100 - size_percent;//(dist - size_fixed);//edge_thickness + 60 + al_fixtoi(dist - size_fixed);
 						  w.backblock[i][j].node_size [k] /= 100;//edge_thickness;
 
+						  if (w.backblock[i][j].node_size [k] <= 8)
+								{
+   						w.backblock[i][j].node_exists [k] = 0;
+						   nodes_cleared++;
+								}
+//								 else
+//w.backblock[i][j].node_size [k] = 20;
 
 
 //						  w.block[i][j].node_size [k] *= edge_thickness + 60 + al_fixtoi(dist - size_fixed);
@@ -1751,7 +1799,7 @@ void clear_background_circle(int centre_block_x, int centre_block_y, int clear_s
 					  }
 			 }
 			 if (nodes_cleared == BLOCK_NODES)
-					w.backblock[i][j].backblock_type = BACKBLOCK_BASIC_HEX_NO_NODES;
+					w.backblock[i][j].backblock_type = BACKBLOCK_EMPTY;//BACKBLOCK_BASIC_HEX_NO_NODES;
 			}
 
 		}
@@ -1759,6 +1807,7 @@ void clear_background_circle(int centre_block_x, int centre_block_y, int clear_s
 
 }
 
+/*
 static void add_red_area_details(void)
 {
 
@@ -1821,7 +1870,7 @@ static void add_red_area_details(void)
 
 
 }
-
+*/
 
 static void finalise_node_depths(void)
 {

@@ -74,11 +74,11 @@ static void generate_dcode(void);
 static void work_out_immobile_automodes(void);
 static void work_out_mobile_automodes(void);
 static void work_out_dcode_main_attack_type(void);
-static void add_main_attacking_code(void);
+static void add_main_attacking_code(int attack_or_attack_found);
 //static void add_dir_attack_code(const char* flag_text, const char* target_index_text, const char* class_name_text, const char* angle_text);
 static void add_main_attacking_code_specific(void);
 static void add_main_attacking_code_spike_default(int target_visible);
-
+static void add_target_lost_attacking_code(int attack_or_attack_found);
 
 static void dcode_add_line(const char* add_line);
 
@@ -652,6 +652,8 @@ static void generate_dcode(void)
 	 dcode_add_line(" // (targetting memory stores the target and allows the process to examine it if it's in scanning range");
 	 dcode_add_line(" //  of any friendly process)");
 	 dcode_add_line("mode = MODE_ATTACK;");
+	 dcode_add_line("target_x = get_command_x();");
+  dcode_add_line("target_y = get_command_y();");
 	 dcode_add_line("target_component = get_command_target_component(); // allows user to target a specific component");
 	 dcode_add_line("if (verbose) printf(\"\\nAttacking.\");");
 // do attack-attack stuff here
@@ -1094,6 +1096,8 @@ when build command on queue
   	dcode_add_line("{");
  	 dcode_state.indent_level ++;
   	dcode_add_line("mode = MODE_ATTACK_FOUND; // later code means that process will attack target in targetting memory 0");
+ 	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
  	 dcode_add_line("target_component = 0; // attack the core");
   	dcode_add_line("saved_mode = MODE_IDLE; // when leaving MODE_ATTACK_FOUND, will return to this mode");
   	if (dcode_state.autocode_type == AUTOCODE_HARASS)
@@ -1114,22 +1118,24 @@ when build command on queue
   	dcode_add_line("case MODE_MOVE_ATTACK:");
   	dcode_add_line("// check for nearby hostile processes");
   	dcode_state.indent_level ++;
-  	dcode_add_line("scan_result = scan_for_threat(0, 0, TARGET_MAIN); // scan_for_threat finds the hostile process nearest to the scan centre,");
-  	dcode_add_line(" // and saves it in the process' targetting memory.");
-  	dcode_add_line(" // (parameters are: (x offset of scan centre from core, y offset, targetting memory address))");
-  	dcode_add_line("if (scan_result != 0)");
-  	dcode_add_line("{");
- 	 dcode_state.indent_level ++;
-  	dcode_add_line("mode = MODE_ATTACK_FOUND; // later code means that process will attack target in targetting memory 0");
- 	 dcode_add_line("target_component = 0; // attack the core");
-  	dcode_add_line("saved_mode = MODE_MOVE_ATTACK; // when leaving MODE_ATTACK_FOUND, will return to this mode");
-   dcode_add_line("if (verbose) printf(\"\\nTarget found - attacking.\");");
-  	if (dcode_state.autocode_type == AUTOCODE_HARASS)
-    dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
-  	dcode_add_line("break;");
- 	 dcode_state.indent_level --;
-  	dcode_add_line("}");
- 	 dcode_state.indent_level --;
+  	 dcode_add_line("scan_result = scan_for_threat(0, 0, TARGET_MAIN); // scan_for_threat finds the hostile process nearest to the scan centre,");
+  	 dcode_add_line(" // and saves it in the process' targetting memory.");
+  	 dcode_add_line(" // (parameters are: (x offset of scan centre from core, y offset, targetting memory address))");
+  	 dcode_add_line("if (scan_result != 0)");
+  	 dcode_add_line("{");
+ 	  dcode_state.indent_level ++;
+  	  dcode_add_line("mode = MODE_ATTACK_FOUND; // later code means that process will attack target in targetting memory 0");
+   	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
+ 	   dcode_add_line("target_component = 0; // attack the core");
+  	  dcode_add_line("saved_mode = MODE_MOVE_ATTACK; // when leaving MODE_ATTACK_FOUND, will return to this mode");
+     dcode_add_line("if (verbose) printf(\"\\nTarget found - attacking.\");");
+  	  if (dcode_state.autocode_type == AUTOCODE_HARASS)
+      dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
+  	  dcode_add_line("break;");
+ 	   dcode_state.indent_level --;
+  	 dcode_add_line("}");
+ 	  dcode_state.indent_level --;
   	dcode_add_line("// fall through to MODE_MOVE case...");
 
 	}
@@ -1195,8 +1201,8 @@ when build command on queue
  	dcode_add_line("// Attack target as long as it's visible.");
  	dcode_add_line("// If target lost or destroyed, go back to previous action.");
  	dcode_state.indent_level ++;
- 	dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
- 	dcode_add_line("if (target_x == 0) // get_core_x() returns zero if the target is not visible or does not exist");
+/* 	dcode_state.indent_level ++;
+ 	dcode_add_line("if (!process[TARGET_MAIN].visible()) // returns zero if the target is not visible or does not exist");
   dcode_add_line("{");
  	dcode_state.indent_level ++;
   dcode_add_line("mode = saved_mode;");
@@ -1204,8 +1210,9 @@ when build command on queue
   dcode_add_line("break;");
  	dcode_state.indent_level --;
   dcode_add_line("}");
- 	dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
-  add_main_attacking_code();
+ 	dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");*/
+  add_main_attacking_code(1);
   dcode_add_line("break;");
  	dcode_state.indent_level --;
 	}
@@ -1215,9 +1222,9 @@ when build command on queue
  	dcode_add_line("case MODE_ATTACK:");
  	dcode_add_line("// Attack target identified by user command");
  	dcode_state.indent_level ++;
- 	dcode_add_line("target_x = get_command_x(); // get_command_x() returns the target location of the current command.");
-  dcode_add_line("target_y = get_command_y();");
- 	dcode_add_line("if (target_x == 0) // get_command_x() returns 0 if target no longer visible");
+// 	dcode_add_line("target_x = get_command_x(); // get_command_x() returns the target location of the current command.");
+//  dcode_add_line("target_y = get_command_y();");
+/* 	dcode_add_line("if (target_x == 0) // get_command_x() returns 0 if target no longer visible");
   dcode_add_line("{");
  	dcode_state.indent_level ++;
   dcode_add_line("clear_command(); // clears the current command. If another command is queued,");
@@ -1226,8 +1233,8 @@ when build command on queue
   dcode_add_line("if (verbose) printf(\"\\nTarget not detected.\");");
   dcode_add_line("break;");
  	dcode_state.indent_level --;
-  dcode_add_line("}");
-  add_main_attacking_code();
+  dcode_add_line("}");*/
+  add_main_attacking_code(1);
 /*
   dcode_add_line("// Now see whether the commanded target is in scan range:");
   dcode_add_line("if (process[TARGET_MAIN].get_core_x() < 0) // returns a negative number if out of scan range");
@@ -1276,7 +1283,8 @@ when build command on queue
 
  	dcode_add_line("auto_harvest.give_data(TARGET_ALLOCATOR, 100);");
  	dcode_add_line("auto_move.move_to(allocator_x, allocator_y);");
- 	dcode_add_line("if (get_data_stored() == 0)");
+ 	dcode_add_line("if (get_data_stored() == 0");
+ 	dcode_add_line(" && get_data_capacity() > 0) // if 0, probably means the harvester is damaged.");
  	dcode_add_line("{");
  	dcode_state.indent_level ++;
  	 dcode_add_line("if (data_well_x != 0)");
@@ -1767,54 +1775,61 @@ AUTOMODE_MOVE_BUILD, // move somewhere and build
 // this function works out what the process's main attack is (fixed or directional) and adds the appropriate code.
 // to avoid duplication (particularly between MODE_ATTACK and MODE_ATTACK_FOUND) this could be done as a subroutine
 //  but that would make the autocode a bit harder to read.
-static void add_main_attacking_code(void)
+// 0 for attack (process will go to next command if target destroyed or lost)
+// 1 for attack_found (process will return to saved mode if target destroyed or lost)
+static void add_main_attacking_code(int attack_or_attack_found)
 {
 
  switch(dcode_state.autocode_type)
  {
 	 case AUTOCODE_STANDARD:
 // move to medium range and attack
-   dcode_add_line("// Now see whether the commanded target is in scan range:");
+   dcode_add_line("// Now see whether the commanded target is visible:");
+   dcode_add_line("//  (targets are visible if within scanning range of any friendly process)");
    dcode_add_line("if (!process[TARGET_MAIN].visible()) // returns zero if not target visible or doesn't exist");
    dcode_add_line("{");
  	 dcode_state.indent_level ++;
     dcode_add_line("auto_move.move_to(target_x, target_y); // calls move_to for all objects in the move class");
 				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
 					add_main_attacking_code_spike_default(0); // fires spike at main target if possible
+				add_target_lost_attacking_code(attack_or_attack_found);
  	  dcode_state.indent_level --;
    dcode_add_line("}");
  	 dcode_state.indent_level ++;
     dcode_add_line("else");
     dcode_add_line("{");
  	  dcode_state.indent_level ++;
+   	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
 // different code needed here depending on what kind of front attack we have:
-    if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
-				{
-    dcode_add_line("auto_move.approach_track(TARGET_MAIN,target_component,auto_att_main, 700);");
-    dcode_add_line(" // approach_track() works out movement required to hit a target with a particular attacking object,");
-    dcode_add_line(" //  and if retro move objects are available, also tries to maintain a certain distance.");
-    dcode_add_line(" // It applies a simple target leading algorithm (which requires the attacking class to be identified)");
-    dcode_add_line(" // Parameters are:");
-    dcode_add_line(" //  - target's address in targetting memory");
-    dcode_add_line(" //  - component of target process to attack");
-    dcode_add_line(" //  - class of attacking object (the first object in the class will be used)");
-    dcode_add_line(" //  - stand-off distance (in pixels)");
-				}
-				 else
-				{
-    dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,700);");
-    dcode_add_line(" // approach_target() approaches a target to within a certain distance (700 in this case).");
-    dcode_add_line(" //  if the process has retro move objects it will use them to maintain the distance.");
-    dcode_add_line(" // Parameters are:");
-    dcode_add_line(" //  - target's address in targetting memory");
-    dcode_add_line(" //  - component of target process to attack");
-    dcode_add_line(" //  - stand-off distance (in pixels)");
-				}
-				add_main_attacking_code_specific(); // fires main attacking objects
-				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
-					add_main_attacking_code_spike_default(1); // fires spike at main target if possible
- 	  dcode_state.indent_level --;
-   dcode_add_line("}");
+     if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
+				 {
+     dcode_add_line("auto_move.approach_track(TARGET_MAIN,target_component,auto_att_main, 700);");
+     dcode_add_line(" // approach_track() works out movement required to hit a target with a particular attacking object,");
+     dcode_add_line(" //  and if retro move objects are available, also tries to maintain a certain distance.");
+     dcode_add_line(" // It applies a simple target leading algorithm (which requires the attacking class to be identified)");
+     dcode_add_line(" // Parameters are:");
+     dcode_add_line(" //  - target's address in targetting memory");
+     dcode_add_line(" //  - component of target process to attack");
+     dcode_add_line(" //  - class of attacking object (the first object in the class will be used)");
+     dcode_add_line(" //  - stand-off distance (in pixels)");
+				 }
+				  else
+				 {
+     dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,700);");
+     dcode_add_line(" // approach_target() approaches a target to within a certain distance (700 in this case).");
+     dcode_add_line(" //  if the process has retro move objects it will use them to maintain the distance.");
+     dcode_add_line(" // Parameters are:");
+     dcode_add_line(" //  - target's address in targetting memory");
+     dcode_add_line(" //  - component of target process to attack");
+     dcode_add_line(" //  - stand-off distance (in pixels)");
+				 }
+				 add_main_attacking_code_specific(); // fires main attacking objects
+				 if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
+				 	add_main_attacking_code_spike_default(1); // fires spike at main target if possible
+ 	   dcode_state.indent_level --;
+    dcode_add_line("}");
+	   dcode_state.indent_level --;
 		 break;
 
 		case AUTOCODE_CHARGE:
@@ -1826,15 +1841,18 @@ static void add_main_attacking_code(void)
     dcode_add_line("auto_move.move_to(target_x, target_y); // calls move_to for all objects in the move class");
 				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
 					add_main_attacking_code_spike_default(0); // fires spike at main target if possible
+				add_target_lost_attacking_code(attack_or_attack_found);
  	  dcode_state.indent_level --;
    dcode_add_line("}");
  	 dcode_state.indent_level ++;
     dcode_add_line("else");
     dcode_add_line("{");
  	  dcode_state.indent_level ++;
+   	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
 // different code needed here depending on what kind of front attack we have:
-    if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
-				{
+     if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
+			 	{
      dcode_add_line("auto_move.intercept(TARGET_MAIN,0,auto_att_main); // calls intercept() on all objects in the auto_move class.");
      dcode_add_line(" // intercept() works out movement required to hit a target with a particular fixed attacking object.");
      dcode_add_line(" //  (it differs from approach_track in that it has no minimum distance, and may collide with the target)");
@@ -1843,32 +1861,55 @@ static void add_main_attacking_code(void)
      dcode_add_line(" //  - target's address in targetting memory");
      dcode_add_line(" //  - component of target process to attack");
      dcode_add_line(" //  - class of attacking object (the first object in the class will be used)");
-				}
-				 else
-				{
-    dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,0);");
-    dcode_add_line(" // approach_target() approaches a target to within a certain distance.");
-    dcode_add_line(" //  (0 in this case, so it will try to collide with the target)");
-    dcode_add_line(" // Parameters are:");
-    dcode_add_line(" //  - target's address in targetting memory");
-    dcode_add_line(" //  - component of target process to attack");
-    dcode_add_line(" //  - stand-off distance (in pixels)");
-				}
-				add_main_attacking_code_specific(); // fires main attacking objects
-				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
-					add_main_attacking_code_spike_default(1); // fires spike at main target if possible
- 	  dcode_state.indent_level --;
-   dcode_add_line("}");
+				 }
+				  else
+				 {
+     dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,0);");
+     dcode_add_line(" // approach_target() approaches a target to within a certain distance.");
+     dcode_add_line(" //  (0 in this case, so it will try to collide with the target)");
+     dcode_add_line(" // Parameters are:");
+     dcode_add_line(" //  - target's address in targetting memory");
+     dcode_add_line(" //  - component of target process to attack");
+     dcode_add_line(" //  - stand-off distance (in pixels)");
+				 }
+				 add_main_attacking_code_specific(); // fires main attacking objects
+				 if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
+				 	add_main_attacking_code_spike_default(1); // fires spike at main target if possible
+ 	   dcode_state.indent_level --;
+    dcode_add_line("}");
+	   dcode_state.indent_level --;
 		 break;
 
 	 case AUTOCODE_BOMBARD:
 // like STANDARD but tries to maintain a much greater distance
 //  and will fire at a target's expected location at spike range instead of approaching to visible range.
 // (only really works for spike attacks)
-   dcode_add_line("// Now see whether the commanded target is in scan range:");
+   dcode_add_line("// Now see whether the commanded target is visible:");
    dcode_add_line("if (!process[TARGET_MAIN].visible()) // returns zero if not target visible or doesn't exist");
    dcode_add_line("{");
  	 dcode_state.indent_level ++;
+    dcode_add_line("if (target_destroyed(TARGET_MAIN)) // returns one if target recently destroyed, and");
+    dcode_add_line(" // its last location is visible to any friendly process");
+    dcode_add_line("{");
+ 	  dcode_state.indent_level ++;
+ 	   if (attack_or_attack_found == 0)
+				 {
+     dcode_add_line("clear_command(); // clears the current command.");
+     dcode_add_line("mode = MODE_IDLE; // if there is another command queued, the process will receive");
+     dcode_add_line("                  // it next cycle.");
+     dcode_add_line("if (verbose) printf(\"\\nTarget not detected.\");");
+     dcode_add_line("break;");
+				 }
+				 else
+				 {
+     dcode_add_line("mode = saved_mode; // the process goes back to what it was doing");
+     dcode_add_line("if (verbose) printf(\"\\nTarget not detected.\");");
+     dcode_add_line("break;");
+				 }
+  	  dcode_state.indent_level --;
+    dcode_add_line("}");
+    dcode_add_line("// Target lost, and not confirmed destroyed. Process will bombard the target's");
+    dcode_add_line("//  last known location until given a new command.");
     dcode_add_line("auto_move.approach_xy(target_x, target_y, 1600); // approaches to within 1600 pixels of location");
 				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
 					add_main_attacking_code_spike_default(0); // fires spike at main target if possible
@@ -1880,6 +1921,8 @@ static void add_main_attacking_code(void)
  	  dcode_state.indent_level ++;
 // bombard doesn't really work with burst or other fixed forward attacks
 				{
+  	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
     dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,1600);");
     dcode_add_line(" // approach_target() approaches a target to within a certain distance (1600 in this case).");
     dcode_add_line(" //  if the process has retro move objects it will use them to maintain the distance.");
@@ -1893,6 +1936,7 @@ static void add_main_attacking_code(void)
 					add_main_attacking_code_spike_default(1); // fires spike at main target if possible
  	  dcode_state.indent_level --;
    dcode_add_line("}");
+	  dcode_state.indent_level --;
 		 break;
 
 		case AUTOCODE_CIRCLE_CW:
@@ -1904,12 +1948,15 @@ static void add_main_attacking_code(void)
     dcode_add_line("auto_move.move_to(target_x, target_y); // calls move_to for all objects in the move class");
 				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
 					add_main_attacking_code_spike_default(0); // fires spike at main target if possible
+				add_target_lost_attacking_code(attack_or_attack_found);
  	  dcode_state.indent_level --;
    dcode_add_line("}");
  	 dcode_state.indent_level ++;
     dcode_add_line("else");
     dcode_add_line("{");
  	  dcode_state.indent_level ++;
+   	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
      dcode_add_line("circle_target = TARGET_MAIN; // the process will circle around this target");
      if (dcode_state.autocode_type == AUTOCODE_CIRCLE_CW)
       dcode_add_line("circle_rotation = 1024; // the process will aim 1024 angle units (45 degrees) around the circle, clockwise.");
@@ -1922,6 +1969,7 @@ static void add_main_attacking_code(void)
 				 	add_main_attacking_code_spike_default(1); // fires spike at main target if possible
      dcode_state.indent_level --;
     dcode_add_line("}");
+    dcode_state.indent_level --;
     break;
 
 		case AUTOCODE_ERRATIC:
@@ -1934,12 +1982,15 @@ static void add_main_attacking_code(void)
     dcode_add_line("circle_distance = 800 + random(400); // the process will try to stay this far from the centre of the circle");
 				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
 					add_main_attacking_code_spike_default(0); // fires spike at main target if possible
+				add_target_lost_attacking_code(attack_or_attack_found);
  	  dcode_state.indent_level --;
    dcode_add_line("}");
  	 dcode_state.indent_level ++;
     dcode_add_line("else");
     dcode_add_line("{");
  	  dcode_state.indent_level ++;
+   	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
      dcode_add_line("circle_target = TARGET_MAIN; // the process will circle around this target");
      dcode_add_line("if (random(12) == 0)");
      dcode_add_line("  circle_rotation = random(4000) - 2000; // the process will aim this many angle units around the circle.");
@@ -1951,6 +2002,7 @@ static void add_main_attacking_code(void)
 				 	add_main_attacking_code_spike_default(1); // fires spike at main target if possible
      dcode_state.indent_level --;
     dcode_add_line("}");
+    dcode_state.indent_level --;
     break;
 
 		case AUTOCODE_HARASS:
@@ -1987,36 +2039,40 @@ static void add_main_attacking_code(void)
     dcode_add_line("auto_move.move_to(target_x, target_y); // calls move_to for all objects in the move class");
 				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
 					add_main_attacking_code_spike_default(0); // fires spike at main target if possible
+				add_target_lost_attacking_code(attack_or_attack_found);
  	  dcode_state.indent_level --;
    dcode_add_line("}");
  	 dcode_state.indent_level ++;
     dcode_add_line("else");
     dcode_add_line("{");
  	  dcode_state.indent_level ++;
+   	 dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	   dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
 // different code needed here depending on what kind of front attack we have:
-    if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
-				{
-    dcode_add_line("auto_move.approach_track(TARGET_MAIN,target_component,auto_att_main,900);");
-    dcode_add_line("if (distance_from_xy_less(target_x, target_y, 950))");
-    dcode_add_line("  harass_withdraw ++;");
-				}
+     if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
+				 {
+     dcode_add_line("auto_move.approach_track(TARGET_MAIN,target_component,auto_att_main,900);");
+     dcode_add_line("if (distance_from_xy_less(target_x, target_y, 950))");
+     dcode_add_line("  harass_withdraw ++;");
+				 }
 				 else
-				{
-    dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,900);");
-    dcode_add_line(" // approach_target() approaches a target to within a certain distance (900 in this case).");
-    dcode_add_line(" //  if the process has retro move objects it will use them to maintain the distance.");
-    dcode_add_line(" // Parameters are:");
-    dcode_add_line(" //  - target's address in targetting memory");
-    dcode_add_line(" //  - component of target process to attack");
-    dcode_add_line(" //  - stand-off distance (in pixels)");
-    dcode_add_line("if (distance_from_xy_less(target_x, target_y, 950))");
-    dcode_add_line("  harass_withdraw ++;");
-				}
-				add_main_attacking_code_specific(); // fires main attacking objects
-				if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
-					add_main_attacking_code_spike_default(1); // fires spike at main target if possible
- 	  dcode_state.indent_level --;
-   dcode_add_line("}");
+				 {
+     dcode_add_line("auto_move.approach_target(TARGET_MAIN,target_component,900);");
+     dcode_add_line(" // approach_target() approaches a target to within a certain distance (900 in this case).");
+     dcode_add_line(" //  if the process has retro move objects it will use them to maintain the distance.");
+     dcode_add_line(" // Parameters are:");
+     dcode_add_line(" //  - target's address in targetting memory");
+     dcode_add_line(" //  - component of target process to attack");
+     dcode_add_line(" //  - stand-off distance (in pixels)");
+     dcode_add_line("if (distance_from_xy_less(target_x, target_y, 950))");
+     dcode_add_line("  harass_withdraw ++;");
+				 }
+				 add_main_attacking_code_specific(); // fires main attacking objects
+				 if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
+				 	add_main_attacking_code_spike_default(1); // fires spike at main target if possible
+ 	   dcode_state.indent_level --;
+    dcode_add_line("}");
+    dcode_state.indent_level --;
 		 break;
 
 
@@ -2025,6 +2081,34 @@ static void add_main_attacking_code(void)
 
 
 }
+
+static void add_target_lost_attacking_code(int attack_or_attack_found)
+{
+
+	   dcode_add_line("if (distance_from_xy_less(target_x, target_y, 600))");
+    dcode_add_line("{");
+ 	  dcode_state.indent_level ++;
+     dcode_add_line("// we should be able to see the target now, so it's either been destroyed");
+     dcode_add_line("// or gone out of range.");
+ 	   if (attack_or_attack_found == 0)
+				 {
+     dcode_add_line("clear_command(); // clears the current command.");
+     dcode_add_line("mode = MODE_IDLE; // if there is another command queued, the process will receive");
+     dcode_add_line("                  // it next cycle.");
+     dcode_add_line("if (verbose) printf(\"\\nTarget not detected.\");");
+     dcode_add_line("break;");
+				 }
+				 else
+				 {
+     dcode_add_line("mode = saved_mode; // the process goes back to what it was doing");
+     dcode_add_line("if (verbose) printf(\"\\nTarget not detected.\");");
+     dcode_add_line("break;");
+				 }
+  	  dcode_state.indent_level --;
+    dcode_add_line("}");
+
+}
+
 
 
 static void add_main_attacking_code_specific(void)

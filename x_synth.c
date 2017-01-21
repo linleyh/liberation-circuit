@@ -281,6 +281,7 @@ void low_pass_filter(float* buffer, int buffer_length, float lpf_beta)
 void set_waveform_square(float* buffer, int buffer_length, float freq, int harmonics, float phase, float amp)
 {
 
+
  const float dt = 1.0 / SAMPLE_FREQUENCY;
  float ti;
  int i;
@@ -313,7 +314,8 @@ void set_waveform_square(float* buffer, int buffer_length, float freq, int harmo
 			  buffer [i] = amp;//harmonic_amp [j];
 		    else
   	 		 buffer [i] = 0 - amp;//0 - harmonic_amp [j];
-  	 break;
+   }
+  	break;
  	case 1:
    for (i = 0; i < buffer_length; i ++)
    {
@@ -394,7 +396,7 @@ void set_waveform_square(float* buffer, int buffer_length, float freq, int harmo
 					ti = -0.5;*/
 // 	ti = phase + i * dt;
 // 	buffer [i] = ti * amp;//sin(TWOPI * freq * ti);
- }
+// }
 
 //low_pass_filter(buffer, buffer_length, 0.025);
 

@@ -238,8 +238,9 @@ static int add_expoint_address_resolve(int resolve_type, int ep_index)
 {
 
 #ifdef SANITY_CHECK
-    if (ep_index	< 0
-					|| ep_index	>= EXPOINTS)
+    if (resolve_type != ADDRESS_RESOLVE_LABEL // this type doesn't use exit points; ep_index is the label identifier or something (stupidly)
+					&& (ep_index	< 0
+					|| ep_index	>= EXPOINTS))
 				{
 					fpr("\nError: c_generate.c: add_expoint_address_resolve(): invalid exit point index %i at intercode %i (source line %i)", ep_index, cstate.ic_pos, cstate.intercode[cstate.ic_pos].src_line);
 					error_call();

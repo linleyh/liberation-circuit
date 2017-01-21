@@ -129,6 +129,11 @@ void run_commands(void)
 
  int mouse_x_world = control.mouse_x_world_pixels;
  int mouse_y_world = control.mouse_y_world_pixels;
+/*
+ if (control.mbutton_press [0] == BUTTON_JUST_PRESSED)
+	{
+		fpr("\n %i,%i: %i", fixed_to_block(mouse_x_fixed), fixed_to_block(mouse_y_fixed), w.backblock[fixed_to_block(mouse_x_fixed)][fixed_to_block(mouse_y_fixed)].backblock_type);
+	}*/
 
  int mouse_on_map = 0;
 
@@ -203,7 +208,10 @@ void run_commands(void)
 							if (ex_control.special_key_press [SPECIAL_KEY_SHIFT])
    					add_to_control_group(i);
    					 else
+									{
 							   select_control_group(i);
+//							   view.following = 0;
+									}
 						}
 				break;
 			}
@@ -983,6 +991,8 @@ void clear_selection(void)
 	command.build_mode = BUILD_MODE_NONE;
 	command.display_build_buttons = 0;
 	command.select_mode = SELECT_MODE_NONE;
+
+ view.following = 0;
 
 }
 
@@ -1900,18 +1910,20 @@ static void set_control_group(int control_group_index)
 
  while(command.selected_core [select_index] != SELECT_TERMINATE)
 	{
+//		fpr("\n csc [%i] = %i", select_index, command.selected_core [select_index]);
 		sancheck(select_index, 0, SELECT_MAX, "set_control_group: select_index");
 		if (command.selected_core [select_index] != SELECT_EMPTY
 			&& w.core[command.selected_core [select_index]].player_index == game.user_player_index)
 		{
+//			fpr("\n c.cgc [%i] [%i] = %i", control_group_index, i, command.selected_core [select_index]);
  		command.control_group_core [control_group_index] [i] = command.selected_core [select_index];
  		command.control_group_core_timestamp [control_group_index] [i] = w.core[command.selected_core [select_index]].created_timestamp;
  		i ++;
 		}
 		select_index ++;
 	}
-
-		sancheck(command.control_group_core [control_group_index] [i], 0, w.max_cores, "set_control_group: command.control_group_core [control_group_index]");
+//fpr("\n i %i cgi %i command.control_group_core [control_group_index] [i] %i", i, control_group_index, command.control_group_core [control_group_index] [i]);
+//		sancheck(command.control_group_core [control_group_index] [i], 0, w.max_cores, "set_control_group: command.control_group_core [control_group_index]");
 
 
 	command.control_group_core [control_group_index] [i] = SELECT_TERMINATE;
@@ -2006,7 +2018,7 @@ static void add_to_control_group(int control_group_index)
 				}
  	   else
 						{
-  	    sprintf(temp_str, "\nControl group %i set.", control_group_index);
+  	    sprintf(temp_str, "\nAdded to control group %i.", control_group_index);
        write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LBLUE, -1, 0, temp_str);
        play_interface_sound(SAMPLE_BLIP1, TONE_2G);
 						}
@@ -2041,6 +2053,7 @@ static int is_core_in_control_group(int core_index, int control_group_index)
 static void select_control_group(int control_group_index)
 {
 
+
  clear_selection();
 
 	int i = 0;
@@ -2053,7 +2066,7 @@ static void select_control_group(int control_group_index)
 			if (!w.core[command.control_group_core [control_group_index] [i]].exists
 				||	w.core[command.control_group_core [control_group_index] [i]].created_timestamp != command.control_group_core_timestamp [control_group_index] [i])
 			{
-//				command.control_group_core [control_group_index] [i] = SELECT_EMPTY; // not strictly necessary
+				command.control_group_core [control_group_index] [i] = SELECT_EMPTY; // not strictly necessary
 				i ++;
 				continue;
 			}
@@ -2065,9 +2078,14 @@ static void select_control_group(int control_group_index)
 			select_index ++;
 		}
 
+
 		i ++;
 
 	} // end loop
+
+//fpr("[i%i:si%i]) ", i, select_index);
+
+
 
 	command.selected_core [select_index] = SELECT_TERMINATE;
 
@@ -2122,6 +2140,28 @@ static void select_control_group(int control_group_index)
 
 
 }
+
+
+
+
+/*
+old debugging function
+
+void print_control_group(int control_group_index, char* text)
+{
+
+	fpr("\n CG [%s] ", text);
+
+	int i;
+
+	for (i = 0; i < SELECT_MAX; i ++)
+	{
+		fpr("%i ", command.control_group_core [control_group_index] [i]);
+	}
+
+}*/
+
+
 
 
 void clear_control_groups(void)

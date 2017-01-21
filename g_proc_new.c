@@ -666,6 +666,7 @@ static void init_added_or_restored_proc_details(struct proc_struct* proc, int me
 	proc->select_time = 0;
 	proc->deselect_time = 0;
 	proc->hit_pulse_time = 0;
+	proc->component_hit_time = 0;
 
 // These may be wrong for restored proc... but this isn't particularly easy to fix. Think about it!
 	proc->position = notional_member[member_index].position;

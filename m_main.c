@@ -673,6 +673,13 @@ void read_initfile(void)
   && settings.option [OPTION_VOL_EFFECT] == 0)
    settings.sound_on = 0;
 
+
+#ifdef RECORDING_VIDEO
+   settings.option [OPTION_WINDOW_W] = 1280;
+   settings.option [OPTION_WINDOW_H] = 720;
+   fpr("\n In recording mode (display set to 1280x720)");
+#endif
+
 }
 
 
@@ -716,6 +723,7 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
    settings.option [OPTION_WINDOW_W] = 1920;
    invalid_value_fixed = 1;
 		}
+
 
 		if (invalid_value_fixed != 0)
    fprintf(stdout, "\nDisplay width (%i) fixed to %i.", read_number, settings.option [OPTION_WINDOW_W]);

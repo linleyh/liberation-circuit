@@ -996,7 +996,7 @@ void open_menu(int menu_index)
 // if (settings.edit_window == EDIT_WINDOW_CLOSED)
 //  open_templates();
 
- inter.mode_button_available [MODE_BUTTON_SYSTEM] = 0;
+ inter.mode_button_available [MODE_BUTTON_SYSTEM] = 1;
  inter.mode_button_available [MODE_BUTTON_TEMPLATES] = 1;
  inter.mode_button_available [MODE_BUTTON_EDITOR] = 1;
  inter.mode_button_available [MODE_BUTTON_DESIGN] = 1;
@@ -1278,7 +1278,7 @@ void display_menu_2(void)
         break;
 							case EL_SETUP_DATA:
         add_menu_string(sb_x + SELECT_BUTTON_MIDDLE, sb_y + 3, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, setup_menu_string [SMS_DATA_300 + j]);
-        if (w_init.starting_data_setting == j)
+        if (w_init.starting_data_setting [0] == j) // assume that settings for all players are the same
          add_menu_button(sb_x - 2, sb_y - 2,
 				   																		sb_x + SELECT_BUTTON_W + 2, sb_y + SELECT_BUTTON_H + 2,
 							   															colours.base_trans [COL_CYAN] [SHADE_HIGH] [TRANS_MED], 6, 3);
@@ -1833,7 +1833,7 @@ void init_w_init(void) // also called from s_mission.c
 
 	w_init.players = 2;
 	w_init.core_setting = 2;
-	w_init.starting_data_setting = 0;
+//	w_init.starting_data_setting = 0;
 	w_init.game_seed = 0;
 //	w_init.data_wells = 0;
 
@@ -1846,7 +1846,8 @@ void init_w_init(void) // also called from s_mission.c
 	for (i = 0; i < PLAYERS; i ++)
 	{
 		sprintf(w_init.player_name [i], "Player %i", i);
-		w_init.player_starting_data [i] = (w_init.starting_data_setting + 1) * 300; // may be changed by some missions
+		w_init.starting_data_setting [i] = 0;
+//		w_init.player_starting_data [i] = (w_init.starting_data_setting + 1) * 300; // may be changed by some missions
 	}
 
 // this function doesn't initialise everything - it leaves some things (like player spawn positions) that must be initialised when the game is being started.
@@ -1859,7 +1860,7 @@ static void fix_map_code(void)
 	mstate.map_code_string [MAP_CODE_PLAYERS] = 'A' + w_init.players - 2;
 	mstate.map_code_string [MAP_CODE_SIZE] = 'A' + w_init.size_setting;
 	mstate.map_code_string [MAP_CODE_CORES] = 'A' + w_init.core_setting;
-	mstate.map_code_string [MAP_CODE_DATA] = 'A' + w_init.starting_data_setting;
+	mstate.map_code_string [MAP_CODE_DATA] = 'A' + w_init.starting_data_setting [0]; // assume all are the same
 	mstate.map_code_string [MAP_CODE_SEED_0] = '0' + w_init.game_seed / 100;
 	mstate.map_code_string [MAP_CODE_SEED_1] = '0' + (w_init.game_seed / 10) % 10;
 	mstate.map_code_string [MAP_CODE_SEED_2] = '0' + (w_init.game_seed) % 10;
@@ -2043,7 +2044,6 @@ void run_menu_input(void)
 //       open_menu(MENU_MISSIONS);
        init_story();
        enter_story_mode();
-// remember to change settings.status before and after run_game
        break;
       case EL_ACTION_STORY_ADVANCED:
 //      case EL_ACTION_ADVANCED_MISSION:
@@ -2054,18 +2054,18 @@ void run_menu_input(void)
 //       setup_templates_for_mission_menu();
 //       setup_templates_for_advanced_mission_menu();
 //       open_menu(MENU_ADVANCED_MISSIONS);
-// remember to change settings.status before and after run_game
        break;
       case EL_ACTION_TUTORIAL:
        play_interface_sound(SAMPLE_BLIP1, TONE_2E);
        open_menu(MENU_TUTORIAL);
-// remember to change settings.status before and after run_game
        break;
       case EL_ACTION_START_GAME_FROM_SETUP:
        play_interface_sound(SAMPLE_BLIP1, TONE_2C);
        game.type = GAME_TYPE_BASIC; // i.e. not playing a mission
        new_world_from_world_init();
        generate_random_map(w_init.map_size_blocks, w_init.players, w_init.game_seed);
+       game.area_index = AREA_BLUE; // these game values are just used to generate the music. Should probably fix them.
+       game.region_in_area_index = 0;
        start_world();
        run_game_from_menu();
        break;
@@ -2215,7 +2215,11 @@ void run_menu_input(void)
 							 if (select_button >= 0
 								 && select_button <= 3)
 								 {
-								 	w_init.starting_data_setting = select_button;
+								 	int player_index;
+								 	for (player_index = 0; player_index < PLAYERS; player_index ++)
+										{
+								 	 w_init.starting_data_setting [player_index] = select_button;
+										}
           fix_map_code();
           play_interface_sound(SAMPLE_BLIP1, TONE_2A);
 								 }
@@ -2284,6 +2288,8 @@ void run_menu_input(void)
 static void enter_map_code(void)
 {
 
+ int i;
+
  if (strlen(mstate.map_code_string_temp) != MAP_CODE_LENGTH)
 		return;
 
@@ -2303,7 +2309,11 @@ static void enter_map_code(void)
 	w_init.size_setting = code_value;
 
 	code_value = read_map_code_value(mstate.map_code_string_temp [MAP_CODE_DATA], 0);
-	w_init.starting_data_setting = code_value;
+	for (i = 0; i < PLAYERS; i ++)
+	{
+	 w_init.starting_data_setting [i] = code_value;
+	}
+
 
 	w_init.game_seed = 0;
 
@@ -2572,7 +2582,7 @@ void run_intro_screen(void)
   al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, START_BOX_Y - 4, ALLEGRO_ALIGN_CENTRE, ">>   START   <<");
 
   y_line = 100;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Version alpha 2");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Version: open beta");
   y_line -= 25;
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Copyright 2016 Linley Henzell");
   y_line -= 15;

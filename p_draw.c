@@ -103,7 +103,7 @@ void draw_panels(void)
     al_clear_to_color(panel[i].background_colour);
     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], panel[i].x1 + 9, panel[i].y1 + 2, ALLEGRO_ALIGN_LEFT, "System");
 				display_standard_panel(PANEL_SYSMENU);
-				print_sysmenu_help(panel[i].x1 + 16, 200);
+				print_sysmenu_help(panel[i].x1 + 16, 150);
 				break;
 			case PANEL_DESIGN:
 		  al_clear_to_color(panel[i].background_colour);
@@ -343,9 +343,9 @@ static void print_sysmenu_help(float base_x, float base_y)
  print_sysmenu_line("SELECT", "Left-click on a process.", 1);
  print_sysmenu_line("BOX SELECT", "Left-click then hold to drag a selection box.", 1);
  print_sysmenu_line("SELECT+", "Hold shift while selecting to add/remove.", 1);
- print_sysmenu_line("SET GROUP", "control and 1-9 to set a control group", 1);
- print_sysmenu_line("ADD TO GROUP", "shift and 1-9 to add to a control group", 1);
- print_sysmenu_line("SELECT GROUP", "1-9 to select a control group", 1);
+ print_sysmenu_line("SET GROUP", "control and z,x,c,v,b,n or m to set control group", 1);
+ print_sysmenu_line("ADD TO GROUP", "shift and z-m to add to a control group", 1);
+ print_sysmenu_line("SELECT GROUP", "z-m to select a control group", 1);
 
  smh_text_y += SMH_LINE_HEADER;
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], SMH_HEADER_X, smh_text_y, ALLEGRO_ALIGN_LEFT, "COMMANDS (while a process is selected)");
@@ -353,7 +353,7 @@ static void print_sysmenu_help(float base_x, float base_y)
  print_sysmenu_line("MOVE", "Right-click on the display or the map.", 1);
  print_sysmenu_line("ATTACK", "Right-click on an enemy process.", 1);
  print_sysmenu_line("ATTACK-MOVE", "Hold control while giving a MOVE command.", 1);
- print_sysmenu_line("HARVEST", "Right-click on a data well.", 1);
+ print_sysmenu_line("HARVEST", "Right-click near a data well.", 1);
 // print_sysmenu_line("", "(The process must have a harvest object.)");
  print_sysmenu_line("RETURN", "Right-click on a process with an allocator", 0);
  print_sysmenu_line("", "to return to that process after harvesting.", 1);
@@ -363,8 +363,8 @@ static void print_sysmenu_help(float base_x, float base_y)
  print_sysmenu_line("BUILD", "Select a process with a build object, then use", 0);
  print_sysmenu_line("", "the buttons on the left side of screen to choose", 0);
  print_sysmenu_line("", "what to build.", 0);
- print_sysmenu_line("", "Hold shift while placing process to queue build.", 0);
- print_sysmenu_line("", "Hold control while placing process to repeat build.", 1);
+ print_sysmenu_line("", " + shift for repeat build.", 0);
+ print_sysmenu_line("", " + control to replace.", 1);
 
  smh_text_y += SMH_LINE_HEADER;
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], SMH_HEADER_X, smh_text_y, ALLEGRO_ALIGN_LEFT, "OTHER");

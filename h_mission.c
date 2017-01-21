@@ -53,6 +53,8 @@ static int mission_add_data_well(int data_well_type, float spin_sign, int x, int
 static int mission_add_data_well_to_ring(int data_well_type, float spin_sign, int md_index, int angle);
 //static void mission_mirror_spawns_and_wells(void);
 static int add_orange_data_well(int centre_well, int data_well_type, int angle, int distance_from_centre, int line_thickness);
+static int mission_add_data_well_to_circle(int data_well_type, int angle, int dist, float spin_sign, int centre_x, int centre_y);
+static void mission_add_red_data_well_ring(int data_well_type, int centre_x, int centre_y, int circle_size, int wells, int starting_angle);
 
 struct extra_spawnstruct
 {
@@ -112,6 +114,9 @@ void add_extra_spawn(int player_index, int template_index, int spawn_x_block, in
 // can cause a fatal error if it fails to load a file from disk (in which case the whole program stops, because this shouldn't happen)
 void prepare_for_mission(void)
 {
+
+	w_init.starting_data_setting [0] = 0;
+	w_init.starting_data_setting [1] = 0; // this is likely to be set again later
 
  init_w_init();
 
@@ -299,6 +304,12 @@ PACKET_COLS
 																				   2, // players in game
 																				   player_base_cols, // index in base_proc_col array
 																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+
+      mission_init.data_well_reserves [2] = 3;
+      mission_init.data_well_reserve_A [2] = 900;
+      mission_init.data_well_reserve_B [2] = 1800;
+      mission_init.data_well_spin [2] = 0.003;
+
 						break;
 
 				 case AREA_YELLOW:
@@ -325,8 +336,8 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_ORANGE,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_YELLOW;
-	     player_packet_cols [1] = PACKET_COL_WHITE_BLUE;
+ 	    player_base_cols [1] = TEAM_COL_ORANGE;
+	     player_packet_cols [1] = PACKET_COL_WHITE_PURPLE;
       set_game_colours(BACK_COLS_ORANGE, // index in back_and_hex_colours array
 																				   BACK_COLS_ORANGE, // index in back_and_hex_colours array
 																				   2, // players in game
@@ -365,13 +376,19 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_PURPLE,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_PURPLE;
-	     player_packet_cols [1] = PACKET_COL_ORANGE_RED;
+ 	    player_base_cols [1] = TEAM_COL_RED;
+	     player_packet_cols [1] = PACKET_COL_ULTRAVIOLET;
       set_game_colours(BACK_COLS_PURPLE, // index in back_and_hex_colours array
 																				   BACK_COLS_PURPLE, // index in back_and_hex_colours array
 																				   2, // players in game
 																				   player_base_cols, // index in base_proc_col array
 																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+
+
+      mission_init.data_well_reserves [2] = 3;
+      mission_init.data_well_reserve_A [2] = 900;
+      mission_init.data_well_reserve_B [2] = 1800;
+      mission_init.data_well_spin [2] = 0.003;
 						break;
 
 /*
@@ -395,7 +412,7 @@ PACKET_COLS
 																		   AREA_RED,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
  	    player_base_cols [1] = TEAM_COL_WHITE;
-	     player_packet_cols [1] = PACKET_COL_ULTRAVIOLET;
+	     player_packet_cols [1] = PACKET_COL_ORANGE_RED;
       set_game_colours(BACK_COLS_RED, // index in back_and_hex_colours array
 																				   BACK_COLS_RED, // index in back_and_hex_colours array
 																				   2, // players in game
@@ -404,6 +421,9 @@ PACKET_COLS
       mission_init.data_well_spin [0] = 0.025;
       mission_init.data_well_spin [1] = 0.025;
       mission_init.data_well_spin [2] = 0.025;
+
+      mission_init.data_well_reserve_A [0] = 1600;
+      mission_init.data_well_reserve_B [0] = 1600;
 
 						break;
 
@@ -455,13 +475,12 @@ PACKET_COLS
 																									-0.001); // spin rate
 
 
-
 //				generate_map_from_map_init(); - no, this is called later
    }
 // break;
 */
 
-
+#define DEFAULT_DISTANCE_FROM_WELL 512
 
  switch(game.mission_index)
  {
@@ -470,6 +489,7 @@ PACKET_COLS
 // fall-through
 	 case MISSION_TUTORIAL1:
 
+	 	game.region_in_area_index = 0;
 	 	player_base_x = 15;
 	 	player_base_y = w_init.map_size_blocks / 2;
 	 	mission_add_data_well(0, 1, player_base_x - 4, player_base_y);
@@ -480,7 +500,7 @@ PACKET_COLS
 
 
 
-   set_player_spawn_position_by_latest_well(0, 0);
+   set_player_spawn_position_by_latest_well(0, 0, DEFAULT_DISTANCE_FROM_WELL);
 //   set_player_w_init_spawn_angle(0, w_init.data_wells - 1); // - 1 because mission_add_data_well incremenets w_init.data_wells
 	 	mission_add_data_well(1, -1, player_base_x + 13, player_base_y - 15);
 //   add_mdetail_worm_source(player_base_x +13, player_base_y - 15, 20);
@@ -527,10 +547,12 @@ default:
 
 	 case MISSION_TUTORIAL2:
 
+	 	game.region_in_area_index = 1;
+
 	 	player_base_x = 15;
 	 	player_base_y = w_init.map_size_blocks / 2;
 	 	mission_add_data_well(0, 1, player_base_x - 4, player_base_y);
-   set_player_spawn_position_by_latest_well(0, 0);
+   set_player_spawn_position_by_latest_well(0, 0, DEFAULT_DISTANCE_FROM_WELL);
 	 	mission_add_data_well(1, -1, player_base_x + 10, player_base_y - 20);
 	 	mission_add_data_well(1, -1, player_base_x + 10, player_base_y + 20);
 
@@ -613,6 +635,7 @@ default:
 	 case MISSION_BLUE_1:
 	 	{
 
+	 	game.region_in_area_index = 0;
 
    load_mission_source("story/blue/blue1/rbase.c", 1, 0);
    load_mission_source("story/blue/blue1/wander1.c", 1, 1);
@@ -625,12 +648,12 @@ default:
    int md_index = add_mdetail_ring(w_init.map_size_blocks / 2, w_init.map_size_blocks / 2, 30, 0);
 
    mission_add_data_well_to_ring(0, 1, md_index,	base_data_well_angle);
-   set_player_spawn_position_by_latest_well(0, base_data_well_angle + ANGLE_2);
+   set_player_spawn_position_by_latest_well(0, base_data_well_angle + ANGLE_2, DEFAULT_DISTANCE_FROM_WELL);
 
    mission_add_data_well_to_ring(1, 1, md_index,	base_data_well_angle + ANGLE_6);
    mission_add_data_well_to_ring(2, -1, md_index,	base_data_well_angle + ANGLE_6 * 2);
    mission_add_data_well_to_ring(0, -1, md_index,	base_data_well_angle + ANGLE_6 * 3);
-   set_player_spawn_position_by_latest_well(1, base_data_well_angle);
+   set_player_spawn_position_by_latest_well(1, base_data_well_angle, DEFAULT_DISTANCE_FROM_WELL);
    mission_add_data_well_to_ring(1, -1, md_index,	base_data_well_angle + ANGLE_6 * 4);
    mission_add_data_well_to_ring(2, 1, md_index,	base_data_well_angle + ANGLE_6 * 5);
 
@@ -655,13 +678,15 @@ default:
 	 case MISSION_BLUE_2:
 	 	{
 
+	 	game.region_in_area_index = 1;
+
    load_mission_source("story/blue/blue2/b2_rbase.c", 1, 0);
    load_mission_source("story/blue/blue2/b2_wander1.c", 1, 1);
    load_mission_source("story/blue/blue2/b2_wander2.c", 1, 2);
    load_mission_source("story/blue/blue2/b2_harvest.c", 1, 3);
    clear_remaining_templates(1, 4);
 
-   w_init.player_starting_data [1] = 500;
+   w_init.starting_data_setting [1] = 1;
 
 
    int base_data_well_angle = ANGLE_8 * 3;
@@ -672,10 +697,10 @@ default:
 																																					15, 0);
 
    mission_add_data_well_to_ring(0, 1, md_index_A,	base_data_well_angle);
-   set_player_spawn_position_by_latest_well(0, base_data_well_angle + ANGLE_2);
+   set_player_spawn_position_by_latest_well(0, base_data_well_angle + ANGLE_2, DEFAULT_DISTANCE_FROM_WELL);
 
    mission_add_data_well_to_ring(0, -1, md_index_centre,	base_data_well_angle + ANGLE_2);
-   set_player_spawn_position_by_latest_well(1, base_data_well_angle);
+   set_player_spawn_position_by_latest_well(1, base_data_well_angle, DEFAULT_DISTANCE_FROM_WELL);
 
    mission_add_data_well_to_ring(1, 1, md_index_centre,	ANGLE_4 + ANGLE_8);
    mission_add_data_well_to_ring(1, -1, md_index_centre,	- ANGLE_8);
@@ -696,13 +721,15 @@ default:
 	 case MISSION_BLUE_CAPITAL:
 	 	{
 
+	 	game.region_in_area_index = 2;
+
    load_mission_source("story/blue/blue3/b3_rbase.c", 1, 0);
    load_mission_source("story/blue/blue3/b3_wander1.c", 1, 1);
    load_mission_source("story/blue/blue3/b3_wander2.c", 1, 2);
    load_mission_source("story/blue/blue3/b3_harvest.c", 1, 3);
    clear_remaining_templates(1, 4);
 
-   w_init.player_starting_data [1] = 500;
+   w_init.starting_data_setting [1] = 1;
 
    int base_data_well_angle = ANGLE_8 * 3;
 
@@ -713,7 +740,7 @@ default:
 
 // outer ring:
    mission_add_data_well_to_ring(0, 1, md_index_large,	base_data_well_angle);
-   set_player_spawn_position_by_latest_well(0, base_data_well_angle + ANGLE_2);
+   set_player_spawn_position_by_latest_well(0, base_data_well_angle + ANGLE_2, DEFAULT_DISTANCE_FROM_WELL);
 
    mission_add_data_well_to_ring(1, 1, md_index_large,	base_data_well_angle + ANGLE_8);
    mission_add_data_well_to_ring(1, 1, md_index_large,	base_data_well_angle - ANGLE_8);
@@ -725,7 +752,7 @@ default:
    mission_add_data_well_to_ring(2, -1, md_index_large,	base_data_well_angle + ANGLE_2 - ANGLE_16);
 
    mission_add_data_well_to_ring(0, -1, md_index_small,	base_data_well_angle + ANGLE_2);
-   set_player_spawn_position_by_latest_well(1, base_data_well_angle);
+   set_player_spawn_position_by_latest_well(1, base_data_well_angle, DEFAULT_DISTANCE_FROM_WELL);
 
    mission_add_data_well_to_ring(1, 1, md_index_small, base_data_well_angle + ANGLE_6);
    mission_add_data_well_to_ring(1, -1, md_index_small,	base_data_well_angle - ANGLE_6);
@@ -743,47 +770,489 @@ default:
 	 case MISSION_GREEN_1:
 	 	{
 
+	 	game.region_in_area_index = 0;
 
-   load_mission_source("story/green/green1/g1_base.c", 1, 0);
-   load_mission_source("story/green/green1/g1_firebase.c", 1, 1);
-   load_mission_source("story/green/green1/g1_builder.c", 1, 2);
-   clear_remaining_templates(1, 3);
+   int template_index = 0;
 
-	 	player_base_x = w_init.map_size_blocks - 11;
-	 	player_base_y = w_init.map_size_blocks - 20;
-//	 	mission_add_data_well(player_base_x, player_base_y,	2000, 1000, 4, 0.002);
+   load_mission_source("story/green/green1/g1_base.c", 1, template_index++);
+   load_mission_source("story/green/green1/g1_firebase.c", 1, template_index++);
+   load_mission_source("story/green/green1/g1_builder.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
 
    int centre_block = w_init.map_size_blocks / 2;
+   int dwi = 0;
 
-   data_well_index [0] = mission_add_data_well(0, 1, player_base_x, player_base_y);
-   set_player_spawn_position_by_latest_well(0, 5000);
-
-   data_well_index [1] = mission_add_data_well(1,
-																																															1,
-																																															player_base_x - 30,
-																																															player_base_y - 4);
-
-			add_line_between_data_wells(data_well_index [0], data_well_index [1], 40);
-
-   data_well_index [2] = mission_add_data_well(1, 1, 30, 20);
-			add_line_between_data_wells(data_well_index [1], data_well_index [2], 100);
-			add_line_between_data_wells(data_well_index [0], data_well_index [2], 70);
-
-   set_player_spawn_position_by_latest_well(1, ANGLE_8);
+#define GREEN_1_DIST_SHORT 12
+#define GREEN_1_DIST_MED 14
+#define GREEN_1_DIST_LONG 28
+#define GREEN_1_DIST_LONGEST 36
 
 
-   w_init.player_starting_data [1] = 600;
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_SHORT,
+																																															centre_block - GREEN_1_DIST_SHORT);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_LONG,
+																																															centre_block - GREEN_1_DIST_MED);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_MED,
+																																															centre_block - GREEN_1_DIST_LONG);
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_LONGEST,
+																																															centre_block - GREEN_1_DIST_LONGEST);
+   set_player_spawn_position_by_latest_well(1, 1000, DEFAULT_DISTANCE_FROM_WELL);
+
+			add_line_between_data_wells(0, 1, 90);
+			add_line_between_data_wells(1, 3, 90);
+			add_line_between_data_wells(3, 2, 90);
+			add_line_between_data_wells(2, 0, 90);
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_SHORT,
+																																															centre_block + GREEN_1_DIST_SHORT);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_LONG,
+																																															centre_block + GREEN_1_DIST_MED);
+   set_player_spawn_position_by_latest_well(0, 5000, DEFAULT_DISTANCE_FROM_WELL);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_MED,
+																																															centre_block + GREEN_1_DIST_LONG);
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_LONGEST,
+																																															centre_block + GREEN_1_DIST_LONGEST);
+
+			add_line_between_data_wells(4, 5, 90);
+			add_line_between_data_wells(5, 7, 90);
+			add_line_between_data_wells(7, 6, 90);
+			add_line_between_data_wells(6, 4, 90);
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_SHORT,
+																																															centre_block - GREEN_1_DIST_SHORT);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_LONG,
+																																															centre_block - GREEN_1_DIST_MED);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_MED,
+																																															centre_block - GREEN_1_DIST_LONG);
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block + GREEN_1_DIST_LONGEST,
+																																															centre_block - GREEN_1_DIST_LONGEST);
+
+			add_line_between_data_wells(8, 9, 90);
+			add_line_between_data_wells(9, 11, 90);
+			add_line_between_data_wells(11, 10, 90);
+			add_line_between_data_wells(10, 8, 90);
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_SHORT,
+																																															centre_block + GREEN_1_DIST_SHORT);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_LONG,
+																																															centre_block + GREEN_1_DIST_MED);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_MED,
+																																															centre_block + GREEN_1_DIST_LONG);
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block - GREEN_1_DIST_LONGEST,
+																																															centre_block + GREEN_1_DIST_LONGEST);
+
+			add_line_between_data_wells(12, 13, 90);
+			add_line_between_data_wells(13, 15, 90);
+			add_line_between_data_wells(15, 14, 90);
+			add_line_between_data_wells(14, 12, 90);
+
+   w_init.starting_data_setting [1] = 3;
 
 	 	}
 	  break;
 
 
 
+	 case MISSION_GREEN_2:
+	 	{
+
+	 	game.region_in_area_index = 1;
+
+ 		int template_index = 0;
+
+   load_mission_source("story/green/green4/g4_base.c", 1, template_index++);
+   load_mission_source("story/green/green4/g4_firebase.c", 1, template_index++);
+   load_mission_source("story/green/green4/g4_builder.c", 1, template_index++);
+   load_mission_source("story/green/green4/g4_spikebase.c", 1, template_index++);
+   load_mission_source("story/green/green4/g4_outpost.c", 1, template_index++);
+   load_mission_source("story/green/green4/g4_builder2.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
+
+   int centre_block_x, centre_block_y;
+   int dwi = 0;
+
+#define GREEN_2_CENTRE_DISTANCE 28
+#define GREEN_2A_CENTRE_DISTANCE 16
+
+#define GREEN_2_DIST_1 0
+#define GREEN_2_DIST_2 10
+#define GREEN_2_DIST_3 -3
+#define GREEN_2_DIST_4 10
+#define GREEN_2_DIST_5 11
+
+   centre_block_x = (w_init.map_size_blocks / 2) - GREEN_2_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) - GREEN_2_CENTRE_DISTANCE;
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_2,
+																																															centre_block_y + GREEN_2_DIST_1);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_1,
+																																															centre_block_y + GREEN_2_DIST_2);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_4,
+																																															centre_block_y - GREEN_2_DIST_3);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_5,
+																																															centre_block_y - GREEN_2_DIST_5);
+   set_player_spawn_position_by_latest_well(1, 1000, DEFAULT_DISTANCE_FROM_WELL);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_3,
+																																															centre_block_y - GREEN_2_DIST_4);
+
+
+			add_line_between_data_wells(0, 1, 70);
+			add_line_between_data_wells(1, 2, 70);
+			add_line_between_data_wells(2, 3, 70);
+			add_line_between_data_wells(3, 4, 70);
+			add_line_between_data_wells(4, 0, 70);
+
+   centre_block_x = (w_init.map_size_blocks / 2) + GREEN_2A_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) - GREEN_2A_CENTRE_DISTANCE;
+
+
+
+#define GREEN_2A_DIST_1 8
+#define GREEN_2A_DIST_2 5
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2A_DIST_1,
+																																															centre_block_y - GREEN_2A_DIST_1);
+
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2A_DIST_2,
+																																															centre_block_y + GREEN_2A_DIST_2);
+
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x - GREEN_2A_DIST_1,
+																																															centre_block_y + GREEN_2A_DIST_1);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2A_DIST_2,
+																																															centre_block_y - GREEN_2A_DIST_2);
+
+
+			add_line_between_data_wells(5 + 0, 5 + 1, 70);
+			add_line_between_data_wells(5 + 1, 5 + 2, 70);
+			add_line_between_data_wells(5 + 2, 5 + 3, 70);
+			add_line_between_data_wells(5 + 3, 5 + 0, 70);
+
+   centre_block_x = (w_init.map_size_blocks / 2) + GREEN_2_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) + GREEN_2_CENTRE_DISTANCE;
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_2,
+																																															centre_block_y - GREEN_2_DIST_1);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_1,
+																																															centre_block_y - GREEN_2_DIST_2);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_4,
+																																															centre_block_y + GREEN_2_DIST_3);
+   set_player_spawn_position_by_latest_well(0, 5000, DEFAULT_DISTANCE_FROM_WELL);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_5,
+																																															centre_block_y + GREEN_2_DIST_5);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_3,
+																																															centre_block_y + GREEN_2_DIST_4);
+
+
+
+
+			add_line_between_data_wells(9 + 0, 9 + 1, 70);
+			add_line_between_data_wells(9 + 1, 9 + 2, 70);
+			add_line_between_data_wells(9 + 2, 9 + 3, 70);
+			add_line_between_data_wells(9 + 3, 9 + 4, 70);
+			add_line_between_data_wells(9 + 4, 9 + 0, 70);
+
+   centre_block_x = (w_init.map_size_blocks / 2) - GREEN_2A_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) + GREEN_2A_CENTRE_DISTANCE;
+
+
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2A_DIST_1,
+																																															centre_block_y - GREEN_2A_DIST_1);
+
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2A_DIST_2,
+																																															centre_block_y + GREEN_2A_DIST_2);
+
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x - GREEN_2A_DIST_1,
+																																															centre_block_y + GREEN_2A_DIST_1);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2A_DIST_2,
+																																															centre_block_y - GREEN_2A_DIST_2);
+
+
+
+			add_line_between_data_wells(14 + 0, 14 + 1, 70);
+			add_line_between_data_wells(14 + 1, 14 + 2, 70);
+			add_line_between_data_wells(14 + 2, 14 + 3, 70);
+			add_line_between_data_wells(14 + 3, 14 + 0, 70);
+
+   w_init.starting_data_setting [1] = 6;
+
+	 	}
+	  break;
+
+
+	 case MISSION_GREEN_CAPITAL:
+	 	{
+
+	 	game.region_in_area_index = 2;
+
+ 		int template_index = 0;
+
+   load_mission_source("story/green/green5/g5_base.c", 1, template_index++);
+   load_mission_source("story/green/green5/g5_firebase.c", 1, template_index++);
+   load_mission_source("story/green/green5/g5_builder.c", 1, template_index++);
+   load_mission_source("story/green/green5/g5_spikebase.c", 1, template_index++);
+   load_mission_source("story/green/green5/g5_outpost.c", 1, template_index++);
+   load_mission_source("story/green/green5/g5_builder2.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
+/*
+   template_index = 0;
+
+   load_mission_source("story/yellow/yellow3/y3_base.c", 0, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_m_builder.c", 0, template_index++);
+//   load_mission_source("story/yellow/yellow3/y3_harvest.c", 1, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_leader1.c", 0, template_index++);
+//   load_mission_source("story/yellow/yellow3/y3_leader2.c", 1, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_follower.c", 0, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_minbase.c", 0, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_scout.c", 0, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_follower2.c", 0, template_index++);
+   clear_remaining_templates(0, template_index);
+   w_init.player_starting_data [0] = 2000;
+*/
+
+   int centre_block_x, centre_block_y;
+   int dwi = 0;
+
+
+   centre_block_x = (w_init.map_size_blocks / 2) - GREEN_2_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) - GREEN_2_CENTRE_DISTANCE;
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_2,
+																																															centre_block_y + GREEN_2_DIST_1);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_1,
+																																															centre_block_y + GREEN_2_DIST_2);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_4,
+																																															centre_block_y - GREEN_2_DIST_3);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_5,
+																																															centre_block_y - GREEN_2_DIST_5);
+   set_player_spawn_position_by_latest_well(1, 1000, DEFAULT_DISTANCE_FROM_WELL);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_3,
+																																															centre_block_y - GREEN_2_DIST_4);
+
+#define GREEN_3A_CENTRE_DISTANCE 10
+
+			add_line_between_data_wells(0, 1, 70);
+			add_line_between_data_wells(1, 2, 70);
+			add_line_between_data_wells(2, 3, 70);
+			add_line_between_data_wells(3, 4, 70);
+			add_line_between_data_wells(4, 0, 70);
+
+   centre_block_x = (w_init.map_size_blocks / 2) + GREEN_3A_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) - GREEN_3A_CENTRE_DISTANCE;
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_2,
+																																															centre_block_y + GREEN_2_DIST_1);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_1,
+																																															centre_block_y + GREEN_2_DIST_2);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_4,
+																																															centre_block_y - GREEN_2_DIST_3);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_5,
+																																															centre_block_y - GREEN_2_DIST_5);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_3,
+																																															centre_block_y - GREEN_2_DIST_4);
+
+
+
+			add_line_between_data_wells(5 + 0, 5 + 1, 70);
+			add_line_between_data_wells(5 + 1, 5 + 2, 70);
+			add_line_between_data_wells(5 + 2, 5 + 3, 70);
+			add_line_between_data_wells(5 + 3, 5 + 4, 70);
+			add_line_between_data_wells(5 + 4, 5 + 0, 70);
+
+   centre_block_x = (w_init.map_size_blocks / 2) + GREEN_2_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) + GREEN_2_CENTRE_DISTANCE;
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_2,
+																																															centre_block_y - GREEN_2_DIST_1);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_1,
+																																															centre_block_y - GREEN_2_DIST_2);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_4,
+																																															centre_block_y + GREEN_2_DIST_3);
+   set_player_spawn_position_by_latest_well(0, 5000, DEFAULT_DISTANCE_FROM_WELL);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_5,
+																																															centre_block_y + GREEN_2_DIST_5);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_3,
+																																															centre_block_y + GREEN_2_DIST_4);
+
+
+
+
+			add_line_between_data_wells(10 + 0, 10 + 1, 70);
+			add_line_between_data_wells(10 + 1, 10 + 2, 70);
+			add_line_between_data_wells(10 + 2, 10 + 3, 70);
+			add_line_between_data_wells(10 + 3, 10 + 4, 70);
+			add_line_between_data_wells(10 + 4, 10 + 0, 70);
+
+   centre_block_x = (w_init.map_size_blocks / 2) - GREEN_3A_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) + GREEN_3A_CENTRE_DISTANCE;
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_2,
+																																															centre_block_y - GREEN_2_DIST_1);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															-1,
+																																															centre_block_x + GREEN_2_DIST_1,
+																																															centre_block_y - GREEN_2_DIST_2);
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_4,
+																																															centre_block_y + GREEN_2_DIST_3);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_5,
+																																															centre_block_y + GREEN_2_DIST_5);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															centre_block_x - GREEN_2_DIST_3,
+																																															centre_block_y + GREEN_2_DIST_4);
+
+
+
+			add_line_between_data_wells(15 + 0, 15 + 1, 70);
+			add_line_between_data_wells(15 + 1, 15 + 2, 70);
+			add_line_between_data_wells(15 + 2, 15 + 3, 70);
+			add_line_between_data_wells(15 + 3, 15 + 4, 70);
+			add_line_between_data_wells(15 + 4, 15 + 0, 70);
+
+   w_init.starting_data_setting [1] = 6;
+
+	 	}
+	  break;
+
+
+
+
 	 case MISSION_YELLOW_1:
 	 	{
 
-   int template_index = 0;
+	 	game.region_in_area_index = 0;
 
+   int template_index = 0;
 
    load_mission_source("story/yellow/yellow1/y1_base.c", 1, template_index++);
    load_mission_source("story/yellow/yellow1/y1_m_builder.c", 1, template_index++);
@@ -803,7 +1272,7 @@ default:
    int dwi = 0;
 
    data_well_index [dwi++] = mission_add_data_well(0, 1, player_base_x, player_base_y);
-   set_player_spawn_position_by_latest_well(0, ANGLE_8);
+   set_player_spawn_position_by_latest_well(0, ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
    data_well_index [dwi++] = mission_add_data_well(1,
 																																															1,
@@ -844,13 +1313,13 @@ default:
 
 
    data_well_index [dwi++] = mission_add_data_well(0, -1, w_init.map_size_blocks - 25, w_init.map_size_blocks - 25);
-   set_player_spawn_position_by_latest_well(1, -ANGLE_8);
+   set_player_spawn_position_by_latest_well(1, -ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
    data_well_index [dwi++] = mission_add_data_well(0, -1, w_init.map_size_blocks - 30, w_init.map_size_blocks - 45);
    data_well_index [dwi++] = mission_add_data_well(0, -1, w_init.map_size_blocks - 45, w_init.map_size_blocks - 30);
 
 
-   w_init.player_starting_data [1] = 600;
+   w_init.starting_data_setting [1] = 1;
 
 	 	}
 	  break;
@@ -859,6 +1328,8 @@ default:
 
 	 case MISSION_YELLOW_2:
 	 	{
+
+	 	game.region_in_area_index = 1;
 
    int template_index = 0;
 
@@ -880,7 +1351,7 @@ default:
    int dwi = 0;
 
    data_well_index [dwi++] = mission_add_data_well(0, 1, player_base_x, player_base_y);
-   set_player_spawn_position_by_latest_well(0, ANGLE_8);
+   set_player_spawn_position_by_latest_well(0, ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
 
    data_well_index [dwi++] = mission_add_data_well(1,
@@ -919,7 +1390,7 @@ default:
 
 
    data_well_index [dwi++] = mission_add_data_well(0, -1, w_init.map_size_blocks - 20, w_init.map_size_blocks - 20);
-   set_player_spawn_position_by_latest_well(1, -ANGLE_8);
+   set_player_spawn_position_by_latest_well(1, -ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
    data_well_index [dwi++] = mission_add_data_well(0, -1, w_init.map_size_blocks - 35, w_init.map_size_blocks - 59);
 	 	add_extra_spawn(1, 6,
@@ -936,7 +1407,7 @@ default:
    data_well_index [dwi++] = mission_add_data_well(1, -1, w_init.map_size_blocks - 43, w_init.map_size_blocks - 16);
 
 
-   w_init.player_starting_data [1] = 600;
+   w_init.starting_data_setting [1] = 3;
 
 	 	}
 	  break;
@@ -944,6 +1415,8 @@ default:
 
 	 case MISSION_YELLOW_CAPITAL:
 	 	{
+
+	 	game.region_in_area_index = 2;
 
    int template_index = 0;
 
@@ -958,32 +1431,96 @@ default:
    load_mission_source("story/yellow/yellow3/y3_follower2.c", 1, template_index++);
    clear_remaining_templates(1, template_index);
 
-   int centre_block = w_init.map_size_blocks / 2;
 
-	 	player_base_x = 25;
-	 	player_base_y = 25;
+   w_init.starting_data_setting [1] = 4;
+
+//   int centre_block = w_init.map_size_blocks / 2;
+
+	 	player_base_x = 35;
+	 	player_base_y = 35;
 //	 	mission_add_data_well(player_base_x, player_base_y,	2000, 1000, 4, 0.002);
+   int dwi = 0;
+
+   data_well_index [dwi++] = mission_add_data_well(0, 1, player_base_x, player_base_y);
+   set_player_spawn_position_by_latest_well(0, ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
 
-   data_well_index [0] = mission_add_data_well(0, 1, player_base_x, player_base_y);
-   set_player_spawn_position_by_latest_well(0, ANGLE_8);
-
-   data_well_index [1] = mission_add_data_well(1,
+   data_well_index [dwi++] = mission_add_data_well(1,
 																																															1,
-																																															player_base_x + 20,
-																																															player_base_y);
-   data_well_index [2] = mission_add_data_well(1,
+																																															player_base_x - 21,
+																																															player_base_y + 3);
+   data_well_index [dwi++] = mission_add_data_well(1,
 																																															1,
-																																															player_base_x,
-																																															player_base_y + 20);
+																																															player_base_x + 3,
+																																															player_base_y - 21);
+
+   int main_block = 70;
+
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															main_block,
+																																															main_block);
 
 
-   data_well_index [3] = mission_add_data_well(0, 1, w_init.map_size_blocks - 25, w_init.map_size_blocks - 25);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															1,
+																																															main_block - 17,
+																																															main_block - 17);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															1,
+																																															main_block + 17,
+																																															main_block - 17);
+/*
+	 	add_extra_spawn(1, 4,
+																			main_block + 14,
+																			main_block - 14,
+																			3072);
+	 	add_extra_spawn(1, 4,
+																			main_block - 14,
+																			main_block + 14,
+																			-1024);
+*/
 
-   set_player_spawn_position_by_latest_well(1, -ANGLE_8);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															1,
+																																															main_block - 17,
+																																															main_block + 17);
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															1,
+																																															main_block + 17,
+																																															main_block + 17);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2+ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
 
-   w_init.player_starting_data [1] = 600;
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															main_block + 38,
+																																															main_block);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															main_block - 38,
+																																															main_block);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															main_block,
+																																															main_block + 38);
+   data_well_index [dwi++] = mission_add_data_well(1,
+																																															-1,
+																																															main_block,
+																																															main_block - 38);
+
+
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															1,
+																																															main_block - 40,
+																																															main_block + 33);
+   data_well_index [dwi++] = mission_add_data_well(2,
+																																															1,
+																																															main_block + 33,
+																																															main_block - 40);
+
+
+
 
 	 	}
 	  break;
@@ -991,6 +1528,8 @@ default:
 
 	 case MISSION_PURPLE_1:
 	 	{
+
+	 	game.region_in_area_index = 0;
 
    int template_index = 0;
 
@@ -1002,18 +1541,47 @@ default:
    load_mission_source("story/purple/purple1/p1_leader2.c", 1, template_index++);
    load_mission_source("story/purple/purple1/p1_escort.c", 1, template_index++);
    load_mission_source("story/purple/purple1/p1_picket.c", 1, template_index++);
+   load_mission_source("story/purple/purple1/p1_defence.c", 1, template_index++);
    clear_remaining_templates(1, template_index);
 
    int centre_block = w_init.map_size_blocks / 2;
 
-	 	player_base_x = 25;
-	 	player_base_y = 25;
+   w_init.starting_data_setting [1] = 10;
+
+//	 	player_base_x = 25;
+//	 	player_base_y = centre_block;
 //	 	mission_add_data_well(player_base_x, player_base_y,	2000, 1000, 4, 0.002);
+   int dwi = 0;
 
+#define MP1_SHORT 12
+#define MP1_LONG 25
 
-   data_well_index [0] = mission_add_data_well(0, 1, player_base_x, player_base_y);
-   add_mdetail_worm_source(player_base_x, player_base_y, 15);
-   set_player_spawn_position_by_latest_well(0, ANGLE_8);
+   data_well_index [dwi++] = mission_add_data_well(0, 1, 15, centre_block);
+   set_player_spawn_position_by_latest_well(0, 0, DEFAULT_DISTANCE_FROM_WELL);
+
+   data_well_index [dwi++] = mission_add_data_well(1, 1, 15 + MP1_SHORT, centre_block - MP1_LONG);
+   data_well_index [dwi++] = mission_add_data_well(1, 1, 15 + MP1_LONG, centre_block + MP1_SHORT);
+
+   data_well_index [dwi++] = mission_add_data_well(0, 1, centre_block, 15);
+   data_well_index [dwi++] = mission_add_data_well(1, 1, centre_block - MP1_SHORT, 15 + MP1_LONG);
+   data_well_index [dwi++] = mission_add_data_well(1, 1, centre_block + MP1_LONG, 15 + MP1_SHORT);
+
+   data_well_index [dwi++] = mission_add_data_well(0, 1, centre_block, w_init.map_size_blocks - 15);
+   data_well_index [dwi++] = mission_add_data_well(1, 1, centre_block - MP1_LONG, w_init.map_size_blocks - 15 - MP1_SHORT);
+   data_well_index [dwi++] = mission_add_data_well(1, 1, centre_block + MP1_SHORT, w_init.map_size_blocks - 15 - MP1_LONG);
+
+   data_well_index [dwi++] = mission_add_data_well(0, 1, w_init.map_size_blocks - 15, centre_block);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2, 700);
+
+   data_well_index [dwi++] = mission_add_data_well(1, 1, w_init.map_size_blocks - 15 - MP1_LONG, centre_block - MP1_SHORT);
+   data_well_index [dwi++] = mission_add_data_well(1, 1, w_init.map_size_blocks - 15 - MP1_SHORT, centre_block + MP1_LONG);
+
+   add_mdetail_worm_source_to_all_wells();
+
+//   add_mdetail_worm_source(player_base_x, player_base_y, 15);
+
+/*
+
 
    data_well_index [1] = mission_add_data_well(1,
 																																															1,
@@ -1025,14 +1593,140 @@ default:
 																																															player_base_x,
 																																															player_base_y + 20);
    add_mdetail_worm_source(player_base_x, player_base_y + 20, 15);
+*/
+
+//   data_well_index [dwi++] = mission_add_data_well(0, 1, w_init.map_size_blocks - 25, w_init.map_size_blocks - 25);
 
 
-   data_well_index [3] = mission_add_data_well(0, 1, w_init.map_size_blocks - 25, w_init.map_size_blocks - 25);
 
-   set_player_spawn_position_by_latest_well(1, -ANGLE_8);
+	 	}
+	  break;
 
 
-   w_init.player_starting_data [1] = 1200;
+	 case MISSION_PURPLE_2:
+	 	{
+
+	 	game.region_in_area_index = 1;
+
+   int template_index = 0;
+
+   load_mission_source("story/purple/purple2/p2_base.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_m_builder.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_harvest.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_minbase.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_leader1.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_leader2.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_escort.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_picket.c", 1, template_index++);
+   load_mission_source("story/purple/purple2/p2_defence.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
+
+   w_init.starting_data_setting [1] = 10;
+
+
+   int centre_block = w_init.map_size_blocks / 2;
+
+//	 	player_base_x = 25;
+//	 	player_base_y = centre_block;
+//	 	mission_add_data_well(player_base_x, player_base_y,	2000, 1000, 4, 0.002);
+   int dwi = 0;
+
+#define P2_CIRCLE_RADIUS 46
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, ANGLE_2, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+   set_player_spawn_position_by_latest_well(0, 0, DEFAULT_DISTANCE_FROM_WELL);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, 0, P2_CIRCLE_RADIUS, -1, centre_block, centre_block);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2, 700);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_8, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, -ANGLE_8, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_4, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, -ANGLE_4, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 + ANGLE_8, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 - ANGLE_8, P2_CIRCLE_RADIUS, 1, centre_block, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, ANGLE_4 - 600, P2_CIRCLE_RADIUS - 14, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, ANGLE_4 + 600, P2_CIRCLE_RADIUS - 14, 1, centre_block, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, -ANGLE_4 - 600, P2_CIRCLE_RADIUS - 14, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, -ANGLE_4 + 600, P2_CIRCLE_RADIUS - 14, 1, centre_block, centre_block);
+
+//   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_4, P2_CIRCLE_RADIUS - 19, 1, centre_block, centre_block);
+//   data_well_index [dwi++] = mission_add_data_well_to_circle(1, -ANGLE_4, P2_CIRCLE_RADIUS - 19, 1, centre_block, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, ANGLE_2 - 450, P2_CIRCLE_RADIUS - 9, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, ANGLE_2 + 450, P2_CIRCLE_RADIUS - 9, 1, centre_block, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, -450, P2_CIRCLE_RADIUS - 9, 1, centre_block, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(2, 450, P2_CIRCLE_RADIUS - 9, 1, centre_block, centre_block);
+
+
+
+
+   add_mdetail_worm_source_to_all_wells();
+
+	 	}
+	  break;
+
+
+	 case MISSION_PURPLE_CAPITAL:
+	 	{
+
+	 	game.region_in_area_index = 2;
+
+
+   int template_index = 0;
+
+   load_mission_source("story/purple/purple3/p3_base.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_m_builder.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_harvest.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_minbase.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_leader1.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_leader2.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_escort.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_picket.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_picket2.c", 1, template_index++);
+   load_mission_source("story/purple/purple3/p3_defence.c", 1, template_index++);
+//   clear_remaining_templates(1, template_index);
+
+   w_init.starting_data_setting [1] = 10;
+
+   int centre_block = w_init.map_size_blocks / 2;
+
+//	 	player_base_x = 25;
+//	 	player_base_y = centre_block;
+//	 	mission_add_data_well(player_base_x, player_base_y,	2000, 1000, 4, 0.002);
+   int dwi = 0;
+
+#define P3_CIRCLE_RADIUS 43
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, ANGLE_2, P3_CIRCLE_RADIUS, 1, centre_block + 4, centre_block);
+   set_player_spawn_position_by_latest_well(0, 0, DEFAULT_DISTANCE_FROM_WELL);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, 0, P3_CIRCLE_RADIUS, -1, centre_block + 4, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 - 900, P3_CIRCLE_RADIUS, -1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 + 900, P3_CIRCLE_RADIUS, 1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 - 1900, P3_CIRCLE_RADIUS, -1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 + 1900, P3_CIRCLE_RADIUS, 1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 - 2900, P3_CIRCLE_RADIUS, -1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, ANGLE_2 + 2900, P3_CIRCLE_RADIUS, 1, centre_block + 3, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, 600, P3_CIRCLE_RADIUS - 12, 1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, -600, P3_CIRCLE_RADIUS - 12, -1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, 1800, P3_CIRCLE_RADIUS - 11, -1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, -1800, P3_CIRCLE_RADIUS - 11, 1, centre_block + 3, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, 1500, P3_CIRCLE_RADIUS - 31, -1, centre_block + 3, centre_block);
+   data_well_index [dwi++] = mission_add_data_well_to_circle(1, -1500, P3_CIRCLE_RADIUS - 31, 1, centre_block + 3, centre_block);
+
+   data_well_index [dwi++] = mission_add_data_well_to_circle(0, 0, P3_CIRCLE_RADIUS - 26, -1, centre_block + 3, centre_block);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2, 700);
+
+
+
+   add_mdetail_worm_source_to_all_wells();
 
 	 	}
 	  break;
@@ -1040,6 +1734,8 @@ default:
 
 	 case MISSION_ORANGE_1:
 	 	{
+
+	 	game.region_in_area_index = 0;
 
    int template_index = 0;
 
@@ -1061,14 +1757,14 @@ default:
 #define ORANGE_LINE_THICKNESS_2 40
 
 	 	data_well_index [dwi++] = mission_add_data_well(0, -1, centre_block, centre_block);
-   set_player_spawn_position_by_latest_well(1, ANGLE_2 + 600);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2 + 600, DEFAULT_DISTANCE_FROM_WELL);
 
 // lower right branch
    data_well_index [dwi++] = add_orange_data_well(0, 2, 900, 5000, ORANGE_LINE_THICKNESS_1);
    int sub_centre_well_1 = dwi - 1;
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1, 3, -700, 2800, ORANGE_LINE_THICKNESS_2);
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1, 1, 1500, 2900, ORANGE_LINE_THICKNESS_2);
-   set_player_spawn_position_by_latest_well(0, ANGLE_2 + ANGLE_8);
+   set_player_spawn_position_by_latest_well(0, ANGLE_2 + ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
 
 // upper right
    data_well_index [dwi++] = add_orange_data_well(0, 2, -500, 5000, ORANGE_LINE_THICKNESS_1);
@@ -1103,7 +1799,303 @@ default:
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_6, 3, 1200, 2200, ORANGE_LINE_THICKNESS_2);
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_6, 3, 3400, 2200, ORANGE_LINE_THICKNESS_2);
 
-   w_init.player_starting_data [1] = 1200;
+   w_init.starting_data_setting [1] = 3;
+
+	 	}
+	  break;
+
+
+
+	 case MISSION_ORANGE_2:
+	 	{
+
+	 	game.region_in_area_index = 1;
+
+   int template_index = 0;
+
+   load_mission_source("story/orange/orange2/o2_base.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_defend.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_harvest.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_harvest2.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_harvest3.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_guard1.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_guard2.c", 1, template_index++);
+   load_mission_source("story/orange/orange2/o2_guard3.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
+
+   int centre_block = w_init.map_size_blocks / 2;
+
+   int dwi = 0;
+
+#define ORANGE_LINE_THICKNESS_1 90
+#define ORANGE_LINE_THICKNESS_2 40
+
+	 	data_well_index [dwi++] = mission_add_data_well(0, -1, centre_block, centre_block);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2 + 600, DEFAULT_DISTANCE_FROM_WELL);
+
+// lower right branch
+   data_well_index [dwi++] = add_orange_data_well(0, 1, 1500, 4000, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_1 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1, 1, 400, 2900, ORANGE_LINE_THICKNESS_2);
+   set_player_spawn_position_by_latest_well(0, ANGLE_2 + ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
+
+// right
+   data_well_index [dwi++] = add_orange_data_well(0, 2, -200, 3000, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_1A = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1A, 3, -900, 2500, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1A, 3, 800, 2200, ORANGE_LINE_THICKNESS_2);
+   int sub_centre_well_1B = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1B, 3, 400, 1800, ORANGE_LINE_THICKNESS_2);
+
+// top
+   data_well_index [dwi++] = add_orange_data_well(0, 2, -1250, 4500, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_2 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_2, 3, -700, 3000, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_2, 3, -3000, 3000, ORANGE_LINE_THICKNESS_2);
+   int sub_centre_well_2A = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_2A, 3, -4000, 3000, ORANGE_LINE_THICKNESS_2);
+
+// upper left
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 5800, 3700, ORANGE_LINE_THICKNESS_1);
+
+// upper left
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 5000, 3800, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_3 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_3, 3, 3400, 2800, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_3, 3, -2900, 3200, ORANGE_LINE_THICKNESS_2);
+
+// left
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 3600, 4900, ORANGE_LINE_THICKNESS_1);
+
+// down
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 2900, 3700, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_5 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_5, 3, 1400, 2900, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_5, 3, 2900, 3700, ORANGE_LINE_THICKNESS_2);
+
+   w_init.starting_data_setting [1] = 3;
+
+	 	}
+	  break;
+
+
+	 case MISSION_ORANGE_CAPITAL:
+	 	{
+
+	 	game.region_in_area_index = 2;
+
+   int template_index = 0;
+
+   load_mission_source("story/orange/orange3/o3_base.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_defend.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_harvest.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_harvest2.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_harvest3.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_guard1.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_guard2.c", 1, template_index++);
+   load_mission_source("story/orange/orange3/o3_guard3.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
+
+   int centre_block = w_init.map_size_blocks / 2;
+
+   int dwi = 0;
+
+#define ORANGE_LINE_THICKNESS_1 90
+#define ORANGE_LINE_THICKNESS_2 40
+
+	 	data_well_index [dwi++] = mission_add_data_well(0, -1, centre_block, centre_block);
+   set_player_spawn_position_by_latest_well(1, ANGLE_2 + 600, DEFAULT_DISTANCE_FROM_WELL);
+
+// lower right branch
+   data_well_index [dwi++] = add_orange_data_well(0, 1, 900, 6900, ORANGE_LINE_THICKNESS_1);
+   set_player_spawn_position_by_latest_well(0, ANGLE_2 + ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
+
+// right
+   data_well_index [dwi++] = add_orange_data_well(0, 2, -400, 4000, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_1A = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1A, 3, 800, 2900, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1A, 3, -900, 2300, ORANGE_LINE_THICKNESS_2);
+
+// top
+   data_well_index [dwi++] = add_orange_data_well(0, 2, -1500, 3500, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_2 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_2, 3, -850, 3000, ORANGE_LINE_THICKNESS_2);
+
+// upper left
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 5500, 3300, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_2A = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_2A, 2, -1200, 3200, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_2A, 2, 4900, 3300, ORANGE_LINE_THICKNESS_2);
+
+// left
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 4300, 3200, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_3 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_3, 3, 4700, 2400, ORANGE_LINE_THICKNESS_2);
+   int sub_centre_well_3A = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_3A, 3, 2400, 2800, ORANGE_LINE_THICKNESS_2);
+
+// down left
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 3200, 4100, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_4 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_4, 3, 3500, 3000, ORANGE_LINE_THICKNESS_2);
+
+// down
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 1950, 3700, ORANGE_LINE_THICKNESS_1);
+   int sub_centre_well_5 = dwi - 1;
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_5, 3, 900, 3200, ORANGE_LINE_THICKNESS_2);
+   data_well_index [dwi++] = add_orange_data_well(sub_centre_well_5, 3, 3100, 3700, ORANGE_LINE_THICKNESS_2);
+
+   w_init.starting_data_setting [1] = 9;
+
+	 	}
+	  break;
+
+
+	 case MISSION_RED_1:
+	 	{
+
+	 	game.region_in_area_index = 0;
+
+   int template_index = 0;
+
+   load_mission_source("story/red/red1/r1_base.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_m_builder.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_leader1.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_follower.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_minbase.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_scout.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_follower2.c", 1, template_index++);
+
+   int centre_block = w_init.map_size_blocks / 2;
+   int dwi = 0;
+
+//   int player_spawn_x = centre_block - 12;
+//   int enemy_spawn_x = centre_block + 12;
+
+   int ring_centre_x = centre_block - 10;
+   int ring_centre_y = 42;
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															ring_centre_x,
+																																															ring_centre_y);
+
+   set_player_spawn_position_by_latest_well(1, 1024, DEFAULT_DISTANCE_FROM_WELL);
+
+   int base_angle = 450;
+
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 16, 6, base_angle + ANGLE_1 / 12);
+//   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 28, 6, base_angle);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 44, 10, base_angle + ANGLE_1 / 20);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 58, 10, base_angle);
+// dwi isn't useable after thism
+
+
+   set_player_spawn_position_by_specified_well(0, 16, -1024, DEFAULT_DISTANCE_FROM_WELL);
+
+
+   w_init.starting_data_setting [1] = 12;
+
+	 	}
+	  break;
+
+
+	 case MISSION_RED_2:
+	 	{
+
+	 	game.region_in_area_index = 1;
+
+   int template_index = 0;
+
+   load_mission_source("story/red/red2/r2_base.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_m_builder.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_harvest.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_minbase.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_leader1.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_leader2.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_escort.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_picket.c", 1, template_index++);
+   load_mission_source("story/red/red2/r2_defence.c", 1, template_index++);
+
+   clear_remaining_templates(1, template_index);
+   int centre_block = w_init.map_size_blocks / 2;
+   int dwi = 0;
+
+//   int player_spawn_x = centre_block - 12;
+//   int enemy_spawn_x = centre_block + 12;
+
+   int ring_centre_x = centre_block + 10;
+   int ring_centre_y = 50;
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															ring_centre_x,
+																																															ring_centre_y);
+
+   set_player_spawn_position_by_latest_well(1, 1024, DEFAULT_DISTANCE_FROM_WELL);
+
+   int base_angle = 250;
+
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 16, 6, base_angle + ANGLE_1 / 12);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 28, 6, base_angle);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 42, 6, base_angle + ANGLE_1 / 12);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 58, 6, base_angle);
+// dwi isn't useable after this
+
+
+   set_player_spawn_position_by_specified_well(0, 19, -1024, DEFAULT_DISTANCE_FROM_WELL);
+
+
+   w_init.starting_data_setting [1] = 12;
+
+	 	}
+	  break;
+
+
+
+
+	 case MISSION_RED_CAPITAL:
+	 	{
+
+	 	game.region_in_area_index = 2;
+
+   int template_index = 0;
+
+   load_mission_source("story/green/green1/g1_base.c", 1, template_index++);
+   load_mission_source("story/green/green1/g1_firebase.c", 1, template_index++);
+   load_mission_source("story/green/green1/g1_builder.c", 1, template_index++);
+   clear_remaining_templates(1, template_index);
+
+   int centre_block = w_init.map_size_blocks / 2;
+//   int dwi = 0;
+
+//   int player_spawn_x = centre_block - 12;
+//   int enemy_spawn_x = centre_block + 12;
+
+   int ring_centre_x = centre_block;
+   int ring_centre_y = centre_block;
+/*
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															-1,
+																																															ring_centre_x,
+																																															ring_centre_y);*/
+
+   set_player_spawn_position(1, centre_block, centre_block, 0);
+//   set_player_spawn_position_by_latest_well(1, -2048, DEFAULT_DISTANCE_FROM_WELL);
+
+   int base_angle = 450;
+
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 16, 6, base_angle + ANGLE_1 / 12);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 30, 6, base_angle);
+   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 46, 6, base_angle + ANGLE_1 / 12);
+//   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 54, 6, base_angle);
+// dwi isn't useable after thism
+
+
+   set_player_spawn_position_by_specified_well(0, 13, -1024, DEFAULT_DISTANCE_FROM_WELL);
+
+
+   w_init.starting_data_setting [1] = 2;
 
 	 	}
 	  break;
@@ -1919,6 +2911,60 @@ static int mission_add_data_well_to_ring(int data_well_type, float spin_sign, in
 																																		       mission_init.data_well_reserve_B [data_well_type],
 																																		       mission_init.data_well_reserves [data_well_type],
 																																		       mission_init.data_well_spin [data_well_type] * spin_sign);
+
+}
+
+
+
+static int mission_add_data_well_to_circle(int data_well_type, int angle, int dist, float spin_sign, int centre_x, int centre_y)
+{
+
+
+ al_fixed fixed_angle = int_angle_to_fixed(angle);
+ int ring_size_pixels = dist * BLOCK_SIZE_PIXELS;
+
+	al_fixed well_x_fixed = block_to_fixed(centre_x) + fixed_xpart(fixed_angle, al_itofix(ring_size_pixels));
+	al_fixed well_y_fixed = block_to_fixed(centre_y) + fixed_ypart(fixed_angle, al_itofix(ring_size_pixels));
+
+	int well_x_block = fixed_to_block(well_x_fixed);
+	int well_y_block = fixed_to_block(well_y_fixed);
+
+	if (well_x_block < 7
+		|| well_x_block >= w_init.map_size_blocks - 7
+		|| well_y_block < 7
+		|| well_y_block >= w_init.map_size_blocks - 7)
+			return 0; // mission_add_red_data_well_ring() can produce wells outside of the map, which should be ignored.
+
+ return add_data_well_to_map_init(well_x_block, well_y_block,
+																											       mission_init.data_well_reserve_A [data_well_type],
+																																		mission_init.data_well_reserve_B [data_well_type],
+																																		mission_init.data_well_reserves [data_well_type],
+																																		mission_init.data_well_spin [data_well_type] * spin_sign);
+
+}
+
+static void mission_add_red_data_well_ring(int data_well_type, int centre_x, int centre_y, int circle_size, int wells, int starting_angle)
+{
+
+	int i;
+
+	float spin_sign;
+
+//starting_angle += 150;
+
+	for (i = 0; i < wells; i ++)
+	{
+		if (i & 1)
+			spin_sign = 1;
+		  else
+  			spin_sign = -1;
+  mission_add_data_well_to_circle(data_well_type,
+																																		starting_angle + (ANGLE_1 / wells) * i,
+																																		circle_size,
+																																		spin_sign,
+																																		centre_x,
+																																		centre_y);
+	}
 
 }
 

@@ -154,6 +154,8 @@ void display_consoles_and_buttons(void)
 	int i;
 	int line_index;
 
+#ifndef RECORDING_VIDEO
+
 //	for (c = 0; c < CONSOLES; c ++)
 	{
 
@@ -222,7 +224,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 				line_index = CLINES-1;
 		}
 
-
+#endif
 
 
 // TO DO: initialise this in a more sensible way

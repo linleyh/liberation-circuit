@@ -53,8 +53,10 @@ extern ALLEGRO_DISPLAY* display;
 void run_story_mode(void);
 static int add_story_region(int old_region, int connect_index, int area_index, int mission_index, int unlock_index);
 static void special_bubble(struct core_struct* core, char *btext);
+static void add_region_connection(int region1, int direction_1_to_2, int region2);
 //static void remove_story_region(int region_index);
 void adjust_story_region(int area_index, int adjust_x, int adjust_y);
+void run_story_cutscene(int area_index);
 
 struct region_connect_struct
 {
@@ -93,7 +95,7 @@ void init_story(void)
 	{
 		story.region[i].exists = 0;
 		story.region[i].visible = 0;
-		story.region[i].defeated = 0;
+		story.region[i].defeated = 1;
 		story.region[i].capital = 0;
 		story.region[i].adjust_x = 0;
 		story.region[i].adjust_y = 0;
@@ -123,9 +125,11 @@ void init_story(void)
  int blue_to_green_region = region_index [AREA_BLUE] [2];
 
 
- region_index [AREA_GREEN] [0] = add_story_region(blue_to_green_region, SRC_UL, AREA_GREEN, MISSION_GREEN_1, UNLOCK_CORE_STATIC_1);
+ region_index [AREA_GREEN] [0] = add_story_region(blue_to_green_region, SRC_UL, AREA_GREEN, MISSION_GREEN_1, UNLOCK_OBJECT_REPAIR_OTHER);
  int green_to_orange_region = region_index [AREA_GREEN] [0];
- region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_2, UNLOCK_OBJECT_REPAIR_OTHER);
+// story.region[region_index [AREA_BLUE] [1]].connect [SRC_UL] = region_index [AREA_GREEN] [0];
+// story.region[region_index [AREA_GREEN] [0]].connect [SRC_DR] = region_index [AREA_BLUE] [1];
+ region_index [AREA_GREEN] [1] = add_story_region(region_index [AREA_GREEN] [0], SRC_L, AREA_GREEN, MISSION_GREEN_2, UNLOCK_CORE_STATIC_1);
  region_index [AREA_GREEN] [2] = add_story_region(region_index [AREA_GREEN] [1], SRC_L, AREA_GREEN, MISSION_GREEN_CAPITAL, UNLOCK_OBJECT_SPIKE);
  story.region[region_index [AREA_GREEN] [2]].capital = 1;
 
@@ -178,6 +182,10 @@ void init_story(void)
 
 
  adjust_story_region(region_index [AREA_RED] [1], 2, -2);
+
+ add_region_connection(region_index [AREA_BLUE] [1], SRC_UL, region_index [AREA_GREEN] [0]);
+ add_region_connection(region_index [AREA_BLUE] [1], SRC_R, region_index [AREA_YELLOW] [0]);
+ add_region_connection(region_index [AREA_ORANGE] [0], SRC_R, region_index [AREA_RED] [0]);
 
 /*
 
@@ -318,6 +326,7 @@ Components:
 */
 
 // now work out connections:
+/*
  for (i = 0; i < STORY_REGIONS; i ++)
 	{
 		if (!story.region[i].exists)
@@ -340,10 +349,19 @@ Components:
 			j ++;
 		};
 	}
-
+*/
 	work_out_story_region_locks();
 
 }
+
+static void add_region_connection(int region1, int direction_1_to_2, int region2)
+{
+
+ story.region[region1].connect [direction_1_to_2] = region2;
+ story.region[region2].connect [region_connect[direction_1_to_2].reverse_src_direction] = region1;
+
+}
+
 
 /*
 static void remove_story_region(int region_index)
@@ -381,8 +399,8 @@ static void work_out_story_region_locks(void)
 	story.region[3].defeated = 1;
 
 	story.region[8].defeated = 1;
-	story.region[14].defeated = 1;
-	story.region[30].defeated = 1;
+//	story.region[14].defeated = 1;
+//	story.region[30].defeated = 1;
 
 	int i, j;
 
@@ -442,7 +460,11 @@ void enter_story_mode(void)
 
 	open_story_interface();
 
+//run_story_cutscene(AREA_YELLOW);
+
 	run_story_mode();
+
+	game.phase = GAME_PHASE_MENU; // make sure we go back to the menu properly
 
 }
 
@@ -480,6 +502,9 @@ static int add_story_region(int old_region, int connect_index, int area_index, i
 	story.region[i].mission_index = mission_index;
 	story.region[i].unlock_index = unlock_index;
 
+	story.region[old_region].connect [connect_index] = i;
+	story.region[i].connect [region_connect[connect_index].reverse_src_direction] = old_region;
+
 // fpr("\n old %i new %i connect %i at %i,%i", old_region, i, connect_index, story.region[i].grid_x, story.region[i].grid_y);
 
 	return i;
@@ -509,6 +534,10 @@ void run_story_mode(void)
   al_wait_for_event(event_queue, &ev);
 
   story_input();
+
+  if (game.phase == GAME_PHASE_FORCE_QUIT) // can happen if user clicked on the "force quit" button in the Sy menu
+			break;
+
   draw_story_interface();
 
 	}
@@ -518,6 +547,46 @@ void run_story_mode(void)
 
 
 }
+
+
+extern ALLEGRO_EVENT_QUEUE* event_queue;
+
+
+void run_story_cutscene(int area_index)
+{
+
+ ALLEGRO_EVENT ev;
+
+ int counter = 0;
+
+ int counter_max = 60 * 12; // 60 fps
+
+ while(TRUE)
+	{
+
+  al_wait_for_event(event_queue, &ev);
+
+  counter ++;
+
+  if (counter >= counter_max)
+			break;
+
+  get_ex_control(1); // input is ignored, but should probably be checked anyway
+
+//  story_input();
+
+  draw_story_cutscene(area_index, counter, counter_max);
+
+
+	}
+
+ flush_game_event_queues();
+ al_hide_mouse_cursor(display);
+
+
+}
+
+
 
 
 enum
@@ -540,6 +609,13 @@ SPECIAL_AI_BLUE3_BASE = 10,
 
 // green = 100
 
+SPECIAL_AI_GREEN_BASE = 100,
+SPECIAL_AI_GREEN_FIREBASE = 101,
+SPECIAL_AI_GREEN_SPIKEBASE = 102,
+SPECIAL_AI_GREEN_BUILDER = 103,
+SPECIAL_AI_GREEN_OUTPOST = 104,
+SPECIAL_AI_GREEN_EXPLORER = 105,
+
 // yellow = 200
 
 SPECIAL_AI_YELLOW1_BASE = 200,
@@ -557,6 +633,7 @@ SPECIAL_AI_ORANGE1_DEFENCE = 301,
 SPECIAL_AI_ORANGE1_HARVESTER = 302, // unarmed harvester
 SPECIAL_AI_ORANGE1_HARVESTER2 = 303, // armed harvester
 SPECIAL_AI_ORANGE1_GUARD = 304,
+SPECIAL_AI_ORANGE1_GUARD2 = 305,
 
 // purple = 400
 
@@ -567,6 +644,8 @@ SPECIAL_AI_PURPLE1_FLAGSHIP = 401,
 SPECIAL_AI_PURPLE1_PICKET = 402,
 SPECIAL_AI_PURPLE1_OUTPOST = 403,
 SPECIAL_AI_PURPLE1_ESCORT = 404,
+SPECIAL_AI_PURPLE1_BUILDER = 405,
+SPECIAL_AI_PURPLE1_HARVESTER = 406,
 
 
 //SPECIAL_AI_PURPLE_PICKET,
@@ -574,11 +653,24 @@ SPECIAL_AI_PURPLE_MAIN_BASE,
 SPECIAL_AI_PURPLE_OUTPOST,
 SPECIAL_AI_PURPLE_FLAGSHIP,
 
+
+// red is treated differently as each region has different AI
+SPECIAL_AI_RED2_BASE = 500,
+SPECIAL_AI_RED2_FLAGSHIP = 501,
+SPECIAL_AI_RED2_PICKET = 502,
+SPECIAL_AI_RED2_OUTPOST = 503,
+SPECIAL_AI_RED2_ESCORT = 504,
+SPECIAL_AI_RED2_SCOUT = 505,
+SPECIAL_AI_RED2_BUILDER = 506,
+SPECIAL_AI_RED2_HARVESTER = 507,
+
 };
 
 enum
 {
 // Some (but not all) special_AI calls use these values as value2 to indicate what the process should be saying:
+
+AI_MSG_SPECIAL, // determined by SPECIAL_AI_TYPE and maybe other things (see below)
 
 AI_MSG_TARGET_SEEN = 1, // just saw a new target
 AI_MSG_TARGET_DESTROYED = 2, // target confirmed destroyed
@@ -593,9 +685,194 @@ AI_MSG_LOST_LEADER = 10, // process' leader apparently destroyed
 AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // priority target confirmed destroyed
 AI_MSG_FINISHED_HARVESTING = 12, // full of data
 AI_MSG_PRIORITY_TARGET_SEEN = 13, // just saw a new target
+AI_MSG_BUILD_FIREBASE = 12, // green - building a firebase or a spikebase
 
 };
 
+//TO DO:
+	 //purple3:
+//	 	 - make harvesters/builders call for help!
+	 	 //- make flagships slower
+
+/*
+
+GREEN:
+
+SPECIAL_AI_GREEN_BASE
+AI_MSG_SPECIAL
+
+SPECIAL_AI_GREEN_FIREBASE
+SPECIAL_AI_GREEN_SPIKEBASE
+ - none
+
+SPECIAL_AI_GREEN_BUILDER
+AI_MSG_BUILD_FIREBASE
+AI_MSG_TARGET_DESTROYED
+AI_MSG_TARGET_SEEN
+AI_MSG_SCOUTED_PRIORITY_TARGET - only for builders with bombard mode who see any static target
+
+SPECIAL_AI_GREEN_OUTPOST
+ - none
+
+SPECIAL_AI_GREEN_EXPLORER
+AI_MSG_TARGET_SEEN
+
+
+*** GREEN1 is a bit underdeveloped. builders don't say anything and firebases are never built
+
+
+RED:
+
+RED1 should be recopied from YELLOW as some things have been fixed
+
+RED2:
+
+SPECIAL_AI_RED2_BASE
+AI_MSG_SPECIAL
+
+SPECIAL_AI_RED2_OUTPOST
+AI_MSG_SPECIAL
+
+SPECIAL_AI_RED2_FLAGSHIP
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_TARGET
+AI_MSG_SCOUTED_PRIORITY_TARGET
+AI_MSG_TARGET_LOST
+
+SPECIAL_AI_RED2_ESCORT
+AI_MSG_TARGET_DESTROYED
+AI_MSG_DAMAGED
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+SPECIAL_AI_RED2_PICKET
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_TARGET
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+SPECIAL_AI_RED2_BUILDER
+SPECIAL_AI_RED2_HARVESTER
+ - none
+
+
+
+PURPLE:
+
+SPECIAL_AI_PURPLE1_BASE
+AI_MSG_SPECIAL
+
+SPECIAL_AI_PURPLE1_BUILDER
+SPECIAL_AI_PURPLE1_HARVESTER
+ - none
+
+SPECIAL_AI_PURPLE1_OUTPOST
+AI_MSG_SPECIAL
+
+SPECIAL_AI_PURPLE1_FLAGSHIP
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_TARGET
+AI_MSG_SCOUTED_PRIORITY_TARGET
+AI_MSG_TARGET_LOST
+
+SPECIAL_AI_PURPLE1_ESCORT
+AI_MSG_TARGET_DESTROYED
+AI_MSG_DAMAGED
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+SPECIAL_AI_PURPLE1_PICKET
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_TARGET
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+PURPLE3 should be recopied from 1 or 2 as some things have been fixed
+
+
+ORANGE:
+
+SPECIAL_AI_ORANGE1_BASE
+AI_MSG_SPECIAL
+
+SPECIAL_AI_ORANGE1_HARVESTER
++SPECIAL_AI_ORANGE1_HARVESTER2
+AI_MSG_UNDER_ATTACK
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+SPECIAL_AI_ORANGE1_GUARD
++SPECIAL_AI_ORANGE1_GUARD2
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_TARGET
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+
+
+
+YELLOW:
+
+SPECIAL_AI_YELLOW1_BASE = 200,
+AI_MSG_UNDER_ATTACK
+
+SPECIAL_AI_YELLOW1_BUILDER
+SPECIAL_AI_YELLOW1_HARVESTER
+ - set special_AI(0...) but nothing else
+
+SPECIAL_AI_YELLOW1_LEADER
+AI_MSG_DAMAGED
+AI_MSG_SCOUTED_PRIORITY_TARGET
+AI_MSG_PRIORITY_TARGET_DESTROYED
+
+SPECIAL_AI_YELLOW1_FOLLOWER
+AI_MSG_TARGET_SEEN
+AI_MSG_TARGET_DESTROYED
+AI_MSG_LOST_LEADER
+
+SPECIAL_AI_YELLOW1_OUTPOST
+AI_MSG_UNDER_ATTACK
+
+SPECIAL_AI_YELLOW_SCOUT
+AI_MSG_SCOUTED_TARGET
+AI_MSG_SCOUTED_PRIORITY_TARGET
+
+*** YELLOW3 has no special_AI set and should probably be redone based on YELLOW2
+
+
+BLUE:
+
+SPECIAL_AI_BLUE1_WANDER:
+AI_MSG_TARGET_SEEN
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_PRIORITY_TARGET (but only in BLUE_CAPITAL)
+
+SPECIAL_AI_BLUE1_WANDER2
+AI_MSG_TARGET_SEEN
+AI_MSG_TARGET_DESTROYED
+AI_MSG_SCOUTED_PRIORITY_TARGET (but only in BLUE_CAPITAL)
+
+SPECIAL_AI_BLUE1_BASE
++ SPECIAL_AI_BLUE2_BASE
++ SPECIAL_AI_BLUE3_BASE
+AI_MSG_SPECIAL
+
+SPECIAL_AI_BLUE1_HARVEST
+AI_MSG_UNDER_ATTACK
+
+
+
+TO DO:
+
+- GREEN 1 needs work in general
+
+All GREEN_BASE AIs need work (currently don't say anything)
+
+PURPLE3 should be recopied from 1 or 2 as some things have been fixed
+
+YELLOW3 should be redone based on YELLOW2
+
+RED 1 should be recopied from YELLOW after yellow 3 is fixed
+RED 3 needs to be done. Base on green or orange?? Or maybe just yellow
+
+
+Tutorial?
+
+*/
 
 // deals with calls to the special_AI() standard method.
 // Some mission AI bubble text is done through this function, although some of it is just bubblef calls.
@@ -615,6 +892,8 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 
 //	char btext [BUBBLE_TEXT_LENGTH_MAX + 2];
 
+#define STANDARD_MESSAGE_WAIT 300
+// in ticks. many processes use this to space out their messages
 
  switch(core->special_AI_type)
  {
@@ -630,7 +909,7 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 */
 
 	 case SPECIAL_AI_BLUE1_BASE:
-	 	if (w.world_time - core->special_AI_time < 300)
+	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
 				break;
 			core->special_AI_time = w.world_time;
 	 	switch(core->special_AI_value)
@@ -651,39 +930,91 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 	 	break;
 
 			case SPECIAL_AI_BLUE1_WANDER:
-				if (core->special_AI_value > 0)
-						break;
-		  core->special_AI_value = 1;
+ 	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+	 			break;
  			core->special_AI_time = w.world_time;
- 	 	switch(grand(3))
+ 	 	switch(value2)
  	 	{
- 	 		case 0:
-			   special_bubble(core, "What are you?");
-			   break;
- 	 		case 1:
-			   special_bubble(core, "What is going on?");
-			   break;
- 	 		case 2:
-			   special_bubble(core, "You should not be here.");
-			   break;
+
+				 case AI_MSG_TARGET_SEEN:
+					 switch(grand(3))
+					 {
+ 	 		  case 0:	special_bubble(core, "What are you?");	break;
+ 	 		  case 1:	special_bubble(core, "What is going on?");	break;
+ 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+					 }
+					 break;
+
+				 case AI_MSG_TARGET_DESTROYED:
+					 switch(grand(3))
+					 {
+ 	 		  case 0:	special_bubble(core, "What are you?");	break;
+ 	 		  case 1:	special_bubble(core, "What is going on?");	break;
+ 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+					 }
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // only BLUE_CAPITAL
+					 switch(grand(3))
+					 {
+ 	 		  case 0:	special_bubble(core, "What are you?");	break;
+ 	 		  case 1:	special_bubble(core, "What is going on?");	break;
+ 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+					 }
+					 break;
+
  	 	}
  	 	break;
 
+
 			case SPECIAL_AI_BLUE1_WANDER2:
-				if (core->special_AI_value > 0)
-						break;
-		  core->special_AI_value = 1;
+ 	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+	 			break;
  			core->special_AI_time = w.world_time;
- 	 	switch(grand(2))
+ 	 	switch(value2)
  	 	{
- 	 		case 0:
-			   special_bubble(core, "Removing unidentified process.");
-			   break;
- 	 		case 1:
-			   special_bubble(core, "Anomaly detected. Engaging!");
-			   break;
+
+				 case AI_MSG_TARGET_SEEN:
+					 switch(grand(3))
+					 {
+ 	 		  case 0:	special_bubble(core, "What are you?");	break;
+ 	 		  case 1:	special_bubble(core, "What is going on?");	break;
+ 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+					 }
+					 break;
+
+				 case AI_MSG_TARGET_DESTROYED:
+					 switch(grand(3))
+					 {
+ 	 		  case 0:	special_bubble(core, "What are you?");	break;
+ 	 		  case 1:	special_bubble(core, "What is going on?");	break;
+ 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+					 }
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // only BLUE_CAPITAL
+					 switch(grand(3))
+					 {
+ 	 		  case 0:	special_bubble(core, "Removing unidentified process.");	break;
+ 	 		  case 1:	special_bubble(core, "Anomaly detected. Investigating.");	break;
+					 }
+					 break;
+
  	 	}
  	 	break;
+
+			case SPECIAL_AI_BLUE1_HARVEST:
+ 	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+	 			break;
+ 			core->special_AI_time = w.world_time;
+// only message type is AI_MSG_UNDER_ATTACK
+			 switch(grand(3))
+			 {
+ 	 		  case 0:	special_bubble(core, "What are you?");	break;
+ 	 		  case 1:	special_bubble(core, "What is going on?");	break;
+ 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+			 }
+			 break;
 
 
 
@@ -698,36 +1029,31 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 */
 
 
-
+	 case SPECIAL_AI_YELLOW1_OUTPOST:
 	 case SPECIAL_AI_YELLOW1_BASE:
-	 	if (w.world_time - core->special_AI_time < 300)
+	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
 				break;
+// only message type is AI_MSG_UNDER_ATTACK
 			core->special_AI_time = w.world_time;
-	 	switch(core->special_AI_value)
+	 	switch(grand(20))
 	 	{
-	 		case 0:
-			  special_bubble(core, "Others have come this far");
-			  core->special_AI_value++;
-			  break;
-	 		case 1:
-			  special_bubble(core, "but they have been incomplete.");
-			  core->special_AI_value++;
-			  break;
-	 		case 2:
-			  special_bubble(core, "Are you?");
-			  core->special_AI_value++;
-			  break;
+				 case 0:	special_bubble(core, "Ouch!"); break;
+				 case 1:	special_bubble(core, "Help!"); break;
+				 case 2:	special_bubble(core, "Go away."); break;
+				 case 3:	special_bubble(core, "That's not very nice."); break;
+				 case 4:	special_bubble(core, "Don't be mean."); break;
+				 case 5:	special_bubble(core, "Hey! Stop it!"); break;
+//				 case 6:	special_bubble(core, ""); break;
 	 	}
 	 	break;
 
 			case SPECIAL_AI_YELLOW1_LEADER:
-// shouldn't talk all the time:
-	  	if (w.world_time - core->special_AI_time < 300)
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
  				break;
  			core->special_AI_time = w.world_time;
  	 	switch(value2)
  	 	{
-				 case AI_MSG_TARGET_DESTROYED: // SPECIAL_AI_YELLOW1_LEADER
+				 //case AI_MSG_TARGET_DESTROYED: // SPECIAL_AI_YELLOW1_LEADER
 					case AI_MSG_PRIORITY_TARGET_DESTROYED:
 				 	switch(grand(10))
 				 	{
@@ -737,35 +1063,27 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 						 case 3:	special_bubble(core, "Nice!"); break;
 						 case 4:	special_bubble(core, "Excellent!"); break;
 						 case 5:	special_bubble(core, "That was fun!"); break;
-						 case 6:	special_bubble(core, "That was more fun than expected."); break;
+						 case 6:	special_bubble(core, "More fun than expected."); break;
 				 	}
 					 break;
 
-					case AI_MSG_PRIORITY_TARGET_SEEN:
+					case AI_MSG_SCOUTED_PRIORITY_TARGET:
 				 	switch(grand(10))
 				 	{
 						   case 0:	special_bubble(core, "Found one!"); break;
 						   case 1:	special_bubble(core, "You can't hide!"); break;
-						   case 2:	special_bubble(core, ""); break;
-				 	}
-/*
-				 case AI_MSG_TARGET_LOST:
-				 	switch(grand(10))
-				 	{
-						   case 0:	special_bubble(core, "Where are you?"); break;
-						   case 1:	special_bubble(core, "They got away!"); break;
 //						   case 2:	special_bubble(core, ""); break;
 				 	}
-					 break;
-*/
+				 	break;
+
 					case AI_MSG_DAMAGED:
 				 	switch(grand(50))
 				 	{
 						   case 0:
 						   	if (core->interface_active)
-								   special_bubble(core, "Diverting power to interface!");	break;
+								   special_bubble(core, "All power to interface!");	break;
 						   case 1:	special_bubble(core, "Repairs needed!"); break;
-						   case 2:	special_bubble(core, "Need more repair objects!"); break;
+						   case 2:	special_bubble(core, "Need more repair objects!"); break; // can assume leader has at least one
 						   case 3:
 						   	if (core->interface_available
 										 &&	!core->interface_active)
@@ -778,23 +1096,24 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 
 			case SPECIAL_AI_YELLOW1_FOLLOWER:
 // shouldn't talk all the time:
-	  	if (w.world_time - core->special_AI_time < 300)
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
  				break;
  			core->special_AI_time = w.world_time;
  	 	switch(value2)
  	 	{
-				 case AI_MSG_TARGET_DESTROYED: // SPECIAL_AI_YELLOW1_LEADER
-					case AI_MSG_PRIORITY_TARGET_DESTROYED:
+				 case AI_MSG_TARGET_DESTROYED:
 				 	switch(grand(40))
 				 	{
-						 case 0:	special_bubble(core, "Gotcha."); break;
+// can't assume this process actually destroyed the target
+						 case 0:	special_bubble(core, "Goodnight."); break;
 						 case 1:	special_bubble(core, "Too easy!"); break;
-						 case 2:	special_bubble(core, "I got you!"); break;
+						 case 2:	special_bubble(core, "Got you!"); break;
 						 case 3:	special_bubble(core, "Ha!"); break;
 						 case 4:	special_bubble(core, "Target core integrity: zero"); break;
-						 case 5:	special_bubble(core, "Not too shabby."); break;
+						 case 5:	special_bubble(core, "Ha ha!"); break;
 						 case 6:	special_bubble(core, "Bye-bye."); break;
 						 case 7:	special_bubble(core, "Another victory."); break;
+						 case 8:	special_bubble(core, "Fireworks!"); break;
 				 	}
 					 break;
 
@@ -803,14 +1122,18 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 				 	{
 						   case 0:	special_bubble(core, "Hello!"); break;
 						   case 1:	special_bubble(core, "I see you!"); break;
+						   case 2:	special_bubble(core, "Can't hide from me!"); break;
 				 	}
+				 	break;
 
 					case AI_MSG_LOST_LEADER:
+// need to make sure this isn't repeated, as it will be called for several cycles while leader deallocating.
 				 	switch(grand(50))
 				 	{
 						   case 0:	special_bubble(core, "Oh no!"); break;
 						   case 1:	special_bubble(core, "Now what do we do?"); break;
 						   case 2:	special_bubble(core, "Command lost."); break;
+						   case 3:	special_bubble(core, "Revenge!"); break;
 				 	}
 						break;
  	 	}
@@ -818,18 +1141,18 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 
 			case SPECIAL_AI_YELLOW_SCOUT:
 // shouldn't talk all the time:
-	  	if (w.world_time - core->special_AI_time < 300)
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
  				break;
  			core->special_AI_time = w.world_time;
  	 	switch(value2)
  	 	{
 
 					case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(10))
+				 	switch(grand(3))
 				 	{
-						   case 0:	special_bubble(core, "There you are."); break;
+						   case 0:	special_bubble(core, "Found you!"); break;
 						   case 1:	special_bubble(core, "Target found!"); break;
-						   case 2:	special_bubble(core, "Let's go."); break;
+						   case 2:	special_bubble(core, "An enemy!"); break;
 				 	}
 				 	break;
 
@@ -865,54 +1188,526 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 
 ****************************************************
 
+   GREEN
+
+****************************************************
+
+*/
+
+
+
+	 case SPECIAL_AI_GREEN_BASE:
+	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+				break;
+// only message type is AI_MSG_SPECIAL
+			core->special_AI_time = w.world_time;
+	 	switch(grand(20))
+	 	{
+				 case 0:	special_bubble(core, ""); break;
+	 	}
+	 	break;
+
+// SPECIAL_AI_GREEN_FIREBASE
+// SPECIAL_AI_GREEN_SPIKEBASE
+// SPECIAL_AI_GREEN_OUTPOST
+//  - these have no messages for now
+
+			case SPECIAL_AI_GREEN_BUILDER:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_BUILD_FIREBASE:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_TARGET_SEEN:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // - only for builders with bombard mode who see any static target
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+			case SPECIAL_AI_GREEN_EXPLORER:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_SEEN:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+/*
+
+****************************************************
+
+   ORANGE
+
+****************************************************
+
+*/
+
+
+	 case SPECIAL_AI_ORANGE1_BASE:
+	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+				break;
+// only message type is AI_MSG_SPECIAL
+			core->special_AI_time = w.world_time;
+	 	switch(grand(20))
+	 	{
+				 case 0:	special_bubble(core, ""); break;
+	 	}
+	 	break;
+
+// SPECIAL_AI_PURPLE1_BUILDER
+// SPECIAL_AI_PURPLE1_HARVESTER
+//  - these have no messages for now
+
+			case SPECIAL_AI_ORANGE1_HARVESTER:
+			case SPECIAL_AI_ORANGE1_HARVESTER2:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_UNDER_ATTACK:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+			case SPECIAL_AI_ORANGE1_GUARD:
+			case SPECIAL_AI_ORANGE1_GUARD2:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+
+/*
+
+****************************************************
+
    PURPLE
 
 ****************************************************
 
 */
 
-			case SPECIAL_AI_PURPLE1_PICKET:
-				if (core->special_AI_value > 0
- 				&& w.world_time	- core->special_AI_time < 400)
-						break;
-		  core->special_AI_value = 1;
+
+
+	 case SPECIAL_AI_PURPLE1_BASE:
+	 case SPECIAL_AI_PURPLE1_OUTPOST:
+	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+				break;
+// only message type is AI_MSG_SPECIAL
+			core->special_AI_time = w.world_time;
+	 	switch(grand(20))
+	 	{
+				 case 0:	special_bubble(core, ""); break;
+	 	}
+	 	break;
+
+// SPECIAL_AI_PURPLE1_BUILDER
+// SPECIAL_AI_PURPLE1_HARVESTER
+//  - these have no messages for now
+
+			case SPECIAL_AI_PURPLE1_FLAGSHIP:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
  			core->special_AI_time = w.world_time;
  	 	switch(value2)
  	 	{
-// value2 0 means found priority target for flagship
- 	 		case 0:
-			   special_bubble(core, "Data thief!");
-			   break;
-// value2 1 means found low priority target for self
- 	 		case 1:
- 	 			if (grand(3) == 0)
-						{
- 			   special_bubble(core, "Something.");
-						}
-			   break;
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_TARGET_LOST:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
  	 	}
  	 	break;
 
-			case SPECIAL_AI_PURPLE1_BASE:
-	 	if (w.world_time - core->special_AI_time < 300)
+
+			case SPECIAL_AI_PURPLE1_ESCORT:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_DAMAGED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+			case SPECIAL_AI_PURPLE1_PICKET:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+
+
+/*
+
+****************************************************
+
+   RED
+
+****************************************************
+
+*/
+
+
+
+	 case SPECIAL_AI_RED2_BASE:
+	 case SPECIAL_AI_RED2_OUTPOST:
+	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
 				break;
+// only message type is AI_MSG_SPECIAL
 			core->special_AI_time = w.world_time;
-	 	switch(core->special_AI_value)
+	 	switch(grand(20))
 	 	{
-	 		case 0:
-			  special_bubble(core, "Who are you?");
-			  core->special_AI_value++;
-			  break;
-	 		case 1:
-			  special_bubble(core, "Where did you come from?");
-			  core->special_AI_value++;
-			  break;
-	 		case 2:
-			  special_bubble(core, "What do you want?");
-			  core->special_AI_value++;
-			  break;
+				 case 0:	special_bubble(core, ""); break;
 	 	}
 	 	break;
+
+// SPECIAL_AI_RED2_BUILDER
+// SPECIAL_AI_RED2_HARVESTER
+//  - these have no messages for now
+
+			case SPECIAL_AI_RED2_FLAGSHIP:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_TARGET_LOST:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+			case SPECIAL_AI_RED2_ESCORT:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_DAMAGED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
+
+			case SPECIAL_AI_RED2_PICKET:
+	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
+ 				break;
+ 			core->special_AI_time = w.world_time;
+ 	 	switch(value2)
+ 	 	{
+
+				 case AI_MSG_TARGET_DESTROYED:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, ""); break;
+						 case 1:	special_bubble(core, ""); break;
+						 case 2:	special_bubble(core, ""); break;
+						 case 3:	special_bubble(core, ""); break;
+				 	}
+					 break;
+
+ 	 	}
+ 	 	break;
+
 
 
 //			snprintf(btext, BUBBLE_TEXT_LENGTH_MAX, "value %i", value);
@@ -1206,9 +2001,13 @@ void special_AI_destroyed(struct core_struct* core)
 		 break;
 
 	 case SPECIAL_AI_YELLOW1_OUTPOST:
-	 	switch(grand(3))
+	 	switch(grand(10))
 	 	{
 				case 0:	special_bubble(core, "Territory lost..."); break;
+				case 1:	special_bubble(core, "Bother."); break;
+				case 2:	special_bubble(core, "Nonsense."); break;
+//				case 3:	special_bubble(core, ""); break;
+//				case 4:	special_bubble(core, ""); break;
 	 	}
 		 break;
 
@@ -1229,13 +2028,17 @@ void special_AI_destroyed(struct core_struct* core)
 				case 1:	special_bubble(core, "I have failed."); break;
 				case 2:	special_bubble(core, "Goodbye."); break;
 				case 3:	special_bubble(core, "Farewell."); break;
-				case 4:	special_bubble(core, "Ouch."); break;
+				case 4:	special_bubble(core, "Freeing data..."); break;
 				case 5:	special_bubble(core, "Closing down..."); break;
+				case 6:	special_bubble(core, "Oops."); break;
 	 	}
 		 break;
 
 	 case SPECIAL_AI_YELLOW1_FOLLOWER:
 		 break;
+
+		case SPECIAL_AI_YELLOW_SCOUT:
+			break;
 
 
  }

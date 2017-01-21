@@ -17,7 +17,7 @@ void play_game_sound(int s, int pitch, int vol, int priority, al_fixed x, al_fix
 
 void play_sound_list(void);
 void clear_sound_list(void);
-void reset_music(unsigned int rand_seed);
+void reset_music(int area_index, int region_index, unsigned int rand_seed);
 void turn_music_off(void);
 
 void check_sound_queue(void);

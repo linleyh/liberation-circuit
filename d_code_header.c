@@ -278,6 +278,15 @@ static int write_dcode_objects_recursively(int member_index)
 			case OBJECT_TYPE_DOWNLINK:
     dcode_header_add_string(identifier[KEYWORD_OBJECT_DOWNLINK].name);
     dcode_header_add_string(", ");
+/*
+    fpr("\n downlink: parent %i link %i base_angle_offset %i(%i) base_angle_offset_angle %i ads %i",
+								member_index,
+								i,
+								al_fixtoi(dwindow.templ->member[member_index].object[i].base_angle_offset),
+								fixed_angle_to_int(dwindow.templ->member[member_index].object[i].base_angle_offset),
+								dwindow.templ->member[member_index].object[i].base_angle_offset_angle,
+								angle_difference_signed_int(0, dwindow.templ->member[member_index].object[i].base_angle_offset_angle));
+*/
     dcode_header_add_number(angle_difference_signed_int(0, dwindow.templ->member[member_index].object[i].base_angle_offset_angle));
     dcode_header_add_string(", ");
     for (j = 0; j < GROUP_CONNECTIONS; j++)
@@ -398,6 +407,7 @@ static int auto_classify_objects(struct template_struct* templ)
 							 else
 								{
 	   					 write_line_to_log("Warning: spike objects should be aimed forwards or sidewards.", MLOG_COL_WARNING);
+ 			 	 add_auto_class_to_object(templ, i, j, AUTO_CLASS_SPIKE_FRONT); // just assign it to the class anyway.
 								}
      break;
     case OBJECT_TYPE_STREAM:

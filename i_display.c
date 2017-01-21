@@ -1837,7 +1837,7 @@ default:
                             }
 
 								}
-        break; // end AREA_RED
+        break; // end AREA_ORANGE
 
 
        	case AREA_PURPLE:
@@ -2183,22 +2183,46 @@ default:
 																																	 else
   																																	swirl_spin = 0 - w.data_well[backbl->backblock_value].spin_rate;
 																																reserve_angle = (w.world_time * swirl_spin);
-																																int reserve_swirl_steps = 10 + w.data_well[backbl->backblock_value].reserve_data [k] / 80;//3 + w.data_well[backbl->backblock_value].reserve_data [k] / 100;
-																																float reserve_dist = (150 + k * 100) * specific_zoom;
+																																int reserve_swirl_steps = 10 + w.data_well[backbl->backblock_value].reserve_data [k] / 35;//3 + w.data_well[backbl->backblock_value].reserve_data [k] / 100;
+																																float reserve_dist = (250 - k * 100) * specific_zoom;
 																																float reserve_step_arc = 0 - swirl_spin;
-                              	 float reserve_width = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
+                              	 float reserve_width;// = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
                               	 float reserve_width_prop = 1;
                               	 for (swirl = 0; swirl < w.data_well[backbl->backblock_value].reserve_squares; swirl ++)
 																																{
+//																																	float reserve_front_x = bx2 + cos(reserve_angle) * reserve_dist;
+//																																	float reserve_front_y = by2 + sin(reserve_angle) * reserve_dist;
+
+                              	 reserve_width = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
+/*
 																																 start_ribbon(1,
-																																													 bx2 + cos(reserve_angle) * reserve_dist,
-																																													 by2 + sin(reserve_angle) * reserve_dist,
+																																													 bx2 + cos(reserve_angle - reserve_step_arc * 6) * reserve_dist,
+																																													 by2 + sin(reserve_angle - reserve_step_arc * 6) * reserve_dist,
+																																													 bx2 + cos(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist + reserve_width * 0.6),
+																																													 by2 + sin(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist + reserve_width * 0.6),
+																																													 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist - reserve_width * 0.6),
+																																													      by2 + sin(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist - reserve_width * 0.6),
+																																																		 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
+																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
+																																																		 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
+																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
+																																																		 reserve_colour);
+*/
+
+																																 start_ribbon(1,
+																																													 bx2 + cos(reserve_angle - reserve_step_arc * 4) * reserve_dist,
+																																													 by2 + sin(reserve_angle - reserve_step_arc * 4) * reserve_dist,
 																																													 bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
 																																													 by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
 																																													 reserve_colour);
 																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
 																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
 																																																		 reserve_colour);
+
+
                                  for (l = 2; l < reserve_swirl_steps; l ++) // note starts at 2
                                  {
                                 	 reserve_width_prop = (float) (reserve_swirl_steps - l) / (float) (reserve_swirl_steps);
@@ -3143,7 +3167,7 @@ colours.proc_col [pr->player_index] [damage_level] [1] [PROC_COL_CORE_MUTABLE] =
 					   float layer_dist_2 = (bcon_size * view.zoom);// / 2;
 					   float layer_separation = 1 + (time_until_construction_ends * 0.0002);
 
-					   int pulse_size = time_until_construction_ends % 32;
+					   int pulse_size = (time_until_construction_ends + 16) % 32;
 
 					   float width = 1;//(32 - pulse_size) * 0.3;
 
@@ -3331,7 +3355,7 @@ width = 6;
 					interface_opacity = 1;
 
 				if (pr->interface_stability)
-						interface_opacity *= 3;
+						interface_opacity *= 5;
 
 				float interface_size_proportion = 1.3;
 
@@ -3837,7 +3861,7 @@ draw_link_shape(x, y,
      if (end_time > max_time)
 						end_time = max_time;
 
-					float tail_width = 0.15;//(pack->status + 4) * 0.04;
+					float tail_width = 0.25;//(pack->status + 4) * 0.04;
 
      draw_pulse_tail(x, y, x_step, y_step,
 																					packet_angle,
@@ -3847,25 +3871,25 @@ draw_link_shape(x, y,
 																					max_time,
 																					tail_width,
 																					pack->colour,
-																					22, // shade
+																					pack->status - 6, // shade
 																					pk - packet_time,
-																					0,
-																					0.6, // blob_scale
+																					3,
+																					1.4, // blob_scale
 																					0);
 
-       bloom_long(1, x + (x_step * pack->status) / 3, y + (y_step * pack->status) / 3, packet_angle, end_time * hypot(y_step, x_step),
+       bloom_long(1, x + (x_step * 3) / 3, y + (y_step * 3) / 3, packet_angle, end_time * hypot(y_step, x_step),
 //       bloom_long(1, x, y, packet_angle, end_time * hypot(y_step, x_step),
 																		colours.bloom_centre [pack->player_index] [20],
 																		colours.bloom_edge [pack->player_index] [10],
 																		colours.bloom_edge [pack->player_index] [1],
-																		(20 + pack->status * 12 + drand(10, 1)) * view.zoom, (10 + pack->status * 7 + drand(5, 1)) * view.zoom);
+																		(56 + drand(10, 1)) * view.zoom, (31 + drand(5, 1)) * view.zoom);
 // remember packet trail also drawn in packet explosion cloud code (search for PACKET_MISS)
 
      end_time = packet_time;
      max_time = 24;
      if (end_time > max_time)
 						end_time = max_time;
-					tail_width = 0.09;//(pack->status + 4) * 0.03;
+					tail_width = 0.15;//(pack->status + 4) * 0.03;
 
      draw_pulse_tail(x, y, x_step, y_step,
 																					packet_angle,
@@ -3875,10 +3899,10 @@ draw_link_shape(x, y,
 																					max_time,
 																					tail_width,
 																					pack->colour,
-																					28, // shade
+																					pack->status, // shade
 																					pk - packet_time,
-																					0,
-																					0.3, // blob_scale
+																					3,
+																					0.8, // blob_scale
 																					0);
 
 
@@ -3940,7 +3964,7 @@ draw_link_shape(x, y,
 */
 // remember packet trail also drawn in packet explosion cloud code (search for PACKET_MISS)
 
-     bloom_circle(1, x, y, colours.bloom_centre [pack->colour] [20], colours.bloom_edge [pack->colour] [0], 32 * view.zoom);
+     bloom_circle(1, x, y, colours.bloom_centre [pack->colour] [20], colours.bloom_edge [pack->colour] [0], (32 + pack->status * 12) * view.zoom);
 /*
        bloom_long(1, x + (x_step * pack->status) / 3, y + (y_step * pack->status) / 3, packet_angle, end_time * hypot(y_step, x_step) / 2,
 																		colours.bloom_centre [pack->player_index] [20],
@@ -4060,17 +4084,15 @@ draw_link_shape(x, y,
      int fr_time = w.world_time - w.fragment[fr_index].created_timestamp;
    	 int fr_time_left = w.fragment[fr_index].destruction_timestamp - w.world_time;
 
-   	 int explode_time_left;
-   	 int explode_time;
+//   	 int explode_time_left;
 
      if (fr_time_left > 31)
 					{
       float fragment_x = x;// + (al_fixtof(w.fragment[fr_index].speed.x) * (cl_time - (cl_time * cl_time * 0.003)) * view.zoom);
       float fragment_y = y;// + (al_fixtof(w.fragment[fr_index].speed.y) * (cl_time - (cl_time * cl_time * 0.003)) * view.zoom);
-      float fragment_angle = w.fragment[fr_index].spin * fr_time;//fixed_to_radians(w.fragment[fr_index].spin * fr_time);
+      float fragment_angle = (fr_index * 0.23) + w.fragment[fr_index].spin * fr_time;//fixed_to_radians(w.fragment[fr_index].spin * fr_time);
       float fragment_size = w.fragment[fr_index].fragment_size;
-      explode_time_left = 31;
-      explode_time = 0;
+//      explode_time_left = 31;
    		 add_outline_diamond_layer(3,
 																															  fragment_x + cos(fragment_angle) * fragment_size * view.zoom,
 																															  fragment_y + sin(fragment_angle) * fragment_size * view.zoom,
@@ -4086,8 +4108,7 @@ draw_link_shape(x, y,
 					}
 					 else
 						{
-							explode_time_left = fr_time_left;
-							explode_time = 31 - explode_time_left;
+//							explode_time_left = fr_time_left;
 
        shade = fr_time_left;
 						 if (shade > CLOUD_SHADES-1)
@@ -4219,7 +4240,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 																												start_time, // start_time
 																												end_time,
 																												max_time,
-																												0.6 * size_prop,
+																												0.9 * size_prop,
 																												w.fragment[fr_index].colour,
 																												16,
 																												fr_index - fr_time, // drand_seed
@@ -4234,7 +4255,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 																												start_time, // start_time
 																												end_time,
 																												max_time,
-																												0.2 * size_prop,
+																												0.5 * size_prop,
 																												w.fragment[fr_index].colour,
 																												22,
 																												fr_index - fr_time, // drand_seed
@@ -4638,7 +4659,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 
 //					int k;
 
-					seed_drand(cl->data[0] + c);
+					seed_drand(c);
 
 			  for (k = 0; k < 32; k ++)
 					{
@@ -4680,7 +4701,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 
      cl_angle = fixed_to_radians(cl->angle);
 
-					seed_drand(cl->data[0] - (cl->data[2]/3));
+					seed_drand(3 - (cl->data[2]/3));
 //     float blob_size = (drand(10, 1)) * 0.2;
 
 //     blob_size = (48 - cl_time + drand(5, 1)) * 0.2;
@@ -4694,7 +4715,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 					if (start_time >= end_time)
 						break;
 
-					float tail_width = 0.15;//(pack->status + 4) * 0.04;
+					float tail_width = 0.25;//(pack->status + 4) * 0.04;
      float x_step = al_fixtof(0 - cl->speed.x) * view.zoom;
      float y_step = al_fixtof(0 - cl->speed.y) * view.zoom;
 
@@ -4707,10 +4728,10 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 																					max_time,
 																					tail_width,
 																					cl->colour,
-																					22, // shade
+																					cl->data [0] - 6, // shade (data [0] is pack->status)
 																					cl->data [3] - total_packet_time + 1, // data [3] is packet index
-																					cl->data [0], // packet size
-																					0.6, // blob_scale
+																					3, // packet size
+																					1.4, // blob_scale
 																					cl->data [5]); // pulse
 
 
@@ -4718,7 +4739,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
      max_time = 24;
      if (end_time > max_time)
 						end_time = max_time;
-					tail_width = 0.09;//(pack->status + 4) * 0.03;
+					tail_width = 0.15;//(pack->status + 4) * 0.03;
 
 					if (start_time >= end_time)
 						break;
@@ -4729,7 +4750,7 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 							base_bloom_size = 1;
 
 
-       bloom_long(1, x + (x_step * cl->data [0]) / 3, y + (y_step * cl->data [0]) / 3, cl_angle, (max_time - start_time) * hypot(y_step, x_step),
+       bloom_long(1, x + (x_step * 3) / 3, y + (y_step * 3) / 3, cl_angle, (max_time - start_time) * hypot(y_step, x_step),
 //       bloom_long(1, x, y, packet_angle, end_time * hypot(y_step, x_step),
 																		colours.bloom_centre [cl->colour] [20],
 																		colours.bloom_edge [cl->colour] [10],
@@ -4747,10 +4768,10 @@ if (w.world_time > w.fragment[fr_index].explosion_timestamp)
 																					max_time,
 																					tail_width,
 																					cl->colour,
-																					28, // shade
+																					cl->data [0], // shade (data [0] is pack->status)
 																					cl->data [3] - total_packet_time + 1, // data [3] is packet index
-																					cl->data [0], // packet size
-																					0.3, // blob_scale
+																					3, // packet size
+																					0.8, // blob_scale
 																					cl->data [5]); // pulse
 				}
 break;
@@ -5259,6 +5280,7 @@ break;
    case CLOUD_SUB_PROC_EXPLODE:
 				check_vbuf();
 				{
+/*
    		int bits = 6 + cl->data [1];
      int time_left = cl->lifetime - cl_time;
      float size_modifier = 1 + (cl->data [1] * 0.1); // modifies for number of members in group when it was destroyed
@@ -5290,7 +5312,7 @@ break;
 
 
 					}
-
+*/
    	 int cl_time_left = cl->lifetime - cl_time;
    	 float main_cloud_size = (cl_time_left) - (cl_time * 0.1);
    	 if (main_cloud_size <= 0)
@@ -5489,6 +5511,19 @@ break;
 					float trail_angle = fixed_to_radians(cl->angle);
 					int next_cloud_index;
 					int trail_shade = (cl->created_timestamp + cl->lifetime - w.world_time) * 2;
+					int adjusted_trail_shade;
+
+					if (!w.cloud[trail_cloud_index].data [2])
+					{
+						if (trail_shade > 12)
+							adjusted_trail_shade = 12;
+							 else
+									adjusted_trail_shade = trail_shade;
+					}
+					 else
+							adjusted_trail_shade = trail_shade;
+
+
 //					if (trail_shade < 0)
 //						trail_shade = 0;
 #define SPIKE_FRONT_SIZE 3
@@ -5498,11 +5533,11 @@ break;
 																		(al_fixtof(w.cloud[trail_cloud_index].position.y - view.camera_y) + sin(trail_angle) * SPIKE_FRONT_SIZE) * view.zoom + (view.window_y_unzoomed/2),
 																		(al_fixtof(w.cloud[trail_cloud_index].position.x - view.camera_x) + cos(trail_angle + PI/2) * SPIKE_FRONT_SIZE) * view.zoom + (view.window_x_unzoomed/2),
 																		(al_fixtof(w.cloud[trail_cloud_index].position.y - view.camera_y) + sin(trail_angle + PI/2) * SPIKE_FRONT_SIZE) * view.zoom + (view.window_y_unzoomed/2),
-																		colours.packet [cl->colour] [trail_shade]);
+																		colours.packet [cl->colour] [adjusted_trail_shade]);
 
 						add_ribbon_vertex((al_fixtof(w.cloud[trail_cloud_index].position.x - view.camera_x) + cos(trail_angle - PI/2) * SPIKE_FRONT_SIZE) * view.zoom + (view.window_x_unzoomed/2),
 																		      (al_fixtof(w.cloud[trail_cloud_index].position.y - view.camera_y) + sin(trail_angle - PI/2) * SPIKE_FRONT_SIZE) * view.zoom + (view.window_y_unzoomed/2),
-																		      colours.packet [cl->colour] [trail_shade]);
+																		      colours.packet [cl->colour] [adjusted_trail_shade]);
 
 				 	trail_cloud_index = w.cloud[trail_cloud_index].data[0];
 
@@ -5518,17 +5553,29 @@ break;
 						trail_shade -= 2;
 						if (trail_shade < 0)
 							trail_shade = 0;
+
+					 if (!w.cloud[trail_cloud_index].data [2])
+					 {
+ 						if (trail_shade > 12)
+							 adjusted_trail_shade = 12;
+ 							 else
+									 adjusted_trail_shade = trail_shade;
+					 }
+ 					 else
+							 adjusted_trail_shade = trail_shade;
+
+
 						float pos_x = al_fixtof(w.cloud[trail_cloud_index].position.x - view.camera_x) + view.window_x_zoomed / 2;
 						float pos_y = al_fixtof(w.cloud[trail_cloud_index].position.y - view.camera_y) + view.window_y_zoomed / 2;
 						float angle_cos = cos(trail_angle + PI/2);
 						float angle_sin = sin(trail_angle + PI/2);
 						add_ribbon_vertex((pos_x + angle_cos * SPIKE_TRAIL_SIZE) * view.zoom,
 																		      (pos_y + angle_sin * SPIKE_TRAIL_SIZE) * view.zoom,
-																		      colours.packet [cl->colour] [trail_shade]);
+																		      colours.packet [cl->colour] [adjusted_trail_shade]);
 						add_ribbon_vertex((pos_x - angle_cos * SPIKE_TRAIL_SIZE) * view.zoom,
 																		      (pos_y - angle_sin * SPIKE_TRAIL_SIZE) * view.zoom,
-																		      colours.packet [cl->colour] [trail_shade]);
-
+																		      colours.packet [cl->colour] [adjusted_trail_shade]);
+/*
 						if (w.cloud[trail_cloud_index].data [2])
 						{
 						 float side_size = (trail_shade + (w.cloud[trail_cloud_index].position.x & 7)) * 0.4;
@@ -5543,7 +5590,7 @@ break;
 																		       (pos_y - angle_sin * side_size) * view.zoom,
 																									colours.packet [cl->colour] [trail_shade]);
 						}
-
+*/
 						trail_cloud_index = next_cloud_index;
 						if (w.cloud[trail_cloud_index].destruction_timestamp <= w.world_time)
 							break;
@@ -5610,10 +5657,10 @@ break;
 	    	if (hit_shade > 1)
 							hit_shade = 1;
 
-				ALLEGRO_COLOR interface_colour = al_map_rgba(w.player[cl->colour].interface_colour_base [0] + (w.player[cl->colour].interface_colour_hit [0] * hit_shade) + (w.player[cl->colour].interface_colour_charge [0] * hit_shade),
-																																																	w.player[cl->colour].interface_colour_base [1] + (w.player[cl->colour].interface_colour_hit [1] * hit_shade) + (w.player[cl->colour].interface_colour_charge [1] * hit_shade),
-																																																	w.player[cl->colour].interface_colour_base [2] + (w.player[cl->colour].interface_colour_hit [2] * hit_shade) + (w.player[cl->colour].interface_colour_charge [2] * hit_shade),
-																																																	hit_shade * 250);
+				ALLEGRO_COLOR interface_colour = map_rgba(w.player[cl->colour].interface_colour_base [0] + (w.player[cl->colour].interface_colour_hit [0] * hit_shade) + (w.player[cl->colour].interface_colour_charge [0] * hit_shade),
+																																														w.player[cl->colour].interface_colour_base [1] + (w.player[cl->colour].interface_colour_hit [1] * hit_shade) + (w.player[cl->colour].interface_colour_charge [1] * hit_shade),
+																																														w.player[cl->colour].interface_colour_base [2] + (w.player[cl->colour].interface_colour_hit [2] * hit_shade) + (w.player[cl->colour].interface_colour_charge [2] * hit_shade),
+																																														hit_shade * 250);
 
 	    	add_diamond_layer(2,
 																			     x + outwards_xpart * 1.3,
@@ -6033,8 +6080,13 @@ break;
 					side_displacement *= view.zoom;
 					lx = well_x + step_x * i + cos(angle_from_well - PI/2) * side_displacement;
 					ly = well_y + step_y * i + sin(angle_from_well - PI/2) * side_displacement;
-					add_ribbon_vertex(lx + cos(angle_from_well - PI/2) * line_thickness * view.zoom, ly + sin(angle_from_well - PI/2) * line_thickness * view.zoom, ribstate.fill_col);
-					add_ribbon_vertex(lx + cos(angle_from_well + PI/2) * line_thickness * view.zoom, ly + sin(angle_from_well + PI/2) * line_thickness * view.zoom, ribstate.fill_col);
+
+					add_ribbon_vertex(lx + cos(angle_from_well - PI/2) * line_thickness * view.zoom, ly + sin(angle_from_well - PI/2) * line_thickness * view.zoom,
+//																												colours.packet [cl->colour] [vertex_shade]);
+																												ribstate.fill_col);
+					add_ribbon_vertex(lx + cos(angle_from_well + PI/2) * line_thickness * view.zoom, ly + sin(angle_from_well + PI/2) * line_thickness * view.zoom,
+//																												colours.packet [cl->colour] [vertex_shade]);
+																												ribstate.fill_col);
      add_bloom_ribbon_vertices(
 																								lx, ly,
 																								lx + cos(angle_from_well - PI/2) * bloom_thickness, ly + sin(angle_from_well - PI/2) * bloom_thickness,
@@ -6151,7 +6203,7 @@ break;
 
 //				if (cl->type == CLOUD_REPAIR_LINE)
 //				{
-     shade = 32 - line_time;//(line_time * 2);
+     shade = (32 - line_time) / 2;//(line_time * 2);
 //				}
 //				 else
 //      shade = 32 - (line_time * 2);
@@ -6764,7 +6816,7 @@ add_stretched_hexagon(bx2 + x_offset, by2 + BLOCK_SIZE_PIXELS * 0.5 * view.zoom,
 // al_set_clipping_rectangle(0, 0, panel[PANEL_MAIN].w, panel[PANEL_MAIN].h);
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-// al_draw_bitmap(vision_mask,0,0,0);
+ al_draw_bitmap(vision_mask,0,0,0);
 
 
 
@@ -7091,6 +7143,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 	}
 */
 
+//#ifndef RECORDING_VIDEO
 // if only one core is selected, and it's the first in the select array, show its targets:
 // * actually do this just if one core is selected
 	if (command.select_mode == SELECT_MODE_SINGLE_CORE)
@@ -7114,6 +7167,8 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
 	  }
 		}
+//#endif
+
 
 #define BOX_W 250
 #define BOX_LINE_H 15
@@ -7134,6 +7189,8 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 	float	box_h = BOX_HEADER_H + BOX_LINE_H * 3 + 8;
  float text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
 
+#ifndef RECORDING_VIDEO
+
  add_menu_button(box_x, box_y, box_x2, box_y + box_h, colours.base_trans [COL_BLUE] [SHADE_MED] [TRANS_MED], 8, 3);
  add_menu_button(box_x + 3, box_y + 3, box_x2 - 3, box_y + BOX_HEADER_H, colours.base_trans [COL_BLUE] [SHADE_MAX] [TRANS_MED], 8, 3);
 
@@ -7149,9 +7206,14 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
  text_y += BOX_LINE_H;
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], text_x, text_y, ALLEGRO_ALIGN_LEFT, "components");
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], text_x2, text_y, ALLEGRO_ALIGN_RIGHT, "%i (%i) (%i)", w.player[game.user_player_index].components_current, w.player[game.user_player_index].components_reserved, w.procs_per_player);
+#endif
 
 // draw data box:
+#ifdef RECORDING_VIDEO
+ if (FALSE)
+#else
  if (command.select_mode == SELECT_MODE_SINGLE_CORE)
+#endif
 	{
 
 		box_y = box_y + box_h + 8;
@@ -7669,12 +7731,12 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
                print_object_information(text_x2, text_y, COL_AQUA, "ready", 0, 0);
 											}
 							 	break;
-/*							 case OBJECT_TYPE_INTERFACE:
-							 	if (selected_proc->interface_on_process_set_on)
+							 case OBJECT_TYPE_STABILITY:
+							 	if (selected_proc->interface_stability)
           print_object_information(text_x2, text_y, COL_AQUA, "on", 0, 0);
            else
             print_object_information(text_x2, text_y, COL_RED, "off", 0, 0);
-         break;*/
+         break;
        }
 						}
     text_y += BOX_LINE_H;
@@ -7749,8 +7811,9 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen - do it here to make sure any selection graphics are drawn before the map
 // draw_fans();
+#ifndef RECORDING_VIDEO
  draw_map();
-
+#endif
 //  al_draw_circle(view.window_x / 2, view.window_y / 2, 2, base_col [COL_GREY] [SHADE_MIN], 1);
 
 
@@ -7878,10 +7941,12 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 // fall-through...
 
   case GAME_PHASE_WORLD:
+#ifndef RECORDING_VIDEO
    if (game.pause_soft)
     al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "PAUSED");
    if (view.following)
     al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 90, ALLEGRO_ALIGN_CENTRE, "FOLLOWING");
+#endif
 //   if (view.under_attack_marker_last_time > w.world_time - UNDER_ATTACK_MARKER_DURATION)
 //    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 80, ALLEGRO_ALIGN_CENTRE, "UNDER ATTACK");
    if (game.fast_forward > 0)
@@ -7901,7 +7966,6 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
  }
 
  display_consoles_and_buttons();
-
 
 /*
  if (game.pause_hard) // can still enter hard pause when in a non-world game phase (as the system/observer/operator will otherwise continue running)
@@ -8075,7 +8139,7 @@ pulse_or_burst = 0;
 
 					if (adjusted_shade < 0)
 						return;
-
+/*
    		start_ribbon(2,
 																		x + cos(packet_angle) * (blob_size+3) * view.zoom,
 																		y + sin(packet_angle) * (blob_size+3) * view.zoom,
@@ -8085,7 +8149,23 @@ pulse_or_burst = 0;
 					add_ribbon_vertex(x + side2_dist_x * blob_size,
 																		     y + side2_dist_y * blob_size,
 																		     colours.packet [col] [adjusted_shade]);
+*/
 
+   		start_ribbon(2,
+																		x + cos(packet_angle) * (blob_size+3) * view.zoom,
+																		y + sin(packet_angle) * (blob_size+3) * view.zoom,
+																		x + cos(packet_angle + PI/4) * (blob_size + 2) * view.zoom,
+																		y + sin(packet_angle + PI/4) * (blob_size + 2) * view.zoom,
+																		colours.packet [col] [adjusted_shade]);
+					add_ribbon_vertex(x + cos(packet_angle - PI/4) * (blob_size + 2) * view.zoom,
+																		     y + sin(packet_angle - PI/4) * (blob_size + 2) * view.zoom,
+																		     colours.packet [col] [adjusted_shade]);
+					add_ribbon_vertex(x - side2_dist_x * blob_size,
+																		     y - side2_dist_y * blob_size,
+																		     colours.packet [col] [adjusted_shade]);
+					add_ribbon_vertex(x + side2_dist_x * blob_size,
+																		     y + side2_dist_y * blob_size,
+																		     colours.packet [col] [adjusted_shade]);
 
      int i;
 
@@ -8165,7 +8245,7 @@ static void draw_new_pulse_tail(float x, float y,
 					add_ribbon_vertex(x + cos(packet_angle - PI/5) * blob_multiplier * 0.7,
 																		     y + sin(packet_angle - PI/5) * blob_multiplier * 0.7,
 																		     colours.packet [col] [shade]);
-
+/*
 					add_ribbon_vertex(x + side_dist_x * blob_multiplier * 0.5,
 																		     y + side_dist_y * blob_multiplier * 0.5,
 																		     colours.packet [col] [shade - 2]);
@@ -8173,7 +8253,7 @@ static void draw_new_pulse_tail(float x, float y,
 					add_ribbon_vertex(x - side_dist_x * blob_multiplier * 0.5,
 																		     y - side_dist_y * blob_multiplier * 0.5,
 																		     colours.packet [col] [shade - 2]);
-
+*/
 
 					float adjusted_side_dist_x = side_dist_x * view.zoom * tail_width;
 					float adjusted_side_dist_y = side_dist_y * view.zoom * tail_width;
@@ -8891,6 +8971,10 @@ static void draw_command_marker(int core_index)
 
 static void select_arrows(int number, float centre_x, float centre_y, float select_arrow_angle, float dist, float out_dist, float side_angle, float side_dist, ALLEGRO_COLOR arrow_col)
 {
+
+#ifdef RECORDING_VIDEO
+return;
+#endif
 
 	 float angle_inc = (PI * 2) / number;
 	 int i;
@@ -9817,7 +9901,7 @@ void draw_slice_beam(float x1, float by1, float x2, float y2, int col, int time_
  int shade_end;
 	int fade_time = time_since_firing - SLICE_FIRING_TIME;
 
-	shade_base = 31 - time_since_firing * 2;
+	shade_base = 27 - time_since_firing * 2;
  	if (shade_base < 0)
 	 	shade_base = 0;
 
@@ -9840,6 +9924,7 @@ void draw_slice_beam(float x1, float by1, float x2, float y2, int col, int time_
 
 
 	float proportion = 2 - (time_since_firing * 0.05);
+//	float proportion = 3 - (time_since_firing * 0.1);
 /*
 	if (counter < STREAM_WARMUP_LENGTH)
 	{

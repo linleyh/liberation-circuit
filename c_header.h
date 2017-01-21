@@ -279,7 +279,7 @@ struct ic_address_resolution_struct
 
 #define REACHED_END_OF_SCODE -1001
 
-#define SCODE_LENGTH 8000
+#define SCODE_LENGTH 10000
 
 // scode contains information from a sourcestruct that has been through the preprocessor.
 struct scodestruct

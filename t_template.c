@@ -59,6 +59,7 @@ extern struct editorstruct editor;
 struct template_state_struct tstate;
 extern struct object_type_struct otype [OBJECT_TYPES];
 extern struct nshape_struct nshape [NSHAPES];
+extern struct game_struct game;
 
 static void add_template_object_error(struct template_struct* templ, int member_index, int object_type, int error_type);
 
@@ -501,6 +502,18 @@ void lock_template_members_recursively(struct template_struct* lock_templ, int m
 void unlock_template(int player_index, int template_index)
 {
 
+// First, make sure that the player isn't trying to unlock the mission AI:
+#ifndef DEBUG_MODE
+// (but allow this in debug mode)
+ if (player_index == 1
+		&& game.type == GAME_TYPE_MISSION)
+	{
+		write_line_to_log("You can't unlock your opponent's templates in story mode!", MLOG_COL_ERROR);
+		return;
+	}
+#endif
+
+
 // if no world is allocated, easy to unlock
 	if (!w.allocated)
 	{
@@ -539,8 +552,8 @@ void unlock_template(int player_index, int template_index)
 //  because this won't be obvious.
 	if (deallocating)
 	{
-		 write_line_to_log("Can't unlock template while processes based on it still exist.", MLOG_COL_ERROR);
-		 write_line_to_log(" (process has been destroyed, but deallocation will take a few ticks)", MLOG_COL_ERROR);
+		 write_line_to_log("Can't unlock template while a process based on it still exist.", MLOG_COL_ERROR);
+		 write_line_to_log(" (the process has been destroyed, but deallocation will take a few ticks)", MLOG_COL_ERROR);
 		 return;
 	}
 
