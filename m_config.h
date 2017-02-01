@@ -4,9 +4,12 @@
 
 #include <stdint.h>
 
+// DEBUG_MODE gives access to various special commands etc
+#define DEBUG_MODE
+
 // SANITY_CHECK runs various checks for things that should never happen, and shuts the game down if they do.
 // It doesn't seem to slow things down much so I've left it on, at least for now:
-//#define SANITY_CHECK
+#define SANITY_CHECK
 
 #ifdef SANITY_CHECK
 #define sancheck(value, min, max, text) if(value<min||value>=max){fpr("\nError: [%s]=(%i) out of bounds (should be %i to %i).",text,value,min,max-1);error_call();}
@@ -14,11 +17,8 @@
 #define sancheck(value, min, max, text)
 #endif
 
-// DEBUG_MODE gives access to various special commands etc
-//#define DEBUG_MODE
-
 // RECORDING_VIDEO hides some of the display elements and sets the resolution to 1280x720 (which is usually not possible as the minimum vertical resolution is 768)
-#define RECORDING_VIDEO
+//#define RECORDING_VIDEO
 
 
 #ifndef TRUE

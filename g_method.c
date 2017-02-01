@@ -31,6 +31,7 @@
 #include "g_method_core.h"
 #include "g_method_std.h"
 #include "c_keywords.h"
+#include "h_story.h"
 
 #include "v_interp.h"
 
@@ -160,58 +161,58 @@ struct call_type_struct call_type [CALL_TYPES] =
 
 struct object_type_struct otype [OBJECT_TYPES] =
 {
-// name, keyword, base type, data_cost, power_use_peak, power_use_smoothed, power_use_base,
+// name, keyword, base type, unlock_index, data_cost, power_use_peak, power_use_smoothed, power_use_base,
 //  {only_zero_angle_offset, attack_type, packet_speed, power_cost, recycle_time, packet_size, damage, rotate_speed}
 	{
-		"none", KEYWORD_OBJECT_NONE, OBJECT_BASE_TYPE_NONE, 0, 0, 0, {1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_NONE
+		"none", KEYWORD_OBJECT_NONE, OBJECT_BASE_TYPE_NONE, UNLOCK_NONE, 0, 0, 0, {1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_NONE
 	},
 	{
-		"uplink", KEYWORD_OBJECT_UPLINK, OBJECT_BASE_TYPE_LINK, 1, 0, 0, {0, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_UPLINK
+		"uplink", KEYWORD_OBJECT_UPLINK, OBJECT_BASE_TYPE_LINK, UNLOCK_NONE, 1, 0, 0, {0, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_UPLINK
 	},
 	{
-		"downlink", KEYWORD_OBJECT_DOWNLINK, OBJECT_BASE_TYPE_LINK, 1, 0, 0, {0, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_DOWNLINK
+		"downlink", KEYWORD_OBJECT_DOWNLINK, OBJECT_BASE_TYPE_LINK, UNLOCK_NONE, 1, 0, 0, {0, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_DOWNLINK
 	},
 	{
-		"move", KEYWORD_OBJECT_MOVE, OBJECT_BASE_TYPE_MOVE, 2,
+		"move", KEYWORD_OBJECT_MOVE, OBJECT_BASE_TYPE_MOVE, UNLOCK_NONE, 2,
 		10, // power_use_peak
 		10, // power_use_base
 		{0, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_MOVE
 	},
-	{"pulse", KEYWORD_OBJECT_PULSE, OBJECT_BASE_TYPE_ATTACK, 4,
+	{"pulse", KEYWORD_OBJECT_PULSE, OBJECT_BASE_TYPE_ATTACK, UNLOCK_NONE, 4,
 		20, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_PULSE, 8, 20, 48, 0, 16, 65536}, }, // OBJECT_TYPE_PULSE
-	{"pulse_l", KEYWORD_OBJECT_PULSE_L, OBJECT_BASE_TYPE_ATTACK, 8,
+	{"pulse_l", KEYWORD_OBJECT_PULSE_L, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_PULSE_L, 8,
 		40, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_PULSE, 6, 40, 64, 1, 32, 44000}, }, // OBJECT_TYPE_PULSE_L
-	{"pulse_xl", KEYWORD_OBJECT_PULSE_XL, OBJECT_BASE_TYPE_ATTACK, 12,
+	{"pulse_xl", KEYWORD_OBJECT_PULSE_XL, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_PULSE_XL, 12,
 		80, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_PULSE, 5, 80, 80, 2, 96, 20000}, }, // OBJECT_TYPE_PULSE_XL
-	{"burst", KEYWORD_OBJECT_BURST, OBJECT_BASE_TYPE_ATTACK, 3,
+	{"burst", KEYWORD_OBJECT_BURST, OBJECT_BASE_TYPE_ATTACK, UNLOCK_NONE, 3,
 		20, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_BURST, 8, 20, 48, 0, 20}, }, // OBJECT_TYPE_BURST
-	{"burst_l", KEYWORD_OBJECT_BURST_L, OBJECT_BASE_TYPE_ATTACK, 6,
+	{"burst_l", KEYWORD_OBJECT_BURST_L, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_PULSE_L, 6,
 		40, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_BURST, 6, 40, 64, 1, 40}, }, // OBJECT_TYPE_BURST_L
 
 //* consider making damage etc the same for pulse and burst, and just have pulse be more expensive
 
-	{"burst_xl", KEYWORD_OBJECT_BURST_XL, OBJECT_BASE_TYPE_ATTACK, 10,
+	{"burst_xl", KEYWORD_OBJECT_BURST_XL, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_PULSE_XL, 10,
 		80, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_BURST, 5, 80, 80, 2, 120}, }, // OBJECT_TYPE_BURST_XL
 	{
-		"build", KEYWORD_OBJECT_BUILD, OBJECT_BASE_TYPE_STD, 64,
+		"build", KEYWORD_OBJECT_BUILD, OBJECT_BASE_TYPE_STD, UNLOCK_NONE, 64,
 		BUILD_POWER_COST, // power_use_peak
 		0, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_BUILD
 	},
 	{
-		"interface", KEYWORD_OBJECT_INTERFACE, OBJECT_BASE_TYPE_DEFEND, 16,
+		"interface", KEYWORD_OBJECT_INTERFACE, OBJECT_BASE_TYPE_DEFEND, UNLOCK_OBJECT_INTERFACE, 16,
 		INTERFACE_POWER_USE + INTERFACE_CHARGE_POWER_COST, // power_use_peak
 		INTERFACE_POWER_USE, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_INTERFACE
@@ -232,17 +233,17 @@ struct object_type_struct otype [OBJECT_TYPES] =
 		"interface_res", KEYWORD_OBJECT_INTERFACE_RESPONSE, OBJECT_BASE_TYPE_DEFEND, 4, {1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_INTERFACE_RESPONSE
 	},*/
 	{
-		"harvest", KEYWORD_OBJECT_HARVEST, OBJECT_BASE_TYPE_STD, 12,
+		"harvest", KEYWORD_OBJECT_HARVEST, OBJECT_BASE_TYPE_STD, UNLOCK_NONE, 12,
 		POWER_COST_GATHER_BASE, // + (HARVEST_RATE * POWER_COST_GATHER_1_DATA), // power_use_peak - may not be quite right as give_data has different costs
 		0, //((POWER_COST_GATHER_BASE + (HARVEST_RATE * POWER_COST_GATHER_1_DATA)) * 16) / HARVEST_RECYCLE_TIME, // power_use_smoothed
 //		0, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_HARVEST
 	},
 	{
-		"storage", KEYWORD_OBJECT_STORAGE, OBJECT_BASE_TYPE_STD, 2, 0, 0, {1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_STORAGE
+		"storage", KEYWORD_OBJECT_STORAGE, OBJECT_BASE_TYPE_STD, UNLOCK_NONE, 2, 0, 0, {1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED},  // OBJECT_TYPE_STORAGE
 	},
 	{
-		"allocate", KEYWORD_OBJECT_ALLOCATE, OBJECT_BASE_TYPE_STD, 64,
+		"allocate", KEYWORD_OBJECT_ALLOCATE, OBJECT_BASE_TYPE_STD, UNLOCK_NONE, 64,
 		ALLOCATE_RATE * POWER_COST_ALLOCATE_1_DATA, // power_use_peak
 //		ALLOCATE_RATE * POWER_COST_ALLOCATE_1_DATA, // power_use_smoothed
 		0, // power_use_base
@@ -250,52 +251,52 @@ struct object_type_struct otype [OBJECT_TYPES] =
 	},
 	{
 #define POWER_COST_STREAM 160
-		"stream", KEYWORD_OBJECT_STREAM, OBJECT_BASE_TYPE_ATTACK, 32,
+		"stream", KEYWORD_OBJECT_STREAM, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_STREAM, 32,
 		POWER_COST_STREAM, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_BURST, 140, POWER_COST_STREAM, STREAM_RECYCLE_TIME, 5, 7}, // OBJECT_TYPE_STREAM
 	},
 	{
-		"stream_dir", KEYWORD_OBJECT_STREAM_DIR, OBJECT_BASE_TYPE_ATTACK, 36,
+		"stream_dir", KEYWORD_OBJECT_STREAM_DIR, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_STREAM, 36,
 		POWER_COST_STREAM, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_PULSE, 140, POWER_COST_STREAM, STREAM_RECYCLE_TIME, 5, 5, 20000}, // OBJECT_TYPE_STREAM_DIR
 	},
 	{
-		"spike", KEYWORD_OBJECT_SPIKE, OBJECT_BASE_TYPE_ATTACK, 12,
+		"spike", KEYWORD_OBJECT_SPIKE, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_SPIKE, 12,
 		POWER_COST_SPIKE,
 		0, // power_use_base
 	 {1, ATTACK_TYPE_SPIKE, 4, POWER_COST_SPIKE, 256, 5, SPIKE_BASE_DAMAGE}, // OBJECT_TYPE_SPIKE - damage is adjusted by range
 	},
 	{
-		"repair", KEYWORD_OBJECT_REPAIR, OBJECT_BASE_TYPE_DEFEND, 8,
+		"repair", KEYWORD_OBJECT_REPAIR, OBJECT_BASE_TYPE_DEFEND, UNLOCK_NONE, 8,
 		POWER_COST_RESTORE_COMPONENT*2,
 		0, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_REPAIR
 	},
 	{
-		"repair_other", KEYWORD_OBJECT_REPAIR_OTHER, OBJECT_BASE_TYPE_DEFEND, 24,
+		"repair_other", KEYWORD_OBJECT_REPAIR_OTHER, OBJECT_BASE_TYPE_DEFEND, UNLOCK_OBJECT_REPAIR_OTHER, 24,
 		POWER_COST_RESTORE_COMPONENT*2,
 		0, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_REPAIR_OTHER
 	},
-	{"ultra", KEYWORD_OBJECT_ULTRA, OBJECT_BASE_TYPE_ATTACK, 48,
+	{"ultra", KEYWORD_OBJECT_ULTRA, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_ULTRA, 48,
 		200, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_BURST, 6, 200, 192, 3, 800}, }, // OBJECT_TYPE_ULTRA
-	{"ultra_dir", KEYWORD_OBJECT_ULTRA_DIR, OBJECT_BASE_TYPE_ATTACK, 60,
+	{"ultra_dir", KEYWORD_OBJECT_ULTRA_DIR, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_ULTRA, 60,
 		200, // power_use_peak
 		0, // power_use_base
 	 {0, ATTACK_TYPE_PULSE, 5, 200, 192, 3, 600, 20000}, // OBJECT_TYPE_ULTRA_DIR
 	},
 	{
-		"slice", KEYWORD_OBJECT_SLICE, OBJECT_BASE_TYPE_ATTACK, 18,
+		"slice", KEYWORD_OBJECT_SLICE, OBJECT_BASE_TYPE_ATTACK, UNLOCK_OBJECT_SLICE, 18,
 		POWER_COST_SLICE, // power_use_peak
 		0, // power_use_base
 		{0, ATTACK_TYPE_PULSE, 100, POWER_COST_SLICE, SLICE_RECYCLE_TIME, 3, 3, 50000}, // OBJECT_TYPE_SLICE
 	},
 	{
-		"stability", KEYWORD_OBJECT_STABILITY, OBJECT_BASE_TYPE_DEFEND, 8,
+		"stability", KEYWORD_OBJECT_STABILITY, OBJECT_BASE_TYPE_DEFEND, UNLOCK_OBJECT_STABILITY, 8,
 		INTERFACE_STABILITY_POWER_USE, // currently 30
 		INTERFACE_STABILITY_POWER_USE, // power_use_base
 		{1, ATTACK_TYPE_NONE, DEFAULT_INTERCEPT_SPEED}, // OBJECT_TYPE_STABILITY
@@ -442,7 +443,7 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
  int call_finished = 0; // set to 1 if a call does something that concludes a class call (e.g. fails to find a target)
 	al_fixed target_x, target_y, target_distance = 0, stand_off_distance = 0; // initialised to 0 to avoid compiler warning about being used uninitialised (which I'm pretty sure can't actually happen)
 	int number_of_attacks = 0; // used for attack modes with limited numbers of attacks
-	int reposition_mode; // used for reposition calls. Shouldn't be used uninitialised, whatever the compiler warning says.
+	int reposition_mode = 0; // used for reposition calls. initialised to avoid compiler warning.
 
  al_fixed target_angle = 0;
  al_fixed target_angle_offset = 0; // used for e.g. intercept call (which needs to preserve the result of lead_target between move objects)

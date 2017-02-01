@@ -563,6 +563,8 @@ fpr("\n controls");
 
 fpr("\n sound");
 
+ load_story_status_file(); // this prints a progress report
+
 /*
 // load the title bitmap
   title_bitmap = al_load_bitmap("data/images/title.bmp");

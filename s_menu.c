@@ -1185,6 +1185,8 @@ SMS_DATA_300,
 SMS_DATA_600,
 SMS_DATA_900,
 SMS_DATA_1200,
+SMS_ADVANCED_1,
+SMS_ADVANCED_2,
 SMS_STRINGS
 };
 
@@ -1208,7 +1210,8 @@ const char *setup_menu_string [SMS_STRINGS] =
 "600", // SMS_DATA_600,
 "900", // SMS_DATA_900,
 "1200", // SMS_DATA_1200,
-
+"In advanced mode, you cannot give commands.", // SMS_ADVANCED_1
+" Your processes must be coded to act autonomously.", // SMS_ADVANCED_2
 };
 
 
@@ -1350,6 +1353,13 @@ void display_menu_2(void)
     	     add_menu_string(menu_element[i].x1 + 145, y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, mstate.map_code_string);
     	     add_menu_string(menu_element[i].x1 + 134, y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[        ]");
          	break;
+         case EL_MAIN_START_GAME_ADVANCED:
+          if (menu_element[i].highlight)
+          {
+    	      add_menu_string(menu_element[i].x2 + 20, y1 + 17, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_1]);
+    	      add_menu_string(menu_element[i].x2 + 20, y1 + 30, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_2]);
+          }
+										break;
         }
 
     if (menu_element[i].highlight)
@@ -1377,18 +1387,18 @@ void display_menu_2(void)
 																													colours.base [COL_GREY] [SHADE_MIN]);
 					for (i = 0; i < map_init.players; i ++)
 					{
-				  al_draw_filled_rectangle(base_x + map_init.spawn_position[i].x * MAP_SIZE_FACTOR - 2,
-																													  base_y + map_init.spawn_position[i].y * MAP_SIZE_FACTOR - 2,
-                               base_x + map_init.spawn_position[i].x * MAP_SIZE_FACTOR + 2,
-																													  base_y + map_init.spawn_position[i].y * MAP_SIZE_FACTOR + 2,
+				  al_draw_filled_rectangle(base_x + map_init.spawn_position[i].x * MAP_SIZE_FACTOR - 3,
+																													  base_y + map_init.spawn_position[i].y * MAP_SIZE_FACTOR - 3,
+                               base_x + map_init.spawn_position[i].x * MAP_SIZE_FACTOR + 3,
+																													  base_y + map_init.spawn_position[i].y * MAP_SIZE_FACTOR + 3,
 																													  colours.base [i] [SHADE_HIGH]);
 					}
 					for (i = 0; i < map_init.data_wells; i ++)
 					{
-				  al_draw_filled_rectangle(base_x + map_init.data_well_position[i].x * MAP_SIZE_FACTOR - 1,
-																													  base_y + map_init.data_well_position[i].y * MAP_SIZE_FACTOR - 1,
-                               base_x + map_init.data_well_position[i].x * MAP_SIZE_FACTOR + 1,
-																													  base_y + map_init.data_well_position[i].y * MAP_SIZE_FACTOR + 1,
+				  al_draw_filled_rectangle(base_x + map_init.data_well_position[i].x * MAP_SIZE_FACTOR - 2,
+																													  base_y + map_init.data_well_position[i].y * MAP_SIZE_FACTOR - 2,
+                               base_x + map_init.data_well_position[i].x * MAP_SIZE_FACTOR + 2,
+																													  base_y + map_init.data_well_position[i].y * MAP_SIZE_FACTOR + 2,
 																													  colours.base [COL_YELLOW] [SHADE_HIGH]);
 
 					}
@@ -2042,14 +2052,14 @@ void run_menu_input(void)
        // first load gamefile (and setup system program for use if appropriate)
 //       setup_templates_for_mission_menu();
 //       open_menu(MENU_MISSIONS);
-       init_story();
-       enter_story_mode();
+//       init_story(STORY_TYPE_NORMAL);
+       enter_story_mode(STORY_TYPE_NORMAL);
        break;
       case EL_ACTION_STORY_ADVANCED:
 //      case EL_ACTION_ADVANCED_MISSION:
        play_interface_sound(SAMPLE_BLIP1, TONE_2D);
-       init_story();
-       enter_story_mode(); // need to set to autonomous mode at some point!
+//       init_story(STORY_TYPE_ADVANCED);
+       enter_story_mode(STORY_TYPE_ADVANCED); // need to set to autonomous mode at some point!
        // first load gamefile (and setup system program for use if appropriate)
 //       setup_templates_for_mission_menu();
 //       setup_templates_for_advanced_mission_menu();
@@ -2539,6 +2549,7 @@ void run_intro_screen(void)
   mouse_y = ex_control.mouse_y_pixels;
   just_pressed = (ex_control.mb_press [0] == BUTTON_JUST_PRESSED);
 
+// key test is for people using non-QWERTY keyboards. See init.txt.
   if (ex_control.unichar_input == 'k')
 			key_test = 1;
 
@@ -2548,7 +2559,9 @@ void run_intro_screen(void)
 //  al_clear_to_color(colours.base [COL_BLUE] [SHADE_LOW]);
   run_menu_stripes(1);
 
+
   al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, 200, ALLEGRO_ALIGN_CENTRE, "L I B E R A T I O N   C I R C U I T");
+
 
   reset_i_buttons();
 

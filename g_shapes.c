@@ -11,6 +11,7 @@
 #include "m_maths.h"
 #include "c_keywords.h"
 #include "i_header.h"
+#include "h_story.h"
 
 #include "z_poly.h"
 
@@ -149,21 +150,21 @@ Need to work out what they'll look like.
 const struct nshape_init_data_struct nshape_init_data [NSHAPES] =
 {
 // data cost, hp, core power, component power, interface charge rate
-{8, 200, 100, 14, 2, 1024}, // NSHAPE_CORE_STATIC_QUAD,
-{14, 300, 120, 18, 3, 1280}, // NSHAPE_CORE_STATIC_PENT,
-{28, 400, 180, 22, 4, 1536}, // NSHAPE_CORE_STATIC_HEX_A,
-{64, 500, 240, 34, 5, 1792}, // NSHAPE_CORE_STATIC_HEX_B,
-{128, 600, 300, 56, 6, 2048}, // NSHAPE_CORE_STATIC_HEX_C,
+{UNLOCK_NONE, 8, 200, 100, 14, 2, 1024}, // NSHAPE_CORE_STATIC_QUAD,
+{UNLOCK_NONE, 14, 300, 120, 18, 3, 1280}, // NSHAPE_CORE_STATIC_PENT,
+{UNLOCK_NONE, 28, 400, 180, 22, 4, 1536}, // NSHAPE_CORE_STATIC_HEX_A,
+{UNLOCK_CORE_STATIC_1, 64, 500, 240, 34, 5, 1792}, // NSHAPE_CORE_STATIC_HEX_B,
+{UNLOCK_CORE_STATIC_2, 128, 600, 300, 56, 6, 2048}, // NSHAPE_CORE_STATIC_HEX_C,
 
 
-{30, 50, 50, 10, 1, 1024}, // NSHAPE_CORE_QUAD_A,
-{50, 70, 60, 16, 1, 1024}, // NSHAPE_CORE_QUAD_B,
-{80, 100, 70, 24, 2, 1280}, // NSHAPE_CORE_PENT_A,
-{100, 140, 80, 30, 2, 1280}, // NSHAPE_CORE_PENT_B,
-{130, 180, 90, 36, 3, 1280}, // NSHAPE_CORE_PENT_C,
-{180, 220, 100, 42, 3, 1536}, // NSHAPE_CORE_HEX_A,
-{230, 260, 110, 48, 4, 1536}, // NSHAPE_CORE_HEX_B,
-{300, 300, 120, 54, 5, 1536}, // NSHAPE_CORE_HEX_C,
+{UNLOCK_NONE, 30, 50, 50, 10, 1, 1024}, // NSHAPE_CORE_QUAD_A,
+{UNLOCK_NONE, 50, 70, 60, 16, 1, 1024}, // NSHAPE_CORE_QUAD_B,
+{UNLOCK_NONE, 80, 100, 70, 24, 2, 1280}, // NSHAPE_CORE_PENT_A,
+{UNLOCK_CORE_MOBILE_1, 100, 140, 80, 30, 2, 1280}, // NSHAPE_CORE_PENT_B,
+{UNLOCK_CORE_MOBILE_1, 130, 180, 90, 36, 3, 1280}, // NSHAPE_CORE_PENT_C,
+{UNLOCK_CORE_MOBILE_2, 180, 220, 100, 42, 3, 1536}, // NSHAPE_CORE_HEX_A,
+{UNLOCK_CORE_MOBILE_3, 230, 260, 110, 48, 4, 1536}, // NSHAPE_CORE_HEX_B,
+{UNLOCK_CORE_MOBILE_4, 300, 300, 120, 54, 5, 1536}, // NSHAPE_CORE_HEX_C,
 
 
 /*
@@ -196,19 +197,20 @@ const struct nshape_init_data_struct nshape_init_data [NSHAPES] =
 {180, 250, 560, 22}, // NSHAPE_CORE_HEX_C,
 */
 
-{6, 100, 0}, // NSHAPE_COMPONENT_TRI,
-{6, 100, 0}, // NSHAPE_COMPONENT_FORK,
-{9, 100, 0}, // NSHAPE_COMPONENT_BOX,
-{9, 100, 0}, // NSHAPE_COMPONENT_LONG4,
-{9, 100, 0}, // NSHAPE_COMPONENT_CAP,
-{9, 100, 0}, // NSHAPE_COMPONENT_PRONG,
-{12, 100, 0}, // NSHAPE_COMPONENT_LONG5,
-{12, 100, 0}, // NSHAPE_COMPONENT_PEAK,
-{12, 100, 0}, // NSHAPE_COMPONENT_SNUB,
-{12, 100, 0}, // NSHAPE_COMPONENT_BOWL,
-{16, 100, 0}, // NSHAPE_COMPONENT_LONG6,
-{16, 100, 0}, // NSHAPE_COMPONENT_DROP,
-{16, 100, 0}, // NSHAPE_COMPONENT_SIDE,
+
+{UNLOCK_NONE, 6, 100, 0}, // NSHAPE_COMPONENT_TRI,
+{UNLOCK_NONE, 6, 100, 0}, // NSHAPE_COMPONENT_FORK,
+{UNLOCK_NONE, 9, 100, 0}, // NSHAPE_COMPONENT_BOX,
+{UNLOCK_NONE, 9, 100, 0}, // NSHAPE_COMPONENT_LONG4,
+{UNLOCK_NONE, 9, 100, 0}, // NSHAPE_COMPONENT_CAP,
+{UNLOCK_NONE, 9, 100, 0}, // NSHAPE_COMPONENT_PRONG,
+{UNLOCK_CORE_MOBILE_1, 12, 100, 0}, // NSHAPE_COMPONENT_LONG5,
+{UNLOCK_CORE_STATIC_1, 12, 100, 0}, // NSHAPE_COMPONENT_PEAK,
+{UNLOCK_CORE_MOBILE_1, 12, 100, 0}, // NSHAPE_COMPONENT_SNUB,
+{UNLOCK_CORE_MOBILE_2, 12, 100, 0}, // NSHAPE_COMPONENT_BOWL,
+{UNLOCK_CORE_MOBILE_3, 16, 100, 0}, // NSHAPE_COMPONENT_LONG6,
+{UNLOCK_CORE_STATIC_2, 16, 100, 0}, // NSHAPE_COMPONENT_DROP,
+{UNLOCK_CORE_MOBILE_4, 16, 100, 0}, // NSHAPE_COMPONENT_SIDE,
 
 
 
@@ -3604,6 +3606,7 @@ static void start_dshape(int ds, int keyword_index)
   nshape[ds].component_power_capacity = nshape_init_data [ds].component_power_capacity;
   nshape[ds].interface_charge_rate = nshape_init_data [ds].interface_charge_rate;
   nshape[ds].instructions_per_cycle = nshape_init_data [ds].instructions_per_cycle;
+  nshape[ds].unlock_index = nshape_init_data [ds].unlock_index;
 
 // now, add a collision vertex near the middle (this will prevent things like shapes spawning on top of other shapes):
   nshape[ds].vertex_angle_fixed [nshape[ds].vertices] = 0;

@@ -1345,6 +1345,8 @@ default:
 
    int centre_block = w_init.map_size_blocks / 2;
 
+   w_init.starting_data_setting [1] = 3;
+
 	 	player_base_x = 25;
 	 	player_base_y = 25;
 //	 	mission_add_data_well(player_base_x, player_base_y,	2000, 1000, 4, 0.002);
@@ -1407,7 +1409,6 @@ default:
    data_well_index [dwi++] = mission_add_data_well(1, -1, w_init.map_size_blocks - 43, w_init.map_size_blocks - 16);
 
 
-   w_init.starting_data_setting [1] = 3;
 
 	 	}
 	  break;
@@ -1422,13 +1423,13 @@ default:
 
    load_mission_source("story/yellow/yellow3/y3_base.c", 1, template_index++);
    load_mission_source("story/yellow/yellow3/y3_m_builder.c", 1, template_index++);
-//   load_mission_source("story/yellow/yellow3/y3_harvest.c", 1, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_harvest.c", 1, template_index++);
    load_mission_source("story/yellow/yellow3/y3_leader1.c", 1, template_index++);
-//   load_mission_source("story/yellow/yellow3/y3_leader2.c", 1, template_index++);
+   load_mission_source("story/yellow/yellow3/y3_leader2.c", 1, template_index++);
    load_mission_source("story/yellow/yellow3/y3_follower.c", 1, template_index++);
    load_mission_source("story/yellow/yellow3/y3_minbase.c", 1, template_index++);
    load_mission_source("story/yellow/yellow3/y3_scout.c", 1, template_index++);
-   load_mission_source("story/yellow/yellow3/y3_follower2.c", 1, template_index++);
+
    clear_remaining_templates(1, template_index);
 
 
@@ -1490,6 +1491,19 @@ default:
 																																															main_block + 17,
 																																															main_block + 17);
    set_player_spawn_position_by_latest_well(1, ANGLE_2+ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
+
+   data_well_index [dwi++] = mission_add_data_well(0,
+																																															1,
+																																															main_block + 32,
+																																															main_block + 32);
+	 	add_extra_spawn(1, 6,
+																			main_block + 36,
+																			main_block + 36,
+																			4096 + 1024);
+	 	add_extra_spawn(1, 6,
+																			main_block + 4,
+																			main_block + 4,
+																			4096 + 1024);
 
 
    data_well_index [dwi++] = mission_add_data_well(1,
@@ -1958,7 +1972,8 @@ default:
 
    int template_index = 0;
 
-   load_mission_source("story/red/red1/r1_base.c", 1, template_index++);
+//   load_mission_source("story/red/red1/r1_base.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_leader1.c", 1, template_index++);
    load_mission_source("story/red/red1/r1_m_builder.c", 1, template_index++);
    load_mission_source("story/red/red1/r1_leader1.c", 1, template_index++);
    load_mission_source("story/red/red1/r1_follower.c", 1, template_index++);

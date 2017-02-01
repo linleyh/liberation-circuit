@@ -357,7 +357,7 @@ void draw_template_members(void)
 			select_time_adjust += (32 - ((inter.running_time - dwindow.select_member_timestamp) % 32)) * 0.2;
 
 			ALLEGRO_COLOR selected_col = al_map_rgba(50 + select_time_adjust,
-																																												180 + select_time_adjust,
+																																												80 + select_time_adjust + (dwindow.selected_link	== -1) * 100,
 																																												200 + select_time_adjust,
 																																												40 + select_time_adjust);
 			float selected_scale = 1.3 + select_time_adjust * 0.005;
@@ -434,7 +434,7 @@ void draw_template_members(void)
 																	mem->shape,
 																	0, // player_index
 																	1, // zoom
-															  colours.plan_col [design_colour [((mem->collision | mem->move_obstruction) != 0)]]);
+															  colours.plan_col [design_colour [((mem->collision | mem->move_obstruction | mem->story_lock_failure) != 0)]]);
 
 
    for (i = 0; i < MAX_LINKS; i ++)
@@ -451,7 +451,7 @@ void draw_template_members(void)
 																			   dwindow.templ->member[mem->connection[0].template_member_index].group_angle_offset,// - AFX_ANGLE_4,
 																			   dwindow.templ->member[mem->connection[0].template_member_index].shape,
 																	     mem->connection[0].reverse_link_index,
-																	     colours.plan_col [design_colour [((mem->collision | mem->move_obstruction) != 0)]],
+																	     colours.plan_col [design_colour [((mem->collision | mem->move_obstruction | mem->story_lock_failure) != 0)]],
 //																			   proc_col [(mem->collision | mem->move_obstruction | mem->object[i].template_error) != 0] [1] [0],
 //																			   proc_col [(mem->collision | mem->move_obstruction | mem->object[i].template_error) != 0] [1] [1],
 																			   1); // last number is zoom
@@ -1498,6 +1498,8 @@ static void design_help_highlight(int base_x, int base_y)
       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: move obstructed by component"); break;
 					case TEMPLATE_OBJECT_ERROR_MOBILE_ALLOCATE:
       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: allocate on non-static process"); break;
+					case TEMPLATE_OBJECT_ERROR_STORY_LOCK:
+      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: object needs to be unlocked"); break;
 				}
 		 return;
 		}

@@ -238,10 +238,13 @@ void generate_scattered_map(int size_blocks,
 						}
 			}
 
- map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [0] = 1500;
- map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [1] = 1000;
- map_gen_state.base_data_well_reserve_squares [map_gen_state.base_data_wells] = 3;
- map_gen_state.base_data_well_spin [map_gen_state.base_data_wells] = 0.003; // okay to use float as this doesn't affect anything
+ if (mrand(6) != 0)
+	{
+  map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [0] = 1500;
+  map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [1] = 1000;
+  map_gen_state.base_data_well_reserve_squares [map_gen_state.base_data_wells] = 4;
+  map_gen_state.base_data_well_spin [map_gen_state.base_data_wells] = 0.003; // okay to use float as this doesn't affect anything
+	}
 
  map_gen_state.base_data_wells = 1;
 
@@ -253,12 +256,13 @@ void generate_scattered_map(int size_blocks,
 		{
 			int new_block_x = base_min_x + mrand(base_var_x);
 			int new_block_y = base_min_y + mrand(base_var_y);
-		 if (abs(new_block_x - map_gen_state.base_spawn_position_x) >= 4
-				|| abs(new_block_y - map_gen_state.base_spawn_position_y) >= 4)
+		 if (abs(new_block_x - map_gen_state.base_spawn_position_x) >= 8
+				|| abs(new_block_y - map_gen_state.base_spawn_position_y) >= 8)
 		 {
 
 				 	if (check_map_gen_state_data_well_position(new_block_x, new_block_y))
 						{
+
        map_gen_state.base_data_well_x [map_gen_state.base_data_wells] = new_block_x;
        map_gen_state.base_data_well_y [map_gen_state.base_data_wells] = new_block_y;
        map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [0] = 500 + mrand(1000);
@@ -473,8 +477,8 @@ static int check_map_gen_state_data_well_position(int block_x, int block_y)
 
 				 	for (i = 0; i < map_gen_state.base_data_wells; i ++)
 						{
-		     if (abs(map_gen_state.base_data_well_x [map_gen_state.base_data_wells] - map_gen_state.base_data_well_x [i]) < 8
-				    && abs(map_gen_state.base_data_well_y [map_gen_state.base_data_wells] - map_gen_state.base_data_well_y [i]) < 8)
+		     if (abs(block_x - map_gen_state.base_data_well_x [i]) < 8
+				    && abs(block_y - map_gen_state.base_data_well_y [i]) < 8)
 				   {
 				   	return 0;
   		   }

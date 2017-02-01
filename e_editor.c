@@ -47,6 +47,8 @@ extern struct view_struct view;
 extern struct log_struct mlog;
 extern struct slider_struct slider [SLIDERS];
 
+extern struct game_struct game;
+
 /*
 
 This file contains functions for displaying source code and editing text.
@@ -1293,6 +1295,14 @@ static void submenu_operation(int sm, int line)
     	break;
     case SUBMENU_COMPILE_COMPILE:
       reset_log();
+#ifndef DEBUG_MODE
+ if (dwindow.templ->player_index == 1
+		&& game.type == GAME_TYPE_MISSION)
+	{
+		write_line_to_log("You can't recompile your opponent's templates in story mode!", MLOG_COL_ERROR);
+		return;
+	}
+#endif
     	 if (dwindow.templ->locked)
 					 {
 		 	   write_line_to_log("Template locked - process design not updated.", MLOG_COL_COMPILER);
@@ -1305,6 +1315,14 @@ static void submenu_operation(int sm, int line)
     	break;
     case SUBMENU_COMPILE_COMPILE_LOCK:
      reset_log();
+#ifndef DEBUG_MODE
+ if (dwindow.templ->player_index == 1
+		&& game.type == GAME_TYPE_MISSION)
+	{
+		write_line_to_log("You can't recompile your opponent's templates in story mode!", MLOG_COL_ERROR);
+		return;
+	}
+#endif
     	if (dwindow.templ->locked)
 					{
 		 	  write_line_to_log("Template already locked - process design not updated.", MLOG_COL_COMPILER);

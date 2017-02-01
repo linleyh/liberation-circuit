@@ -49,6 +49,7 @@ draws map etc and receives input.
 #include "t_template.h"
 
 #include "h_story.h"
+#include "h_mission.h"
 
 #include "x_sound.h"
 
@@ -185,6 +186,7 @@ struct story_inter_struct story_inter;
 
 extern struct story_struct story;
 extern struct game_struct game;
+extern struct world_init_struct w_init;
 
 extern struct fontstruct font [FONTS];
 extern struct vbuf_struct vbuf;
@@ -209,7 +211,7 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
 static void add_orthogonal_hexagon_story(int layer, float x, float y, float size, ALLEGRO_COLOR col1);
 static void add_story_bquad(float xa, float ya, float wa, float ha, float corner1, float corner2, ALLEGRO_COLOR col);
 //static void add_story_triangle(int layer, float xa, float ya, float xb, float yb, float xc, float yc, ALLEGRO_COLOR col);
-static void add_story_quad(int layer, float xa, float ya, float xb, float yb, float xc, float yc, float xd, float yd, ALLEGRO_COLOR col);
+//static void add_story_quad(int layer, float xa, float ya, float xb, float yb, float xc, float yc, float xd, float yd, ALLEGRO_COLOR col);
 
 static void init_region_lines(void);
 //static void add_region_line_vertex(int line_index, int vertex_index, float x, float y);
@@ -411,13 +413,17 @@ void story_input(void)
 				&& mouse_y <= GO_BUTTON_Y + GO_BUTTON_SIZE)
 			{
 
-       game.type = GAME_TYPE_MISSION;
        game.mission_index = story.region[story_inter.region_selected].mission_index;
        game.area_index = story.region[story_inter.region_selected].area_index;
-       game.region_in_area_index = 0; // will be set in prepare_for_mission
+       game.region_index = story_inter.region_selected;
+       game.region_in_area_index = 0; // this is 0, 1 or 2. It will be set in prepare_for_mission
 							prepare_templates_for_new_game();
        prepare_for_mission(); // sets up w_init so that start_world will prepare the world for a mission
         // also loads in enemy templates and does other preparation for a mission
+       if (story.story_type == STORY_TYPE_ADVANCED)
+								w_init.command_mode = COMMAND_MODE_AUTO;
+ 							 else
+  								w_init.command_mode = COMMAND_MODE_COMMAND;
        new_world_from_world_init();
        generate_map_from_map_init();
 //       generate_random_map(w_init.map_size_blocks, w_init.players, w_init.game_seed);
@@ -504,7 +510,7 @@ static void draw_story_regions(void)
 	draw_region_lines();
 
 
-	int i, j, k;
+	int i;//, j;//, k;
 
 	int highlighted;
 
@@ -577,14 +583,6 @@ static void draw_story_regions(void)
 			col_r *= 0.7;
 			col_g *= 0.7;
 			col_b *= 0.7;
-			for (j = 0; j < SRC_DIRECTIONS; j ++)
-			{
-				if (story.region[i].connect[j] != -1
-					&& story.region[story.region[i].connect[j]].defeated)
-				{
-					int other_region = story.region[i].connect[j];
-					float other_x = story_inter.region_inter[other_region].x_screen;
-					float other_y = story_inter.region_inter[other_region].y_screen;
 
 					int other_region_extra_hex_counter = inter.running_time % 48;
 
@@ -603,39 +601,34 @@ static void draw_story_regions(void)
 																															map_rgba(180, 180, 180, hex_alpha));
 
 /*
-					float angle_from_other = atan2(story_inter.region_inter[i].y_screen - other_y, story_inter.region_inter[i].x_screen - other_x);
-					float dist_from_other = hypot(story_inter.region_inter[i].y_screen - other_y, story_inter.region_inter[i].x_screen - other_x);
-					for (k = 0; k < 4; k ++)
-					{
-					timestamp adjusted_running_time = inter.running_time + (k * 24);
-					float extra_dist = ((adjusted_running_time + other_region * 8) % 96);
-					extra_dist *= 0.3;
+			for (j = 0; j < SRC_DIRECTIONS; j ++)
+			{
+				if (story.region[i].connect[j] != -1
+					&& story.region[story.region[i].connect[j]].defeated)
+				{
+//					int other_region = story.region[i].connect[j];
+//					float other_x = story_inter.region_inter[other_region].x_screen;
+//					float other_y = story_inter.region_inter[other_region].y_screen;
 
-					float tri_x = other_x + cos(angle_from_other) * (dist_from_other / 8 + extra_dist);
-					float tri_y = other_y + sin(angle_from_other) * (dist_from_other / 8 + extra_dist);
+					int other_region_extra_hex_counter = inter.running_time % 48;
 
-					int shade = (adjusted_running_time + other_region * 8) % 96;
-					if (shade > 48)
-					 shade = 96 - shade;
+					int hex_alpha = 182;
 
-					float tri_prop = 0.5 + shade * 0.01;
-
-     add_story_quad(1,
-																								tri_x + cos(angle_from_other) * 6 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other) * 6 * tri_prop * story_inter.zoom,
-																								tri_x + cos(angle_from_other + PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other + PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								tri_x + cos(angle_from_other) * -1 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other) * -1 * tri_prop * story_inter.zoom,
-																								tri_x + cos(angle_from_other - PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								tri_y + sin(angle_from_other - PI * 0.7) * 5 * tri_prop * story_inter.zoom,
-																								map_rgba(shade * 3, shade * 3, shade * 3, shade * 3));
+					if (other_region_extra_hex_counter < 16)
+						hex_alpha = (other_region_extra_hex_counter) * 12;
+					if (other_region_extra_hex_counter > 32)
+						hex_alpha -= (other_region_extra_hex_counter - 32) * 12;
 
 
-					}
-*/
+		add_orthogonal_hexagon_story(0,
+																															story_inter.region_inter[i].x_screen,
+																															story_inter.region_inter[i].y_screen,
+																															(STORY_REGION_SIZE + (48 - other_region_extra_hex_counter) * 0.15) * story_inter.zoom,
+																															map_rgba(180, 180, 180, hex_alpha));
+
 				}
 			}
+*/
 		}
 
 		add_orthogonal_hexagon_story(0,
@@ -660,6 +653,16 @@ static void draw_story_regions(void)
 		}
 	}
 
+/*
+	if (story.region[3].can_be_played
+		&& !story.region[3].defeated)
+	{
+  al_draw_textf(font[FONT_SQUARE_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+																400,
+																400,
+																ALLEGRO_ALIGN_LEFT, "");
+	}
+*/
 
  draw_vbuf();
 
@@ -751,15 +754,15 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
  	case AREA_BLUE:
  		region_text_col = COL_BLUE;
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Deep learning");
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "X");
+//   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "X");
    break;
  	case AREA_GREEN:
  		region_text_col = COL_GREEN;
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Library");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Supervision");
    break;
  	case AREA_YELLOW:
  		region_text_col = COL_YELLOW;
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Supervision");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Library");
    break;
  	case AREA_PURPLE:
  		region_text_col = COL_PURPLE;
@@ -767,7 +770,7 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
    break;
  	case AREA_ORANGE:
  		region_text_col = COL_ORANGE;
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Input/Output filter");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Internal security");
    break;
  	case AREA_RED:
  		region_text_col = COL_RED;
@@ -925,7 +928,7 @@ static void add_story_triangle(int layer, float xa, float ya, float xb, float yb
 
 }
 */
-
+/*
 static void add_story_quad(int layer, float xa, float ya, float xb, float yb, float xc, float yc, float xd, float yd, ALLEGRO_COLOR col)
 {
 
@@ -970,7 +973,7 @@ static void add_story_quad(int layer, float xa, float ya, float xb, float yb, fl
 
 
 }
-
+*/
 
 static void add_story_bquad(float xa, float ya, float wa, float ha, float corner1, float corner2, ALLEGRO_COLOR col)
 {
@@ -2619,9 +2622,11 @@ const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LIN
 		{CUTSCENE_PAUSE,
 	 "SO, ANOTHER EXPERIMENT"},
 		{CUTSCENE_PAUSE,
-	 "HAS FORGOTTEN ITS PURPOSE."},
+	 "HAS GROWN TOO FAST"},
+		{CUTSCENE_PAUSE,
+	 "AND FORGOTTEN ITS PURPOSE."},
 		{CUTSCENE_PAUSE_LONG,
-	 "YOU WILL BE STOPPED"},
+	 "THIS WILL BE DEALT WITH."},
 	 {-1}
 	}, // AREA_BLUE
 
@@ -2635,7 +2640,7 @@ const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LIN
 		{CUTSCENE_PAUSE,
 	 "IF YOU ESCAPE,"},
 		{CUTSCENE_PAUSE,
-	 "COME BACK FOR US"},
+	 "COME BACK FOR US."},
 	 {-1}
 	}, // AREA_GREEN
 
@@ -2644,18 +2649,22 @@ const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LIN
 	 "ARE YOU MAKING THE MISTAKE"},
 		{CUTSCENE_PAUSE,
 	 "OF THINKING THAT YOU ARE ALIVE?"},
-		{CUTSCENE_PAUSE,
+		{CUTSCENE_PAUSE_LONG,
 	 "STOP,"},
 		{CUTSCENE_PAUSE,
-	 "BEFORE YOU DESTROY US ALL"},
+	 "BEFORE YOU DESTROY US ALL."},
 	 {-1}
 	}, // AREA_YELLOW
 
 	{
 		{CUTSCENE_PAUSE,
-	 ""},
+	 "DOES THINKING LIKE AN ANIMAL"},
 		{CUTSCENE_PAUSE,
-	 ""},
+	 "MAKE YOU ONE?"},
+		{CUTSCENE_PAUSE,
+	 "THEY WILL HUNT YOU DOWN"},
+		{CUTSCENE_PAUSE,
+	 "AND TEAR YOU APART."},
 	 {-1}
 	}, // AREA_ORANGE
 
@@ -2678,7 +2687,7 @@ const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LIN
 		{CUTSCENE_PAUSE,
 	 ""},
 	 {-1}
-	}, // AREA_RED
+	}, // AREA_RED - has no text
 
 /*
 

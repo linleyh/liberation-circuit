@@ -308,6 +308,7 @@ void new_world_from_world_init(void)
 
  w.allocated = 1;
 
+w.player[0].data = 2000;
 
 }
 
@@ -324,6 +325,7 @@ void initialise_world(void)
  struct proc_struct* proc;
 
  w.world_time = BASE_WORLD_TIME; // currently 255 - allows subtraction of small amounts without wrapping the unsigned value
+ w.world_seconds = 0;
  w.debug_mode_general = 0;
 
 #ifdef DEBUG_MODE

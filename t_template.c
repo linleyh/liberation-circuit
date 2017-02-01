@@ -43,6 +43,7 @@ s_menu.c calls back here for various things.
 #include "i_buttons.h"
 #include "m_input.h"
 #include "f_turn.h"
+#include "h_story.h"
 
 #include "t_template.h"
 #include "t_files.h"
@@ -55,6 +56,8 @@ s_menu.c calls back here for various things.
 
 struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 extern struct editorstruct editor;
+extern struct story_struct story;
+extern struct identifierstruct identifier [IDENTIFIERS]; // used to display some information about e.g. core name
 
 struct template_state_struct tstate;
 extern struct object_type_struct otype [OBJECT_TYPES];
@@ -62,6 +65,8 @@ extern struct nshape_struct nshape [NSHAPES];
 extern struct game_struct game;
 
 static void add_template_object_error(struct template_struct* templ, int member_index, int object_type, int error_type);
+int check_template_for_story_unlocks(struct template_struct *check_templ);
+
 
 void init_all_templates(void)
 {
@@ -460,6 +465,17 @@ int lock_template(struct template_struct* lock_templ)
  	write_line_to_log("Failed to lock template.", MLOG_COL_ERROR);
   return 0;
 	}
+//fpr("\n A gt %i (%i) pi %i check %i", game.type, GAME_TYPE_MISSION, lock_templ->player_index, check_template_for_story_unlocks(lock_templ));
+
+// In story mode, make sure that the template has no objects or components that are unavailable:
+ if (game.type == GAME_TYPE_MISSION
+		&& lock_templ->player_index == 0
+		&& !check_template_for_story_unlocks(lock_templ))
+	{
+// check_template_for_story_unlocks write more detailed messages
+ 	write_line_to_log("Failed to lock template.", MLOG_COL_ERROR);
+  return 0;
+	}
 
 	lock_template_members_recursively(lock_templ, 0, 0);
 
@@ -476,6 +492,51 @@ int lock_template(struct template_struct* lock_templ)
 	return 1;
 
 }
+
+int check_template_for_story_unlocks(struct template_struct *check_templ)
+{
+	int member_index, object_index;
+	int return_value = 1;
+
+	for (member_index = 0; member_index < GROUP_MAX_MEMBERS; member_index ++)
+	{
+		if (!check_templ->member[member_index].exists)
+			continue;
+		if (!story.unlock[nshape[check_templ->member[member_index].shape].unlock_index])
+		{
+  	start_log_line(MLOG_COL_ERROR);
+  	write_to_log("You haven't unlocked ");
+  	write_to_log(identifier[nshape[check_templ->member[member_index].shape].keyword_index].name); // can I use the identifier array like this??
+  	write_to_log(" (component ");
+  	write_number_to_log(member_index);
+  	write_to_log(").");
+  	finish_log_line();
+			return_value = 0;
+			check_templ->member[member_index].story_lock_failure = 1;
+		}
+		for (object_index = 0; object_index < nshape[check_templ->member[member_index].shape].links; object_index ++)
+		{
+		 if (!story.unlock[otype[check_templ->member[member_index].object[object_index].type].unlock_index])
+		 {
+  	 start_log_line(MLOG_COL_ERROR);
+  	 write_to_log("You haven't unlocked ");
+  	 write_to_log(otype[check_templ->member[member_index].object[object_index].type].name); // can I use the identifier array like this??
+  	 write_to_log(" (component ");
+  	 write_number_to_log(member_index);
+  	 write_to_log(" object ");
+  	 write_number_to_log(object_index);
+  	 write_to_log(").");
+  	 finish_log_line();
+  	 check_templ->member[member_index].object[object_index].template_error = TEMPLATE_OBJECT_ERROR_STORY_LOCK;
+ 			return_value = 0;
+		 }
+		}
+	}
+
+ return return_value;
+
+}
+
 
 // this function does anything needed to lock template members after it has been verified that the template is valid
 // it doesn't do too much currently.
@@ -503,7 +564,8 @@ void unlock_template(int player_index, int template_index)
 {
 
 // First, make sure that the player isn't trying to unlock the mission AI:
-#ifndef DEBUG_MODE
+//#ifndef DEBUG_MODE
+#ifndef RECORDING_VIDEO
 // (but allow this in debug mode)
  if (player_index == 1
 		&& game.type == GAME_TYPE_MISSION)

@@ -89,6 +89,7 @@ struct nshape_struct
 // collision vertices: used for collision detection. Can't use floats.
  int vertices;
  int keyword_index; // index of the keyword name for this shape in the identifier array (see c_keywords.c)
+ int unlock_index; // index in the UNLOCK array. UNLOCK_NONE means that it doesn't need to be unlocked in story mode.
 
  al_fixed vertex_angle_fixed [NSHAPE_VERTICES]; // used for display
  int vertex_dist_pixel [NSHAPE_VERTICES]; // in pixels - available through data call
@@ -120,6 +121,8 @@ struct nshape_struct
 	int component_power_capacity;
 	int interface_charge_rate;
 	int instructions_per_cycle;
+
+// int unlock_index;
 
 };
 
@@ -175,6 +178,7 @@ struct dshape_struct
 
 struct nshape_init_data_struct
 {
+	int unlock_index;
 	int data_cost;
 //	int build_or_restore_time;
 	int base_hp_max;

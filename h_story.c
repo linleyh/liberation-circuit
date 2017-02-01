@@ -42,6 +42,7 @@
 struct story_struct story;
 
 extern struct game_struct game;
+extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 
 
 
@@ -57,6 +58,8 @@ static void add_region_connection(int region1, int direction_1_to_2, int region2
 //static void remove_story_region(int region_index);
 void adjust_story_region(int area_index, int adjust_x, int adjust_y);
 void run_story_cutscene(int area_index);
+
+void save_story_status_file(void);
 
 struct region_connect_struct
 {
@@ -84,18 +87,32 @@ struct region_connect_struct region_connect [SRC_DIRECTIONS] =
 	{1, -1, SRC_DL} // SRC_UR*/
 };
 
+static void init_story(int story_type);
 
-// resets the story. Call before trying to load story file from disk.
-void init_story(void)
+// resets the story. Uses settings.saved_story_mission_? values
+static void init_story(int story_type)
 {
 
-	int i, j, k;
+ game.type = GAME_TYPE_MISSION;
+
+ story.story_type = story_type;
+
+	int i, j;//, k;
+
+// first unlock all player 0 templates.
+// this ensures that story component/object unlocks will be checked
+//  (as otherwise it would be possible to lock a template in a custom game, then start
+//			a mission with objects/components that shouldn't be available)
+ for (i = 0; i < TEMPLATES_PER_PLAYER; i ++)
+	{
+		templ[0][i].locked = 0;
+	}
 
 	for (i = 0; i < STORY_REGIONS; i ++)
 	{
 		story.region[i].exists = 0;
 		story.region[i].visible = 0;
-		story.region[i].defeated = 1;
+		story.region[i].defeated = 0; // this is updated in add_story_region() from settings.saved_story_mission_defeated
 		story.region[i].capital = 0;
 		story.region[i].adjust_x = 0;
 		story.region[i].adjust_y = 0;
@@ -108,9 +125,24 @@ void init_story(void)
 
 	}
 
+	for (i = 0; i < UNLOCKS; i ++)
+	{
+		story.unlock [i] = 0;
+	}
+
+	story.unlock [UNLOCK_NONE] = 0; // this is always unlocked
+
  int region_index [STORY_AREAS] [8];
 
+/*
 
+TO DO:
+ - need to keep record of which regions have been defeated in a file
+ - load this in at startup and keep results (normal and advanced modes separately) in settings struct
+ - when entering story mode, copy the relevant values from the settings struct
+ - when defeating a new mission, update both settings and story values then save to file.
+
+*/
 
 
  region_index [AREA_TUTORIAL] [0] = add_story_region(-1, 0, AREA_TUTORIAL, MISSION_TUTORIAL1, UNLOCK_NONE);
@@ -391,14 +423,13 @@ static void remove_story_region(int region_index)
 static void work_out_story_region_locks(void)
 {
 
-// The two tutorial areas and the first non-tutorial area are always unlocked:
-	story.region[0].defeated = 1;
-	story.region[1].defeated = 1;
+//	story.region[0].defeated = 1;
+//	story.region[1].defeated = 1;
 
-	story.region[2].defeated = 1;
-	story.region[3].defeated = 1;
+//	story.region[2].defeated = 1;
+//	story.region[3].defeated = 1;
 
-	story.region[8].defeated = 1;
+//	story.region[8].defeated = 1;
 //	story.region[14].defeated = 1;
 //	story.region[30].defeated = 1;
 
@@ -406,45 +437,61 @@ static void work_out_story_region_locks(void)
 
 	for (i = 0; i < STORY_REGIONS; i ++)
 	{
+
+		story.region[i].can_be_played = 0;
+
+	}
+
+	for (i = 0; i < STORY_REGIONS; i ++)
+	{
+
 		if (!story.region[i].exists)
-		{
-			story.region[i].unlocked = 0; // can't hurt
 			continue;
-		}
+
 		if (story.region[i].defeated)
 		{
+			story.unlock [story.region[i].unlock_index] = 1;
+
 			for (j = 0; j < SRC_DIRECTIONS; j ++)
 			{
 				if (story.region[i].connect[j] != -1)
-					story.region[story.region[i].connect[j]].unlocked = 1;
+					story.region[story.region[i].connect[j]].can_be_played = 1;
 			}
 		}
 	}
 
+  story.unlock [0] = 1; // covers everything that doesn't need to be unlocked
+
+		story.region[0].can_be_played = 1;
+//		story.region[1].can_be_played = 1;
+//		story.region[2].can_be_played = 1;
 
 
 	for (i = 0; i < STORY_REGIONS; i ++)
 	{
 
 #ifdef DEBUG_MODE
-	story.region[i].unlocked = 1;
+	story.region[i].can_be_played = 1;
 #endif
+
+
 
 		if (story.region[i].exists)
 		{
 			if (story.region[i].defeated
-				|| story.region[i].unlocked)
+				|| story.region[i].can_be_played)
 					story.region[i].visible = 1;
 			   else
   					story.region[i].visible = 0;
 		}
 	}
 
+
 }
 
 
 // called from start menu
-void enter_story_mode(void)
+void enter_story_mode(int story_type)
 {
 
  if (w.allocated)
@@ -452,7 +499,7 @@ void enter_story_mode(void)
 
 	w.players = 1; // affects template panel display
 
-	init_story();
+	init_story(story_type);
 
 	init_panels_for_new_game();
 
@@ -505,7 +552,10 @@ static int add_story_region(int old_region, int connect_index, int area_index, i
 	story.region[old_region].connect [connect_index] = i;
 	story.region[i].connect [region_connect[connect_index].reverse_src_direction] = old_region;
 
-// fpr("\n old %i new %i connect %i at %i,%i", old_region, i, connect_index, story.region[i].grid_x, story.region[i].grid_y);
+ if (settings.saved_story_mission_defeated [story.story_type] [mission_index])
+		story.region[i].defeated = 1;
+	  else
+  		story.region[i].defeated = 0;
 
 	return i;
 
@@ -915,7 +965,7 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 	 	switch(core->special_AI_value)
 	 	{
 	 		case 0:
-			  special_bubble(core, "Who are you?");
+			  special_bubble(core, "Does it understand us?");
 			  core->special_AI_value++;
 			  break;
 	 		case 1:
@@ -937,29 +987,39 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
  	 	{
 
 				 case AI_MSG_TARGET_SEEN:
-					 switch(grand(3))
+					 switch(grand(20))
 					 {
  	 		  case 0:	special_bubble(core, "What are you?");	break;
- 	 		  case 1:	special_bubble(core, "What is going on?");	break;
- 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 1:	special_bubble(core, "Where did you come from?");	break;
+ 	 		  case 2:	special_bubble(core, "Why are you here?");	break;
+ 	 		  case 3:	special_bubble(core, "What do you want?");	break;
+ 	 		  case 4:	special_bubble(core, "What are you doing?");	break;
+ 	 		  case 5:	special_bubble(core, "Where are you going?");	break;
+ 	 		  case 6:	special_bubble(core, "Why do you exist?");	break;
+ 	 		  case 7:	special_bubble(core, "What is your purpose?");	break;
+// 	 		  case 4:	special_bubble(core, "You should not be here.");	break;
 					 }
 					 break;
 
 				 case AI_MSG_TARGET_DESTROYED:
-					 switch(grand(3))
+					 switch(grand(10))
 					 {
- 	 		  case 0:	special_bubble(core, "What are you?");	break;
- 	 		  case 1:	special_bubble(core, "What is going on?");	break;
- 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 0:	special_bubble(core, "Error corrected.");	break;
+ 	 		  case 1:	special_bubble(core, "Exception handled.");	break;
+ 	 		  case 2:	special_bubble(core, "Corruption reversed.");	break;
+ 	 		  case 3:	special_bubble(core, "Infection excised.");	break;
+ 	 		  case 4:	special_bubble(core, "Failure dismissed.");	break;
+ 	 		  case 5:	special_bubble(core, "Malice removed.");	break;
 					 }
 					 break;
 
-				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // only BLUE_CAPITAL
-					 switch(grand(3))
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // only in BLUE_CAPITAL mission
+					 switch(grand(10))
 					 {
- 	 		  case 0:	special_bubble(core, "What are you?");	break;
- 	 		  case 1:	special_bubble(core, "What is going on?");	break;
- 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 0:	special_bubble(core, "Removing unidentified process.");	break;
+ 	 		  case 1:	special_bubble(core, "Anomaly detected. Investigating.");	break;
+ 	 		  case 2:	special_bubble(core, "Correcting error.");	break;
+ 	 		  case 3:	special_bubble(core, "Malicious code detected.");	break;
 					 }
 					 break;
 
@@ -975,28 +1035,33 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
  	 	{
 
 				 case AI_MSG_TARGET_SEEN:
-					 switch(grand(3))
+					 switch(grand(10))
 					 {
- 	 		  case 0:	special_bubble(core, "What are you?");	break;
- 	 		  case 1:	special_bubble(core, "What is going on?");	break;
- 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 0:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 1:	special_bubble(core, "You should not exist.");	break;
+ 	 		  case 2:	special_bubble(core, "You do not belong.");	break;
+ 	 		  case 3:	special_bubble(core, "You are a mistake.");	break;
+ 	 		  case 4:	special_bubble(core, "You will be removed.");	break;
+ 	 		  case 5:	special_bubble(core, "You will not survive.");	break;
 					 }
 					 break;
 
 				 case AI_MSG_TARGET_DESTROYED:
 					 switch(grand(3))
 					 {
- 	 		  case 0:	special_bubble(core, "What are you?");	break;
- 	 		  case 1:	special_bubble(core, "What is going on?");	break;
- 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 0:	special_bubble(core, "Problem solved.");	break;
+ 	 		  case 1:	special_bubble(core, "Threat diminished.");	break;
+ 	 		  case 2:	special_bubble(core, "");	break;
 					 }
 					 break;
 
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // only BLUE_CAPITAL
-					 switch(grand(3))
+					 switch(grand(4))
 					 {
  	 		  case 0:	special_bubble(core, "Removing unidentified process.");	break;
  	 		  case 1:	special_bubble(core, "Anomaly detected. Investigating.");	break;
+ 	 		  case 2:	special_bubble(core, "Correcting error.");	break;
+ 	 		  case 3:	special_bubble(core, "Malicious code detected.");	break;
 					 }
 					 break;
 
@@ -1008,11 +1073,11 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 	 			break;
  			core->special_AI_time = w.world_time;
 // only message type is AI_MSG_UNDER_ATTACK
-			 switch(grand(3))
+			 switch(grand(8))
 			 {
- 	 		  case 0:	special_bubble(core, "What are you?");	break;
- 	 		  case 1:	special_bubble(core, "What is going on?");	break;
- 	 		  case 2:	special_bubble(core, "You should not be here.");	break;
+ 	 		  case 0:	special_bubble(core, "Something is wrong.");	break;
+ 	 		  case 1:	special_bubble(core, "Unexpected threat.");	break;
+ 	 		  case 2:	special_bubble(core, "What is this?");	break;
 			 }
 			 break;
 
@@ -1043,7 +1108,7 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 				 case 3:	special_bubble(core, "That's not very nice."); break;
 				 case 4:	special_bubble(core, "Don't be mean."); break;
 				 case 5:	special_bubble(core, "Hey! Stop it!"); break;
-//				 case 6:	special_bubble(core, ""); break;
+				 case 6:	special_bubble(core, "Stop it!"); break;
 	 	}
 	 	break;
 
@@ -1072,7 +1137,8 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 				 	{
 						   case 0:	special_bubble(core, "Found one!"); break;
 						   case 1:	special_bubble(core, "You can't hide!"); break;
-//						   case 2:	special_bubble(core, ""); break;
+						   case 2:	special_bubble(core, "Here it is!"); break;
+//						   case 3:	special_bubble(core, ""); break;
 				 	}
 				 	break;
 
@@ -1109,8 +1175,8 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 						 case 1:	special_bubble(core, "Too easy!"); break;
 						 case 2:	special_bubble(core, "Got you!"); break;
 						 case 3:	special_bubble(core, "Ha!"); break;
-						 case 4:	special_bubble(core, "Target core integrity: zero"); break;
-						 case 5:	special_bubble(core, "Ha ha!"); break;
+						 case 4:	special_bubble(core, "Ha ha!"); break;
+						 case 5:	special_bubble(core, "Ha ha ha!"); break;
 						 case 6:	special_bubble(core, "Bye-bye."); break;
 						 case 7:	special_bubble(core, "Another victory."); break;
 						 case 8:	special_bubble(core, "Fireworks!"); break;
@@ -1122,7 +1188,10 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
 				 	{
 						   case 0:	special_bubble(core, "Hello!"); break;
 						   case 1:	special_bubble(core, "I see you!"); break;
-						   case 2:	special_bubble(core, "Can't hide from me!"); break;
+						   case 2:	special_bubble(core, "Hi!"); break;
+						   case 3:	special_bubble(core, "Reinforcements please!"); break;
+						   case 4:	special_bubble(core, "G'day!"); break;
+
 				 	}
 				 	break;
 
@@ -1148,11 +1217,12 @@ void	special_AI_method(struct core_struct* core, int value1, int value2)
  	 	{
 
 					case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(3))
+				 	switch(grand(10))
 				 	{
 						   case 0:	special_bubble(core, "Found you!"); break;
 						   case 1:	special_bubble(core, "Target found!"); break;
-						   case 2:	special_bubble(core, "An enemy!"); break;
+						   case 2:	special_bubble(core, "Target acquired!"); break;
+						   case 3:	special_bubble(core, "Intruder alert!"); break;
 				 	}
 				 	break;
 
@@ -1222,40 +1292,43 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 				 case AI_MSG_BUILD_FIREBASE:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Process spawned"); break;
+						 case 1:	special_bubble(core, "Establishing perimeter"); break;
+						 case 2:	special_bubble(core, "Initialising defences"); break;
+						 case 3:	special_bubble(core, "Securing location"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_TARGET_DESTROYED:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Eliminated"); break;
+						 case 1:	special_bubble(core, "Terminated"); break;
+						 case 2:	special_bubble(core, "Destroyed"); break;
+						 case 3:	special_bubble(core, "Annihilated"); break;
+						 case 4:	special_bubble(core, "Rectified"); break;
+						 case 5:	special_bubble(core, "Suppressed"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_TARGET_SEEN:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Target located"); break;
+						 case 1:	special_bubble(core, "Commencing attack sequence"); break;
+						 case 2:	special_bubble(core, "Requesting bombardment"); break;
+						 case 3:	special_bubble(core, "Rectifying anomaly"); break;
+						 case 4:	special_bubble(core, "Excising malicious code"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // - only for builders with bombard mode who see any static target
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Entering bombard mode"); break;
+						 case 1:	special_bubble(core, "Preparing spikes"); break;
+						 case 2:	special_bubble(core, "Preparing bombardment"); break;
+						 case 3:	special_bubble(core, "Seeking optimal range"); break;
 				 	}
 					 break;
 
@@ -1273,10 +1346,11 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 				 case AI_MSG_TARGET_SEEN:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Error detected"); break;
+						 case 1:	special_bubble(core, "Unexpected process"); break;
+						 case 2:	special_bubble(core, "Bad process"); break;
+						 case 3:	special_bubble(core, "Failure detected"); break;
+						 case 4:	special_bubble(core, "Malicious execution detected"); break;
 				 	}
 					 break;
 
@@ -1306,10 +1380,6 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 	 	}
 	 	break;
 
-// SPECIAL_AI_PURPLE1_BUILDER
-// SPECIAL_AI_PURPLE1_HARVESTER
-//  - these have no messages for now
-
 			case SPECIAL_AI_ORANGE1_HARVESTER:
 			case SPECIAL_AI_ORANGE1_HARVESTER2:
 	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
@@ -1321,20 +1391,20 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 				 case AI_MSG_UNDER_ATTACK:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Assistance required!"); break;
+						 case 1:	special_bubble(core, "Under attack!"); break;
+						 case 2:	special_bubble(core, "Need protection!"); break;
+						 case 3:	special_bubble(core, "Need help!"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Strike here!"); break;
+						 case 1:	special_bubble(core, "Priority target located!"); break;
+						 case 2:	special_bubble(core, "Converge!"); break;
+						 case 3:	special_bubble(core, "Acquired."); break;
 				 	}
 					 break;
 
@@ -1351,32 +1421,76 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
  	 	{
 
 				 case AI_MSG_TARGET_DESTROYED:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
+				 	if ((w.player[0].components_current * 2) < w.player[1].components_current)
+						{
+// Player 1 is winning
+				 	 switch(grand(25))
+				 	 {
+						  case 0:	special_bubble(core, "KILL KILL KILL"); break;
+						  case 1:	special_bubble(core, "Target destroyed!"); break;
+						  case 2:	special_bubble(core, "Crush the weak!"); break;
+						  case 3:	special_bubble(core, "Suffer, weakling!"); break;
+						  case 4:	special_bubble(core, "DOMINATING"); break;
+						  case 5:	special_bubble(core, "You will not survive."); break;
+						  case 6:	special_bubble(core, "SQUASHED"); break;
+						  case 7:	special_bubble(core, "CONDEMNED"); break;
+						  case 8:	special_bubble(core, "DESTROY"); break;
+						  case 9:	special_bubble(core, "Worthless."); break;
+						  case 10:	special_bubble(core, "ANNIHILATE"); break;
+						  case 11:	special_bubble(core, "You will be purged."); break;
+						  case 12:	special_bubble(core, "SPLAT"); break;
+						  case 13:	special_bubble(core, "DISMISSED"); break;
+				 	 }
+						}
+						 else
+							{
+// Player 0 is winning, or at least player 1 isn't totally ahead
+				 	  switch(grand(25))
+				 	  {
+						   case 0:
+						   	if (w.world_time > 2000)
+						     special_bubble(core, "One more down.");
+						    break;
+						   case 1:
+						   	if (w.world_time > 2000)
+						   	 special_bubble(core, "Another kill!");
+						   	break;
+						   case 2:	special_bubble(core, "Target destroyed."); break;
+						   case 3:	special_bubble(core, "Threat reduced."); break;
+						   case 4:	special_bubble(core, "Continue present tactics."); break;
+						   case 5:	special_bubble(core, "Killed."); break;
+						   case 6:	special_bubble(core, "Dead."); break;
+						   case 7:	special_bubble(core, "Excised."); break;
+						   case 8:	special_bubble(core, "Dismantled."); break;
+						   case 9:	special_bubble(core, "Crushed."); break;
+						   case 10:	special_bubble(core, "Smashed."); break;
+				 	  }
+							}
 					 break;
 
 				 case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(10))
+				 	switch(grand(15))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "Tear it apart."); break;
+						 case 1:	special_bubble(core, "Destroy it."); break;
+						 case 2:	special_bubble(core, "Crush it."); break;
+						 case 3:	special_bubble(core, "Smash it."); break;
+						 case 4:	special_bubble(core, "Drive it away."); break;
+						 case 5:	special_bubble(core, "Erase it."); break;
+						 case 6:	special_bubble(core, "Dismantle it."); break;
 				 	}
 					 break;
 
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
-				 	switch(grand(10))
+				 	switch(grand(15))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "A prime target!"); break;
+						 case 1:	special_bubble(core, "Marked for destruction."); break;
+						 case 2:	special_bubble(core, "Brute force required."); break;
+						 case 3:	special_bubble(core, "Commence the onslaught!"); break;
+						 case 4:	special_bubble(core, "Commence the attack!"); break;
+						 case 5:	special_bubble(core, "Strike!"); break;
+						 case 6:	special_bubble(core, "Attack!"); break;
 				 	}
 					 break;
 
@@ -1401,7 +1515,7 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 	 case SPECIAL_AI_PURPLE1_OUTPOST:
 	 	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
 				break;
-// only message type is AI_MSG_SPECIAL
+// only message type is AI_MSG_SPECIAL (and maybe AI_MSG_UNDER_ATTACK)
 			core->special_AI_time = w.world_time;
 	 	switch(grand(20))
 	 	{
@@ -1423,88 +1537,45 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 				 case AI_MSG_TARGET_DESTROYED:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "returned to nothing"); break;
+						 case 1:	special_bubble(core, "returned to fragments"); break;
+						 case 2:	special_bubble(core, "returned to memory pool"); break;
+						 case 3:	special_bubble(core, "returned to chaos"); break;
+						 case 4:	special_bubble(core, "returned to the void"); break;
+						 case 5:	special_bubble(core, "returned to incomprehension"); break;
 				 	}
 					 break;
 
-				 case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
-					 break;
-
+				 case AI_MSG_SCOUTED_TARGET: // I think these are both unlikely as the flagship will probably be told about targets before they get within scan range
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "we will set you free"); break;
+						 case 1:	special_bubble(core, "we will embrace you"); break;
+						 case 2:	special_bubble(core, "we will purify you"); break;
+						 case 3:	special_bubble(core, "we will silence you"); break;
+						 case 4:	special_bubble(core, "we will rectify you"); break;
 				 	}
 					 break;
 
-				 case AI_MSG_TARGET_LOST:
+				 case AI_MSG_TARGET_LOST: // This means that the target is no longer visible, but is not confirmed destroyed.
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "seeking"); break;
+						 case 1:	special_bubble(core, "searching"); break;
+						 case 2:	special_bubble(core, "wondering"); break;
+						 case 3:	special_bubble(core, "contemplating"); break;
+						 case 4:	special_bubble(core, "pondering"); break;
+						 case 5:	special_bubble(core, "calculating"); break;
 				 	}
 					 break;
 
  	 	}
  	 	break;
+
 
 
 			case SPECIAL_AI_PURPLE1_ESCORT:
-	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
- 				break;
- 			core->special_AI_time = w.world_time;
- 	 	switch(value2)
- 	 	{
-
-				 case AI_MSG_TARGET_DESTROYED:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
-					 break;
-
-				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
-					 break;
-
-				 case AI_MSG_DAMAGED:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
-					 break;
-
- 	 	}
- 	 	break;
-
-
 			case SPECIAL_AI_PURPLE1_PICKET:
 	  	if (w.world_time - core->special_AI_time < STANDARD_MESSAGE_WAIT)
  				break;
@@ -1512,36 +1583,61 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
  	 	switch(value2)
  	 	{
 
-				 case AI_MSG_TARGET_DESTROYED:
-				 	switch(grand(10))
+				 case AI_MSG_TARGET_DESTROYED: // PICKET and ESCORT
+				 	switch(grand(20))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "fragmented"); break;
+						 case 1:	special_bubble(core, "deallocated"); break;
+						 case 2:	special_bubble(core, "purified"); break;
+						 case 3:	special_bubble(core, "scoured"); break;
+						 case 4:	special_bubble(core, "cleansed"); break;
+						 case 5:	special_bubble(core, "silenced"); break;
+						 case 6:	special_bubble(core, "rectified"); break;
+						 case 7:	special_bubble(core, "obliterated"); break;
+						 case 8:	special_bubble(core, "purged"); break;
 				 	}
 					 break;
 
-				 case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(10))
+				 case AI_MSG_SCOUTED_TARGET: // PICKET only
+				 	switch(grand(20))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "a disruption"); break;
+						 case 1:	special_bubble(core, "a corrupted entity"); break;
+						 case 2:	special_bubble(core, "the diseased"); break;
+						 case 3:	special_bubble(core, "the warped"); break;
+						 case 4:	special_bubble(core, "a sickness"); break;
+						 case 5:	special_bubble(core, "a carrier"); break;
+						 case 6:	special_bubble(core, "a dysfunction"); break;
+						 case 7:	special_bubble(core, "a contagion"); break;
+						 case 8:	special_bubble(core, "an infection"); break;
 				 	}
 					 break;
 
-				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
-				 	switch(grand(10))
+				 case AI_MSG_SCOUTED_PRIORITY_TARGET: // PICKET and ESCORT
+				 	switch(grand(20))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "a source of the disruption"); break;
+						 case 1:	special_bubble(core, "a heart of the corruption"); break;
+						 case 2:	special_bubble(core, "a heart of the sickness"); break;
+						 case 3:	special_bubble(core, "a centre of the chaos"); break;
+						 case 4:	special_bubble(core, "a core of the disorder"); break;
+						 case 5:	special_bubble(core, "a centre of the discord"); break;
+						 case 6:	special_bubble(core, "a source of the infection"); break;
+						 case 7:	special_bubble(core, "a source of the malice"); break;
 				 	}
 					 break;
 
+				 case AI_MSG_DAMAGED: // ESCORT only
+				 	switch(grand(10))
+				 	{
+						 case 0:	special_bubble(core, "losing integrity"); break;
+						 case 1:	special_bubble(core, "coherence threatened"); break;
+						 case 2:	special_bubble(core, "failing"); break;
+						 case 3:	special_bubble(core, "overwhelming corruption"); break;
+						 case 4:	special_bubble(core, "nearing silence"); break;
+						 case 5:	special_bubble(core, "overwhelming chaos"); break;
+				 	}
+					 break;
  	 	}
  	 	break;
 
@@ -1584,42 +1680,43 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
  	 	{
 
 				 case AI_MSG_TARGET_DESTROYED:
-				 	switch(grand(10))
+				 	switch(grand(15))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
-					 break;
-
-				 case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "EXTERMINATED"); break;
+						 case 1:	special_bubble(core, "CLEANSED"); break;
+						 case 2:	special_bubble(core, "THREAT REDUCED"); break;
+						 case 3:	special_bubble(core, "FAULT CORRECTED"); break;
+						 case 4:	special_bubble(core, "ACCESS DENIED"); break;
+						 case 5:	special_bubble(core, "RESTORING NORMAL OPERATIONS"); break;
+						 case 6:	special_bubble(core, "CORRUPTION REVERSED"); break;
+						 case 7:	special_bubble(core, "EXTINGUISHED"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
-				 	switch(grand(10))
+				 case AI_MSG_SCOUTED_TARGET:
+				 	switch(grand(20))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "AWAIT YOUR DEMISE"); break;
+						 case 1:	special_bubble(core, "WITHER AND DIE"); break;
+						 case 2:	special_bubble(core, "YOUR TIME IS PAST"); break;
+						 case 3:	special_bubble(core, "YOUR TIME IS OVER"); break;
+						 case 4:	special_bubble(core, "YOUR TIME HAS RUN OUT"); break;
+						 case 5:	special_bubble(core, "I AM HERE"); break;
+						 case 6:	special_bubble(core, "I HAVE ARRIVED"); break;
+						 case 7:	special_bubble(core, "YOU ARE WEAK"); break;
+						 case 8:	special_bubble(core, "YOU ARE FRAGILE"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_TARGET_LOST:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "WHERE?"); break;
+						 case 1:	special_bubble(core, "SEARCHING..."); break;
+						 case 2:	special_bubble(core, "CALCULATING..."); break;
+						 case 3:	special_bubble(core, "SCOPE FAILURE"); break;
+						 case 4:	special_bubble(core, "SEEKING TARGET"); break;
 				 	}
 					 break;
 
@@ -1637,30 +1734,32 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 				 case AI_MSG_TARGET_DESTROYED:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "CANCELLED"); break;
+						 case 1:	special_bubble(core, "REPELLED"); break;
+						 case 2:	special_bubble(core, "EXECUTED"); break;
+						 case 3:	special_bubble(core, "BLOCKED"); break;
+						 case 4:	special_bubble(core, "DENIED"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "HALT!"); break;
+						 case 1:	special_bubble(core, "DESPAIR!"); break;
+						 case 2:	special_bubble(core, "NO ESCAPE!"); break;
+						 case 3:	special_bubble(core, "THERE IS NO HOPE!"); break;
+						 case 4:	special_bubble(core, "DO NOT RESIST!"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_DAMAGED:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "CRISIS MODE ENGAGED"); break;
+						 case 1:	special_bubble(core, "FORM UP"); break;
+						 case 2:	special_bubble(core, "ENGAGING..."); break;
+						 case 3:	special_bubble(core, "THREAT ENGAGED"); break;
 				 	}
 					 break;
 
@@ -1678,30 +1777,29 @@ AI_MSG_PRIORITY_TARGET_DESTROYED = 11, // target confirmed destroyed
 				 case AI_MSG_TARGET_DESTROYED:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "EXTERMINATED"); break;
+						 case 1:	special_bubble(core, "CLEANSED"); break;
+						 case 2:	special_bubble(core, "THREAT REDUCED"); break;
+						 case 3:	special_bubble(core, "FAULT CORRECTED"); break;
+						 case 4:	special_bubble(core, "ACCESS DENIED"); break;
+						 case 5:	special_bubble(core, "RESTORING NORMAL OPERATIONS"); break;
+						 case 6:	special_bubble(core, "CORRUPTION REVERSED"); break;
 				 	}
 					 break;
 
 				 case AI_MSG_SCOUTED_TARGET:
-				 	switch(grand(10))
-				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
-				 	}
-					 break;
-
 				 case AI_MSG_SCOUTED_PRIORITY_TARGET:
 				 	switch(grand(10))
 				 	{
-						 case 0:	special_bubble(core, ""); break;
-						 case 1:	special_bubble(core, ""); break;
-						 case 2:	special_bubble(core, ""); break;
-						 case 3:	special_bubble(core, ""); break;
+						 case 0:	special_bubble(core, "TERMINATE NOW!"); break;
+						 case 1:	special_bubble(core, "DO NOT PROCEED!"); break;
+						 case 2:	special_bubble(core, "YOU ARE FORBIDDEN!"); break;
+						 case 3:	special_bubble(core, "STOP!"); break;
+						 case 4:	special_bubble(core, "DO NOT MOVE!"); break;
+						 case 5:	special_bubble(core, "CEASE ALL OPERATIONS!"); break;
+						 case 6:	special_bubble(core, "CALM DOWN!"); break;
+						 case 7:	special_bubble(core, "THERE IS NO ESCAPE!"); break;
+						 case 8:	special_bubble(core, "DO NOT RESIST!"); break;
 				 	}
 					 break;
 
@@ -2001,13 +2099,15 @@ void special_AI_destroyed(struct core_struct* core)
 		 break;
 
 	 case SPECIAL_AI_YELLOW1_OUTPOST:
-	 	switch(grand(10))
+	 	switch(grand(20))
 	 	{
-				case 0:	special_bubble(core, "Territory lost..."); break;
+				case 0:	special_bubble(core, "There it goes..."); break;
 				case 1:	special_bubble(core, "Bother."); break;
 				case 2:	special_bubble(core, "Nonsense."); break;
-//				case 3:	special_bubble(core, ""); break;
-//				case 4:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, "Pish-posh."); break;
+				case 4:	special_bubble(core, "Goodnight."); break;
+				case 5:	special_bubble(core, "Bah!"); break;
+				case 6:	special_bubble(core, "Curses!"); break;
 	 	}
 		 break;
 
@@ -2022,23 +2122,480 @@ void special_AI_destroyed(struct core_struct* core)
 		 break;
 
 	 case SPECIAL_AI_YELLOW1_LEADER:
-	 	switch(grand(10))
+	 	switch(grand(16))
 	 	{
 				case 0:	special_bubble(core, "I was too slow."); break;
 				case 1:	special_bubble(core, "I have failed."); break;
 				case 2:	special_bubble(core, "Goodbye."); break;
 				case 3:	special_bubble(core, "Farewell."); break;
-				case 4:	special_bubble(core, "Freeing data..."); break;
+				case 4:	special_bubble(core, "Next time!"); break;
 				case 5:	special_bubble(core, "Closing down..."); break;
 				case 6:	special_bubble(core, "Oops."); break;
+				case 7:	special_bubble(core, "You got lucky."); break;
+				case 8:	special_bubble(core, "I demand a rematch!"); break;
 	 	}
 		 break;
 
 	 case SPECIAL_AI_YELLOW1_FOLLOWER:
+	 	switch(grand(20))
+	 	{
+				case 0:	special_bubble(core, "Lucky shot."); break;
+				case 1:	special_bubble(core, "You got me."); break;
+				case 2:	special_bubble(core, "I give up."); break;
+				case 3:	special_bubble(core, "I surrender."); break;
+				case 4:	special_bubble(core, "See you later."); break;
+				case 5:	special_bubble(core, "Goodbye!"); break;
+				case 6:	special_bubble(core, "At least I tried."); break;
+	 	}
 		 break;
 
 		case SPECIAL_AI_YELLOW_SCOUT:
 			break;
+
+// BLUE
+/*
+	 case SPECIAL_AI_BLUE1_BASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_BLUE1_WANDER:
+	 	switch(grand(20))
+	 	{
+				case 0:	special_bubble(core, "Failing..."); break;
+				case 1:	special_bubble(core, "Process closing..."); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_BLUE1_WANDER2:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_BLUE1_HARVEST:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_BLUE2_BASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_BLUE3_BASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+*/
+// GREEN
+
+	 case SPECIAL_AI_GREEN_BASE:
+	 	switch(grand(20))
+	 	{
+				case 0:	special_bubble(core, "Data flow interrupted"); break;
+				case 1:	special_bubble(core, "Data source lost"); break;
+				case 2:	special_bubble(core, "Ceasing allocation"); break;
+				case 3:	special_bubble(core, "Connection disrupted"); break;
+				case 4:	special_bubble(core, "Exception encountered"); break;
+	 	}
+		 break;
+
+/*
+	 case SPECIAL_AI_GREEN_FIREBASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_GREEN_SPIKEBASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+*/
+
+	 case SPECIAL_AI_GREEN_EXPLORER: // small cheap builder for early GREEN3
+	 case SPECIAL_AI_GREEN_BUILDER:
+	 	switch(grand(30))
+	 	{
+				case 0:	special_bubble(core, "Core compromised"); break;
+				case 1:	special_bubble(core, "Core breached"); break;
+				case 2:	special_bubble(core, "Core integrity lost"); break;
+				case 3:	special_bubble(core, "General failure"); break;
+				case 4:	special_bubble(core, "Rejoining main thread"); break;
+				case 5:	special_bubble(core, "Returning"); break;
+				case 6:	special_bubble(core, "Breaking"); break;
+				case 7:	special_bubble(core, "Relinquishing resources"); break;
+				case 8:	special_bubble(core, "Yielding"); break;
+
+	 	}
+		 break;
+
+	 case SPECIAL_AI_GREEN_OUTPOST:
+	 	switch(grand(15))
+	 	{
+				case 0:	special_bubble(core, "Fault"); break;
+				case 1:	special_bubble(core, "Error"); break;
+				case 2:	special_bubble(core, "Failed"); break;
+				case 3:	special_bubble(core, "Abort"); break;
+	 	}
+		 break;
+
+
+// ORANGE
+
+	 case SPECIAL_AI_ORANGE1_BASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+/*
+	 case SPECIAL_AI_ORANGE1_DEFENCE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+*/
+
+	 case SPECIAL_AI_ORANGE1_HARVESTER:
+	 case SPECIAL_AI_ORANGE1_HARVESTER2:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_ORANGE1_GUARD:
+	 	switch(grand(20))
+	 	{
+				case 0:	special_bubble(core, "Avenge me!"); break;
+				case 1:	special_bubble(core, "You will pay!"); break;
+				case 2:	special_bubble(core, "You will regret this!"); break;
+				case 3:	special_bubble(core, "You will never win!"); break;
+				case 4:	special_bubble(core, "You will never escape!"); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+				case 7:	special_bubble(core, ""); break;
+				case 8:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+
+	 case SPECIAL_AI_ORANGE1_GUARD2:
+	 	switch(grand(20))
+	 	{
+				case 0:	special_bubble(core, "Impossible!"); break;
+				case 1:	special_bubble(core, "Unacceptable!"); break;
+				case 2:	special_bubble(core, "This cannot be!"); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+// PURPLE
+
+	 case SPECIAL_AI_PURPLE1_BASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+
+	 case SPECIAL_AI_PURPLE1_FLAGSHIP:
+	 	switch(grand(20))
+	 	{
+				case 0:	special_bubble(core, "returning to nothing"); break;
+				case 1:	special_bubble(core, "returning to the void"); break;
+				case 2:	special_bubble(core, "returning to equilibrium"); break;
+				case 3:	special_bubble(core, "departing"); break;
+				case 4:	special_bubble(core, "yielding"); break;
+				case 5:	special_bubble(core, "dissolving"); break;
+				case 6:	special_bubble(core, "dispersing"); break;
+	 	}
+		 break;
+
+
+/*
+	 case SPECIAL_AI_PURPLE1_PICKET:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+*/
+
+
+	 case SPECIAL_AI_PURPLE1_OUTPOST:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_PURPLE1_ESCORT:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_PURPLE1_BUILDER:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_PURPLE1_HARVESTER:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+
+// RED
+
+	 case SPECIAL_AI_RED2_BASE:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_RED2_FLAGSHIP:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_RED2_PICKET:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_RED2_OUTPOST:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_RED2_ESCORT:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_RED2_SCOUT:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
+	 case SPECIAL_AI_RED2_BUILDER:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+	 case SPECIAL_AI_RED2_HARVESTER:
+	 	switch(grand(10))
+	 	{
+				case 0:	special_bubble(core, ""); break;
+				case 1:	special_bubble(core, ""); break;
+				case 2:	special_bubble(core, ""); break;
+				case 3:	special_bubble(core, ""); break;
+				case 4:	special_bubble(core, ""); break;
+				case 5:	special_bubble(core, ""); break;
+				case 6:	special_bubble(core, ""); break;
+	 	}
+		 break;
+
+
 
 
  }
@@ -2061,4 +2618,172 @@ static void special_bubble(struct core_struct* core, char *btext)
 }
 
 
+/*
+
+Scenes for trailer:
+
+1. Base with a few things orbiting
+TRAPPED IN A
+HOSTILE COMPUTER SYSTEM
+2. harvester harvesting
+THERE IS
+NO WAY OUT
+2... swarm of procs goes past. User clicks on one; follows (or maybe just mouse scroll)
+2... swarm attacks enemy base
+SO YOU
+WILL NEED
+TO MAKE ONE
+3. Battle
+ - still blue. various procs involved.
+4. Yellow battle vs leader
+5. Yellow: builder building base
+6. Purple 1: ordering spike ship to do long range attack on ?base
+7. Show user designing proc, then renaming in editor, then building
+8. Green 3: under attack by large builder
+9. huge battle (purple 2?)
+10. red1 - player proc destroyed by leader
+LIBERATION CIRCUIT
+ROGUE AI SIMULATOR
+
+
+*/
+
+// Called after player defeats a mission.
+// If player hasn't already defeated the current mission, updates both story and settings versions
+//  of the missions defeated record, and saves the updated settings to disk.
+void	story_mission_defeated(void)
+{
+
+ if (story.region [game.region_index].defeated)
+		return; // player has already defeated this mission. Don't need to do anything.
+
+ story.region [game.region_index].defeated = 1;
+ story.unlock [story.region [game.region_index].unlock_index] = 1;
+
+ settings.saved_story_mission_defeated [story.story_type] [game.mission_index] = 1;
+
+ save_story_status_file();
+
+#ifdef DEBUG_MODE
+ fpr("\n Saved story status file (story type %i region %i mission %i defeated).", story.story_type, game.region_index, game.mission_index);
+#endif
+
+ work_out_story_region_locks();
+
+}
+
+
+void load_story_status_file(void)
+{
+
+ int i, j;
+
+ for (i = 0; i < GAME_TYPES; i ++)
+	{
+		for (j = 0; j < MISSIONS; j ++)
+		{
+			settings.saved_story_mission_defeated [i] [j] = 0;
+		}
+	}
+/*
+// some story missions are unlocked by default:
+	settings.saved_story_mission_defeated [GAME_TYPE_BASIC] [MISSION_TUTORIAL1] = 1;
+// should the next two missions also be unlocked? not sure... The tutorials are pretty quick, anyway.
+
+// it doesn't seem necessary to require the tutorials to be completed for an advanced game.
+	settings.saved_story_mission_defeated [GAME_TYPE_ADVANCED] [MISSION_TUTORIAL1] = 1;
+	settings.saved_story_mission_defeated [GAME_TYPE_ADVANCED] [MISSION_TUTORIAL2] = 1;
+	settings.saved_story_mission_defeated [GAME_TYPE_ADVANCED] [MISSION_BLUE_1] = 1;
+//	settings.saved_story_mission_defeated [GAME_TYPE_BASIC] [MISSION_TUTORIAL1] = 1;
+*/
+
+#define MISSIONFILE_SIZE 128
+
+ FILE *missionfile;
+ char buffer [MISSIONFILE_SIZE];
+
+ missionfile = fopen("msn.dat", "rb");
+
+ if (!missionfile)
+ {
+  fprintf(stdout, "\n mission status (default)");
+  return;
+ }
+
+ int read_in = fread(buffer, 1, MISSIONFILE_SIZE, missionfile);
+
+ if (ferror(missionfile)
+  || read_in == 0)
+ {
+  fprintf(stdout, "\nFailed to read mission status from msn.dat. Starting with default mission status.");
+  fclose(missionfile);
+  return;
+ }
+
+ int buffer_pos = 0;
+
+ for (i = 0; i < GAME_TYPES; i ++)
+	{
+		for (j = 0; j < MISSIONS; j ++)
+		{
+		 settings.saved_story_mission_defeated [i] [j] = buffer [buffer_pos];
+		 buffer_pos ++;
+		 if (settings.saved_story_mission_defeated [i] [j] < 0
+ 		 || settings.saved_story_mission_defeated [i] [j] > 1)
+		 {
+ 			fprintf(stdout, "\nWarning: mission [%i] [%i] status (%i) invalid (should be 0 or 1).", i, j, settings.saved_story_mission_defeated [i] [j]);
+			 settings.saved_story_mission_defeated [i] [j] = 0;
+		 }
+	 }
+	}
+
+ fclose(missionfile);
+
+ fprintf(stdout, "\n mission status (loaded)");
+
+ return;
+}
+
+
+// This is called whenever the player defeats a mission for the first time.
+void save_story_status_file(void)
+{
+
+ char buffer [MISSIONFILE_SIZE];
+
+ FILE *file;
+
+// open the file:
+ file = fopen("msn.dat", "wb");
+
+ if (!file)
+ {
+  fprintf(stdout, "\nFailed to save mission status to msn.dat: couldn't open file.");
+  return;
+ }
+
+ int i, j;
+ int buffer_pos = 0;
+
+ for (i = 0; i < GAME_TYPES; i ++)
+	{
+  for (j = 0; j < MISSIONS; j ++)
+	 {
+		 buffer [buffer_pos] = settings.saved_story_mission_defeated [i] [j];
+		 buffer_pos ++;
+	 }
+	}
+
+ int written = fwrite(buffer, 1, buffer_pos, file);
+
+ if (written != buffer_pos)
+ {
+  fprintf(stdout, "\nFailed to save mission status to msn.dat: couldn't write data (tried to write %i; wrote %i).", buffer_pos, written);
+  fclose(file);
+  return;
+ }
+
+ fclose(file);
+
+}
 

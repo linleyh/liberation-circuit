@@ -16,6 +16,7 @@ struct design_sub_button_struct
 {
 	int type;
 	int value;
+//	int unlock_index;
 	char *name;// [DSB_NAME_LENGTH];
 };
 

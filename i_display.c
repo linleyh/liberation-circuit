@@ -780,10 +780,16 @@ void run_display(void)
  al_set_target_bitmap(vision_mask);
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 // al_clear_to_color(colours.black);
+#ifndef RECORDING_VIDEO
  if (game.vision_mask)
   al_clear_to_color(colours.black);
    else
     al_clear_to_color(al_map_rgba(0,0,0,120));
+#else
+ if (w.debug_mode == 0)
+  al_clear_to_color(colours.black);
+
+#endif
 
 // al_draw_filled_rectangle(0, 0, 500, 500, al_map_rgba(0,0,0,120));
 // al_draw_filled_rectangle(150, 150, 450, 450, al_map_rgba(0,0,0,0));
@@ -6560,8 +6566,9 @@ far_dist = 12 + (shade);//*= 0.1;
 
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen
 
-
+#ifndef RECORDING_VIDEO
   int bubble_core_index = bubble_list_index; // bubble_list_index set above during main core drawing loop
+
 
 		while(bubble_core_index != -1)
 		{
@@ -6588,7 +6595,7 @@ far_dist = 12 + (shade);//*= 0.1;
 				bubble_core_index = w.core[bubble_core_index].bubble_list;
 
 	}
-
+#endif
 
 /*
 				int bubble_shade;
@@ -7813,6 +7820,9 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 // draw_fans();
 #ifndef RECORDING_VIDEO
  draw_map();
+#else
+ if (w.debug_mode == 1)
+		draw_map();
 #endif
 //  al_draw_circle(view.window_x / 2, view.window_y / 2, 2, base_col [COL_GREY] [SHADE_MIN], 1);
 
@@ -7913,6 +7923,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
      break;
     case GAME_END_MISSION_COMPLETE:
      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 - GO_LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "MISSION COMPLETE");
+//     if (
      break;
     case GAME_END_MISSION_FAILED:
      al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 - GO_LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "MISSION FAILED :(");
@@ -17097,7 +17108,7 @@ static void draw_map(void)
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
 // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-
+#ifndef RECORDING_VIDEO
  if (game.vision_mask
  	&& !mission_state.reveal_player1)
  	al_draw_bitmap(vision_mask_map [MAP_MASK_OPAQUE], 0, 0, 0);
@@ -17105,6 +17116,9 @@ static void draw_map(void)
    else
    	al_draw_bitmap(vision_mask_map [MAP_MASK_TRANS], 0, 0, 0);
 //    al_clear_to_color(al_map_rgba(0,0,0,120));
+#else
+   	al_draw_bitmap(vision_mask_map [MAP_MASK_TRANS], 0, 0, 0);
+#endif
 
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 

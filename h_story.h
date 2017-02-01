@@ -30,7 +30,7 @@ AREA_RED,
 STORY_AREAS
 };
 
-
+/*
 enum
 {
 MISSION_TUTORIAL1,
@@ -56,9 +56,9 @@ MISSION_PURPLE_1,
 MISSION_PURPLE_2,
 MISSION_PURPLE_CAPITAL,
 
-MISSION_DARK_BLUE_1,
-MISSION_DARK_BLUE_2,
-MISSION_DARK_BLUE_CAPITAL,
+//MISSION_DARK_BLUE_1,
+//MISSION_DARK_BLUE_2,
+//MISSION_DARK_BLUE_CAPITAL,
 
 MISSION_RED_1,
 MISSION_RED_2,
@@ -66,6 +66,7 @@ MISSION_RED_CAPITAL,
 
 MISSIONS
 };
+*/
 
 enum
 {
@@ -130,7 +131,7 @@ struct region_struct
  int unlock_index; // one of the UNLOCK enums
 
 	int defeated; // 1 if player has beaten this region, 0 otherwise
-	int unlocked; // derived from defeated values when story mode loaded
+	int can_be_played; // derived from defeated values when story mode loaded
 
 
 };
@@ -138,18 +139,23 @@ struct region_struct
 struct story_struct
 {
 
+ int story_type; // STORY_TYPE_NORMAL or STORY_TYPE_ADVANCED
 
  struct region_struct region [STORY_REGIONS];
 
  struct area_struct area [STORY_AREAS];
+
+ int unlock [UNLOCKS]; // determines which objects/components the player can use in story mode. Determined from area lock
 
 
 };
 
 
 
-void init_story(void);
-void enter_story_mode(void);
+void load_story_status_file(void);
+//void init_story(void);
+void enter_story_mode(int story_type);
+void	story_mission_defeated(void);
 
 void	special_AI_method(struct core_struct* core, int value1, int value2);
 void special_AI_destroyed(struct core_struct* core);

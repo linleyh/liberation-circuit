@@ -595,6 +595,7 @@ void run_commands(void)
 		&& mouse_on_map == 0)
 //		|| control.mouse_status == MOUSE_STATUS_OUTSIDE)
 	{
+#ifndef RECORDING_VIDEO
   if (control.mouse_x_screen_pixels < MOUSE_SCROLL_BORDER)
  		mouse_scroll_x = 0 - ((MOUSE_SCROLL_BORDER - control.mouse_x_screen_pixels) / MOUSE_SCROLL_SPEED_DIVISOR);
  		 else
@@ -610,7 +611,7 @@ void run_commands(void)
      if (control.mouse_y_screen_pixels > view.window_y_unzoomed - MOUSE_SCROLL_BORDER)
       mouse_scroll_y = ((MOUSE_SCROLL_BORDER - (view.window_y_unzoomed - control.mouse_y_screen_pixels)) / MOUSE_SCROLL_SPEED_DIVISOR);
 				}
-
+#endif
 
 	 if (mouse_scroll_x != 0)
 		{

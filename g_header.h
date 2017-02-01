@@ -135,6 +135,7 @@ struct object_type_struct
 	char name [OBJECT_NAME_LENGTH];
 	int keyword_index; // index of the identifier for the object's name
 	int object_base_type;
+	int unlock_index;
 	int data_cost;
 	int power_use_peak; // used in design analysis. Maximum power use in a single cycle
 //	int power_use_smoothed; // used in design analysis. Power use averaged out over recycle time.
@@ -415,6 +416,7 @@ TEMPLATE_OBJECT_ERROR_MOVE_OBSTRUCTED,
 //TEMPLATE_OBJECT_ERROR_INTERFACE_CORE, // interface object on core
 TEMPLATE_OBJECT_ERROR_STATIC_MOVE, // static core has move object
 TEMPLATE_OBJECT_ERROR_MOBILE_ALLOCATE, // non-static core has allocate object
+TEMPLATE_OBJECT_ERROR_STORY_LOCK, // in story mode, and object is not yet unlocked
 
 TEMPLATE_OBJECT_ERRORS
 };
@@ -548,6 +550,7 @@ struct template_member_struct
 
  int collision; // is 1 if the member is colliding with another member.
  int move_obstruction; // is 1 if the member is obstructing another member's move object.
+ int story_lock_failure; // is 1 if the member shape type not unlocked, and we're in story mode.
 
 #define MAX_DOWNLINKS_FROM_CORE 6
 // MAX_DOWNLINKS_FROM_CORE prevents long strings of components that can cause various problems. 6 should be plenty
@@ -1983,7 +1986,50 @@ struct inter_struct
 
 };
 
+enum
+{
+STORY_TYPE_NORMAL,
+STORY_TYPE_ADVANCED,
 
+STORY_TYPES
+};
+
+
+enum
+{
+MISSION_TUTORIAL1,
+MISSION_TUTORIAL2,
+
+MISSION_BLUE_1,
+MISSION_BLUE_2,
+MISSION_BLUE_CAPITAL,
+
+MISSION_GREEN_1,
+MISSION_GREEN_2,
+MISSION_GREEN_CAPITAL,
+
+MISSION_YELLOW_1,
+MISSION_YELLOW_2,
+MISSION_YELLOW_CAPITAL,
+
+MISSION_ORANGE_1,
+MISSION_ORANGE_2,
+MISSION_ORANGE_CAPITAL,
+
+MISSION_PURPLE_1,
+MISSION_PURPLE_2,
+MISSION_PURPLE_CAPITAL,
+
+//MISSION_DARK_BLUE_1,
+//MISSION_DARK_BLUE_2,
+//MISSION_DARK_BLUE_CAPITAL,
+
+MISSION_RED_1,
+MISSION_RED_2,
+MISSION_RED_CAPITAL,
+
+MISSIONS
+};
 
 // This is a set of game configuration values like system options etc
 struct settingsstruct
@@ -2000,6 +2046,8 @@ struct settingsstruct
  int replace_colour [PLAYERS]; // replaces a player's colour with another colour. Set in init file. is -1 if player's colour not replaced.
 
  char default_template_path [PLAYERS] [TEMPLATES_PER_PLAYER] [FILE_PATH_LENGTH]; // will be length 0 if no default template
+
+ int saved_story_mission_defeated [STORY_TYPES] [MISSIONS]; // 0 not defeated, 1 defeated. This should match the state of the msn.dat file.
 
 };
 
@@ -2082,6 +2130,7 @@ struct game_struct
  int type; // GAME_TYPE_? enums
  int mission_index; // only relevant in GAME_TYPE_MISSION
  int area_index; // only relevant in GAME_TYPE_MISSION
+ int region_index; // only relevant in GAME_TYPE_MISSION
  int region_in_area_index; // currently 0, 1 or 2. Used for sound stuff
 //  file names may be used in future if file naming conventions are adopted, allowing automatic turnfile loading.
 // char file_path [FILE_PATH_LENGTH]; // path where turnfiles etc are stored. Is determined by path to gamefile/savefile.

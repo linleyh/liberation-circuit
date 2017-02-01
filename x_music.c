@@ -928,7 +928,7 @@ fpr("\n str %i ", camstate.agent[i].echo_strength);
 	if (camstate.bar_beat_drum [camstate.bar_pos] != 0)
 	{
 	 if (camstate.drum_index [camstate.bar_beat_drum [camstate.bar_pos]] != 0)
-	  al_play_sample(sample [camstate.drum_index [camstate.bar_beat_drum [camstate.bar_pos]]] , 1 * sound_config.music_volume, 0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+	  al_play_sample(sample [camstate.drum_index [camstate.bar_beat_drum [camstate.bar_pos]]] , 0.7 * sound_config.music_volume, 0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 	}
 
 //	if (camstate.bar_pos == 4)

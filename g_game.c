@@ -95,6 +95,7 @@ void start_game(void)
 #endif
 
 
+
  game.user_player_index = 0;
 
  init_panels_for_new_game(); // currently this just sets panel element highlight times to zero
@@ -172,18 +173,14 @@ void run_game(void)
 
 // ends when game over (or user quit)
 
- if (game.type == GAME_TYPE_MISSION
-		&&	game.game_over_status == GAME_END_MISSION_COMPLETE)
+ if (game.type == GAME_TYPE_MISSION)
 	{
-/*
-		if (missions.status [game.mission_index] != MISSION_STATUS_FINISHED)
-		{
-		 missions.status [game.mission_index] = MISSION_STATUS_FINISHED; // stars not yet implemented (may not ever be)
-		 save_mission_status_file();
-		}
-		 else
-		  missions.status [game.mission_index] = MISSION_STATUS_FINISHED; // stars not yet implemented (may not ever be)
-*/
+		w.players = 1; // this affects the template panel (prevents opening the old player 1 templates in the mission select screen)
+
+		if (game.game_over_status == GAME_END_MISSION_COMPLETE)
+	 {
+ 		story_mission_defeated();
+ 	}
 	}
 
 	close_all_panels();
@@ -263,7 +260,7 @@ void main_game_loop(void)
 
       cps ++;
       w.world_time ++;
-      w.world_seconds = w.world_time / 60;
+      w.world_seconds = (w.world_time - BASE_WORLD_TIME) / 60;
 
       update_vision_area(); // update fog of war after w.world_time is incremented so that the vision_time timestamps are up to date
 
@@ -961,7 +958,7 @@ now attack
 					game.game_over_status = GAME_END_MISSION_COMPLETE;
 					goto finished_game_over;
 				}
-	   if (w.world_seconds >= 7200) // 2 hour time limit
+	   if (w.world_seconds >= 3600) // 1 hour time limit
 	   {
 		   set_game_over();
 		   game.game_over_status = GAME_END_MISSION_FAILED_TIME;
@@ -1128,7 +1125,7 @@ static int run_custom_game(void)
   return 0;
 	}
 
-	if (w.world_seconds >= 7200) // maximum game length 2 hours
+	if (w.world_seconds >= 3600) // maximum game length 1 hour
 	{
 		set_game_over();
 		game.game_over_status = GAME_END_DRAW_OUT_OF_TIME;

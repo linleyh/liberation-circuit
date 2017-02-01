@@ -38,6 +38,7 @@
 #include "g_shapes.h"
 #include "t_template.h"
 #include "c_keywords.h"
+#include "h_story.h"
 
 #include "x_sound.h"
 
@@ -49,6 +50,7 @@ extern struct object_type_struct otype [OBJECT_TYPES];
 extern struct object_type_struct otype [OBJECT_TYPES];
 
 extern struct dcode_state_struct dcode_state;
+extern struct story_struct story;
 
 // remove c_prepr.h when finished testing source loading
 //#include "c_prepr.h"
@@ -210,6 +212,7 @@ void init_templ_group_member(struct template_struct* group_templ, int gm)
 	group_templ->member[gm].connection_angle_offset_angle = 0;
 	group_templ->member[gm].collision = 0;
 	group_templ->member[gm].move_obstruction = 0;
+	group_templ->member[gm].story_lock_failure = 0;
 	int i, j;
 /*	for (i = 0; i < PROC_MAX_OBJECTS; i++)
 	{
@@ -1055,20 +1058,51 @@ void set_sub_buttons_range(int range_start, int range_end, int special_highlight
 {
 	int i = 0;
 
+	int button_index = 0;
+
+
+
 	while(range_start + i <= range_end)
 	{
-		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].open = 1;
-		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].value [0] = range_start + i;
-		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].value [2] = design_sub_button [range_start + i].value; // value [1] used below
-		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].name = design_sub_button [range_start + i].name;
-		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].value [3] = 0; // no special autocoder highlighting
+		if (game.type == GAME_TYPE_MISSION) // story unlocks are only relevant in story mode, not custom games (GAME_TYPE_BASIC)
+		{
+		 switch(design_sub_button[range_start + i].type)
+		 {
+		  case DSBTYPE_OBJECT:
+		 	 if (!story.unlock[otype[design_sub_button[range_start + i].value].unlock_index])
+				 {
+   		 i ++;
+ 					continue;
+				 }
+ 			 break;
+		  case DSBTYPE_CORE_SHAPE:
+		  case DSBTYPE_SHAPE:
+/*		 	fpr("\n i %i button %i nshape %i unlock_index %i unlocked %i", i,
+											button_index,
+											design_sub_button[range_start + i].value,
+											nshape[design_sub_button[range_start + i].value].unlock_index,
+											story.unlock[nshape[design_sub_button[range_start + i].value].unlock_index]);*/
+		 	 if (!story.unlock[nshape[design_sub_button[range_start + i].value].unlock_index])
+				 {
+   		 i ++;
+ 					continue;
+				 }
+		 	 break;
+		 }
+		}
+		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].open = 1;
+		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].value [0] = range_start + i;
+		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].value [2] = design_sub_button [range_start + i].value; // value [1] used below
+		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].name = design_sub_button [range_start + i].name;
+		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].value [3] = 0; // no special autocoder highlighting
 		if (design_sub_button [range_start + i].value == special_highlight_value)
 		{
-			panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].value [1] = 1;
+			panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].value [1] = 1;
 		}
 		  else
-			  panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].value [1] = 0;
+			  panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].value [1] = 0;
 		i ++;
+		button_index ++;
 #ifdef SANITY_CHECK
   if (i >= DESIGN_SUB_BUTTONS)
 		{
@@ -1078,10 +1112,10 @@ void set_sub_buttons_range(int range_start, int range_end, int special_highlight
 #endif
 	};
 
-	while(i < DESIGN_SUB_BUTTONS)
+	while(button_index < DESIGN_SUB_BUTTONS)
 	{
-		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + i].open = 0;
-		i++;
+		panel[PANEL_DESIGN].element[FPE_DESIGN_SUB_BUTTON_0 + button_index].open = 0;
+		button_index++;
 	};
 
 
@@ -1512,6 +1546,11 @@ void design_panel_button(int button_element)
 			break;
 		case FPE_DESIGN_TOOLS_MAIN_LOCK:
    reset_log();
+   if (dwindow.templ->locked)
+			{
+   	write_line_to_log("Template already locked.", MLOG_COL_ERROR);
+   	break;
+			}
 			lock_template(dwindow.templ);
 			break;
 		case FPE_DESIGN_TOOLS_MAIN_UNLOCK:
@@ -1720,6 +1759,8 @@ void change_member_shape(int mem, int new_shape)
 {
 
 	dwindow.templ->member[mem].shape = new_shape;
+	dwindow.templ->member[mem].story_lock_failure = 0; // should be able to assume that the new shape is valid (doesn't matter too much if somehow this may not be true)
+
 	if (mem == 0)
 	{
 		int i;
@@ -1890,12 +1931,15 @@ void set_member_object(int mem, int obj, int new_obj)
 void clear_member_object(int mem, int obj, int reset_panel)
 {
 
+ int old_object_type = dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type;
+
 // Can't deal with a link object this way.
- if (otype[dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type].object_base_type == OBJECT_BASE_TYPE_LINK)
+ if (otype[old_object_type].object_base_type == OBJECT_BASE_TYPE_LINK)
 		return; // can't delete linked member this way. should write failure message here.
 
-	if (dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type == OBJECT_TYPE_NONE)
+	if (old_object_type == OBJECT_TYPE_NONE)
 			return; // already clear
+
 
  clear_member_object_classes(mem, obj);
 
@@ -1906,6 +1950,9 @@ void clear_member_object(int mem, int obj, int reset_panel)
  dwindow.templ->modified = 1;
 
  check_template_member_objects(dwindow.templ, mem);
+
+ if (old_object_type == OBJECT_TYPE_MOVE)
+  check_move_objects_obstruction(dwindow.templ);
 
  calculate_template_member_cost(dwindow.templ, mem);
 
