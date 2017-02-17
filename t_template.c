@@ -173,6 +173,8 @@ void clear_template_but_not_source(struct template_struct* clear_template)
 	clear_template->modified = 1;
  clear_template->mobile = 1;
 
+ clear_template->mission_template = 0;
+
 
 }
 
@@ -564,16 +566,19 @@ void unlock_template(int player_index, int template_index)
 {
 
 // First, make sure that the player isn't trying to unlock the mission AI:
-//#ifndef DEBUG_MODE
-#ifndef RECORDING_VIDEO
+//#ifndef RECORDING_VIDEO
 // (but allow this in debug mode)
- if (player_index == 1
+// if (templ[player_index][template_index].mission_template)
+ if (templ[player_index][template_index].player_index == 1
 		&& game.type == GAME_TYPE_MISSION)
 	{
-		write_line_to_log("You can't unlock your opponent's templates in story mode!", MLOG_COL_ERROR);
+#ifndef DEBUG_MODE
+		write_line_to_log("You can't unlock a mission opponent's template.", MLOG_COL_ERROR);
 		return;
-	}
+#else
+		write_line_to_log("DEBUG MODE: bypassing mission opponent template unlock check.", MLOG_COL_WARNING);
 #endif
+	}
 
 
 // if no world is allocated, easy to unlock

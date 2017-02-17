@@ -138,7 +138,7 @@ void init_sound(int camstate_rand_seed)
  sthread_init_sample_pointers();
 
  if (settings.option [OPTION_VOL_MUSIC] != 0)
-  init_camstate(-1, 0, 0, camstate_rand_seed); // this is usually only called from within the sound thread
+  init_camstate(-1, 1, 0, camstate_rand_seed); // this is usually only called from within the sound thread
    // but can be called here because the sound thread hasn't been started yet.
    // -1 means start new music
     else

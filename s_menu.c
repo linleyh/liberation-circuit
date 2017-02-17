@@ -28,12 +28,14 @@ s_menu.c calls back here for various things.
 #include "e_header.h"
 #include "e_editor.h"
 #include "e_help.h"
+#include "e_log.h"
 #include "g_game.h"
 #include "g_world.h"
 
 #include "i_input.h"
 #include "i_view.h"
 #include "i_display.h"
+#include "i_disp_in.h"
 #include "i_buttons.h"
 #include "t_template.h"
 #include "m_input.h"
@@ -110,6 +112,8 @@ EL_ACTION_MISSION,
 EL_ACTION_ADVANCED_MISSION,
 EL_ACTION_STORY,
 EL_ACTION_STORY_ADVANCED,
+EL_ACTION_STORY_HARD,
+EL_ACTION_STORY_ADVANCED_HARD,
 EL_ACTION_TUTORIAL,
 EL_ACTION_SETUP_GAME,
 EL_ACTION_LOAD,
@@ -169,6 +173,8 @@ enum
 EL_MAIN_HEADING,
 EL_MAIN_START_GAME,
 EL_MAIN_START_GAME_ADVANCED,
+EL_MAIN_START_GAME_HARD,
+EL_MAIN_START_GAME_ADVANCED_HARD,
 EL_MAIN_TUTORIAL,
 EL_MAIN_SETUP_GAME,
 //EL_MAIN_LOAD,
@@ -284,10 +290,26 @@ struct menu_liststruct menu_list [ELS] =
   EL_TYPE_ACTION, // type
   EL_ACTION_STORY_ADVANCED, // action
   0, // start_value
-  "START (ADVANCED)", // name
+  "START  <AUTONOMOUS>", // name
   -1, // slider_index
 //  HELP_ADVANCED_MISSION_MENU, // help_type
  }, // EL_MAIN_START_GAME_ADVANCED
+ {
+  EL_TYPE_ACTION, // type
+  EL_ACTION_STORY_HARD, // action
+  0, // start_value
+  "START  <HARD>", // name
+  -1, // slider_index
+//  HELP_MISSION_MENU, // help_type
+ }, // EL_MAIN_START_GAME_HARD
+ {
+  EL_TYPE_ACTION, // type
+  EL_ACTION_STORY_ADVANCED_HARD, // action
+  0, // start_value
+  "START  <AUTONOMOUS+HARD>", // name
+  -1, // slider_index
+//  HELP_ADVANCED_MISSION_MENU, // help_type
+ }, // EL_MAIN_START_GAME_ADVANCED_HARD
  {
   EL_TYPE_ACTION, // type
   EL_ACTION_TUTORIAL, // action
@@ -746,7 +768,9 @@ int menu_list_main [] =
 {
 EL_MAIN_HEADING,
 EL_MAIN_START_GAME,
+EL_MAIN_START_GAME_HARD,
 EL_MAIN_START_GAME_ADVANCED,
+EL_MAIN_START_GAME_ADVANCED_HARD,
 //EL_MAIN_TUTORIAL,
 EL_MAIN_SETUP_GAME,
 //EL_MAIN_LOAD,
@@ -1185,8 +1209,10 @@ SMS_DATA_300,
 SMS_DATA_600,
 SMS_DATA_900,
 SMS_DATA_1200,
+SMS_HARD_1,
 SMS_ADVANCED_1,
 SMS_ADVANCED_2,
+SMS_HARD_ADVANCED_1,
 SMS_STRINGS
 };
 
@@ -1210,8 +1236,10 @@ const char *setup_menu_string [SMS_STRINGS] =
 "600", // SMS_DATA_600,
 "900", // SMS_DATA_900,
 "1200", // SMS_DATA_1200,
-"In advanced mode, you cannot give commands.", // SMS_ADVANCED_1
-" Your processes must be coded to act autonomously.", // SMS_ADVANCED_2
+"Your opponents' processes are stronger and more plentiful.", // SMS_HARD_1
+"You cannot give commands.", // SMS_ADVANCED_1
+" Your processes must be coded to act by themselves.", // SMS_ADVANCED_2
+"Hard mode and autonomous mode at the same time.", // SMS_HARD_ADVANCED_1
 };
 
 
@@ -1353,11 +1381,25 @@ void display_menu_2(void)
     	     add_menu_string(menu_element[i].x1 + 145, y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, mstate.map_code_string);
     	     add_menu_string(menu_element[i].x1 + 134, y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[        ]");
          	break;
+         case EL_MAIN_START_GAME_HARD:
+          if (menu_element[i].highlight)
+          {
+    	      add_menu_string(menu_element[i].x2 + 20, y1 + 17, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_HARD_1]);
+//    	      add_menu_string(menu_element[i].x2 + 20, y1 + 30, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_2]);
+          }
+										break;
          case EL_MAIN_START_GAME_ADVANCED:
           if (menu_element[i].highlight)
           {
     	      add_menu_string(menu_element[i].x2 + 20, y1 + 17, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_1]);
     	      add_menu_string(menu_element[i].x2 + 20, y1 + 30, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_2]);
+          }
+										break;
+         case EL_MAIN_START_GAME_ADVANCED_HARD:
+          if (menu_element[i].highlight)
+          {
+    	      add_menu_string(menu_element[i].x2 + 20, y1 + 17, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_HARD_ADVANCED_1]);
+//    	      add_menu_string(menu_element[i].x2 + 20, y1 + 30, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_2]);
           }
 										break;
         }
@@ -1784,7 +1826,7 @@ void draw_menu_button(float xa, float ya, float xb, float yb, ALLEGRO_COLOR butt
 
 
 
-
+// This function should only be called once, from the startup routines in m_main
 void start_menus(void)
 {
 
@@ -2065,19 +2107,47 @@ void run_menu_input(void)
 //       setup_templates_for_advanced_mission_menu();
 //       open_menu(MENU_ADVANCED_MISSIONS);
        break;
+      case EL_ACTION_STORY_HARD:
+       play_interface_sound(SAMPLE_BLIP1, TONE_2C);
+       enter_story_mode(STORY_TYPE_HARD);
+       break;
+      case EL_ACTION_STORY_ADVANCED_HARD:
+       play_interface_sound(SAMPLE_BLIP1, TONE_2D);
+       enter_story_mode(STORY_TYPE_ADVANCED_HARD); // need to set to autonomous mode at some point!
+       break;
       case EL_ACTION_TUTORIAL:
        play_interface_sound(SAMPLE_BLIP1, TONE_2E);
        open_menu(MENU_TUTORIAL);
        break;
       case EL_ACTION_START_GAME_FROM_SETUP:
+      	{
        play_interface_sound(SAMPLE_BLIP1, TONE_2C);
        game.type = GAME_TYPE_BASIC; // i.e. not playing a mission
-       new_world_from_world_init();
-       generate_random_map(w_init.map_size_blocks, w_init.players, w_init.game_seed);
+       game.story_type = STORY_TYPE_NORMAL; // nothing special
+//       w_init.story_area = (w_init.game_seed % (STORY_AREAS - 1)) + 1; // AREA_BLUE to AREA_RED (not AREA_TUTORIAL)
+// TO DO: allow custom games to be in any area
        game.area_index = AREA_BLUE; // these game values are just used to generate the music. Should probably fix them.
+       w_init.story_area = AREA_BLUE;
+       game.region_in_area_index = -1; // means to use random music
+
+      	int player_base_cols [PLAYERS] = {TEAM_COL_BLUE,1,2,3}; // index in base_proc_col array
+	      int player_packet_cols [PLAYERS] = {PACKET_COL_YELLOW_ORANGE,1,2,3}; // index in base_packet_colours array and similar interface array
+
+       set_game_colours(BACK_COLS_BLUE, // index in back_and_hex_colours array
+																				    BACK_COLS_BLUE, // index in back_and_hex_colours array
+																				    w_init.players, // players in game
+																				    player_base_cols, // index in base_proc_col array
+																				    player_packet_cols); // index in base_packet_colours array and similar interface array
+
+       new_world_from_world_init();
+       generate_random_map(w_init.story_area, w_init.map_size_blocks, w_init.players, w_init.game_seed);
+//       game.area_index = AREA_BLUE; // these game values are just used to generate the music. Should probably fix them.
        game.region_in_area_index = 0;
+       reset_log();
+       open_template(0, 0);
        start_world();
        run_game_from_menu();
+      	}
        break;
 /*      case EL_ACTION_SAVE_GAMEFILE:
        play_interface_sound(SAMPLE_BLIP1, TONE_2C);
@@ -2560,7 +2630,9 @@ void run_intro_screen(void)
   run_menu_stripes(1);
 
 
-  al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, 200, ALLEGRO_ALIGN_CENTRE, "L I B E R A T I O N   C I R C U I T");
+//  al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, 200, ALLEGRO_ALIGN_CENTRE, "L I B E R A T I O N   C I R C U I T");
+   al_draw_bitmap(title_bitmap, settings.option [OPTION_WINDOW_W] / 2 - 300, 200, 0);
+
 
 
   reset_i_buttons();
@@ -2595,9 +2667,9 @@ void run_intro_screen(void)
   al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, START_BOX_Y - 4, ALLEGRO_ALIGN_CENTRE, ">>   START   <<");
 
   y_line = 100;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Version: open beta");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Version: beta");
   y_line -= 25;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Copyright 2016 Linley Henzell");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Copyright 2017 Linley Henzell");
   y_line -= 15;
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Free software (GPL v3 or later)");
   y_line -= 15;
@@ -2788,7 +2860,8 @@ static void reset_map_for_menu(void)
 
  fix_w_init_size();
 
- generate_random_map(w_init.map_size_blocks,
+ generate_random_map(w_init.story_area,
+																					w_init.map_size_blocks,
 																					w_init.players,
 																					w_init.game_seed);
 

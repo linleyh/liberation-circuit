@@ -16,8 +16,12 @@
 
 #include "g_misc.h"
 #include "i_header.h"
+#include "m_input.h"
 
 #include "p_panels.h"
+
+#include "t_template.h"
+#include "e_editor.h"
 
 
 extern struct fontstruct font [FONTS];
@@ -40,6 +44,9 @@ void write_to_log(const char* str);
 void start_log_line(int mcol);
 void finish_log_line(void);
 void reset_log(void);
+
+int log_visible_line_mouseover(void);
+int log_visible_line_to_log_line(int visible_line);
 
 // call this at startup
 void init_log(void) // int w_pixels, int h_pixels)
@@ -272,6 +279,12 @@ void display_log(void)
 
  int display_line_pos = lines_printed;
 
+ int highlight_line = -100;
+
+ if (control.mouse_panel == PANEL_LOG
+		&& ex_control.mouse_x_pixels	< x2 - 25)
+		highlight_line = log_visible_line_mouseover();
+
  while (display_line_pos > 0)
  {
   x = x1 + 10;
@@ -280,6 +293,9 @@ void display_log(void)
   al_draw_textf(font[FONT_BASIC].fnt, mlog_col [mlog.log_line[log_line_pos].colour], x, y, 0, "wp %i lp %i hl %i %i: %s",
 																mlog.window_pos, mlog.lpos, mlog.h_lines,
 																log_line_pos, mlog.log_line[log_line_pos].text); // must use " %s"; can't use text string directly as it may contain % characters*/
+		if (display_line_pos == highlight_line
+			&& mlog.log_line[log_line_pos].source_player_index != -1) // should be -1 if not associated with a specific source_edit
+			al_draw_filled_rectangle(panel[PANEL_LOG].x1, y - 2, x2, y + 9, colours.base [COL_BLUE] [SHADE_LOW]);
   al_draw_textf(font[FONT_BASIC].fnt, mlog_col [mlog.log_line[log_line_pos].colour], x, y, 0, "%s", mlog.log_line[log_line_pos].text); // must use " %s"; can't use text string directly as it may contain % characters
   display_line_pos --;
   log_line_pos --;
@@ -292,6 +308,108 @@ void display_log(void)
 
 }
 
+
+void mouse_click_on_log_window(void)
+{
+
+ if (ex_control.mouse_x_pixels >= panel[PANEL_LOG].x2 - SLIDER_BUTTON_SIZE)
+		return; // this is dealt with elsewhere
+
+ int visible_line = log_visible_line_mouseover();
+
+//fpr("\n wp %i lpos %i vis %i ", mlog.window_pos, mlog.lpos, visible_line);
+
+
+ if (visible_line == -1)
+		return;
+
+	int log_line_index = log_visible_line_to_log_line(visible_line);
+
+	if (log_line_index < 0
+		|| log_line_index >= LOG_LINES)
+		return;
+//fpr(" click %i [%s]", log_line_index, mlog.log_line[log_line_index].text);
+
+ if (mlog.log_line[log_line_index].source_player_index == -1
+		|| mlog.log_line[log_line_index].source_player_index >= w.players)
+		return;
+
+// should be able to assume that this line is from the compiler, about a particular template.
+
+ open_template(mlog.log_line[log_line_index].source_player_index, mlog.log_line[log_line_index].source_template_index);
+
+ struct source_edit_struct* se = get_current_source_edit();
+
+ if (se == NULL
+  || se->type != SOURCE_EDIT_TYPE_SOURCE)
+  return;
+
+ int new_source_line = mlog.log_line[log_line_index].source_line;// - 1;
+ if (new_source_line < 0)
+		new_source_line = 0;
+
+ se->cursor_line = new_source_line;
+ se->cursor_pos = 0;
+ se->cursor_base = se->cursor_pos;
+ se->selected = 0;
+
+ window_find_cursor(se);
+
+
+
+}
+
+// returns the visible line that the mouse is over (starts at 0 at the top of the visible log panel.)
+// or -1 if the mouse isn't over a line
+int log_visible_line_mouseover(void)
+{
+
+	int visible_line;
+
+	visible_line = (ex_control.mouse_y_pixels - panel[PANEL_LOG].y1 - 2) / LOG_LINE_HEIGHT;
+
+	if (visible_line < 0)
+		return -1;
+
+	if (visible_line >= mlog.h_lines)
+		return -1;
+
+	return visible_line;
+
+}
+
+int log_visible_line_to_log_line(int visible_line)
+{
+
+// This is terrible:
+
+// int base_log_line_pos = mlog.window_pos + mlog.lpos;// + mlog.h_lines;
+ int base_log_line_pos = mlog.window_pos - LOG_LINES + mlog.lpos;
+/*
+ while (base_log_line_pos >= LOG_LINES)
+ {
+  base_log_line_pos -= LOG_LINES;
+ }
+ while (base_log_line_pos < 0)
+ {
+  base_log_line_pos += LOG_LINES;
+ }
+*/
+ int log_line_pos = base_log_line_pos - mlog.h_lines + visible_line;
+
+ while (log_line_pos < 0)
+ {
+  log_line_pos += LOG_LINES;
+ }
+ while (log_line_pos >= LOG_LINES)
+ {
+  log_line_pos -= LOG_LINES;
+ }
+
+ return log_line_pos;
+
+
+}
 
 
 

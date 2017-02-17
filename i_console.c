@@ -150,11 +150,12 @@ char *build_fail_message [4] =
 void display_consoles_and_buttons(void)
 {
 
-	int c;
 	int i;
-	int line_index;
 
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
+
+	int line_index;
+	int c;
 
 //	for (c = 0; c < CONSOLES; c ++)
 	{

@@ -492,6 +492,20 @@ int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
  		 else
 					ex_control.debug_special_keys = 0;
 	}
+
+
+ if (ex_control.special_key_press [SPECIAL_KEY_F8] == BUTTON_JUST_PRESSED)
+	{
+
+static int mrand_seed;
+fpr("\n resetting music - area %i seed %i", game.area_index, mrand_seed);
+		 reset_music(game.area_index, -1, mrand_seed);
+
+		 mrand_seed++;
+
+	}
+
+
 #endif
 
 

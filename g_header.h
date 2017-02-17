@@ -583,6 +583,8 @@ struct template_struct
  int player_index; // which player it belongs to
  int template_index; // index in player's array of templates
 
+ int mission_template; // is 1 if this is an enemy process template from a mission. Prevents various forms of modification and saving.
+
  char object_class_name [OBJECT_CLASSES] [CLASS_NAME_LENGTH];
  int object_class_active [OBJECT_CLASSES];
 // note that the object_class_member and _object arrays are not initialised until the template is fixed.
@@ -1990,6 +1992,8 @@ enum
 {
 STORY_TYPE_NORMAL,
 STORY_TYPE_ADVANCED,
+STORY_TYPE_HARD,
+STORY_TYPE_ADVANCED_HARD,
 
 STORY_TYPES
 };
@@ -2131,10 +2135,12 @@ struct game_struct
  int mission_index; // only relevant in GAME_TYPE_MISSION
  int area_index; // only relevant in GAME_TYPE_MISSION
  int region_index; // only relevant in GAME_TYPE_MISSION
- int region_in_area_index; // currently 0, 1 or 2. Used for sound stuff
+ int region_in_area_index; // currently 0, 1 or 2, or -1 in custom games. Used for sound stuff
 //  file names may be used in future if file naming conventions are adopted, allowing automatic turnfile loading.
 // char file_path [FILE_PATH_LENGTH]; // path where turnfiles etc are stored. Is determined by path to gamefile/savefile.
 // char name [FILE_NAME_LENGTH]; // name of game (actually limited to just a few letters). Is put at start of all turn files.
+
+ int story_type; // custom games are STORY_TYPE_NORMAL
 
  int user_player_index; // player index of the user (probably 0)
 

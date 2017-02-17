@@ -137,7 +137,7 @@ BIND_LOGICAL_OR, // ||
 BIND_COMPARE, // < > <= >= == !=
 BIND_BITWISE, // all bitwise operators
 BIND_ADD, // + -
-BIND_MUL, // * / %
+ BIND_MUL, // * / %
 BIND_LOGICAL_NOT, // ! - don't think this is used (binding for ! is dealt with as a special case)
 
 };

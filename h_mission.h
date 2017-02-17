@@ -52,5 +52,6 @@ struct mission_state_struct
 void mission_spawn_extra_processes(void);
 void add_extra_spawn(int player_index, int template_index, int spawn_x_block, int spawn_y_block, int spawn_angle);
 void prepare_for_mission(void);
+void set_game_colours_for_area(int area_index, int players);
 
 #endif

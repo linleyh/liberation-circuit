@@ -1374,6 +1374,8 @@ when build command on queue
  	   dcode_add_line("{");
 	    dcode_state.indent_level ++;
  	    dcode_add_line("mode = MODE_ATTACK_FOUND; // later code means that process will attack target in targetting memory 0");
+   	  dcode_add_line("target_x = process[TARGET_MAIN].get_core_x(); // calls get_core_x() on the process in targetting memory address TARGET_MAIN");
+ 	    dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
     	 dcode_add_line("target_component = 0; // attack the core");
  	    dcode_add_line("saved_mode = MODE_GUARD; // when leaving MODE_ATTACK_FOUND, will return to this mode");
      	if (dcode_state.autocode_type == AUTOCODE_HARASS)

@@ -33,4 +33,6 @@ void write_line_to_log(char* str, int mcol);
 
 void write_number_to_log(int num);
 
+void mouse_click_on_log_window(void);
+
 #endif

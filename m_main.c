@@ -1,7 +1,7 @@
 /*
 
 Liberation Circuit
-Copyright 2016 Linley Henzell
+Copyright 2017 Linley Henzell
 Licensed under the GPL v3 (or any later version)
 
     This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ I use Code::Blocks and don't really understand makefiles, so there isn't one.
 It shouldn't be too hard to compile the game, though. Basically, compile
 everything in the \src directory and link it to Allegro 5.
 
-*** Don't try to compile the ".c" files in the "proc" or "missions" subdirectories!
+*** Don't try to compile the ".c" files in the "proc" or "story" subdirectories!
 They are process programs for the game's own compiler. (they have the
 .c extension to make it easier to load them into an IDE)
 
@@ -37,6 +37,10 @@ In gcc, compile with the
  -fno-strict-overflow
 flag to tell the compiler not to optimise on the basis of signed integer
 overflow behaviour being undefined (not sure about other compilers, sorry).
+
+I also use
+ -ffast-math
+which I think only optimises floating-point maths.
 
 Currently the game supports code that right-bitshifts negative values.
 I may need to prevent this (by removing the >> operator from the compiler)
@@ -98,7 +102,7 @@ g_world_map_2.c - map background
 g_header.h - contains a vast amount of game data declarations
 
 
-Story (starts with h for some reason)
+Story (starts with h mostly because of its place in the alphabet)
 
 h_interface.c - story mode region selection interface
 h_mission.c - sets up story missions
@@ -161,7 +165,7 @@ v_interp.c - contains the bcode interpreter
 
 Compiler
 
-c_compile.c - the C compiler
+c_compile.c - the compiler
 c_fix.c - converts the #process header into a process design for a template
 c_generate.c - generates bcode from the compiler's output
 c_init.c - initialises the compiler
@@ -184,10 +188,10 @@ d_geo.c - some designer geometry stuff
 Code editor
 
 e_clip.c - clipboard (cut/paste, undo/redo etc)
-e_complete.c - code completion (not currently implemented)
+e_complete.c - code completion
 e_editor.c - general code for the editor
 e_files.c - opening/closing files
-e_help.c - help system (not currently implemented)
+e_help.c - help system
 e_inter.c - editor interface stuff
 e_log.c - the message log (used by other panels as well)
 e_slider.c - code to run sliders/scrollbars (used by other panels as well)
@@ -199,9 +203,9 @@ e_header.h - general editor declarations
 Files
  - saved games are not currently implemented, so none of these files do much, if anything
 
-f_game.c - gamefiles
-f_load.c - loads and verifies saved games
-f_save.c - saves games
+f_game.c - gamefiles (no longer used)
+f_load.c - loads and verifies saved games (not implemented)
+f_save.c - saves games (not implemented)
 f_turn.c - turnfiles (not implemented)
 
 
@@ -253,6 +257,7 @@ z_poly.c - an editor for me to use to design components. Generates code
 #include "g_shapes.h"
 
 #include "h_interface.h"
+#include "h_story.h"
 
 #include "z_poly.h"
 
@@ -363,7 +368,6 @@ fpr("\n templates");
 
  init_story_interface();
 
-
 fpr("\nInitialised.\n");
 
 #ifdef DEBUG_MODE
@@ -389,8 +393,8 @@ void init_at_startup(void)
    al_init_image_addon();
 
    fprintf(stdout, "Liberation Circuit");
-   fprintf(stdout, "\nCopyright 2016 Linley Henzell");
-   fprintf(stdout, "\nVersion: alpha 2");
+   fprintf(stdout, "\nCopyright 2017 Linley Henzell");
+   fprintf(stdout, "\nVersion: beta");
 
    fprintf(stdout, "\n\nThis is free software and comes with no warranty; see licence.txt.");
 
@@ -469,6 +473,7 @@ fpr("\nInitialising:");
     else
     {
      display = al_create_display(settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
+//    display = al_create_display(100, 100);
 
      if (!display)
      {
@@ -539,6 +544,7 @@ fpr("\n maths");
    init_key_type(); // in m_input.c
 
    init_ex_control(); // in m_input.c
+
 fpr("\n controls");
 
    init_vision_area_map(); // in g_game.c
@@ -556,16 +562,16 @@ fpr("\n controls");
 
   ALLEGRO_MOUSE_STATE init_mouse_state;
   al_get_mouse_state(&init_mouse_state);
-  int music_rand_seed = init_mouse_state.x + init_mouse_state.y;
+  int music_rand_seed = init_mouse_state.x + (init_mouse_state.y * 1000);
 
 // init_sound must come after read_initfile() (as read_initfile may set volume levels)
   init_sound(music_rand_seed); // calls allegro sound init functions and loads samples. If it fails, it will disable sound (through settings.sound_on)
 
 fpr("\n sound");
 
- load_story_status_file(); // this prints a progress report
+ load_story_status_file(); // this prints its own progress report
 
-/*
+
 // load the title bitmap
   title_bitmap = al_load_bitmap("data/images/title.bmp");
 
@@ -576,7 +582,7 @@ fpr("\n sound");
 		}
 
   al_convert_mask_to_alpha(title_bitmap, al_get_pixel(title_bitmap, 0, 0));
-*/
+
 
 }
 

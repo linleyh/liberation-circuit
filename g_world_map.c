@@ -38,7 +38,8 @@ void reset_map_init(int map_size_blocks,
 																				int players);
 static void place_player_on_map_init(int player_index, int spawn_x, int spawn_y, int flip_x, int flip_y);
 static void set_player_map_init_spawn_angle(int player_index, int nearby_data_well);
-void generate_scattered_map(int size_blocks,
+void generate_scattered_map(int area_index,
+																												int size_blocks,
 																					       int players,
 																					       unsigned int map_seed);
 static int check_map_gen_state_data_well_position(int block_x, int block_y);
@@ -58,6 +59,8 @@ void reset_map_init(int map_size_blocks,
 	{
 		map_init.mdetail[i].type = MDETAIL_NONE;
 	}
+
+	map_init.area_index = map_area;
 
 // map_init.base_background_depth = BACKBLOCK_LAYERS - 1;
 // map_init.background_depth_random_add = 0; // size of random addition
@@ -92,7 +95,7 @@ void reset_map_init(int map_size_blocks,
  map_init.data_wells = 0;
 
  map_init.general_background_type = BACKGROUND_TYPE_NOISE;
- map_init.data_well_style = map_area;
+// map_init.data_well_style = map_area;
 /*
  map_init.base_background_size = 16;
  map_init.background_size_random_add = 6;
@@ -106,7 +109,8 @@ void reset_map_init(int map_size_blocks,
 }
 
 
-void generate_random_map(int size_blocks,
+void generate_random_map(int area_index,
+																									int size_blocks,
 																					    int players,
 																					    unsigned int map_seed)
 {
@@ -114,7 +118,10 @@ void generate_random_map(int size_blocks,
 // map_seed needs to be the value originally passed to this function,
 //  because the generate_* functions can be called directly
 //  (I think? maybe)
- generate_scattered_map(size_blocks, players, map_seed);
+
+// int area_index = (map_seed % (STORY_AREAS - 1)) + 1; // AREA_BLUE to AREA_RED (not AREA_TUTORIAL)
+
+ generate_scattered_map(area_index, size_blocks, players, map_seed);
 
  generate_map_from_map_init();
 
@@ -146,22 +153,25 @@ struct map_gen_state_struct map_gen_state;
 
 
 // sets up map_init with details for a map randomly scattered with data wells.
-void generate_scattered_map(int size_blocks,
+void generate_scattered_map(int area_index,
+																												int size_blocks,
 																					       int players,
 																					       unsigned int map_seed)
 {
 
 	seed_mrand(map_seed);
  reset_map_init(size_blocks,
-																AREA_BLUE,
+																area_index,
 																players);
 
 
  map_gen_state.base_data_wells = 0;
 
+#define DATA_WELL_EDGE_DISTANCE 12
+#define DATA_WELL_SEPARATION 12
 
- int base_min_x = 9;
- int base_min_y = 9;
+ int base_min_x = DATA_WELL_EDGE_DISTANCE;
+ int base_min_y = DATA_WELL_EDGE_DISTANCE;
  int base_max_x;
  int base_max_y;
  int total_base_data_wells;
@@ -178,7 +188,7 @@ void generate_scattered_map(int size_blocks,
     symmetry_mode = mrand(4);
     if (symmetry_mode < 2) // left/right
 				{
- 	 	 base_max_x = (map_init.map_size_blocks / 2) - 9;
+ 	 	 base_max_x = (map_init.map_size_blocks / 2) - DATA_WELL_EDGE_DISTANCE;
  	 	 base_max_y = map_init.map_size_blocks - base_min_y;
      base_var_x = base_max_x - base_min_x;
      base_var_y = base_max_y - base_min_y;
@@ -188,7 +198,7 @@ void generate_scattered_map(int size_blocks,
 				 else // up/down
 					{
  	 	  base_max_x = map_init.map_size_blocks - base_min_x;
- 	 	  base_max_y = (map_init.map_size_blocks / 2) - 9;
+ 	 	  base_max_y = (map_init.map_size_blocks / 2) - DATA_WELL_EDGE_DISTANCE;
       base_var_x = base_max_x - base_min_x;
       base_var_y = base_max_y - base_min_y;
       map_gen_state.base_spawn_position_x = base_min_x + mrand(base_var_x - 4);
@@ -196,8 +206,8 @@ void generate_scattered_map(int size_blocks,
 					}
  	 	break;
  	 case 3:
- 	 	base_max_x = (map_init.map_size_blocks / 2) - 9;
- 	 	base_max_y = (map_init.map_size_blocks / 2) - 9;
+ 	 	base_max_x = (map_init.map_size_blocks / 2) - DATA_WELL_EDGE_DISTANCE;
+ 	 	base_max_y = (map_init.map_size_blocks / 2) - DATA_WELL_EDGE_DISTANCE;
  	 	total_base_data_wells = 2 + mrand(DATA_WELLS / 3 - 1);
     base_var_x = base_max_x - base_min_x;
     base_var_y = base_max_y - base_min_y;
@@ -205,8 +215,8 @@ void generate_scattered_map(int size_blocks,
     map_gen_state.base_spawn_position_y = base_min_y + mrand((base_var_y / 3) * 2);
  	 	break;
  	 case 4:
- 	 	base_max_x = (map_init.map_size_blocks / 2) - 9;
- 	 	base_max_y = (map_init.map_size_blocks / 2) - 9;
+ 	 	base_max_x = (map_init.map_size_blocks / 2) - DATA_WELL_EDGE_DISTANCE;
+ 	 	base_max_y = (map_init.map_size_blocks / 2) - DATA_WELL_EDGE_DISTANCE;
  	 	total_base_data_wells = 2 + mrand(DATA_WELLS / 4 - 1);
     base_var_x = base_max_x - base_min_x;
     base_var_y = base_max_y - base_min_y;
@@ -238,7 +248,7 @@ void generate_scattered_map(int size_blocks,
 						}
 			}
 
- if (mrand(6) != 0)
+// if (mrand(6) != 0)
 	{
   map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [0] = 1500;
   map_gen_state.base_data_well_reserve_data [map_gen_state.base_data_wells] [1] = 1000;
@@ -477,8 +487,8 @@ static int check_map_gen_state_data_well_position(int block_x, int block_y)
 
 				 	for (i = 0; i < map_gen_state.base_data_wells; i ++)
 						{
-		     if (abs(block_x - map_gen_state.base_data_well_x [i]) < 8
-				    && abs(block_y - map_gen_state.base_data_well_y [i]) < 8)
+		     if (abs(block_x - map_gen_state.base_data_well_x [i]) < DATA_WELL_SEPARATION
+				    && abs(block_y - map_gen_state.base_data_well_y [i]) < DATA_WELL_SEPARATION)
 				   {
 				   	return 0;
   		   }

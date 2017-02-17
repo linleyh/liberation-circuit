@@ -364,7 +364,7 @@ static void print_sysmenu_help(float base_x, float base_y)
  print_sysmenu_line("", "the buttons on the left side of screen to choose", 0);
  print_sysmenu_line("", "what to build.", 0);
  print_sysmenu_line("", " + shift for repeat build.", 0);
- print_sysmenu_line("", " + control to replace.", 1);
+ print_sysmenu_line("", " + control to reset the queue for that builder.", 1);
 
  smh_text_y += SMH_LINE_HEADER;
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], SMH_HEADER_X, smh_text_y, ALLEGRO_ALIGN_LEFT, "OTHER");

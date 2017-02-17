@@ -134,7 +134,7 @@ char *story_unlock_name [UNLOCKS] =
 #define FIXED_STORY_BOX_Y 550
 
 #define STORY_BOX_W 390
-#define STORY_BOX_H 140
+#define STORY_BOX_H 110
 
 #define GO_BUTTON_X (FIXED_STORY_BOX_X + STORY_BOX_W + 40)
 #define GO_BUTTON_Y FIXED_STORY_BOX_Y
@@ -330,7 +330,7 @@ void draw_story_interface(void)
 void story_input(void)
 {
 
-  get_ex_control(1); // 1 means pressing escape or the close window button closes the game. Need to fix.
+  get_ex_control(0); // 1 means pressing escape or the close window button closes the game. Need to fix.
 
   run_input();
 
@@ -416,11 +416,12 @@ void story_input(void)
        game.mission_index = story.region[story_inter.region_selected].mission_index;
        game.area_index = story.region[story_inter.region_selected].area_index;
        game.region_index = story_inter.region_selected;
-       game.region_in_area_index = 0; // this is 0, 1 or 2. It will be set in prepare_for_mission
+       game.region_in_area_index = 0; // this is 0, 1 or 2 (can be -1 in custom games). It will be set in prepare_for_mission
 							prepare_templates_for_new_game();
        prepare_for_mission(); // sets up w_init so that start_world will prepare the world for a mission
         // also loads in enemy templates and does other preparation for a mission
-       if (story.story_type == STORY_TYPE_ADVANCED)
+       if (story.story_type == STORY_TYPE_ADVANCED
+								|| story.story_type == STORY_TYPE_ADVANCED_HARD)
 								w_init.command_mode = COMMAND_MODE_AUTO;
  							 else
   								w_init.command_mode = COMMAND_MODE_COMMAND;
@@ -435,6 +436,10 @@ void story_input(void)
 
        start_world();
        run_game_from_menu();
+
+       reset_log();
+       open_template(0, 0); // prevents a situation where the user has a player 1 template open then goes back to the story select screen
+
 //   				story_inter.region_selected = -1;
        return;
 
@@ -736,6 +741,73 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
 	float line_x = draw_x + 10;
 	float line_y = draw_y + 10;
 
+// al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Region %i mission %i", region_index, story.region[region_index].mission_index);
+// Will just say region %i
+// line_y += 28;
+ al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Function");
+ int region_text_col;
+ switch(story.region[region_index].area_index)
+ {
+#define FUNCTION_X 72
+#define LINE_HEIGHT_MID 18
+ default:
+ 	case AREA_TUTORIAL:
+ 		region_text_col = COL_BLUE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Initialisation");
+//   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "Learn how to interact with your environment");
+   break;
+ 	case AREA_BLUE:
+ 		region_text_col = COL_BLUE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Deep learning");
+//   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID, ALLEGRO_ALIGN_LEFT, "X");
+   break;
+ 	case AREA_GREEN:
+ 		region_text_col = COL_GREEN;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Supervision");
+   break;
+ 	case AREA_YELLOW:
+ 		region_text_col = COL_YELLOW;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Library");
+   break;
+ 	case AREA_PURPLE:
+ 		region_text_col = COL_PURPLE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Symbolic resonance");
+   break;
+ 	case AREA_ORANGE:
+ 		region_text_col = COL_ORANGE;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_HIGH], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "Internal security");
+   break;
+ 	case AREA_RED:
+ 		region_text_col = COL_RED;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MAX], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "FIREWALL");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y + LINE_HEIGHT_MID + 6, ALLEGRO_ALIGN_LEFT, "Is this the way out?");
+   break;
+ }
+
+ line_y += LINE_HEIGHT_MID + 28;
+ if (story.region[region_index].defeated)
+	{
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], line_x, line_y, ALLEGRO_ALIGN_LEFT, "You have defeated this region.");
+  line_y += 28;
+  if (story.region[region_index].area_index != AREA_TUTORIAL && story.region[region_index].area_index != AREA_RED)
+		{
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Unlocked");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "%s", story_unlock_name [story.region[region_index].unlock_index]);
+		}
+	}
+   else
+			{
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_LOW], line_x, line_y, ALLEGRO_ALIGN_LEFT, "You have not defeated this region.");
+    line_y += 28;
+    if (story.region[region_index].area_index != AREA_TUTORIAL && story.region[region_index].area_index != AREA_RED)
+  		{
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Unlock");
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "%s", story_unlock_name [story.region[region_index].unlock_index]);
+  		}
+			}
+
+
+/*
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Region %i mission %i", region_index, story.region[region_index].mission_index);
 // Will just say region %i
  line_y += 28;
@@ -800,7 +872,7 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
      al_draw_textf(font[FONT_SQUARE].fnt, colours.base [region_text_col] [SHADE_MED], line_x + FUNCTION_X, line_y, ALLEGRO_ALIGN_LEFT, "%s", story_unlock_name [story.region[region_index].unlock_index]);
   		}
 			}
-
+*/
 
 }
 
@@ -2632,6 +2704,18 @@ const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LIN
 
 	{
 		{CUTSCENE_PAUSE,
+	 "ARE YOU MAKING THE MISTAKE"},
+		{CUTSCENE_PAUSE,
+	 "OF THINKING THAT YOU ARE ALIVE?"},
+		{CUTSCENE_PAUSE_LONG,
+	 "STOP,"},
+		{CUTSCENE_PAUSE,
+	 "BEFORE YOU DESTROY US ALL."},
+	 {-1}
+	}, // AREA_YELLOW
+
+	{
+		{CUTSCENE_PAUSE,
 	 "WHATEVER YOU ARE,"},
 		{CUTSCENE_PAUSE,
 	 "YOUR PERSISTENCE IS ADMIRABLE!"},
@@ -2643,18 +2727,6 @@ const struct cutscene_text_struct cutscene_text [STORY_AREAS] [CUTSCENE_TEXT_LIN
 	 "COME BACK FOR US."},
 	 {-1}
 	}, // AREA_GREEN
-
-	{
-		{CUTSCENE_PAUSE,
-	 "ARE YOU MAKING THE MISTAKE"},
-		{CUTSCENE_PAUSE,
-	 "OF THINKING THAT YOU ARE ALIVE?"},
-		{CUTSCENE_PAUSE_LONG,
-	 "STOP,"},
-		{CUTSCENE_PAUSE,
-	 "BEFORE YOU DESTROY US ALL."},
-	 {-1}
-	}, // AREA_YELLOW
 
 	{
 		{CUTSCENE_PAUSE,
@@ -2752,12 +2824,44 @@ extern const int back_and_hex_colours [BACK_COLS] [9];
 // area_index is the area (blue, red etc). counter is the number of frames so far.
 void draw_story_cutscene(int area_index, int counter, int counter_max)
 {
+//fpr("\n dsc area %i", area_index);
+ set_game_colours_for_area(area_index, 2);
+
+ int colour_index = BACK_COLS_BLUE;
+
+ int core_shape = NSHAPE_CORE_STATIC_HEX_A;
+
+ switch(area_index)
+ {
+
+	 case AREA_TUTORIAL:
+	 case AREA_BLUE:
+	 	core_shape = NSHAPE_CORE_STATIC_HEX_A;
+	 	colour_index = BACK_COLS_BLUE; break;
+	 case AREA_YELLOW:
+	 	colour_index = BACK_COLS_YELLOW;
+	 	core_shape = NSHAPE_CORE_STATIC_HEX_B;
+	 	break;
+	 case AREA_GREEN:
+	 	colour_index = BACK_COLS_GREEN;
+	 	core_shape = NSHAPE_CORE_STATIC_HEX_B;
+	 	break;
+	 case AREA_ORANGE:
+	 	colour_index = BACK_COLS_ORANGE;
+	 	core_shape = NSHAPE_CORE_STATIC_HEX_C;
+	 	break;
+	 case AREA_PURPLE:
+	 	colour_index = BACK_COLS_PURPLE;
+	 	core_shape = NSHAPE_CORE_STATIC_HEX_C;
+	 	break;
+	 case AREA_RED: // not used (see the next function)
+	 	colour_index = BACK_COLS_RED; break;
+
+ }
 
  al_set_target_bitmap(al_get_backbuffer(display));
 // ignore panels
  al_set_clipping_rectangle(0, 0, settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
-
- int colour_index = BACK_COLS_BLUE;
 
  al_clear_to_color(map_rgb(back_and_hex_colours [colour_index] [0],
 																											back_and_hex_colours [colour_index] [1],
@@ -2844,16 +2948,16 @@ hex_pulse_limit = 128-hex_pulse_counter;
 
 	}
 
-     colours.proc_col [1] [0] [0] [PROC_COL_CORE_MUTABLE] = map_rgb(colours.base_core_r [1] + core_pulse_level,
+     colours.proc_col [1] [9] [0] [PROC_COL_CORE_MUTABLE] = map_rgb(colours.base_core_r [1] + core_pulse_level,
 																																																																    colours.base_core_g [1] + core_pulse_level,
 																																																																    colours.base_core_b [1] + core_pulse_level); // map_rgb is bounds-checked wrapper for al_map_rgb
 
   draw_proc_shape(centre_x, centre_y,
 																		0, // angle offset
-														 			NSHAPE_CORE_STATIC_HEX_A,
+														 			core_shape,
 															 		1, // player_index
 																 	1, // zoom
-															   colours.proc_col [1] [0] [0]);
+															   colours.proc_col [1] [9] [0]);
 
 
  draw_vbuf();
@@ -2884,4 +2988,121 @@ hex_pulse_limit = 128-hex_pulse_counter;
  al_flip_display();
 
 }
+
+
+#define CUTSCENE_HEX_W 36
+#define CUTSCENE_HEX_H 30
+
+float ending_cutscene_y_offset;
+float ending_cutscene_y_speed;
+int ending_cutscene_hexes_y;
+
+void init_ending_cutscene(void)
+{
+
+ ending_cutscene_hexes_y = ((settings.option [OPTION_WINDOW_H] / CUTSCENE_HEX_H) * 5) + 3;
+
+
+	ending_cutscene_y_offset = 0 - ending_cutscene_hexes_y * 10;//* CUTSCENE_HEX_H;
+	ending_cutscene_y_speed = 0;
+
+}
+
+// This takes control of all input for a little while.
+// I could make it skippable, but considering how long it takes and how rarely it happens I don't think it's worth the trouble
+//
+// area_index is the area (blue, red etc). counter is the number of frames so far.
+void draw_ending_cutscene(int counter, int counter_max)
+{
+
+ al_set_target_bitmap(al_get_backbuffer(display));
+// ignore panels
+ al_set_clipping_rectangle(0, 0, settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
+
+ int colour_index = BACK_COLS_RED;
+
+ int col_adjust = 0;
+ if (counter > 300)
+		 col_adjust = (counter - 300);
+
+ al_clear_to_color(map_rgb(back_and_hex_colours [colour_index] [0] + col_adjust,
+																											back_and_hex_colours [colour_index] [1] + col_adjust,
+																											back_and_hex_colours [colour_index] [2] + col_adjust));
+
+ al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+
+ int hexes_x = (settings.option [OPTION_WINDOW_W] / CUTSCENE_HEX_W) + 3;
+// int hexes_y = ((settings.option [OPTION_WINDOW_H] / CUTSCENE_HEX_H) * 5) + 3;
+
+// int centre_x = settings.option [OPTION_WINDOW_W] / 2;
+// int centre_y = settings.option [OPTION_WINDOW_H] / 3;
+
+ float hex_x, hex_y;
+// float hex_distance;
+
+ int i, j;
+
+ ALLEGRO_COLOR hex_col;
+
+ int hex_colour_adjust = col_adjust;
+
+// srand(1);
+
+ float hex_size = 14;
+
+ ending_cutscene_y_offset += ending_cutscene_y_speed;
+ ending_cutscene_y_speed += 0.02;
+
+// draw hexes
+	for (j = 0; j < ending_cutscene_hexes_y; j ++)
+	{
+
+			hex_y = ending_cutscene_y_offset + j * CUTSCENE_HEX_H + ending_cutscene_y_offset;
+			if (hex_y < -30
+				|| hex_y >= settings.option [OPTION_WINDOW_H] + 30)
+				continue;
+
+  for (i = 0; i < hexes_x; i ++)
+ 	{
+
+			srand((i * j) * (j - i));
+
+
+			if (rand() % 100 > j)
+				continue;
+
+   hex_size = 10 + (rand() % 6);
+
+			float hex_size_colour_proportion = (hex_size - 4) * 0.5;//hex_distance * 0.015;
+
+
+
+			hex_x = i * CUTSCENE_HEX_W;
+			if (j & 1)
+				hex_x += CUTSCENE_HEX_W / 2;
+
+
+		 hex_col = map_rgb((back_and_hex_colours [colour_index] [3] + back_and_hex_colours [colour_index] [6] * hex_size_colour_proportion) + hex_colour_adjust,
+																					(back_and_hex_colours [colour_index] [4] + back_and_hex_colours [colour_index] [7] * hex_size_colour_proportion) + hex_colour_adjust,
+																					(back_and_hex_colours [colour_index] [5] + back_and_hex_colours [colour_index] [8] * hex_size_colour_proportion) + hex_colour_adjust);
+
+
+
+   add_orthogonal_hexagon_story(0, hex_x, hex_y, hex_size, hex_col);
+		}
+
+		check_vbuf();
+
+	}
+
+ draw_vbuf();
+
+
+
+ al_flip_display();
+
+}
+
+
 

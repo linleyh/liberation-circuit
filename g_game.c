@@ -66,7 +66,7 @@ static void update_vision_area(void);
 //static void vision_block_check_corner(struct block_struct* bl, int base_pos_x, int base_pos_y);
 
 
-// it is called when starting from menu as well as when loading a gamefile from disk (but not a saved game)
+
 void start_game(void)
 {
 
@@ -150,7 +150,10 @@ void init_main_loop(void)
 
  clear_sound_list();
 //fpr("\n iml: ai %i riai %i", game.area_index, game.region_in_area_index);
- reset_music(game.area_index, game.region_in_area_index, rand());
+ if (game.type == GAME_TYPE_MISSION)
+  reset_music(game.area_index, game.region_in_area_index, rand());
+   else
+    reset_music(game.area_index, -1, rand());
 
  flush_game_event_queues();
 
@@ -187,7 +190,7 @@ void run_game(void)
 
  deallocate_world(); // must be called at end of game (it frees memory allocated by init_main_loop())
 
- reset_music(0, 0, rand());
+ reset_music(1, 0, rand());
 
 }
 
@@ -362,6 +365,7 @@ void main_game_loop(void)
 //           else
 								}
       break;
+
      case FAST_FORWARD_TYPE_SMOOTH:
       game.fast_forward = FAST_FORWARD_ON;
       al_flush_event_queue(event_queue);
@@ -689,7 +693,7 @@ static int run_mission(void)
 			 	write_mission_text(PRINT_COL_WHITE,
 /*"Program initialised. Spawning process 0.\n\*/
 "\nWelcome!\n\
-To begin, select the blue base process near the centre of the display.");
+To begin, select the blue base process near the centre of the display (by left-clicking on it).");
 
 			 	write_mission_text(PRINT_COL_LBLUE,
 "\n\n(For information about controls, open the system panel at any time by clicking on the Sy button in the top right of the display).");
@@ -703,10 +707,9 @@ To begin, select the blue base process near the centre of the display.");
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
 "This process is a builder/harvester base.\
-\nIt harvests raw data from the nearby data well and turns it into allocated data that you can use to \
+\nIt harvests raw data from the nearby data well and allocates it. Then it uses allocated data to \
 build new processes.\
-\n\nBut the data from a single well won't be enough! Build a mobile harvester by clicking on the \"harvester\" button on the left of the display, \
-then place the new process (right-click) nearby.");
+\n\nBut the data from a single well won't be enough! Build a mobile harvester by clicking on the \"harvester\" button on the left of the display.");
 
     	 mission_state.phase = MPHASE1_BUILD;
 					}
@@ -721,7 +724,7 @@ then place the new process (right-click) nearby.");
 \nSelect it and tell it to move near a different data well. Data wells are shown in yellow on the map at the bottom right of the display.");
 // \n\nSelect it and tell it to move near a different data well. Data wells are shown in yellow on the map at the bottom right of the display.");
 			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\n(Give movement commands by right-clicking on the display or the map. You don't need to click exactly on the well, just near enough for the harvester to see it.)");
+"\n\n(Give movement commands by right-clicking on the display or the map. You don't need to click exactly on the well, just nearby.)");
     	 mission_state.phase = MPHASE1_FIND_WELL;
 					}
 					break;
@@ -734,8 +737,8 @@ then place the new process (right-click) nearby.");
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"Now the harvester will gather data to take back to the base.\
-\n\nGo back and select the base, and tell it to build an \"attacker\" process.");
+"You can leave the harvester alone, and it will gather data to take back to the base.\
+\n\nNow find the base again (you can click on the map to move the display around) and tell it to build an \"attacker\" process.");
     	 mission_state.phase = MPHASE1_BUILD_ATTACKERS;
 					}
 					break;
@@ -745,21 +748,22 @@ then place the new process (right-click) nearby.");
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"Now you have an attacker. But you'll need more than one! Tell the base to build more attackers - a dozen or so should be enough. (If you've built something else by mistake, just tell the base to start building attackers.)");
+"Now you have an attacker. But you'll need more than one! Tell the base to build more attackers - five or so should be enough. (If you've built something else by mistake, just tell the base to start building attackers.)");
  			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\nHold shift to queue building commands, or control to give a repeated build command.");
+"\n\nBuild commands queue automatically.\nYou can also hold shift while clicking the \"attacker\" button to build multiple attackers.");
     	 mission_state.phase = MPHASE1_ATTACK;
 					}
 					break;
 				case MPHASE1_ATTACK:
-					if (w.core[13].exists > 0)
+					if (w.core[6].exists > 0)
 					{
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
 "When you have a reasonably large attack fleet, seek out the enemy and defeat them!");
  			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\nDouble-clicking on a process selects all visible processes of the same type.\
+"\n\nDrag a box around several processes to select them all.\
+\nDouble-clicking on a process selects all visible processes of the same type.\
 \nHolding control while giving a movement command tells a process to attack anything it meets on the way.");
     	 mission_state.phase = MPHASE1_ATTACKING;
 					}
@@ -805,9 +809,8 @@ then place the new process (right-click) nearby.");
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"Your base is static (it can't move), so if you want to expand you'll need a mobile builder process.\
-\n\nGive a command to build a mobile builder process by clicking on the \"mbuild\" button on the left of the display.\
-\nThen place the new process somewhere nearby.");
+"Your base is static (it can't move), so to expand you'll need a mobile builder process.\
+\n\nBuild a mobile builder process by clicking on the \"mbuild\" button on the left of the display.\n");
 
     	 mission_state.phase = MPHASE2_BUILD;
 					}
@@ -822,7 +825,7 @@ then place the new process (right-click) nearby.");
 // 			 	write_mission_text(PRINT_COL_LBLUE,
 //"\n(Only some of a well's data is available to harvest at any time. Available data is gradually replenished from reserves.)");
  			 	write_mission_text(PRINT_COL_WHITE,
-"\n\nWhen the mobile builder has finished constructing, tell it to move to one of the other wells.");
+"\n\nTell the mobile builder to move to one of the other wells. It will follow your command when it's finished constructing.");
     	 mission_state.phase = MPHASE2_FIND_WELL;
 					}
 					break;
@@ -835,8 +838,10 @@ then place the new process (right-click) nearby.");
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"Now tell the mbuild process to build a new base near the edge of the data well (on the hexagonal tiles).\
+"Now tell the mbuild process to build a new base near the edge of the data well.\
 \n\nA static (immobile) process like the base can't be built too close to a data well, but it can't be too far away or its harvester won't work.");
+ 			 	write_mission_text(PRINT_COL_LBLUE,
+"\n\nRight-click to place the new base. Left-click to cancel.");
     	 mission_state.phase = MPHASE2_BUILD_ATTACKERS;
 					}
 					break;
@@ -846,10 +851,10 @@ then place the new process (right-click) nearby.");
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"Now you should have two bases capable of harvesting data and turning it into new processes.\
-\n\nIt's time for a new fleet! Tell your bases to start building attackers, destroyers or commanders.");
+"Now you should have two bases capable of harvesting data and building new processes.\
+\nIt's time for a new fleet! Start building attackers, destroyers and commanders.");
  			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\nHold shift to queue building commands, or control to give a repeated build command.");
+"\n\nHold shift when giving a build command to repeat-build.\nYou can use the queue buttons (above the build command buttons) to re-order (by dragging) or remove queued processes.");
     	 mission_state.phase = MPHASE2_BUILD_ATTACKERS2;
 					}
 					break;
@@ -863,7 +868,7 @@ then place the new process (right-click) nearby.");
  			 	write_mission_text(PRINT_COL_LGREEN,
 "\nAttackers are small, fast and cheap.\
 \nDestroyers are designed to attack large targets.\
-\nCommanders have strong defences and can repair other units.");
+\nCommanders are large and have strong defences.");
 
  			 	write_mission_text(PRINT_COL_WHITE,
 "\nOr you can use the designer to design your own units! (click on the De button in the top right of the screen; the designer has help buttons that tell you how to use it.)");
@@ -871,14 +876,15 @@ then place the new process (right-click) nearby.");
 					}
 					break;
 				case MPHASE2_ATTACK:
-					if (w.core[15].exists > 0)
+					if (w.core[7].exists > 0)
 					{
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"When you have a large enough fleet of processes, seek out the enemy and defeat them!");
+"When you have a large fleet of processes, seek out the enemy and defeat them!");
  			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\nTo help your fleet move together, you can tell small, fast units to guard large, slow units by selecting the small units then right-clicking on the large ones.");
+"\n\nYou can set waypoints by holding shift.\
+\nAlso, to help your fleet move together you can tell fast units to guard slow units by selecting the small units then right-clicking on the large ones.");
     	 mission_state.phase = MPHASE2_ATTACKING;
 					}
 					break;
@@ -889,12 +895,13 @@ then place the new process (right-click) nearby.");
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
 "Well done! Mission complete.\
-\n\nYou've finished the tutorial. Now the real missions start!");
+\n\nYou've finished the tutorial and completed initialisation.");
 					 set_game_over();
 					 game.game_over_status = GAME_END_MISSION_COMPLETE;
 					 return 0;
 					}
 					break;
+
 
  		}
 /*
@@ -934,6 +941,12 @@ now attack
 					break; // end for mission 2
 
 
+				default:
+					if ((game.story_type == STORY_TYPE_HARD
+						 || game.story_type == STORY_TYPE_ADVANCED_HARD)
+						&& (w.world_time & 31) == 0)
+					  w.player[1].data ++;
+					break;
 
  }
 

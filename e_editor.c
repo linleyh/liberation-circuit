@@ -694,7 +694,8 @@ static void add_src_highlight(struct source_edit_struct* se, int src_line, int s
 }
 
 
-// this function is called from game_loop in game.c when the editor is up
+// this function is called from game_loop in game.c and also the story mode interface in h_interface.c
+// It's called even if the editor panel is closed, for some reason
 void run_editor(void)
 {
 
@@ -793,7 +794,12 @@ source_edits/tabs: Instead of the tab system:
 
 */
 
-
+ if (control.mouse_panel == PANEL_LOG
+		&& ex_control.mb_press [0] == BUTTON_JUST_PRESSED)
+	{
+		mouse_click_on_log_window();
+		return;
+	}
 
 // check for the mouse pointer being in the game window:
  if (control.mouse_panel != PANEL_EDITOR)
@@ -1295,14 +1301,16 @@ static void submenu_operation(int sm, int line)
     	break;
     case SUBMENU_COMPILE_COMPILE:
       reset_log();
+      if (dwindow.templ->player_index == 1
+							&& game.type == GAME_TYPE_MISSION)
+     	{
 #ifndef DEBUG_MODE
- if (dwindow.templ->player_index == 1
-		&& game.type == GAME_TYPE_MISSION)
-	{
 		write_line_to_log("You can't recompile your opponent's templates in story mode!", MLOG_COL_ERROR);
 		return;
-	}
+#else
+		write_line_to_log("DEBUG MODE: Allowing recompilation of mission opponent template.", MLOG_COL_WARNING);
 #endif
+     	}
     	 if (dwindow.templ->locked)
 					 {
 		 	   write_line_to_log("Template locked - process design not updated.", MLOG_COL_COMPILER);
@@ -1315,14 +1323,16 @@ static void submenu_operation(int sm, int line)
     	break;
     case SUBMENU_COMPILE_COMPILE_LOCK:
      reset_log();
+     if (dwindow.templ->player_index == 1
+						&& game.type == GAME_TYPE_MISSION)
+	    {
 #ifndef DEBUG_MODE
- if (dwindow.templ->player_index == 1
-		&& game.type == GAME_TYPE_MISSION)
-	{
 		write_line_to_log("You can't recompile your opponent's templates in story mode!", MLOG_COL_ERROR);
 		return;
-	}
+#else
+		write_line_to_log("DEBUG MODE: Allowing recompilation of mission opponent template.", MLOG_COL_WARNING);
 #endif
+    	}
     	if (dwindow.templ->locked)
 					{
 		 	  write_line_to_log("Template already locked - process design not updated.", MLOG_COL_COMPILER);
@@ -2774,8 +2784,8 @@ static void cursor_etc_key(int key_press)
 void window_find_cursor(struct source_edit_struct* se)
 {
 
- if (se->window_line < se->cursor_line - editor.edit_window_lines
-  || se->window_line > se->cursor_line)// + editor.edit_window_lines)
+ if (se->window_line <= se->cursor_line - editor.edit_window_lines
+  || se->window_line >= se->cursor_line)// + editor.edit_window_lines)
  {
   se->window_line = se->cursor_line - 20;
   if (se->window_line < 0)

@@ -1271,7 +1271,7 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				if (stack_parameters [0] < 0
 					|| stack_parameters [0] >= PROCESS_MEMORY_SIZE
 					|| core->process_memory [stack_parameters [0]] == -1)
-					return -1;
+					return 0;//-1;
 /*fpr(" at %i,%i [%i,%i] vis %i (now %i) ex %i dt %i",
 				al_fixtoi(w.core[core->process_memory [stack_parameters [0]]].core_position.x),
 				al_fixtoi(w.core[core->process_memory [stack_parameters [0]]].core_position.y),

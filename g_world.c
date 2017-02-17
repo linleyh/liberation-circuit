@@ -24,6 +24,7 @@
 #include "i_view.h"
 #include "i_input.h"
 #include "i_console.h"
+#include "e_log.h"
 
 #include "g_misc.h"
 
@@ -62,6 +63,7 @@ void start_world(void)
 
 
 
+ reset_log();
  open_template(0, 0);
 
 // prepare_world_for_game();
@@ -308,7 +310,9 @@ void new_world_from_world_init(void)
 
  w.allocated = 1;
 
+#ifdef DEBUG_MODE
 w.player[0].data = 2000;
+#endif
 
 }
 
@@ -766,6 +770,8 @@ void load_mission_source(char* filename, int player_index, int template_index)
 // don't automatically lock enemy templates in debug mode
 	templ[player_index][template_index].locked = 1; // load_source_file_into_template calls compile(), which should do enough for it to be okay to lock these templates.
 #endif
+
+ templ[player_index][template_index].mission_template = 1; // prevents various things
 
 }
 

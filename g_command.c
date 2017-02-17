@@ -418,7 +418,8 @@ void run_commands(void)
 			 }
  			 else
 				 {
-				 	if (!check_clicked_on_data_well(mouse_x_fixed, mouse_y_fixed))
+				 	if (!shift_pressed
+							&& !check_clicked_on_data_well(mouse_x_fixed, mouse_y_fixed)) // won't treat click as a data well click if pressing shift
  					 clear_selection();
 				 }
 			 command.select_box = 1;
@@ -562,7 +563,7 @@ void run_commands(void)
 	}
 
 
-#define MOUSE_SCROLL_BORDER 100
+#define MOUSE_SCROLL_BORDER 70
 //#define MOUSE_SCROLL_BORDER_CORNER 80
 #define MOUSE_SCROLL_SPEED_DIVISOR 2
 #define KEYBOARD_SCROLL_SPEED 20
@@ -595,7 +596,7 @@ void run_commands(void)
 		&& mouse_on_map == 0)
 //		|| control.mouse_status == MOUSE_STATUS_OUTSIDE)
 	{
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
   if (control.mouse_x_screen_pixels < MOUSE_SCROLL_BORDER)
  		mouse_scroll_x = 0 - ((MOUSE_SCROLL_BORDER - control.mouse_x_screen_pixels) / MOUSE_SCROLL_SPEED_DIVISOR);
  		 else
@@ -742,7 +743,17 @@ void run_commands(void)
 static void select_box(al_fixed xa, al_fixed ya, al_fixed xb, al_fixed yb)
 {
 
- clear_selection();
+ int shift_pressed;
+
+ if (ex_control.special_key_press [SPECIAL_KEY_SHIFT] > 0)
+	{
+		shift_pressed = 1;
+	}
+		 else
+			{
+ 			shift_pressed = 0;
+    clear_selection();
+			}
 
 // need to make sure that only the user's cores are selected
 
@@ -772,38 +783,80 @@ static void select_box(al_fixed xa, al_fixed ya, al_fixed xb, al_fixed yb)
 
 	int i;
 	int select_counter = 0;
+	int found_terminate = 0; // if shift_pressed, we may need to add a new terminator to the end (if the old terminator has been overwritten)
 
 	for (i = 0; i < w.max_cores; i ++)
 	{
 		if (w.core[i].exists == 1
+			&& w.core[i].player_index == game.user_player_index
+			&& w.core[i].selected == -1
 			&& w.core[i].core_position.x +	w.proc[w.core[i].process_index].nshape_ptr->max_length	> x1
 			&& w.core[i].core_position.x - w.proc[w.core[i].process_index].nshape_ptr->max_length	< x2
 			&& w.core[i].core_position.y + w.proc[w.core[i].process_index].nshape_ptr->max_length	> y1
 			&& w.core[i].core_position.y - w.proc[w.core[i].process_index].nshape_ptr->max_length	< y2
-			&& w.core[i].player_index == game.user_player_index // not sure about this
 			&& check_proc_visible_to_user(w.core[i].process_index))
 		{
+
+			if (shift_pressed
+				&& !found_terminate) // if the terminate has been found, we can just overwrite instead of looking for empty spaces
+			{
+// should be safe to assume that the list is terminated:
+  	 while(command.selected_core[select_counter] != SELECT_TERMINATE
+			 		 && command.selected_core[select_counter] != SELECT_EMPTY)
+	   {
+		   select_counter++;
+	   }
+	   if (command.selected_core[select_counter] == SELECT_TERMINATE)
+					found_terminate = 1;
+
+	   if (select_counter >= SELECT_MAX - 1)
+				 break;
+			}
+
 			command.selected_core [select_counter] = i;
 			w.core[i].selected = select_counter;
 			w.core[i].select_time = game.total_time;
 			select_counter ++;
+
+ 		if (select_counter >= SELECT_MAX - 1)
+	 		break;
+
 		}
-		if (select_counter >= SELECT_MAX - 1)
-			break;
 	}
+
+
 
  sancheck(select_counter, 0, SELECT_MAX, "select_counter");
 
-	command.selected_core [select_counter] = SELECT_TERMINATE;
+// select_counter may still be in the middle of the list (if shift is pressed and the newly selected cores have filled in gaps).
+// so move it to the end:
+/*
+	while(TRUE) // should be safe to assume that the list is terminated
+ {
+  if (command.selected_core[select_counter] == SELECT_TERMINATE)
+	  break;
+  select_counter++;
+ }
+*/
 
-	if (select_counter == 1)
+// if the list was cleared, or if the previous terminate was overwritten, need to add a terminate:
+ if (!shift_pressed
+		|| found_terminate)
+	 command.selected_core [select_counter] = SELECT_TERMINATE;
+
+// If only one core selected, go to single select mode (which can open build buttons etc)
+//  - unless we're in shift_pressed mode AND there are more cores selected, in which case don't
+//    (this can happen if the new core fills in a gap at selected_core [0])
+	if (select_counter == 1
+		&& (!shift_pressed
+				||	command.selected_core [1] == SELECT_TERMINATE))
 	{
 		select_a_core(command.selected_core [0]);
 		command.selected_member = 0;
 	}
 		else
 		{
-			if (select_counter > 1)
+			if (select_counter > 1) // select_counter could still be 0
 			{
 				command.select_mode = SELECT_MODE_MULTI_CORE;
     play_interface_sound(SAMPLE_BLIP1, TONE_2G);
@@ -1959,14 +2012,24 @@ static void add_to_control_group(int control_group_index)
 	int group_full = 0;
 	int number_added = 0;
 
+	int found_current_group_member = 0;
+
 
  while(command.selected_core [select_index] != SELECT_TERMINATE)
 	{
   sancheck(select_index, 0, SELECT_MAX, "add_to_control_group: select_index");
 		if (command.selected_core [select_index] != SELECT_EMPTY
-			&& !is_core_in_control_group(command.selected_core [select_index], control_group_index)
+//			&& !is_core_in_control_group(command.selected_core [select_index], control_group_index)
 			&& w.core[command.selected_core [select_index]].player_index == game.user_player_index)
 		{
+
+			if (is_core_in_control_group(command.selected_core [select_index], control_group_index))
+			{
+				found_current_group_member = 1;
+				select_index ++;
+				continue;
+			}
+
 // need to find an empty control group entry:
    while (command.control_group_core [control_group_index] [i] >= 0 // SELECT_EMPTY and SELECT_TERMINATE are both < 0
 						&& w.core[command.control_group_core [control_group_index] [i]].exists
@@ -2004,10 +2067,18 @@ static void add_to_control_group(int control_group_index)
 
 	if (i == 0)
 	{
-  command.control_group_core [control_group_index] [0] = SELECT_TERMINATE; // possible that there are SELECT_EMPTY entries at the start
-	 sprintf(temp_str, "\nControl group %i empty.", control_group_index);
-  write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LBLUE, -1, 0, temp_str);
-  play_interface_sound(SAMPLE_BLIP1, TONE_2D);
+		if (found_current_group_member)
+		{
+	    sprintf(temp_str, "\nAlready assigned to control group %i.", control_group_index);
+     write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LBLUE, -1, 0, temp_str);
+     play_interface_sound(SAMPLE_BLIP1, TONE_2D);
+     return;
+		}
+//  command.control_group_core [control_group_index] [0] = SELECT_TERMINATE; // possible that there are SELECT_EMPTY entries at the start
+//	 sprintf(temp_str, "\nNothing selected.", control_group_index);
+  write_text_to_console(CONSOLE_GENERAL, PRINT_COL_DBLUE, -1, 0, "\nNo processes selected.");
+  play_interface_sound(SAMPLE_BLIP1, TONE_2CS);
+  return;
 	}
   else
 			{
@@ -2016,18 +2087,20 @@ static void add_to_control_group(int control_group_index)
  	   sprintf(temp_str, "\nControl group %i full.", control_group_index);
      write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LRED, -1, 0, temp_str);
      play_interface_sound(SAMPLE_BLIP1, TONE_2CS);
+     return;
 				}
  	   else
 						{
   	    sprintf(temp_str, "\nAdded to control group %i.", control_group_index);
        write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LBLUE, -1, 0, temp_str);
        play_interface_sound(SAMPLE_BLIP1, TONE_2G);
+       return;
 						}
 			}
 
-
-
 }
+
+
 
 static int is_core_in_control_group(int core_index, int control_group_index)
 {

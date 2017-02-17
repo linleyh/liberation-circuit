@@ -50,6 +50,7 @@ struct map_init_struct
 
  int map_size_blocks; // taken from w_init value
  int players; // taken from w_init value
+ int area_index; // affects the type of data wells generated etc.
 
  struct mdetail_struct mdetail [MDETAILS];
 
@@ -77,14 +78,15 @@ struct map_init_struct
 	int data_well_reserve_data [DATA_WELLS] [DATA_WELL_RESERVES];
 	int data_well_reserve_squares [DATA_WELLS]; // currently the same for both reserves
 
-	int data_well_style; // e.g. AREA_BLUE
+//	int data_well_style; // e.g. AREA_BLUE
 
 };
 
 void reset_map_init(int map_size_blocks,
 																				int map_area,
 																				int players);
-void generate_random_map(int size_blocks,
+void generate_random_map(int area_index,
+																									int size_blocks,
 																					    int players,
 																					    unsigned int map_seed);
 

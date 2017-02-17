@@ -2236,9 +2236,14 @@ void run_objects_before_execution(struct core_struct* core)
 						  w.proc[core->group_member[i].index].object_instance[j].move_power = 0;
 						  break;
 						 case OBJECT_TYPE_INTERFACE:
-								if (core->interface_active
-									&& w.proc[core->group_member[i].index].interface_protects)
+								if (core->interface_active)
+//									&& w.proc[core->group_member[i].index].interface_protects)
+								{
+//									fpr("\n using interface power");
 										core->power_left -= INTERFACE_POWER_USE; // if changed, also change in otype definition
+								}
+//								 else
+//										fpr("\n core %i ia %i ip %i", core->index, core->interface_active, w.proc[core->group_member[i].index].interface_protects);
 								break;
 							case OBJECT_TYPE_STABILITY:
 								if (core->interface_active

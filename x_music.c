@@ -397,7 +397,9 @@ const struct area_music_struct area_music [STORY_AREAS] =
 {
 	{
 	 1, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
+	 {85,
+	  84,
+	  0}, // int region_seed [3];
 	 {
 	  SCALE_C_E_G_A_AS,
 	  SCALE_C_E_G,
@@ -425,7 +427,7 @@ const struct area_music_struct area_music [STORY_AREAS] =
 
 	{
 	 2, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
+	 {1, 32, 35}, // int region_seed [3];
 	 {
 	  SCALE_C_F_A_B,
 	  SCALE_C_E_G,
@@ -453,7 +455,9 @@ const struct area_music_struct area_music [STORY_AREAS] =
 
 	{
 	 3, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
+	 {7,
+	  8,
+	  30}, // int region_seed [3];
 	 {
 	  SCALE_C_E_G_A_AS,
 	  SCALE_C_G_GS_AS_C_D,
@@ -481,7 +485,7 @@ const struct area_music_struct area_music [STORY_AREAS] =
 
 	{
 	 3, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
+	 {47, 46, 50}, // int region_seed [3];
 	 {
 	  SCALE_C_F_A,
 	  SCALE_C_F_A_B,
@@ -508,9 +512,7 @@ const struct area_music_struct area_music [STORY_AREAS] =
 
 	{
 	 4, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
-
-//One of these is good!
+	 {63, 67, 69}, // int region_seed [3];
 
 	 {
 	  SCALE_C_DS_F_FS_G_AS,
@@ -539,7 +541,7 @@ const struct area_music_struct area_music [STORY_AREAS] =
 
 	{
 	 5, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
+	 {51, 52, 57}, // int region_seed [3];
 	 {
 	  SCALE_C_CS_E_FS,
 	  SCALE_C_G,
@@ -566,7 +568,7 @@ const struct area_music_struct area_music [STORY_AREAS] =
 
 	{
 	 6, //int bar_type;
-	 {1, 2, 0}, // int region_seed [3];
+	 {70, 2, 82}, // int region_seed [3];
 	 {
 	  SCALE_C_E_G_A_AS,
 	  SCALE_C_G_GS_AS_C_D,
@@ -599,7 +601,7 @@ struct camstate_struct
 	int active; // is 0 if music currently off.
 
 	int area_index;
-	int region_index;
+//	int region_index; not currently used (region index is only relevant when camstate initialised)
 
 	int scale_index; // shared by all instruments
 	int note_offset; // shared by all instruments
@@ -625,6 +627,8 @@ struct camstate_struct
 // float beat_extra_time;
 
 	unsigned int rand_seed;
+	unsigned int delayed_rand_seed;
+	int time_until_random;
 
 #define BAR_LENGTH_MAX 9
 
@@ -651,6 +655,7 @@ static void sthread_create_samples_for_scale(int flip, int instrument, int scale
 
 // This function is usually only called from the sound thread. reset_music is called from outside (see x_sound.c).
 //  However this function is called from the main thread during initialisation (before the sound thread has started)
+// call with region_index == -1 to use rand_seed from the start. Otherwise, music is based on region for a couple of minutes before becoming random.
 void init_camstate(int status, int area_index, int region_index, unsigned int rand_seed)
 {
 //fpr("\n st %i area %i r %i rs %i", status, area_index, region_index, rand_seed);
@@ -663,10 +668,27 @@ void init_camstate(int status, int area_index, int region_index, unsigned int ra
 	camstate.active = 1;
 
 	camstate.area_index = area_index;
-	camstate.region_index = region_index;
+//	camstate.region_index = region_index;
+	camstate.time_until_random = 1000;
 
-//return;
- camstate.rand_seed = area_music [area_index].region_seed [region_index]; //rand_seed;
+// time_until_random is a few minutes for missions - the music uses only the region's deterministic seed until then
+// it's 0 for startup and custom games
+// rand_seed should preferably be something fairly random (e.g. mouse position or something like that)
+// if (camstate.time_until_random <= 0)
+//		camstate.rand_seed = rand_seed;
+//	  else
+
+ if (region_index != -1)
+	{
+  camstate.rand_seed = area_music [area_index].region_seed [region_index]; //rand_seed;
+ 	camstate.delayed_rand_seed = rand_seed; // only relevant if time_until_random > 0
+	}
+   else
+   {
+   	camstate.rand_seed = rand_seed;
+   	camstate.area_index = AREA_BLUE + sthread_rand(6);
+   	camstate.delayed_rand_seed = rand_seed + 1; // could probably just be rand_seed
+   }
 
 	camstate.tempo = 1;
 	camstate.counter = 8 + camstate.tempo; // 8 is to put a short delay at the start
@@ -975,6 +997,12 @@ fpr("\n str %i ", camstate.agent[i].echo_strength);
 	camstate.counter = 1;//camstate.tempo; // tempo is always 1 anyway
 	camstate.total_time ++;
 	camstate.next_change --;
+
+	if (camstate.total_time == camstate.time_until_random)
+	{
+// after a while, the deterministic mission music becomes random.
+		camstate.rand_seed = camstate.delayed_rand_seed;
+	}
 
 
 	for (i = 0; i < camstate.active_agents; i ++)

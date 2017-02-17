@@ -33,6 +33,7 @@ extern ALLEGRO_DISPLAY* display;
 extern struct editorstruct editor;
 extern struct design_window_struct dwindow;
 extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
+extern struct game_struct game;
 
 int open_file_into_source_or_binary(struct source_struct* src);
 int check_file_already_open(const char* file_path);
@@ -429,6 +430,15 @@ void save_current_file(void)
   return;
 	}
 
+#ifndef DEBUG_MODE
+ if (game.type == GAME_TYPE_MISSION
+	 && se->player_index == 1)
+	{
+		write_line_to_log("You can't save your opponent's files in story mode!", MLOG_COL_ERROR);
+		return;
+	}
+#endif
+
  if (se->saved == 1)
 	{
 		write_line_to_log("File already saved.", MLOG_COL_EDITOR);
@@ -454,6 +464,15 @@ void save_all_files(void)
 	int saving_player = dwindow.templ->player_index;
 
 	sancheck(saving_player, 0, PLAYERS, "save_all_files: saving_player");
+
+#ifndef DEBUG_MODE
+ if (game.type == GAME_TYPE_MISSION
+	 && saving_player == 1)
+	{
+		write_line_to_log("You can't save your opponent's files in story mode!", MLOG_COL_ERROR);
+		return;
+	}
+#endif
 
 	int i;
 

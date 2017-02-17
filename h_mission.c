@@ -178,13 +178,12 @@ void prepare_for_mission(void)
  mission_state.union_value4 = 0;
  mission_state.union_value5 = 0;
 
-	int player_base_cols [PLAYERS] = {TEAM_COL_BLUE,1,2,3}; // index in base_proc_col array
-	int player_packet_cols [PLAYERS] = {PACKET_COL_YELLOW_ORANGE,1,2,3}; // index in base_packet_colours array and similar interface array
-
  int player_base_x, player_base_y;
 	int enemy_base_x, enemy_base_y;
 
-	int data_well_index [DATA_WELLS];
+	int data_well_index [DATA_WELLS]; // This is never used.
+
+	data_well_index [0] = 0;
 
 /*
 
@@ -249,6 +248,8 @@ PACKET_COLS
    w_init.story_area = game.area_index;
 
 
+   set_game_colours_for_area(game.area_index, 2);
+
    switch(game.area_index)
    {
  			default:
@@ -260,13 +261,6 @@ PACKET_COLS
 																		   AREA_BLUE,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
 
- 	    player_base_cols [1] = TEAM_COL_YELLOW;
-	     player_packet_cols [1] = PACKET_COL_WHITE_BLUE;
-      set_game_colours(BACK_COLS_BLUE, // index in back_and_hex_colours array
-																				   BACK_COLS_BLUE, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
 						break;
 
 				 case AREA_BLUE:
@@ -281,13 +275,6 @@ PACKET_COLS
 																		   AREA_BLUE,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
 
- 	    player_base_cols [1] = TEAM_COL_YELLOW;
-	     player_packet_cols [1] = PACKET_COL_WHITE_BLUE;
-      set_game_colours(BACK_COLS_BLUE, // index in back_and_hex_colours array
-																				   BACK_COLS_BLUE, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
 						break;
 
 				 case AREA_GREEN:
@@ -297,13 +284,6 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_GREEN,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_GREEN;
-	     player_packet_cols [1] = PACKET_COL_WHITE_YELLOW;
-      set_game_colours(BACK_COLS_GREEN, // index in back_and_hex_colours array
-																				   BACK_COLS_GREEN, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
 
       mission_init.data_well_reserves [2] = 3;
       mission_init.data_well_reserve_A [2] = 900;
@@ -319,13 +299,6 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_YELLOW,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_ORANGE;
-	     player_packet_cols [1] = PACKET_COL_BLUE_PURPLE;
-      set_game_colours(BACK_COLS_YELLOW, // index in back_and_hex_colours array
-																				   BACK_COLS_YELLOW, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
 						break;
 
 
@@ -336,13 +309,6 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_ORANGE,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_ORANGE;
-	     player_packet_cols [1] = PACKET_COL_WHITE_PURPLE;
-      set_game_colours(BACK_COLS_ORANGE, // index in back_and_hex_colours array
-																				   BACK_COLS_ORANGE, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
 
 // large (for enemy base)
       mission_init.data_well_reserves [0] = 3;
@@ -376,14 +342,6 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_PURPLE,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_RED;
-	     player_packet_cols [1] = PACKET_COL_ULTRAVIOLET;
-      set_game_colours(BACK_COLS_PURPLE, // index in back_and_hex_colours array
-																				   BACK_COLS_PURPLE, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
-
 
       mission_init.data_well_reserves [2] = 3;
       mission_init.data_well_reserve_A [2] = 900;
@@ -411,13 +369,7 @@ PACKET_COLS
       reset_map_init(w_init.map_size_blocks,
 																		   AREA_RED,
 																		   2); // resets map initialisation code in g_world_map.x. 2 means 2 players
- 	    player_base_cols [1] = TEAM_COL_WHITE;
-	     player_packet_cols [1] = PACKET_COL_ORANGE_RED;
-      set_game_colours(BACK_COLS_RED, // index in back_and_hex_colours array
-																				   BACK_COLS_RED, // index in back_and_hex_colours array
-																				   2, // players in game
-																				   player_base_cols, // index in base_proc_col array
-																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+
       mission_init.data_well_spin [0] = 0.025;
       mission_init.data_well_spin [1] = 0.025;
       mission_init.data_well_spin [2] = 0.025;
@@ -525,7 +477,7 @@ PACKET_COLS
 																			enemy_base_x,
 																			enemy_base_y - 4,
 																			0);
-	 	add_extra_spawn(1, 1,
+/*	 	add_extra_spawn(1, 1,
 																			enemy_base_x + 4,
 																			enemy_base_y,
 																			2048);
@@ -533,7 +485,7 @@ PACKET_COLS
 																			enemy_base_x,
 																			enemy_base_y + 4,
 																			4096);
-
+*/
 
 	  break;
 
@@ -543,7 +495,7 @@ PACKET_COLS
 //   w_init.command_mode = COMMAND_MODE_AUTO;
 // fall-through
 
-default:
+//default:
 
 	 case MISSION_TUTORIAL2:
 
@@ -553,8 +505,8 @@ default:
 	 	player_base_y = w_init.map_size_blocks / 2;
 	 	mission_add_data_well(0, 1, player_base_x - 4, player_base_y);
    set_player_spawn_position_by_latest_well(0, 0, DEFAULT_DISTANCE_FROM_WELL);
-	 	mission_add_data_well(1, -1, player_base_x + 10, player_base_y - 20);
-	 	mission_add_data_well(1, -1, player_base_x + 10, player_base_y + 20);
+	 	mission_add_data_well(0, -1, player_base_x + 10, player_base_y - 20);
+	 	mission_add_data_well(0, -1, player_base_x + 10, player_base_y + 20);
 
    load_mission_source("story/tutorial/tute2/defend2.c", 1, 0);
    load_mission_source("story/tutorial/tute2/circle2.c", 1, 1);
@@ -581,7 +533,7 @@ default:
 																			enemy_base_x,
 																			enemy_base_y + 4,
 																			4096);
-
+/*
    int extra_spawn_x = w_init.map_size_blocks - 25;
    int extra_spawn_y = w_init.map_size_blocks / 4;
 
@@ -630,6 +582,7 @@ default:
 																			extra_spawn_x,
 																			extra_spawn_y + 4,
 																			4096);
+*/
 			break;
 
 	 case MISSION_BLUE_1:
@@ -896,18 +849,18 @@ default:
 
  		int template_index = 0;
 
-   load_mission_source("story/green/green4/g4_base.c", 1, template_index++);
-   load_mission_source("story/green/green4/g4_firebase.c", 1, template_index++);
-   load_mission_source("story/green/green4/g4_builder.c", 1, template_index++);
-   load_mission_source("story/green/green4/g4_spikebase.c", 1, template_index++);
-   load_mission_source("story/green/green4/g4_outpost.c", 1, template_index++);
-   load_mission_source("story/green/green4/g4_builder2.c", 1, template_index++);
+   load_mission_source("story/green/green2/g4_base.c", 1, template_index++);
+   load_mission_source("story/green/green2/g4_firebase.c", 1, template_index++);
+   load_mission_source("story/green/green2/g4_builder.c", 1, template_index++);
+   load_mission_source("story/green/green2/g4_spikebase.c", 1, template_index++);
+   load_mission_source("story/green/green2/g4_outpost.c", 1, template_index++);
+   load_mission_source("story/green/green2/g4_builder2.c", 1, template_index++);
    clear_remaining_templates(1, template_index);
 
    int centre_block_x, centre_block_y;
    int dwi = 0;
 
-#define GREEN_2_CENTRE_DISTANCE 28
+#define GREEN_2_CENTRE_DISTANCE 18
 #define GREEN_2A_CENTRE_DISTANCE 16
 
 #define GREEN_2_DIST_1 0
@@ -1070,12 +1023,12 @@ default:
 
  		int template_index = 0;
 
-   load_mission_source("story/green/green5/g5_base.c", 1, template_index++);
-   load_mission_source("story/green/green5/g5_firebase.c", 1, template_index++);
-   load_mission_source("story/green/green5/g5_builder.c", 1, template_index++);
-   load_mission_source("story/green/green5/g5_spikebase.c", 1, template_index++);
-   load_mission_source("story/green/green5/g5_outpost.c", 1, template_index++);
-   load_mission_source("story/green/green5/g5_builder2.c", 1, template_index++);
+   load_mission_source("story/green/green3/g5_base.c", 1, template_index++);
+   load_mission_source("story/green/green3/g5_firebase.c", 1, template_index++);
+   load_mission_source("story/green/green3/g5_builder.c", 1, template_index++);
+   load_mission_source("story/green/green3/g5_spikebase.c", 1, template_index++);
+   load_mission_source("story/green/green3/g5_outpost.c", 1, template_index++);
+   load_mission_source("story/green/green3/g5_builder2.c", 1, template_index++);
    clear_remaining_templates(1, template_index);
 /*
    template_index = 0;
@@ -1096,9 +1049,13 @@ default:
    int centre_block_x, centre_block_y;
    int dwi = 0;
 
+#define GREEN_3_CENTRE_DISTANCE 19
+#define GREEN_3A_CENTRE_DISTANCE 13
 
-   centre_block_x = (w_init.map_size_blocks / 2) - GREEN_2_CENTRE_DISTANCE;
-   centre_block_y = (w_init.map_size_blocks / 2) - GREEN_2_CENTRE_DISTANCE;
+
+
+   centre_block_x = (w_init.map_size_blocks / 2) - GREEN_3_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) - GREEN_3_CENTRE_DISTANCE;
 
    data_well_index [dwi++] = mission_add_data_well(2,
 																																															-1,
@@ -1124,7 +1081,6 @@ default:
 																																															centre_block_x - GREEN_2_DIST_3,
 																																															centre_block_y - GREEN_2_DIST_4);
 
-#define GREEN_3A_CENTRE_DISTANCE 10
 
 			add_line_between_data_wells(0, 1, 70);
 			add_line_between_data_wells(1, 2, 70);
@@ -1167,8 +1123,8 @@ default:
 			add_line_between_data_wells(5 + 3, 5 + 4, 70);
 			add_line_between_data_wells(5 + 4, 5 + 0, 70);
 
-   centre_block_x = (w_init.map_size_blocks / 2) + GREEN_2_CENTRE_DISTANCE;
-   centre_block_y = (w_init.map_size_blocks / 2) + GREEN_2_CENTRE_DISTANCE;
+   centre_block_x = (w_init.map_size_blocks / 2) + GREEN_3_CENTRE_DISTANCE;
+   centre_block_y = (w_init.map_size_blocks / 2) + GREEN_3_CENTRE_DISTANCE;
 
 
    data_well_index [dwi++] = mission_add_data_well(2,
@@ -1560,7 +1516,7 @@ default:
 
    int centre_block = w_init.map_size_blocks / 2;
 
-   w_init.starting_data_setting [1] = 10;
+   w_init.starting_data_setting [1] = 11;
 
 //	 	player_base_x = 25;
 //	 	player_base_y = centre_block;
@@ -1635,7 +1591,7 @@ default:
    load_mission_source("story/purple/purple2/p2_defence.c", 1, template_index++);
    clear_remaining_templates(1, template_index);
 
-   w_init.starting_data_setting [1] = 10;
+   w_init.starting_data_setting [1] = 12;
 
 
    int centre_block = w_init.map_size_blocks / 2;
@@ -1704,7 +1660,7 @@ default:
    load_mission_source("story/purple/purple3/p3_defence.c", 1, template_index++);
 //   clear_remaining_templates(1, template_index);
 
-   w_init.starting_data_setting [1] = 10;
+   w_init.starting_data_setting [1] = 12;
 
    int centre_block = w_init.map_size_blocks / 2;
 
@@ -1813,7 +1769,7 @@ default:
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_6, 3, 1200, 2200, ORANGE_LINE_THICKNESS_2);
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_6, 3, 3400, 2200, ORANGE_LINE_THICKNESS_2);
 
-   w_init.starting_data_setting [1] = 3;
+   w_init.starting_data_setting [1] = 5;
 
 	 	}
 	  break;
@@ -1848,7 +1804,7 @@ default:
    set_player_spawn_position_by_latest_well(1, ANGLE_2 + 600, DEFAULT_DISTANCE_FROM_WELL);
 
 // lower right branch
-   data_well_index [dwi++] = add_orange_data_well(0, 1, 1500, 4000, ORANGE_LINE_THICKNESS_1);
+   data_well_index [dwi++] = add_orange_data_well(0, 2, 1500, 4000, ORANGE_LINE_THICKNESS_1);
    int sub_centre_well_1 = dwi - 1;
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_1, 1, 400, 2900, ORANGE_LINE_THICKNESS_2);
    set_player_spawn_position_by_latest_well(0, ANGLE_2 + ANGLE_8, DEFAULT_DISTANCE_FROM_WELL);
@@ -1887,7 +1843,7 @@ default:
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_5, 3, 1400, 2900, ORANGE_LINE_THICKNESS_2);
    data_well_index [dwi++] = add_orange_data_well(sub_centre_well_5, 3, 2900, 3700, ORANGE_LINE_THICKNESS_2);
 
-   w_init.starting_data_setting [1] = 3;
+   w_init.starting_data_setting [1] = 7;
 
 	 	}
 	  break;
@@ -1972,8 +1928,8 @@ default:
 
    int template_index = 0;
 
-//   load_mission_source("story/red/red1/r1_base.c", 1, template_index++);
-   load_mission_source("story/red/red1/r1_leader1.c", 1, template_index++);
+   load_mission_source("story/red/red1/r1_base.c", 1, template_index++);
+//   load_mission_source("story/red/red1/r1_leader1.c", 1, template_index++);
    load_mission_source("story/red/red1/r1_m_builder.c", 1, template_index++);
    load_mission_source("story/red/red1/r1_leader1.c", 1, template_index++);
    load_mission_source("story/red/red1/r1_follower.c", 1, template_index++);
@@ -2076,9 +2032,18 @@ default:
 
    int template_index = 0;
 
-   load_mission_source("story/green/green1/g1_base.c", 1, template_index++);
-   load_mission_source("story/green/green1/g1_firebase.c", 1, template_index++);
-   load_mission_source("story/green/green1/g1_builder.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_base.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_m_builder.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_harvest.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_minbase.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_leader1.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_leader2.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_escort.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_picket.c", 1, template_index++);
+   load_mission_source("story/red/red3/r3_defence.c", 1, template_index++);
+
+   w_init.starting_data_setting [1] = 20;
+
    clear_remaining_templates(1, template_index);
 
    int centre_block = w_init.map_size_blocks / 2;
@@ -2089,18 +2054,22 @@ default:
 
    int ring_centre_x = centre_block;
    int ring_centre_y = centre_block;
-/*
+
+   int dwi = 0;
+
    data_well_index [dwi++] = mission_add_data_well(0,
 																																															-1,
 																																															ring_centre_x,
-																																															ring_centre_y);*/
+																																															ring_centre_y);
 
-   set_player_spawn_position(1, centre_block, centre_block, 0);
+   set_player_spawn_position_by_latest_well(1, 1024, DEFAULT_DISTANCE_FROM_WELL);
+
+//   set_player_spawn_position(1, centre_block, centre_block, 0);
 //   set_player_spawn_position_by_latest_well(1, -2048, DEFAULT_DISTANCE_FROM_WELL);
 
    int base_angle = 450;
 
-   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 16, 6, base_angle + ANGLE_1 / 12);
+   mission_add_red_data_well_ring(0, ring_centre_x, ring_centre_y, 16, 6, base_angle + ANGLE_1 / 12);
    mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 30, 6, base_angle);
    mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 46, 6, base_angle + ANGLE_1 / 12);
 //   mission_add_red_data_well_ring(1, ring_centre_x, ring_centre_y, 54, 6, base_angle);
@@ -2110,10 +2079,16 @@ default:
    set_player_spawn_position_by_specified_well(0, 13, -1024, DEFAULT_DISTANCE_FROM_WELL);
 
 
-   w_init.starting_data_setting [1] = 2;
 
 	 	}
 	  break;
+
+	 default:
+			{
+// This should never happen. It just gets rid of an annoying compiler warning:
+   w_init.starting_data_setting [1] = data_well_index [0];
+			}
+			break;
 
 /*
 
@@ -2902,6 +2877,84 @@ Strategy:
 
 
 
+void set_game_colours_for_area(int area_index, int players)
+{
+
+	int player_base_cols [PLAYERS] = {TEAM_COL_BLUE,1,2,3}; // index in base_proc_col array
+	int player_packet_cols [PLAYERS] = {PACKET_COL_YELLOW_ORANGE,1,2,3}; // index in base_packet_colours array and similar interface array
+
+	switch(area_index)
+	{
+
+default: // default should never happen
+		case AREA_TUTORIAL:
+		case AREA_BLUE:
+ 	    player_base_cols [1] = TEAM_COL_YELLOW;
+	     player_packet_cols [1] = PACKET_COL_WHITE_BLUE;
+      set_game_colours(BACK_COLS_BLUE, // index in back_and_hex_colours array
+																				   BACK_COLS_BLUE, // index in back_and_hex_colours array
+																				   2, // players in game
+																				   player_base_cols, // index in base_proc_col array
+																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+				break;
+
+				 case AREA_GREEN:
+ 	    player_base_cols [1] = TEAM_COL_GREEN;
+	     player_packet_cols [1] = PACKET_COL_WHITE_YELLOW;
+      set_game_colours(BACK_COLS_GREEN, // index in back_and_hex_colours array
+																				   BACK_COLS_GREEN, // index in back_and_hex_colours array
+																				   2, // players in game
+																				   player_base_cols, // index in base_proc_col array
+																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+
+						break;
+
+					case AREA_YELLOW:
+ 	    player_base_cols [1] = TEAM_COL_ORANGE;
+	     player_packet_cols [1] = PACKET_COL_BLUE_PURPLE;
+      set_game_colours(BACK_COLS_YELLOW, // index in back_and_hex_colours array
+																				   BACK_COLS_YELLOW, // index in back_and_hex_colours array
+																				   2, // players in game
+																				   player_base_cols, // index in base_proc_col array
+																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+						break;
+
+					case AREA_ORANGE:
+ 	    player_base_cols [1] = TEAM_COL_ORANGE;
+	     player_packet_cols [1] = PACKET_COL_WHITE_PURPLE;
+      set_game_colours(BACK_COLS_ORANGE, // index in back_and_hex_colours array
+																				   BACK_COLS_ORANGE, // index in back_and_hex_colours array
+																				   2, // players in game
+																				   player_base_cols, // index in base_proc_col array
+																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+						break;
+
+					case AREA_PURPLE:
+ 	    player_base_cols [1] = TEAM_COL_RED;
+	     player_packet_cols [1] = PACKET_COL_ULTRAVIOLET;
+      set_game_colours(BACK_COLS_PURPLE, // index in back_and_hex_colours array
+																				   BACK_COLS_PURPLE, // index in back_and_hex_colours array
+																				   2, // players in game
+																				   player_base_cols, // index in base_proc_col array
+																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+      break;
+
+					case AREA_RED:
+ 	    player_base_cols [1] = TEAM_COL_WHITE;
+	     player_packet_cols [1] = PACKET_COL_ORANGE_RED;
+      set_game_colours(BACK_COLS_RED, // index in back_and_hex_colours array
+																				   BACK_COLS_RED, // index in back_and_hex_colours array
+																				   2, // players in game
+																				   player_base_cols, // index in base_proc_col array
+																				   player_packet_cols); // index in base_packet_colours array and similar interface array
+      break;
+
+
+	}
+
+}
+
+
 
 static int mission_add_data_well(int data_well_type, float spin_sign, int x, int y)
 {
@@ -2957,6 +3010,7 @@ static int mission_add_data_well_to_circle(int data_well_type, int angle, int di
 																																		mission_init.data_well_spin [data_well_type] * spin_sign);
 
 }
+
 
 static void mission_add_red_data_well_ring(int data_well_type, int centre_x, int centre_y, int circle_size, int wells, int starting_angle)
 {

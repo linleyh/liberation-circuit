@@ -35,7 +35,7 @@ extern struct nshape_struct nshape [NSHAPES];
 extern struct dshape_struct dshape [NSHAPES]; // uses same indices as NSHAPES
 extern struct nshape_init_data_struct nshape_init_data [NSHAPES];
 extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
-
+extern struct game_struct game;
 
 
 void reset_template_member(struct template_member_struct* member);
@@ -585,6 +585,10 @@ void add_process_from_template(int p, struct template_struct* build_templ, struc
 		proc->mass_for_collision_comparison += 50000; // arbitrarily high number
 //	proc->moment = nshape[proc->shape].shape_mass; // fix! (individual proc moment may not be relevant any more - check this)
 	proc->hp_max = nshape[build_templ->member[0].shape].base_hp_max; // all components get hp based on core hp
+	if ((game.story_type == STORY_TYPE_HARD
+	 || game.story_type == STORY_TYPE_ADVANCED_HARD))
+	 proc->hp_max += 30;
+
 //	if (w.local_condition == LOCAL_CONDITION_FRAGILE_PROCS) // ... except in fragile proc condition
  	//proc->hp_max = 60;
 	proc->hp = proc->hp_max;

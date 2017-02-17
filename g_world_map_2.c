@@ -211,7 +211,7 @@ void add_data_well(int block_x, int block_y)
 
 // block_node_circle(block_x, block_y, 3, 4, 1, 5,
 
- switch(map_init.data_well_style)
+ switch(map_init.area_index)
 	{
 		default:
 		case AREA_BLUE:

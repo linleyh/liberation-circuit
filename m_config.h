@@ -4,8 +4,8 @@
 
 #include <stdint.h>
 
-// DEBUG_MODE gives access to various special commands etc
-#define DEBUG_MODE
+// DEBUG_MODE gives access to various special commands, etc and does some other stuff like give player 0 free data
+//#define DEBUG_MODE
 
 // SANITY_CHECK runs various checks for things that should never happen, and shuts the game down if they do.
 // It doesn't seem to slow things down much so I've left it on, at least for now:
@@ -17,8 +17,12 @@
 #define sancheck(value, min, max, text)
 #endif
 
-// RECORDING_VIDEO hides some of the display elements and sets the resolution to 1280x720 (which is usually not possible as the minimum vertical resolution is 768)
+// RECORDING_VIDEO sets the resolution to 1280x720 (which is usually not possible, and makes some designer stuff unusable, as the minimum vertical resolution is 768)
+//  it also allows unlocking of player 1's templates in story mode
 //#define RECORDING_VIDEO
+
+// RECORDING_VIDEO_2 hides some of the display elements
+//#define RECORDING_VIDEO_2
 
 
 #ifndef TRUE

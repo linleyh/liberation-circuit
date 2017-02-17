@@ -98,7 +98,7 @@ int write_design_structure_to_source_edit(int verified_clear_file)
 	dcode_state.cursor_pos = 0;
 	dcode_state.indent_level = 0;
 
-	int i, start_line, end_line;
+	int i, j, start_line, end_line;
 
 	int empty_file = 1;
 
@@ -170,27 +170,75 @@ int write_design_structure_to_source_edit(int verified_clear_file)
       dcode_header_add_string("\"");
 					}
 	}
+
+ int written_a_class_declaration = 0;
+
  dcode_state.process_structure_lines = 1;
  for (i = 0; i < OBJECT_CLASSES; i ++)
 	{
 		if (dwindow.templ->object_class_active [i] != 0)
 		{
+			if (!written_a_class_declaration)
+			{
+    dcode_header_add_string("// This process has objects with the following auto classes:");
+				written_a_class_declaration = 1;
+			}
 		 dcode_header_newline();
    dcode_header_add_string("class ");
    dcode_header_add_string(dwindow.templ->object_class_name [i]);
    dcode_header_add_string(";");
 		}
 	}
-/* for (i = 0; i < AUTO_CLASSES; i ++)
+
+// Now just add class declarations for the remaining auto classes:
+
+	int auto_class_in_use [AUTO_CLASSES];
+
+	for (i = 0; i < AUTO_CLASSES; i ++)
 	{
-		if (dcode_state.aoclass.class_used [i])
+		auto_class_in_use [i] = 0;
+	}
+
+ for (i = 0; i < OBJECT_CLASSES; i ++)
+	{
+		if (dwindow.templ->object_class_active [i] != 0
+			&& dwindow.templ->object_class_name [i] [0] == 'a'
+			&& dwindow.templ->object_class_name [i] [1] == 'u') // anything starting with "au" is probably an auto class
 		{
-		 dcode_newline();
-   dcode_add_string("class ");
-   dcode_add_string(auto_class_name [i]);
-   dcode_add_string(";\n");
+			for (j = 0; j < AUTO_CLASSES; j ++)
+			{
+				if (auto_class_in_use [j] == 0
+				 && strcmp(dwindow.templ->object_class_name [i], auto_class_name [j]) == 0)
+				{
+					auto_class_in_use [j] = 1;
+					break;
+				}
+			}
 		}
-	}*/
+	}
+
+	int added_any_unused_auto_classes = 0;
+
+	for (i = 0; i < AUTO_CLASSES; i ++)
+	{
+
+		if (!auto_class_in_use [i])
+		{
+			if (!added_any_unused_auto_classes)
+			{
+		  dcode_header_newline();
+		  dcode_header_newline();
+    dcode_header_add_string("// The following auto classes are not currently used by any objects:");
+//		  dcode_header_newline();
+	   added_any_unused_auto_classes = 1;
+			}
+		 dcode_header_newline();
+   dcode_header_add_string("class ");
+   dcode_header_add_string(auto_class_name [i]);
+   dcode_header_add_string(";");
+	 }
+	}
+
 
 // Now core:
  dcode_header_newline();
@@ -461,6 +509,8 @@ static int auto_classify_objects(struct template_struct* templ)
 
 void remove_auto_classes_from_objects(struct template_struct* templ)
 {
+
+
  int class_is_auto_class [OBJECT_CLASSES];
  int i, j, k;
 

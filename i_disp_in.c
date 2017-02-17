@@ -712,7 +712,7 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 																						int player_packet_cols [PLAYERS]) // index in base_packet_colours array and similar interface array
 {
 
-
+//fpr("\n sgc pbc [1] = %i", player_base_cols [1]);
  w.background_colour [0] = back_and_hex_colours [background_col] [0];
 	w.background_colour [1] = back_and_hex_colours [background_col] [1];
 	w.background_colour [2] = back_and_hex_colours [background_col] [2];
@@ -740,7 +740,7 @@ void set_game_colours(int background_col, // index in back_and_hex_colours array
 //  - is called at startup and can also be called at other times.
 void map_player_colours(int p, int base_col, int packet_col, int background_col)
 {
-
+//fpr("\n mapping player %i colours to base %i packet %i background %i", p, base_col, packet_col, background_col);
 #ifdef SANITY_CHECK
  if (base_col < 0
 		|| base_col >= TEAM_COLS)

@@ -139,7 +139,7 @@ struct region_struct
 struct story_struct
 {
 
- int story_type; // STORY_TYPE_NORMAL or STORY_TYPE_ADVANCED
+ int story_type; // STORY_TYPE_NORMAL or STORY_TYPE_ADVANCED, or the HARD versions
 
  struct region_struct region [STORY_REGIONS];
 

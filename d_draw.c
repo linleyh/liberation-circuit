@@ -173,7 +173,14 @@ void draw_design_window(void)
 
 	}
 
-	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_YELLOW] [SHADE_LOW], component_power_x + (component_power_w * template_components) + 12, POWER_GRAPH_Y, ALLEGRO_ALIGN_LEFT, "core %i total %i", nshape[dwindow.templ->member[0].shape].power_capacity, nshape[dwindow.templ->member[0].shape].power_capacity + nshape[dwindow.templ->member[0].shape].component_power_capacity * template_components);
+	float right_text_x;
+
+	right_text_x = component_power_x + (component_power_w * template_components) + 12;
+
+	if (right_text_x + 100 > clip_x2)
+	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], clip_x2 - 5, POWER_GRAPH_Y, ALLEGRO_ALIGN_RIGHT, "core %i total %i", nshape[dwindow.templ->member[0].shape].power_capacity, nshape[dwindow.templ->member[0].shape].power_capacity + nshape[dwindow.templ->member[0].shape].component_power_capacity * template_components);
+	  else
+  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_YELLOW] [SHADE_LOW], right_text_x, POWER_GRAPH_Y, ALLEGRO_ALIGN_LEFT, "core %i total %i", nshape[dwindow.templ->member[0].shape].power_capacity, nshape[dwindow.templ->member[0].shape].power_capacity + nshape[dwindow.templ->member[0].shape].component_power_capacity * template_components);
 
 																	 float power_use_base_x = POWER_GRAPH_X + dwindow.templ->power_use_base * POWER_GRAPH_SCALE;
 																	 float power_use_peak_x = POWER_GRAPH_X + dwindow.templ->power_use_peak * POWER_GRAPH_SCALE;
@@ -1183,8 +1190,8 @@ const char* object_description [OBJECT_TYPES] [3] =
   "the component connects to its parent."}, //	OBJECT_TYPE_UPLINK,
 //  "Changing this object to a different link changes the way the component connects to its parent."}, //	OBJECT_TYPE_UPLINK,
  {"Connects a component to a child component.",
-  "To remove, select the child component and delete it.",
-  ""}, //	OBJECT_TYPE_DOWNLINK,
+  "Adding a downlink creates a new component.",
+  "To remove, select the child component and delete it."}, //	OBJECT_TYPE_DOWNLINK,
  {"Moves the process. Must not be obstructed by another",
   "component (make sure the line from the object doesn't",
   "cross the square around a component)."}, //	OBJECT_TYPE_MOVE,
@@ -1332,6 +1339,14 @@ static void design_help_highlight(int base_x, int base_y)
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "instructions");
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].instructions_per_cycle);
     line_y += 12;
+    if (help_shape < FIRST_MOBILE_NSHAPE)
+				{
+     line_y += 5;
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + 255, line_y, ALLEGRO_ALIGN_LEFT, "this is a static core");
+     line_y += 12;
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + 255, line_y, ALLEGRO_ALIGN_LEFT, "and does not move");
+     line_y += 12;
+				}
 /*    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_RIGHT, "build recycle");
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 340, line_y, ALLEGRO_ALIGN_RIGHT, "%i", nshape[help_shape].build_or_restore_time);*/
 			}
@@ -1595,7 +1610,7 @@ static void design_help_highlight(int base_x, int base_y)
 																																						  base_y,
 																																						  "Harass",
 																																						  "Process will attack target briefly then retreat before attacking again.",
-																																						  "",
+																																						  "Not very suitable for slow processes.",
 																																						  "",
 																																						  "",
 																																						  panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [3]);
@@ -1779,12 +1794,12 @@ static void draw_design_help_strings_autocode(int base_x, int base_y, char* help
 char *design_help_strings [DESIGN_HELP_STRINGS] =
 {
 "Use the process designer to design the structure of the process in the current template.",
-"- Change templates using the Template panel (click the Te button in the top right).",
+"- Choose templates using the Template panel (click the Te button in the top right).",
 "- Open the Editor panel (the Ed button) to see the current template's source code.",
-"  - The source code is definitive; the designer version of the process needs to be",
-"    written to the source code before you can use it:",
-"    - The -Autocode- button generates full source code for the process.",
-"    - The -Write header- button just updates the structural part of the source code.",
+"  - The source code is definitive; the version of the process in the designer needs to",
+"    be written to the source code before you can use it. To do this:",
+"    - the -Autocode- button generates full source code for the process.",
+"    - the -Write header- button just updates the structural part of the source code.",
 "  - Load and save source code using the File menu in the Editor panel.",
 "  - Compile the source code (using the Compile menu in the Editor panel) to update",
 "    the version in the designer.",
@@ -1818,14 +1833,14 @@ char *design_help_strings2 [DESIGN_HELP_MORE_STRINGS] =
 {
 "- In the window above, select components or objects (objects are the little modules",
 "  attached to components) to change or remove them.",
-"- Hold shift to rotate components and objects, and control to lock rotation to certain angles.",
+"- Use the rotation buttons to rotate components and objects. Hold control to constrain rotation.",
 "- Add new components by adding Link|Downlink objects to existing components.",
 "- Adding components and objects increases the cost of the process and the time it",
 "  takes to build the process.",
 "- Some objects require power.",
-"  - The process' core (central component) determines power capacity.",
+"  - Power capacity depends on the type of core the process has and the number of other components.",
 "  - The process' -peak- power is the power required if all objects are in use at the same time.",
-"    If peak power is much greater than power capacity, the process may not work very well.",
+"    Peak power can exceed power capacity, but not by too much or the process may not work very well.",
 "  - The process' -base- power is the basic power consumption of its move and interface objects.",
 
 

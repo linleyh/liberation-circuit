@@ -780,7 +780,7 @@ void run_display(void)
  al_set_target_bitmap(vision_mask);
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 // al_clear_to_color(colours.black);
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
  if (game.vision_mask)
   al_clear_to_color(colours.black);
    else
@@ -6566,7 +6566,7 @@ far_dist = 12 + (shade);//*= 0.1;
 
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen
 
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
   int bubble_core_index = bubble_list_index; // bubble_list_index set above during main core drawing loop
 
 
@@ -7196,7 +7196,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 	float	box_h = BOX_HEADER_H + BOX_LINE_H * 3 + 8;
  float text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
 
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
 
  add_menu_button(box_x, box_y, box_x2, box_y + box_h, colours.base_trans [COL_BLUE] [SHADE_MED] [TRANS_MED], 8, 3);
  add_menu_button(box_x + 3, box_y + 3, box_x2 - 3, box_y + BOX_HEADER_H, colours.base_trans [COL_BLUE] [SHADE_MAX] [TRANS_MED], 8, 3);
@@ -7216,7 +7216,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 #endif
 
 // draw data box:
-#ifdef RECORDING_VIDEO
+#ifdef RECORDING_VIDEO_2
  if (FALSE)
 #else
  if (command.select_mode == SELECT_MODE_SINGLE_CORE)
@@ -7818,7 +7818,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen - do it here to make sure any selection graphics are drawn before the map
 // draw_fans();
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
  draw_map();
 #else
  if (w.debug_mode == 1)
@@ -7952,7 +7952,7 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 // fall-through...
 
   case GAME_PHASE_WORLD:
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
    if (game.pause_soft)
     al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "PAUSED");
    if (view.following)
@@ -8445,6 +8445,8 @@ static void draw_fragment_tail(float x, float y,
 						adjusted_shade --;
 						if (adjusted_shade < 0)
 							break;
+
+						tail_size *= 0.98;
 
 					}
 
@@ -8983,7 +8985,7 @@ static void draw_command_marker(int core_index)
 static void select_arrows(int number, float centre_x, float centre_y, float select_arrow_angle, float dist, float out_dist, float side_angle, float side_dist, ALLEGRO_COLOR arrow_col)
 {
 
-#ifdef RECORDING_VIDEO
+#ifdef RECORDING_VIDEO_2
 return;
 #endif
 
@@ -17108,7 +17110,7 @@ static void draw_map(void)
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
 // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-#ifndef RECORDING_VIDEO
+#ifndef RECORDING_VIDEO_2
  if (game.vision_mask
  	&& !mission_state.reveal_player1)
  	al_draw_bitmap(vision_mask_map [MAP_MASK_OPAQUE], 0, 0, 0);
@@ -17641,6 +17643,8 @@ add_outline_diamond_layer(0,
 static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, int bubble_col, int bubble_text_length, char* bubble_text, int draw_triangle)
 {
 
+//* make sure these are legible!
+
 				int bubble_shade;
 				float bubble_size_reduce;
 				bubble_shade = bubble_time;
@@ -17688,8 +17692,9 @@ if (draw_triangle)
 
 				int text_shade = bubble_shade * 2;
 				if (text_shade > 31)
-					text_shade = 31;
-
+ 				al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], adjusted_bubble_x, bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
+//					text_shade = 31;
+ else
 				al_draw_textf(font[FONT_SQUARE].fnt, colours.packet [bubble_col] [text_shade], adjusted_bubble_x, bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
 
 
