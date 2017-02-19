@@ -439,7 +439,8 @@ void set_waveform_square_vib(float* buffer, int buffer_length, float freq, int h
 			  buffer [i] = amp;//harmonic_amp [j];
 		    else
   	 		 buffer [i] = 0 - amp;//0 - harmonic_amp [j];
-  	 break;
+   }
+  	break;
  	case 1:
    for (i = 0; i < buffer_length; i ++)
    {
@@ -477,7 +478,6 @@ void set_waveform_square_vib(float* buffer, int buffer_length, float freq, int h
 
 
 
- }
 
  }
 

@@ -50,7 +50,7 @@ void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memo
 
 	for (i = 0; i < VM_REGISTERS; i++)
 	{
-		vmstate.vm_register [VM_REGISTERS] = 0;
+		vmstate.vm_register [i] = 0;
 	}
 
 	s16b instr;

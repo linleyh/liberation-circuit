@@ -70,7 +70,7 @@ void draw_proc_fail_cloud(struct cloud_struct* cl, float x, float y);
 //static unsigned int packet_rand(struct packet_struct* pack, int mod);
 static void print_object_information(float text_x, float text_y, int col, const char* ostring, int value, int print_value);
 
-#define VERTEX_LIST_SIZE 24
+#define VERTEX_LIST_SIZE 32
 float vertex_list [VERTEX_LIST_SIZE] [2];
 
 // call this after setting up the vertex_list array with an appropriate number of vertices
@@ -16229,7 +16229,7 @@ static void draw_circle(int layer, float x, float y, float circle_size, ALLEGRO_
  vertex_list [0] [0] = x;
  vertex_list [0] [1] = y;
 
- for (i = 0; i < 26; i ++)
+ for (i = 0; i < 26; i ++) // remember - vertex_list has 32 elements
 	{
   vertex_list [i+1] [0] = x + (cos(i * PI/12) * circle_size);
 	 vertex_list [i+1] [1] = y + (sin(i * PI/12) * circle_size);
