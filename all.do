@@ -1,2 +1,2 @@
 #!/bin/sh
-redo-ifchange bin/libcirc
+redo-ifchange g_game
