@@ -18,14 +18,7 @@ find_package (Allegro REQUIRED)
 if (ALLEGRO_FOUND)
 
     include_directories (${ALLEGRO_INCLUDE_DIR})
-    target_link_libraries (liberation-circuit
-        ${ALLEGRO_LIBRARY}
-        ${ALLEGRO_PRIMITIVES_LIBRARY}
-        ${ALLEGRO_AUDIO_LIBRARY}
-        ${ALLEGRO_DIALOG_LIBRARY}
-        ${ALLEGRO_ACODEC_LIBRARY}
-        ${ALLEGRO_FONT_LIBRARY}
-        ${ALLEGRO_IMAGE_LIBRARY})
+    target_link_libraries (liberation-circuit ${ALLEGRO_LIBRARY})
 
 else ()
     message (FATAL_ERROR "Could not find Allegro")
