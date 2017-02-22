@@ -1942,23 +1942,28 @@ void reset_map_vision_masks(void)
 // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
 
- map_mask_col1 = al_map_rgba(40, 40, 100, 240);
+// map_mask_col1 = al_map_rgba(40, 40, 100, 240);
+// map_mask_col2 = al_map_rgba(30, 30, 80, 150);
+ map_mask_col1 = al_map_rgba(30, 30, 80, 240);
  map_mask_col2 = al_map_rgba(30, 30, 80, 150);
 
- al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+ al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);//ALLEGRO_INVERSE_ALPHA);
 
 // al_set_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
 // al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
 //   ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ONE);
 
  al_set_target_bitmap(vision_mask_map [MAP_MASK_BASE]);
- al_clear_to_color(colours.base [COL_BLUE] [SHADE_LOW]);
+// al_clear_to_color(colours.base [COL_BLUE] [SHADE_LOW]);
+ al_clear_to_color(al_map_rgb(38,38,90));
 
  al_set_target_bitmap(vision_mask_map [MAP_MASK_OPAQUE]);
- al_clear_to_color(al_map_rgb(20,20,65));
+ al_clear_to_color(al_map_rgb(20,20,60));
+// al_clear_to_color(al_map_rgb(20,20,65));
 
  al_set_target_bitmap(vision_mask_map [MAP_MASK_TRANS]);
- al_clear_to_color(al_map_rgba(20,20,65, 160));
+ al_clear_to_color(al_map_rgba(10,10,70, 70));
+// al_clear_to_color(al_map_rgba(20,20,65, 120));
 
 // al_clear_to_color(al_map_rgb(20,20,65));
 

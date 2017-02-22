@@ -657,6 +657,12 @@ void close_all_panels(void)
 }
 
 
+//* TO DO before final release:
+
+//	- add some easier levels at the start?
+//	- swap build command buttons
+//	- add some text after beating first two blue missions that recommends designing new procs.
+
 
 void system_panel_button(int el_index)
 {

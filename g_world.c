@@ -763,7 +763,7 @@ void load_mission_source(char* filename, int player_index, int template_index)
 	{
 		fpr("\nError: failed to load mission file [%s] into template[%i][%i].", filename, player_index, template_index);
 // Causes a fatal error on failure as these source files should be known to be valid
-//		error_call();
+		error_call();
 	}
 
 #ifndef DEBUG_MODE

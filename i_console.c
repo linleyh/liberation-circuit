@@ -639,10 +639,10 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
    if (game.spawn_fail != -1)
 			{
 
- 	  add_menu_button(view.window_x_unzoomed / 2 - 170,
+ 	  add_menu_button(view.window_x_unzoomed / 2 - 195,
 																			 view.window_y_unzoomed / 2 + 55,
-																			 view.window_x_unzoomed / 2 + 170,
-																			 view.window_y_unzoomed / 2 + 100,
+																			 view.window_x_unzoomed / 2 + 195,
+																			 view.window_y_unzoomed / 2 + 125,
 			 															 colours.base_trans [COL_RED] [SHADE_LOW] [TRANS_FAINT], 12, 7);
 // button dimensions also dealt with in run_pregame() in g_game.c
 
@@ -652,10 +652,11 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
    switch(game.spawn_fail_reason)
    {
    	case SPAWN_FAIL_LOCK:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 80, ALLEGRO_ALIGN_CENTRE, "(template 0 could not be locked)");
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 85, ALLEGRO_ALIGN_CENTRE, "Template 0 could not be locked.");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 105, ALLEGRO_ALIGN_CENTRE, "Check the template and make sure it's loaded properly.");
      break;
    	case SPAWN_FAIL_DATA:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 80, ALLEGRO_ALIGN_CENTRE, "(template 0 data cost too high (maximum %i))", w.player[game.spawn_fail].data);
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 90, ALLEGRO_ALIGN_CENTRE, "Template 0 data cost too high (maximum %i).", w.player[game.spawn_fail].data);
      break;
    }
 

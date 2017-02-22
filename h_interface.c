@@ -658,6 +658,136 @@ static void draw_story_regions(void)
 		}
 	}
 
+float intro_text_x = 300;
+float intro_text_y = 50;
+
+#define INTRO_TEXT_LINE_H 15
+#define INTRO_TEXT_LINE_H_2 32
+
+	if (story.region[2].defeated
+		&& !story.region[3].defeated)
+	{
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Defeating your first region has unlocked two new objects:");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "pulse_l (large pulse) and burst_l (large burst)");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "These are more powerful (and expensive) versions of the");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "pulse and burst objects that your processes use to attack.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "If you want to try these new objects, you can use the process designer");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "(the [De] button at the top right) to update your process designs.");
+/*		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Then use [Autocode] in the designer's main menu.");*/
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "The [? help] button in the designer has more information.");
+
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Good luck!");
+//		intro_text_y += INTRO_TEXT_LINE_H;
+  //al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 //intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 //"(use the File menu in the editor [Ed]).");
+
+
+	}
+
+
+	if (story.region[3].defeated // blue2
+		&& !story.region[4].defeated // blue capital
+		&& !story.region[5].defeated // should be yellow or green 1
+		&& !story.region[8].defeated) // other yellow or green 1
+	{
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Defeating your second region has unlocked");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "new components that you can use to build your processes.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "The new core components,");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "core_pent_B and core_pent_C");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "are resilient and generate increased power, but are also expensive.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "The new non-core components,");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "component_long5 and component_snub");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "have five links to place objects or downlinks on.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "If you want to try these new components, you can use the process designer");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "(the [De] button at the top right) to update your process designs.");
+/*		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Then use [Autocode] in the designer's main menu.");*/
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "The [? help] button in the designer has more information.");
+
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Good luck!");
+//		intro_text_y += INTRO_TEXT_LINE_H;
+  //al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 //intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 //"(use the File menu in the editor [Ed]).");
+
+
+	}
+
+
 /*
 	if (story.region[3].can_be_played
 		&& !story.region[3].defeated)

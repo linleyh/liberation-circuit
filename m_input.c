@@ -30,7 +30,7 @@ extern struct view_struct view;
 
 struct key_typestruct key_type [ALLEGRO_KEY_MAX];
 
-void check_mode_buttons_and_panel_drag(void);
+//void check_mode_buttons_and_panel_drag(void);
 void mode_button(int mode_pressed);
 static void close_window_box(void);
 static void init_character_input_events(void);

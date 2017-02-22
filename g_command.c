@@ -366,10 +366,12 @@ void run_commands(void)
 				}*/
 				if (command.build_mode != BUILD_MODE_NONE)
 				{
-  	  command.build_mode = BUILD_MODE_NONE; // left-clicking cancels build
-     write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LGREY, -1, 0, "\nBuild command cancelled.");
-     play_interface_sound(SAMPLE_BLIP2, TONE_2F);
-//  	  break;
+					if (command.build_mode == BUILD_MODE_PLACE)
+						build_place_selected();
+//  	  command.build_mode = BUILD_MODE_NONE; // left-clicking cancels build
+//     write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LGREY, -1, 0, "\nBuild command cancelled.");
+//     play_interface_sound(SAMPLE_BLIP2, TONE_2F);
+  	  break;
 				}
 // check for shift
     proc_clicked = proc_under_mouse;
@@ -428,12 +430,13 @@ void run_commands(void)
 		 }
 		 break; // end case BUTTON_JUST_PRESSED
 		case BUTTON_HELD:
-//			if (command.build_mode == BUILD_MODE_ANGLE)
-//				update_build_angle();
+			if (command.build_mode == BUILD_MODE_ANGLE)
+				update_build_angle();
 //			select_box(command.mouse_drag_world_x, command.mouse_drag_world_y, al_itofix(control.mouse_x_world_pixels), al_itofix(control.mouse_y_world_pixels));
 			break;
-		case BUTTON_JUST_RELEASED:
 /*
+				break;
+		 case BUTTON_JUST_RELEASED:
 				if (command.build_mode == BUILD_MODE_ANGLE)
 				{
 					give_command_after_build_angle_selected(shift_pressed);
@@ -444,7 +447,21 @@ void run_commands(void)
    					command.build_mode = BUILD_MODE_NONE;
 					break;
 				}
-*/
+				break;*/
+
+		case BUTTON_JUST_RELEASED:
+
+				if (command.build_mode == BUILD_MODE_ANGLE)
+				{
+					give_command_after_build_angle_selected(shift_pressed);
+     play_interface_sound(SAMPLE_BLIP4, TONE_3C);
+					if (shift_pressed)
+						command.build_mode = BUILD_MODE_PLACE;
+					  else
+   					command.build_mode = BUILD_MODE_NONE;
+					break;
+				}
+
 
 	// do a box selection if either the mouse has moved more than 20 pixels, or the button has been held for more than 32 frames
 // the following box selection code is duplicated in the special code for build buttons above (to avoid a problem with clicking on a builder proc that is in the build button part of the screen)
@@ -470,8 +487,9 @@ void run_commands(void)
 	  case BUTTON_JUST_PRESSED:
 		 	if (command.build_mode != BUILD_MODE_NONE)
 				{
-					if (command.build_mode == BUILD_MODE_PLACE)
-						build_place_selected();
+  	  command.build_mode = BUILD_MODE_NONE; // left-clicking cancels build
+     write_text_to_console(CONSOLE_GENERAL, PRINT_COL_LGREY, -1, 0, "\nBuild command cancelled.");
+     play_interface_sound(SAMPLE_BLIP2, TONE_2F);
 					break;
 				}
 /*
@@ -518,6 +536,7 @@ void run_commands(void)
 						}
 					}
 		  break; // end BUTTON_JUST_PRESSED
+/*
 		 case BUTTON_HELD:
 			 if (command.build_mode == BUILD_MODE_ANGLE)
 			 	update_build_angle();
@@ -534,7 +553,7 @@ void run_commands(void)
 					break;
 				}
 				break;
-
+*/
 
   } // end switch control.mbutton_press [1]
 
@@ -591,10 +610,12 @@ void run_commands(void)
 			   mouse_scroll_x = KEYBOARD_SCROLL_SPEED;
 				}
 
-		if ((control.mouse_y_screen_pixels > 30
-			|| control.mouse_x_screen_pixels < settings.option [OPTION_WINDOW_W] - 140)
-		&& mouse_on_map == 0)
-//		|| control.mouse_status == MOUSE_STATUS_OUTSIDE)
+// mode_button exclusion zone:
+//		if ((control.mouse_y_screen_pixels > 30
+//			|| control.mouse_x_screen_pixels < settings.option [OPTION_WINDOW_W] - 140)
+//		&& mouse_on_map == 0)
+
+if (mouse_on_map == 0)
 	{
 #ifndef RECORDING_VIDEO_2
   if (control.mouse_x_screen_pixels < MOUSE_SCROLL_BORDER)

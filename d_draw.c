@@ -230,6 +230,91 @@ add_design_bquad(POWER_GRAPH_X,
 
   float possible_graph_y = POWER_GRAPH_Y0;
 
+
+//  if (dwindow.templ->number_of_interface_objects > 0)
+		{
+// the word "interface" is only displayed if the template actually has an interface
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, possible_graph_y, ALLEGRO_ALIGN_RIGHT, "%%power");
+
+	  int power_ratio = 100;
+	  if (dwindow.templ->power_use_peak != 0)
+	   power_ratio = (dwindow.templ->power_capacity * 100) / dwindow.templ->power_use_peak;
+	  float power_ratio_x = POWER_GRAPH_X + power_ratio;// * 0.1;
+	  float power_ratio_x_100 = POWER_GRAPH_X + 100;
+
+	  float power_ratio_text_x = power_ratio_x + 12;
+	  if (power_ratio < 100)
+				power_ratio_text_x = POWER_GRAPH_X + 112;
+
+	  int ratio_bar_colour = COL_BLUE;
+
+
+			if (power_ratio < 30)
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - SEVERELY UNDERPOWERED", power_ratio);
+ 	  ratio_bar_colour = COL_RED;
+			}
+   else
+			if (power_ratio < 50)
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - very underpowered", power_ratio);
+ 	  ratio_bar_colour = COL_RED;
+			}
+   else
+			if (power_ratio < 70)
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - underpowered", power_ratio);
+ 	  ratio_bar_colour = COL_YELLOW;
+			}
+   else
+			if (power_ratio < 85)
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - slightly underpowered", power_ratio);
+			}
+   else
+			if (power_ratio < 120)
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - powered", power_ratio);
+			}
+   else
+			if (power_ratio < 150)
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - overpowered", power_ratio);
+			}
+   else
+			{
+ 	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_PURPLE] [SHADE_HIGH], power_ratio_text_x, possible_graph_y, ALLEGRO_ALIGN_LEFT, "%i%% - very overpowered", power_ratio);
+ 	  ratio_bar_colour = COL_PURPLE;
+			}
+
+
+   add_design_quad(power_ratio_x_100,
+																	  possible_graph_y - 1,
+                   power_ratio_x_100 + 1,
+																	  possible_graph_y - 1,
+                   power_ratio_x_100 + 1,
+																	  possible_graph_y + POWER_GRAPH_H + 1,
+																	  power_ratio_x_100,
+																	  possible_graph_y + POWER_GRAPH_H + 1,
+																	  colours.base_trans [COL_GREY] [SHADE_MED] [TRANS_MED]);
+
+   add_design_bquad(POWER_GRAPH_X,
+																	   possible_graph_y,
+																	   power_ratio_x,
+																	   possible_graph_y + POWER_GRAPH_H,
+																	   3,
+																	   2,
+																	   colours.base_trans [ratio_bar_colour] [SHADE_MAX] [TRANS_MED]);
+
+
+   possible_graph_y -= (POWER_GRAPH_H + 2);
+
+		}
+
+
+
+
+
   if (dwindow.templ->number_of_interface_objects > 0)
 		{
 // the word "interface" is only displayed if the template actually has an interface
@@ -1827,7 +1912,7 @@ static void draw_design_help_strings_for_help_button(int base_x, int base_y)
 }
 
 
-#define DESIGN_HELP_MORE_STRINGS 11
+#define DESIGN_HELP_MORE_STRINGS 13
 
 char *design_help_strings2 [DESIGN_HELP_MORE_STRINGS] =
 {
@@ -1838,10 +1923,13 @@ char *design_help_strings2 [DESIGN_HELP_MORE_STRINGS] =
 "- Adding components and objects increases the cost of the process and the time it",
 "  takes to build the process.",
 "- Some objects require power.",
-"  - Power capacity depends on the type of core the process has and the number of other components.",
-"  - The process' -peak- power is the power required if all objects are in use at the same time.",
-"    Peak power can exceed power capacity, but not by too much or the process may not work very well.",
-"  - The process' -base- power is the basic power consumption of its move and interface objects.",
+"  - More expensive cores generate more power (and make their components generate more power too).",
+//"    Peak power can exceed power capacity, but not by too much or the process may not work very well.",
+"  - The process' -base- demand is the total power consumption of its move and interface objects.",
+"  - The process' -peak- demand is the power required if all objects are in use at the same time.",
+"  - The process' -%%power- is the ratio of peak power demand to total capacity.",
+"    A slightly underpowered process (~70%%) should be okay, as its objects probably won't",
+"    all be drawing power at the same time.",
 
 
 };

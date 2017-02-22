@@ -252,9 +252,9 @@ TCOL_FILL_BASE, // underlying shape colour
 TCOL_MAIN_EDGE, // edge of process and method base
 TCOL_METHOD_EDGE, // edge of method overlays
 */
-TCOL_MAP_POINT, // colour of this team's procs on the map
-TCOL_MAP_POINT_FAINT, // edge of large proc on map
-TCOL_MAP_POINT_THICK, // edge of large proc on map
+TCOL_MAP_POINT_MIN, // colour of this team's procs on the map
+TCOL_MAP_POINT_MED, // edge of large proc on map
+TCOL_MAP_POINT_MAX, // edge of large proc on map
 /*
 TCOL_BOX_FILL,
 TCOL_BOX_HEADER_FILL,
@@ -1890,6 +1890,8 @@ enum
 OPTION_WINDOW_W, // resolution of monitor or size of window
 OPTION_WINDOW_H,
 OPTION_FULLSCREEN,
+OPTION_FULLSCREEN_TRUE,
+OPTION_MSAA_OFF,
 OPTION_VOL_MUSIC,
 OPTION_VOL_EFFECT,
 OPTION_SPECIAL_CURSOR, // draws a special mouse cursor instead of the system one. Included because of a report that the mouse cursor was not displaying correctly.

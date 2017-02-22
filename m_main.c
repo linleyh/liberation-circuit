@@ -427,6 +427,8 @@ fpr("\nInitialising:");
    settings.option [OPTION_WINDOW_W] = 1024;
    settings.option [OPTION_WINDOW_H] = 768;
    settings.option [OPTION_FULLSCREEN] = 0;
+   settings.option [OPTION_FULLSCREEN_TRUE] = 0;
+   settings.option [OPTION_MSAA_OFF] = 0;
    settings.option [OPTION_VOL_MUSIC] = 80;
    settings.option [OPTION_VOL_EFFECT] = 80;
    settings.option [OPTION_SPECIAL_CURSOR] = 0;
@@ -437,14 +439,42 @@ fpr("\nInitialising:");
    read_initfile();
 
 // Set up multisampled anti-aliasing
+   if (settings.option [OPTION_MSAA_OFF] == 0)
+			{
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST); // 4 seems to work okay. Any more doesn't seem to achieve anything.
+			}
 
 //settings.option [OPTION_FULLSCREEN] = 1;
 
 //    al_set_new_display_flags(ALLEGRO_OPENGL);
 
+   if (settings.option [OPTION_FULLSCREEN_TRUE] == 1)
+   {
+// This probably won't work (it may crash if a file dialogue is opened) but support it anyway:
+    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 
+// OPTION_WINDOW_W/H are not used (although I think they are used if for some reason the game swaps out of fullscreen? Not sure)
+    display = al_create_display(settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
+
+    if (!display)
+    {
+       fprintf(stdout, "\nError: failed to create true fullscreen display.");
+       safe_exit(-1);
+    }
+
+/*    settings.option [OPTION_WINDOW_W] = al_get_display_width(display);
+    settings.option [OPTION_WINDOW_H] = al_get_display_height(display);
+
+    if (settings.option [OPTION_WINDOW_W] < 1024
+     || settings.option [OPTION_WINDOW_H] < 768)
+    {
+       fprintf(stdout, "\nError: display too small (should be at least 1024x768, but is %ix%i).", settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
+       safe_exit(-1);
+    }
+*/
+   }
+   else
    if (settings.option [OPTION_FULLSCREEN] == 1)
    {
 // We use ALLEGRO_FULLSCREEN_WINDOW rather than ALLEGRO_FULLSCREEN here because true fullscreen has problems with native file menus
@@ -773,6 +803,18 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
 
 
 
+ if (strcmp(initfile_word, "true_fullscreen") == 0)
+ {
+  settings.option [OPTION_FULLSCREEN_TRUE] = 1;
+  return bpos;
+ }
+
+ if (strcmp(initfile_word, "msaa_off") == 0)
+ {
+  settings.option [OPTION_MSAA_OFF] = 1;
+  return bpos;
+ }
+
  if (strcmp(initfile_word, "fullscreen") == 0)
  {
   settings.option [OPTION_FULLSCREEN] = 1;
@@ -953,7 +995,7 @@ static int default_templates_loaded [PLAYERS] = {0,0,0,0};
 
 
 
-// unrecognised word, so just skip to the end of the line:
+// unrecognised word, so just go to the next word:
 
 //  bpos = finish_initfile_line(buffer, buffer_length, bpos);
 

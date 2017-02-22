@@ -102,7 +102,8 @@ int base_proc_col [TEAM_COLS] [BASE_PROC_COL_ARRAY_SIZE] [3] =
 // The above go into the proc_col_ list
   {30, 50, 100}, // 9 BASE_TEAM_COL_MIN
   {80, 140, 250}, // 10 BASE_TEAM_COL_MAX
-  {80, 80, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
+  {80, 110, 254}, // 11 BASE_TEAM_COL_MAP_PIXEL
+//  {80, 80, 250}, // 11 BASE_TEAM_COL_MAP_PIXEL
 
 	}, // end TEAM_COL_BLUE
 
@@ -880,18 +881,18 @@ static void map_player_base_colours(int p, int colour_index)
 // colours.team [p] [TCOL_MAP_POINT_FAINT] = map_rgba(base_cols [0], base_cols [1], base_cols [2], 100);
 // colours.team [p] [TCOL_MAP_POINT_THICK] = map_rgba(base_cols [0], base_cols [1], base_cols [2], 150);
 
- colours.team [p] [TCOL_MAP_POINT] = map_rgba(base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [0],
-																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [1],
-																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [2],
-																																														240);
- colours.team [p] [TCOL_MAP_POINT_FAINT] = map_rgba(base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [0],
+ colours.team [p] [TCOL_MAP_POINT_MIN] = map_rgba(base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [0],
 																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [1],
 																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [2],
 																																														140);
- colours.team [p] [TCOL_MAP_POINT_THICK] = map_rgba(base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [0],
+ colours.team [p] [TCOL_MAP_POINT_MED] = map_rgba(base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [0],
 																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [1],
 																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [2],
-																																														200);
+																																														220);
+ colours.team [p] [TCOL_MAP_POINT_MAX] = map_rgba(base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [0] * 1.15,
+																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [1] * 1.15,
+																																														base_proc_col [colour_index] [BASE_TEAM_COL_MAP_PIXEL] [2] * 1.15,
+																																														240);
 
 // set base_cols again:
  base_cols [0] = w.player[p].proc_colour_min [0];

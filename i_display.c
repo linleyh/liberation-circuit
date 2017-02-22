@@ -16819,15 +16819,10 @@ static void draw_map(void)
   float point_pos_x = map_base_x + al_fixtof(al_fixmul(core->core_position.x, view.map_proportion_x));
   float point_pos_y = map_base_y + al_fixtof(al_fixmul(core->core_position.y, view.map_proportion_y));
 
-  map_pixel[i].x = point_pos_x;
-  map_pixel[i].y = point_pos_y;
-  map_pixel[i].z = 0;
-  map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT];
-  i++;
-
-  int point_lr = 1;
-  int point_ud = 1;
-  int point_diag = 0;
+  int point_centre = TCOL_MAP_POINT_MED;
+  int point_lr = TCOL_MAP_POINT_MIN;
+  int point_ud = TCOL_MAP_POINT_MIN;
+  int point_diag = -1;
 
 
 //  if (core->group_members_current > 1)
@@ -16837,27 +16832,39 @@ static void draw_map(void)
 //				point_lr = 1;
    if (core->group_members_current > 8)
 			{
-				point_ud = 2;
+				point_lr = TCOL_MAP_POINT_MED;
+				point_diag = TCOL_MAP_POINT_MIN;
     if (core->group_members_current > 12)
 				{
-				 point_lr = 2;
+ 				point_ud = TCOL_MAP_POINT_MED;
+ 				point_diag = TCOL_MAP_POINT_MED;
      if (core->group_members_current > 15)
-				  point_diag = 1;
+					{
+				  point_centre = TCOL_MAP_POINT_MAX;
+					}
 				}
 			}
 //		}
+
+
+  map_pixel[i].x = point_pos_x;
+  map_pixel[i].y = point_pos_y;
+  map_pixel[i].z = 0;
+  map_pixel[i].color = colours.team [core->player_index] [point_centre];
+  i++;
+
 
 //		if (point_ud)
 		{
     map_pixel[i].x = point_pos_x;
     map_pixel[i].y = point_pos_y - 1;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_ud];
+    map_pixel[i].color = colours.team [core->player_index] [point_ud];
     i++;
     map_pixel[i].x = point_pos_x;
     map_pixel[i].y = point_pos_y + 1;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_ud];
+    map_pixel[i].color = colours.team [core->player_index] [point_ud];
     i++;
 		}
 
@@ -16866,36 +16873,36 @@ static void draw_map(void)
     map_pixel[i].x = point_pos_x - 1;
     map_pixel[i].y = point_pos_y;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_lr];
+    map_pixel[i].color = colours.team [core->player_index] [point_lr];
     i++;
     map_pixel[i].x = point_pos_x + 1;
     map_pixel[i].y = point_pos_y;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_lr];
+    map_pixel[i].color = colours.team [core->player_index] [point_lr];
     i++;
 		}
 
-		if (point_diag)
+		if (point_diag != -1)
 		{
     map_pixel[i].x = point_pos_x - 1;
     map_pixel[i].y = point_pos_y - 1;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_diag];
+    map_pixel[i].color = colours.team [core->player_index] [point_diag];
     i++;
     map_pixel[i].x = point_pos_x - 1;
     map_pixel[i].y = point_pos_y + 1;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_diag];
+    map_pixel[i].color = colours.team [core->player_index] [point_diag];
     i++;
     map_pixel[i].x = point_pos_x + 1;
     map_pixel[i].y = point_pos_y - 1;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_diag];
+    map_pixel[i].color = colours.team [core->player_index] [point_diag];
     i++;
     map_pixel[i].x = point_pos_x + 1;
     map_pixel[i].y = point_pos_y + 1;
     map_pixel[i].z = 0;
-    map_pixel[i].color = colours.team [core->player_index] [TCOL_MAP_POINT + point_diag];
+    map_pixel[i].color = colours.team [core->player_index] [point_diag];
     i++;
 		}
 

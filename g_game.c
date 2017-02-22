@@ -143,7 +143,7 @@ void init_main_loop(void)
 */
 // open_sysmenu();
  resize_display_window(settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
-
+ reset_panel_positions();
 // init_ex_control();
 
  init_commands();
@@ -760,7 +760,7 @@ build new processes.\
     	 clear_console(CONSOLE_SYSTEM);
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
-"When you have a reasonably large attack fleet, seek out the enemy and defeat them!");
+"When you have a reasonably large attack fleet, seek out the enemy and defeat them! (Hint: try searching to the right)");
  			 	write_mission_text(PRINT_COL_LBLUE,
 "\n\nDrag a box around several processes to select them all.\
 \nDouble-clicking on a process selects all visible processes of the same type.\
@@ -841,7 +841,7 @@ build new processes.\
 "Now tell the mbuild process to build a new base near the edge of the data well.\
 \n\nA static (immobile) process like the base can't be built too close to a data well, but it can't be too far away or its harvester won't work.");
  			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\nRight-click to place the new base. Left-click to cancel.");
+"\n\nLeft-click to place the new base. Right-click to cancel.");
     	 mission_state.phase = MPHASE2_BUILD_ATTACKERS;
 					}
 					break;
@@ -852,7 +852,8 @@ build new processes.\
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
 "Now you should have two bases capable of harvesting data and building new processes.\
-\nIt's time for a new fleet! Start building attackers, destroyers and commanders.");
+\nIt's time for a new fleet! Start building attackers, destroyers and commanders\
+\n(you could also build a harvester to send to the other data well).");
  			 	write_mission_text(PRINT_COL_LBLUE,
 "\n\nHold shift when giving a build command to repeat-build.\nYou can use the queue buttons (above the build command buttons) to re-order (by dragging) or remove queued processes.");
     	 mission_state.phase = MPHASE2_BUILD_ATTACKERS2;
