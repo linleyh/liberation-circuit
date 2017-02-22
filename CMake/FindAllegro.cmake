@@ -1,6 +1,4 @@
 
-set (ALLEGRO_LIBRARY_PATH "" CACHE PATH "Allegro library directory")
-
 if (ALLEGRO_INCLUDE_DIR)
     set (ALLEGRO_FIND_QUIETLY true)
 endif ()
@@ -16,32 +14,9 @@ if (UNIX AND NOT CYGWIN)
 else (UNIX AND NOT CYGWIN)
 
     find_library (ALLEGRO_LIBRARY
-        NAMES allegro
+        NAMES allegro_monolith
         PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
 
-    find_library (ALLEGRO_PRIMITIVES_LIBRARY
-        NAMES allegro_primitives
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
-
-    find_library (ALLEGRO_AUDIO_LIBRARY
-        NAMES allegro_audio
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
-
-    find_library (ALLEGRO_DIALOG_LIBRARY
-        NAMES allegro_dialog
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
-
-    find_library (ALLEGRO_ACODEC_LIBRARY
-        NAMES allegro_acodec
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
-
-    find_library (ALLEGRO_FONT_LIBRARY
-        NAMES allegro_font
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
-
-    find_library (ALLEGRO_IMAGE_LIBRARY
-        NAMES allegro_image
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
 endif ()
 
 if (ALLEGRO_INCLUDE_DIR AND ALLEGRO_LIBRARY)
