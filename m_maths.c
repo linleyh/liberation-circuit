@@ -54,7 +54,7 @@ const al_fixed fixed_tan_tbl [TAN_TABLE_SIZE];
 const al_fixed fixed_cos_tbl [IC_FIXED_COS_TABLE_SIZE + 1];
 
 
-al_fixed fixed_cos(al_fixed x)
+inline al_fixed fixed_cos(al_fixed x)
 {
 
  al_fixed range_between_table_entries = (fixed_cos_tbl[(((x + 0x4000) >> IC_TRIG_PRECISION) & IC_TRIG_MASK) + 1]
@@ -70,7 +70,7 @@ al_fixed fixed_cos(al_fixed x)
 
 }
 
-al_fixed fixed_sin(al_fixed x)
+inline al_fixed fixed_sin(al_fixed x)
 {
 
  al_fixed range_between_table_entries = (fixed_cos_tbl[(((x - 0x400000 + 0x4000) >> IC_TRIG_PRECISION) & IC_TRIG_MASK) + 1]
@@ -135,7 +135,7 @@ void init_trig(void)
 // Because this function uses floating point, it can't be used for anything that affects gameplay
 // It's just for clouds and display functions (although it may not actually be used at all).
 // Use fixed_xpart instead.
-int xpart(int angle, int length)
+inline int xpart(int angle, int length)
 {
  return cos(angle_to_radians(angle)) * length;
 
@@ -143,7 +143,7 @@ int xpart(int angle, int length)
 }
 
 // same as xpart
-int ypart(int angle, int length)
+inline int ypart(int angle, int length)
 {
  return sin(angle_to_radians(angle)) * length;
 
