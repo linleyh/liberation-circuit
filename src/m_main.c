@@ -47,7 +47,7 @@ I may need to prevent this (by removing the >> operator from the compiler)
 if it causes compatibility problems, although I'm not sure how likely it
 is to be an issue in practice.
 
-I've tested compiling with -O2. -O3 may cause problems.
+I also compile with -O3
 
 
 Structure

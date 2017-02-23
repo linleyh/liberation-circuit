@@ -12984,7 +12984,9 @@ void draw_object(float proc_x, float proc_y,
 						shade = 16;
 
      if (core->interface_charged_time > w.world_time - 16)
-      shade = 12 + 8 + (core->interface_charged_time - w.world_time) / 2;
+					{
+      shade = 12 + 8 + (core->interface_charged_time + 16 - w.world_time) / 2;
+					}
 
      add_poly_layer(OBJECT_MAIN_LAYER, 5, colours.packet [core->player_index] [shade]);
 
