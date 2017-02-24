@@ -15,6 +15,7 @@ add_executable (liberation-circuit ${SOURCE_FILES})
 # Set compiler flags
 if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-overflow")
+endif ()
 
 # Base library
 find_package (Allegro REQUIRED)
