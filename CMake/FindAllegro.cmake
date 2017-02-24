@@ -8,16 +8,9 @@ find_path (ALLEGRO_INCLUDE_DIR allegro.h
     /usr/include
     $ENV {MINGDIR}/include)
 
-if (UNIX AND NOT CYGWIN)
-    execute_process (allegro-config ARGS --libs OUTPUT_VARIABLE ALLEGRO_LIBRARY)
-
-else (UNIX AND NOT CYGWIN)
-
-    find_library (ALLEGRO_LIBRARY
-        NAMES allegro_monolith
-        PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
-
-endif ()
+find_library (ALLEGRO_LIBRARY
+    NAMES allegro_monolith
+    PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
 
 if (ALLEGRO_INCLUDE_DIR AND ALLEGRO_LIBRARY)
     set (ALLEGRO_FOUND true)
