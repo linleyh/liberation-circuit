@@ -10,7 +10,7 @@ find_path (ALLEGRO_INCLUDE_DIR allegro.h
 
 find_library (ALLEGRO_LIBRARY
     NAMES allegro_monolith
-    PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib ${ALLEGRO_LIBRARY_PATH})
+    PATHS /usr/lib /usr/local/lib $ENV {MINGDIR}/lib)
 
 if (ALLEGRO_INCLUDE_DIR AND ALLEGRO_LIBRARY)
     set (ALLEGRO_FOUND true)
