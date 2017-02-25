@@ -89,6 +89,10 @@ void generate_random_map(int area_index,
 																									int size_blocks,
 																					    int players,
 																					    unsigned int map_seed);
+void generate_scattered_map(int area_index,
+																												int size_blocks,
+																					       int players,
+																					       unsigned int map_seed);
 
 void set_player_spawn_position_by_latest_well(int player_index, int angle_from_well, int distance_from_well);
 void set_player_spawn_position(int player_index, int block_x, int block_y, int angle);

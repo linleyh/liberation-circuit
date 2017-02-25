@@ -945,7 +945,7 @@ void reset_design_tools_subpanel(int new_subpanel)
    switch (otype[dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type].object_base_type)
    {
    	case OBJECT_BASE_TYPE_LINK:
-     open_subtools(SUBTOOLS_OBJECTS_LINK);
+//     open_subtools(SUBTOOLS_OBJECTS_LINK);
      set_special_highlight_object(); // dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type);
      break;
    	case OBJECT_BASE_TYPE_MOVE:
@@ -1019,9 +1019,9 @@ void open_subtools(int subtools)
 		case SUBTOOLS_SHAPE6:
 	  set_sub_buttons_range(DSB_SHAPE6_FIRST, DSB_SHAPE6_LAST, dwindow.templ->member[dwindow.selected_member].shape);
 	  break;*/
-	 case SUBTOOLS_OBJECTS_LINK:
-   set_sub_buttons_range(DSB_OBJECT_LINK_FIRST, DSB_OBJECT_LINK_LAST, dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type);
-   break;
+//	 case SUBTOOLS_OBJECTS_LINK:
+//   set_sub_buttons_range(DSB_OBJECT_LINK_FIRST, DSB_OBJECT_LINK_LAST, dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type);
+//   break;
 	 case SUBTOOLS_OBJECTS_STD:
    set_sub_buttons_range(DSB_OBJECT_STD_FIRST, DSB_OBJECT_STD_LAST, dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type);
    break;
@@ -1578,10 +1578,14 @@ void design_panel_button(int button_element)
 	 case FPE_DESIGN_TOOLS_MEMBER_SHAPE6:
    open_subtools(SUBTOOLS_SHAPE6);
 		 break;*/
-	 case FPE_DESIGN_TOOLS_ADD_LINK:
+	 case FPE_DESIGN_TOOLS_ADD_COMPONENT:
 //	 	add_linked_member(dwindow.selected_member, dwindow.selected_link);
-   open_subtools(SUBTOOLS_OBJECTS_LINK);
+//   open_subtools(SUBTOOLS_OBJECTS_LINK);
+   set_member_object(dwindow.selected_member, dwindow.selected_link, OBJECT_TYPE_DOWNLINK);
 		 break;
+		case FPE_DESIGN_TOOLS_CHANGE_UPLINK:
+   set_member_object(dwindow.selected_member, dwindow.selected_link, OBJECT_TYPE_UPLINK);
+			break;
 //	 case FPE_DESIGN_TOOLS_NEXT_LINK:
 //   open_subtools(SUBTOOLS_OBJECTS_LINK);
 //		 break;
@@ -1597,9 +1601,9 @@ void design_panel_button(int button_element)
 	 case FPE_DESIGN_TOOLS_VERTEX_OBJ_DEFEND:
    open_subtools(SUBTOOLS_OBJECTS_DEFEND);
 		 break;
-	 case FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC:
-   open_subtools(SUBTOOLS_OBJECTS_MISC);
-		 break;
+//	 case FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC:
+//   open_subtools(SUBTOOLS_OBJECTS_MISC);
+//		 break;
 	 case FPE_DESIGN_TOOLS_VERTEX_OBJ_CLEAR:
 			if (dwindow.templ->locked)
 			{
@@ -1981,18 +1985,18 @@ static void clear_member_object_classes(int mem, int obj)
 void set_special_highlight_object(void)
 {
 
-   panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_ADD_LINK].value [0] = 0;
+//   panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_ADD_LINK].value [0] = 0;
    panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_STD].value [0] = 0;
    panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_MOVE].value [0] = 0;
    panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_ATTACK].value [0] = 0;
    panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_DEFEND].value [0] = 0;
-   panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC].value [0] = 0;
+//   panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC].value [0] = 0;
    panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_CLEAR].value [0] = 0;
 
    switch(otype[dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].type].object_base_type)
    {
-			 case OBJECT_BASE_TYPE_LINK:
-				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_ADD_LINK].value [0] = 1; break;
+//			 case OBJECT_BASE_TYPE_LINK:
+//				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_ADD_LINK].value [0] = 1; break;
 			 case OBJECT_BASE_TYPE_STD:
 				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_STD].value [0] = 1; break;
 			 case OBJECT_BASE_TYPE_MOVE:
@@ -2001,8 +2005,8 @@ void set_special_highlight_object(void)
 				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_ATTACK].value [0] = 1; break;
 			 case OBJECT_BASE_TYPE_DEFEND:
 				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_DEFEND].value [0] = 1; break;
-			 case OBJECT_BASE_TYPE_MISC:
-				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC].value [0] = 1; break;
+//			 case OBJECT_BASE_TYPE_MISC:
+//				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC].value [0] = 1; break;
 			 case OBJECT_BASE_TYPE_NONE:
 				 panel[PANEL_DESIGN].element [FPE_DESIGN_TOOLS_VERTEX_OBJ_CLEAR].value [0] = 1; break;
    }

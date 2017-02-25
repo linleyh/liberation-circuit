@@ -363,14 +363,14 @@ mouse_unavailable:
 //		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
 	}
 
-int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
+//int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
 
 // if any of this zoom stuff changes, may also need to change in initialise_view() in i_view.c
-	if (view.zoom_int != zoom_target [view.zoom_level])
+	if (view.zoom_int != view.zoom_target [view.zoom_level])
 	{
-		if (view.zoom_int < zoom_target [view.zoom_level])
+		if (view.zoom_int < view.zoom_target [view.zoom_level])
 			view.zoom_int ++;
-		if (view.zoom_int > zoom_target [view.zoom_level])
+		if (view.zoom_int > view.zoom_target [view.zoom_level])
 			view.zoom_int --;
 		view.zoom = view.zoom_int * 0.03;
 		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);

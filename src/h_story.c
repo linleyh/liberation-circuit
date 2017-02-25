@@ -519,6 +519,12 @@ void enter_story_mode(int story_type)
 	w.players = 1; // affects template panel display
 
  reset_log();
+
+	write_line_to_log("Welcome!", MLOG_COL_HELP);
+	write_line_to_log("For keyword help, right-click on a keyword in the editor.", MLOG_COL_HELP);
+	write_line_to_log("For more detailed instructions, read manual.html.", MLOG_COL_HELP);
+// This text also in start_world();
+
  open_template(0, 0);
 
 

@@ -434,12 +434,13 @@ char design_button_name [] [16] =
  	"Core shape", // FPE_DESIGN_SUBTOOLS_CORE_CORE_SHAPE,
  	"Cancel", // FPE_DESIGN_SUBTOOLS_CORE_EXIT,
 
- 	"Link", // FPE_DESIGN_TOOLS_ADD_LINK,
+ 	"New component", // FPE_DESIGN_TOOLS_ADD_DOWNLINK,
+ 	"Change uplink", // FPE_DESIGN_TOOLS_CHANGE_UPLINK,
  	"Data", // FPE_DESIGN_TOOLS_VERTEX_OBJ_STD,
  	"Move", // FPE_DESIGN_TOOLS_VERTEX_OBJ_MOVE,
  	"Attack", // FPE_DESIGN_TOOLS_VERTEX_OBJ_ATTACK,
  	"Defend", // FPE_DESIGN_TOOLS_VERTEX_OBJ_DEFEND,
- 	"Misc", // FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC,
+// 	"Misc", // FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC,
  	"Clear", // FPE_DESIGN_TOOLS_VERTEX_OBJ_CLEAR,
  	"Cancel", // FPE_DESIGN_TOOLS_VERTEX_EXIT,
 
@@ -645,7 +646,7 @@ void setup_design_panel(void)
 #define DESIGN_BUTTON_Y 1
  y = DESIGN_BUTTON_Y;
  int dbut = 0;
-#define DESIGN_BUTTON_W 80
+#define DESIGN_BUTTON_W 90
 #define DESIGN_BUTTON_H 20
 #define DESIGN_BUTTON_Y_GAP 0
  init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY,
@@ -763,19 +764,19 @@ void setup_design_panel(void)
 // empty link
  y = DESIGN_BUTTON_Y;
  init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY_LINK,
-																					FPE_DESIGN_TOOLS_ADD_LINK, BUTTON_STYLE_DESIGN,
+																					FPE_DESIGN_TOOLS_ADD_COMPONENT, BUTTON_STYLE_DESIGN,
 																					x, y, DESIGN_BUTTON_W, DESIGN_BUTTON_H,
 																					design_button_name [dbut]);
 	y += DESIGN_BUTTON_H + DESIGN_BUTTON_Y_GAP;
 	dbut++;
 // used link
 // y = DESIGN_BUTTON_Y;
-/* init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_ACTIVE_LINK,
-																					FPE_DESIGN_TOOLS_NEXT_LINK, BUTTON_STYLE_DESIGN,
+ init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY_LINK,
+																					FPE_DESIGN_TOOLS_CHANGE_UPLINK, BUTTON_STYLE_DESIGN,
 																					x, y, DESIGN_BUTTON_W, DESIGN_BUTTON_H,
 																					design_button_name [dbut]);
 	y += DESIGN_BUTTON_H + DESIGN_BUTTON_Y_GAP;
-	dbut++;*/
+	dbut++;
  init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY_LINK,
 																					FPE_DESIGN_TOOLS_VERTEX_OBJ_STD, BUTTON_STYLE_DESIGN,
 																					x, y, DESIGN_BUTTON_W, DESIGN_BUTTON_H,
@@ -800,12 +801,12 @@ void setup_design_panel(void)
 																					design_button_name [dbut]);
 	y += DESIGN_BUTTON_H + DESIGN_BUTTON_Y_GAP;
 	dbut++;
- init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY_LINK,
+/* init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY_LINK,
 																					FPE_DESIGN_TOOLS_VERTEX_OBJ_MISC, BUTTON_STYLE_DESIGN,
 																					x, y, DESIGN_BUTTON_W, DESIGN_BUTTON_H,
 																					design_button_name [dbut]);
 	y += DESIGN_BUTTON_H + DESIGN_BUTTON_Y_GAP;
-	dbut++;
+	dbut++;*/
  init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY_LINK,
 																					FPE_DESIGN_TOOLS_VERTEX_OBJ_CLEAR, BUTTON_STYLE_DESIGN,
 																					x, y, DESIGN_BUTTON_W, DESIGN_BUTTON_H,

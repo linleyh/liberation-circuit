@@ -2860,7 +2860,7 @@ static void reset_map_for_menu(void)
 
  fix_w_init_size();
 
- generate_random_map(w_init.story_area,
+ generate_scattered_map(w_init.story_area,
 																					w_init.map_size_blocks,
 																					w_init.players,
 																					w_init.game_seed);

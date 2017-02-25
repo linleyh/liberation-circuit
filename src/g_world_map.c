@@ -159,7 +159,10 @@ void generate_scattered_map(int area_index,
 																					       unsigned int map_seed)
 {
 
+//fpr("\n gsm area %i size %i [%i] pl %i [%i] ms %i", area_index, size_blocks, w_init.map_size_blocks, players, w_init.players, map_seed);
+
 	seed_mrand(map_seed);
+
  reset_map_init(size_blocks,
 																area_index,
 																players);
@@ -378,7 +381,8 @@ static void place_player_on_map_init(int player_index, int spawn_x, int spawn_y,
 		map_init.spawn_angle [player_index] = get_angle_int(map_init.spawn_position [player_index].y - map_init.data_well_position [map_init.data_wells].y,
 																																																				  map_init.spawn_position [player_index].x - map_init.data_well_position [map_init.data_wells].x);
 
-  set_player_map_init_spawn_angle(player_index, map_init.data_wells);
+		if (i == 0)
+   set_player_map_init_spawn_angle(player_index, map_init.data_wells);
 
 		map_init.data_wells ++;
 
@@ -389,7 +393,7 @@ static void place_player_on_map_init(int player_index, int spawn_x, int spawn_y,
 
 static void set_player_map_init_spawn_angle(int player_index, int nearby_data_well)
 {
-
+//fpr("\n spmisa %i,%i", player_index, nearby_data_well);
 	al_fixed spawn_x = block_to_fixed(map_init.spawn_position[player_index].x) + BLOCK_SIZE_FIXED / 2;
 	al_fixed spawn_y = block_to_fixed(map_init.spawn_position[player_index].y) + BLOCK_SIZE_FIXED / 2;
 	al_fixed well_x = block_to_fixed(map_init.data_well_position[nearby_data_well].x) + BLOCK_SIZE_FIXED / 2;

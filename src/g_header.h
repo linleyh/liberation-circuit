@@ -1543,6 +1543,7 @@ struct view_struct
  float zoom;
  int zoom_level; // 1 to ZOOM_MAX_LEVEL
  int zoom_int; // integer zoom
+ int zoom_target [ZOOM_MAX_LEVEL + 1]; // values depend on screen resolution
  int screen_shake_time;
 
  int map_visible; // 0 or 1

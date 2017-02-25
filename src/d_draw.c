@@ -1919,7 +1919,7 @@ char *design_help_strings2 [DESIGN_HELP_MORE_STRINGS] =
 "- In the window above, select components or objects (objects are the little modules",
 "  attached to components) to change or remove them.",
 "- Use the rotation buttons to rotate components and objects. Hold control to constrain rotation.",
-"- Add new components by adding Link|Downlink objects to existing components.",
+"- Add new components by selecting a link and clicking [new component].",
 "- Adding components and objects increases the cost of the process and the time it",
 "  takes to build the process.",
 "- Some objects require power.",

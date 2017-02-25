@@ -663,6 +663,93 @@ float intro_text_y = 50;
 
 #define INTRO_TEXT_LINE_H 15
 #define INTRO_TEXT_LINE_H_2 32
+/*
+	if (story.region[1].defeated
+		&& !story.region[2].defeated
+		&& story.story_type == STORY_TYPE_NORMAL)
+	{
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "You have defeated the tutorial.");
+
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Now, you will face more dangerous opponents.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "If you find it difficult to defend your base,");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "you could try using the tri-base instead.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "The tri-base is a more expensive base, with its own defences.");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "To use it, open the Template [Te] and Editor [Ed] panels,");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "using the buttons on the top right.");
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Select the tri-base template on the template panel");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "pulse_l (large pulse) and burst_l (large burst)");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "These are more powerful (and expensive) versions of the");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "pulse and burst objects that your processes use to attack.");
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "If you want to try these new objects, you can use the process designer");
+		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "(the [De] button at the top right) to update your process designs.");
+/ *		intro_text_y += INTRO_TEXT_LINE_H;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Then use [Autocode] in the designer's main menu.");* /
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "The [? help] button in the designer has more information.");
+
+
+		intro_text_y += INTRO_TEXT_LINE_H_2;
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 "Good luck!");
+//		intro_text_y += INTRO_TEXT_LINE_H;
+  //al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
+															 //intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
+															 //"(use the File menu in the editor [Ed]).");
+
+
+	}
+*/
+
+
 
 	if (story.region[2].defeated
 		&& !story.region[3].defeated)
