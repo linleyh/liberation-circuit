@@ -1116,6 +1116,13 @@ void init_inter(void)
 	inter.mlog_x1 = inter.display_w / 2; // this is actually set in panel code
 	inter.mlog_y1 = inter.display_h - LOG_WINDOW_H;
 
+	int i;
+
+	for (i = 0; i < PANEL_TEMPLATE+1; i ++)
+	{
+		inter.panel_restore [i] = 0; // PANEL_LOG value is just ignored
+	}
+
  init_panels();
 }
 

@@ -71,11 +71,12 @@ Plan: how to draw buttons etc:
 
 char mode_button_text [MODE_BUTTONS] [3] =
 {
-	"X",
+	"X", // not actually used
 	"Sy",
 	"Ed",
 	"De",
-	"Te"
+	"Te",
+//	">>"
 };
 
 
@@ -83,10 +84,14 @@ void draw_panels(void)
 {
  int i;
 
+ int any_panel_open = 0;
+
  for (i = 1; i < PANELS; i ++) // note: starts at 1
 	{
 		if (!panel[i].open)
 			continue;
+
+		any_panel_open = 1;
 
 	 al_set_clipping_rectangle(panel[i].x1, panel[i].y1, panel[i].w, panel[i].h);
 
@@ -123,11 +128,120 @@ void draw_panels(void)
 	}
 
 	 al_set_clipping_rectangle(0, 0, inter.display_w, inter.display_h);
+	 /*
+	 float mode_buttons_x1, mode_buttons_y1;
 
 
+
+  if (any_panel_open)
+ 	{
+ 		mode_buttons_x1 = inter.display_w;
+ 		mode_buttons_y1 = 5;
+ 	}
+ 	 else
+			{
+ 		 mode_buttons_x1 = inter.display_w - 200;
+ 		 mode_buttons_y1 = 55;
+			}
+*/
 
 	 for (i = 0; i < MODE_BUTTONS; i ++)
 		{
+			float mode_button_i_x1 = inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * (i);
+
+ 	 if (i != MODE_BUTTON_CLOSE
+				&& panel[i].open)
+  	   add_menu_button(mode_button_i_x1 - 1.5, inter.mode_buttons_y1-1.5, mode_button_i_x1 + MODE_BUTTON_SIZE+1.5, inter.mode_buttons_y1 + MODE_BUTTON_SIZE+1.5, colours.base_trans [COL_BLUE] [SHADE_MAX] [2], 2, 4);
+//  	   add_menu_button(mode_button_i_x1 - 0.5, inter.mode_buttons_y1-0.5, mode_button_i_x1 + MODE_BUTTON_SIZE+0.5, inter.mode_buttons_y1 + MODE_BUTTON_SIZE+0.5, colours.base_trans [COL_BLUE] [SHADE_MAX] [1], 1, 3);
+
+
+			if (inter.mode_button_highlight == i
+				&& inter.mode_button_highlight_time >= inter.running_time - 1)
+				{
+// 	   al_draw_filled_rectangle(mode_button_i_x1, inter.mode_buttons_y1, mode_button_i_x1 + MODE_BUTTON_SIZE, inter.mode_buttons_y1 + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_HIGH] [2]);
+ 	   add_menu_button(mode_button_i_x1, inter.mode_buttons_y1, mode_button_i_x1 + MODE_BUTTON_SIZE, inter.mode_buttons_y1 + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_HIGH] [2], 2, 4);
+				}
+ 	   else
+					{
+// 	    al_draw_filled_rectangle(mode_button_i_x1, inter.mode_buttons_y1, mode_button_i_x1 + MODE_BUTTON_SIZE, inter.mode_buttons_y1 + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_MED] [1]);
+  	   add_menu_button(mode_button_i_x1, inter.mode_buttons_y1, mode_button_i_x1 + MODE_BUTTON_SIZE, inter.mode_buttons_y1 + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_MED] [1], 2, 4);
+					}
+
+// 	 if (i != MODE_BUTTON_CLOSE
+//				&& panel[i].open)
+//  	   add_menu_button(mode_button_i_x1, inter.mode_buttons_y1, mode_button_i_x1 + MODE_BUTTON_SIZE, inter.mode_buttons_y1 + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_MED] [1], 2, 3);
+		}
+
+ draw_vbuf();
+
+// 	   al_draw_rectangle(mode_button_i_x1 - 0.5, inter.mode_buttons_y1-0.5, mode_button_i_x1 + MODE_BUTTON_SIZE+0.5, inter.mode_buttons_y1 + MODE_BUTTON_SIZE+0.5, colours.base [COL_BLUE] [SHADE_MAX], 1);
+
+//			float mode_button_i_x1 = inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * (i);
+
+// MODE_BUTTON_CLOSE:
+
+				if (any_panel_open)
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 8, inter.mode_buttons_y1 + 4, ALLEGRO_ALIGN_CENTER, "X");
+      else
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 8,
+																					inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "<<");
+
+
+
+		int col;
+
+	 for (i = (MODE_BUTTON_CLOSE+1); i < MODE_BUTTONS; i ++)
+		{
+			float mode_button_i_x1 = inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * (i);
+
+
+ 	 if (panel[i].open)
+				col = COL_GREY;
+				 else
+						 col = COL_BLUE;
+
+//   if (i != MODE_BUTTON_MIN_MAX)
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [col] [SHADE_MAX], mode_button_i_x1 + 8, inter.mode_buttons_y1 + 4, ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
+
+		}
+
+//     else
+//     {
+//     	if (!any_panel_open)
+//       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_button_x[i] + 9, MODE_BUTTON_Y + 5, ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
+//     }
+
+// 	 adtf(inter.mode_button_x[i] + 3, MODE_BUTTON_Y + 3, "%i:%i", i, inter.mode_button_available[i]);
+/*
+
+Plan for mode buttons:
+
+- X button still closes all
+- >> button is in different place - probably to the left of the player status box.
+ - also have it as a mode button in case the player status box is off screen to the left.
+
+Otherwise, the following states:
+0. any panel is open. All buttons shown. Pressing >> closes all panels but saves open/closed status.
+1. If no panel is open:
+ a. mode buttons are hidden. Only << is shown, in both places. Pressing it moves to state b.
+ b. mode buttons are shown in non-scrolling area (may need to push status box down). Pressing >> moves to state a.
+
+OR:
+ - when no panels are open, mode buttons appear below player status box (outside scroll area)
+ - when panels are open, mode buttons appear in top right.
+ - X button closes all
+  - when all closed, turns into a << button that recalls last settings
+  - opening any panel when all closed resets the last settings
+
+
+
+*/
+/*
+	}
+	 else
+		{
+			i = MODE_BUTTON_CLOSE;
+
 			if (inter.mode_button_highlight == i
 				&& inter.mode_button_highlight_time >= inter.running_time - 1)
 				{
@@ -138,15 +252,13 @@ void draw_panels(void)
  	    al_draw_filled_rectangle(inter.mode_button_x[i], MODE_BUTTON_Y, inter.mode_button_x[i] + MODE_BUTTON_SIZE, MODE_BUTTON_Y + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_MED] [1]);
 					}
 
- 	 if (i != MODE_BUTTON_CLOSE
-				&& panel[i].open)
- 	   al_draw_rectangle(inter.mode_button_x[i] - 0.5, MODE_BUTTON_Y-0.5, inter.mode_button_x[i] + MODE_BUTTON_SIZE+0.5, MODE_BUTTON_Y + MODE_BUTTON_SIZE+0.5, colours.base [COL_BLUE] [SHADE_MAX], 1);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_button_x[i] + 8, MODE_BUTTON_Y + 4, ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
-
-// 	 adtf(inter.mode_button_x[i] + 3, MODE_BUTTON_Y + 3, "%i:%i", i, inter.mode_button_available[i]);
-
+//   al_draw_filled_rectangle(inter.mode_button_x[MODE_BUTTON_CLOSE], MODE_BUTTON_Y, inter.mode_button_x[MODE_BUTTON_CLOSE] + MODE_BUTTON_SIZE, MODE_BUTTON_Y + MODE_BUTTON_SIZE, colours.base_trans [COL_BLUE] [SHADE_MED] [1]);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_button_x[MODE_BUTTON_CLOSE] + 9, MODE_BUTTON_Y + 5, ALLEGRO_ALIGN_CENTER, "<<");
 		}
+*/
+
+
 
 }
 

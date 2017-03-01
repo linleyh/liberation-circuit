@@ -43,7 +43,7 @@ void init_view_at_startup(int window_w, int window_h)
 
  view.zoom_target [0] = (10 * window_h) / BASE_WINDOW_H;
  view.zoom_target [1] = (16 * window_h) / BASE_WINDOW_H;
- view.zoom_target [2] = (26 * window_h) / BASE_WINDOW_H;
+ view.zoom_target [2] = (22 * window_h) / BASE_WINDOW_H;
  view.zoom_target [3] = (36 * window_h) / BASE_WINDOW_H;
 
 // float zoom_adjust = window_h / 1200;

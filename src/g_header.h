@@ -1927,12 +1927,25 @@ EDIT_WINDOWS
 
 enum
 {
+PANEL_MAIN, // main game setup menu - unavailable in-game (this one may need some special treatment)
+PANEL_SYSMENU, // in-game system menu
+PANEL_EDITOR,
+PANEL_DESIGN,
+PANEL_TEMPLATE,
+// any panels not arranged left-to-right should go below here:
+PANEL_LOG,
+PANELS
+};
+
+enum
+{
 // from right to left:
 MODE_BUTTON_CLOSE, // close all panels
 MODE_BUTTON_SYSTEM,
 MODE_BUTTON_EDITOR,
 MODE_BUTTON_DESIGN,
 MODE_BUTTON_TEMPLATES,
+//MODE_BUTTON_MIN_MAX, // minimise/maximise panel buttons
 
 #define LEFT_MODE_BUTTON MODE_BUTTON_TEMPLATES
 /*
@@ -1973,11 +1986,16 @@ struct inter_struct
   // need some clear display change to indicate which panel is capturing input.
   //  - maybe - background colour (and outline?) for panels, console outline for game
 
- int mode_button_available [MODE_BUTTONS]; // 0 or 1. If 0, mode button displayed but cannot be clicked
- int mode_button_x [MODE_BUTTONS];
- int mode_button_y [MODE_BUTTONS];
+ int mode_buttons_x1, mode_buttons_y1;// [2], mode_buttons_y1 [2], mode_buttons_x2 [2], mode_buttons_y2 [2];
+
+// int mode_button_available [MODE_BUTTONS]; // 0 or 1. If 0, mode button displayed but cannot be clicked
+// int mode_button_x [MODE_BUTTONS] [2];
+// int mode_button_y [MODE_BUTTONS] [2];
  int mode_button_highlight;// [MODE_BUTTONS];
+// int mode_buttons_maximised; // 0 or 1. If 1, mode buttons are visible. If 0, only minimise(maximise) is
  timestamp mode_button_highlight_time;
+
+ int panel_restore [PANELS];
 
 // int panel_x_split; // x location of split between game and editor sides of the screen (when editor is up)
  int edit_window_columns; // fix! - this should go into editorstruct

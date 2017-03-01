@@ -635,13 +635,13 @@ void initialise_display(void)
  al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
 // work out where the mode buttons go (based on screen size, which cannot change during execution)
- for (i = 0; i < MODE_BUTTONS; i ++)
- {
+// for (i = 0; i < MODE_BUTTONS; i ++)
+// {
 //   inter.mode_button_x [i] = settings.option [OPTION_WINDOW_W] - ((MODE_BUTTON_SPACING + MODE_BUTTON_SIZE) * MODE_BUTTONS) + ((MODE_BUTTON_SPACING + MODE_BUTTON_SIZE) * i);
-   inter.mode_button_y [i] = MODE_BUTTON_Y; // Since this never changes, need to remove the variable!
- }
+//   inter.mode_button_y [i] = MODE_BUTTON_Y; // Since this never changes, need to remove the variable!
+// }
 
- reset_mode_buttons(); // make sure this is done after panels opened etc.
+// reset_mode_buttons(); // make sure this is done after panels opened etc.
 
  for (i = 0; i < PRINT_COLS; i ++)
  {

@@ -9,18 +9,6 @@
 
 enum
 {
-PANEL_MAIN, // main game setup menu - unavailable in-game (this one may need some special treatment)
-PANEL_SYSMENU, // in-game system menu
-PANEL_EDITOR,
-PANEL_DESIGN,
-PANEL_TEMPLATE,
-// any panels not arranged left-to-right should go below here:
-PANEL_LOG,
-PANELS
-};
-
-enum
-{
 SP_TYPE_NONE,
 SP_TYPE_WHOLE, // SP that takes up whole panel
 SP_TYPE_PANEL_RESIZE,

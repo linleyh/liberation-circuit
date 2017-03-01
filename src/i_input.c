@@ -343,6 +343,47 @@ mouse_unavailable:
  if (control.editor_captures_input)
 	 return;
 
+/*
+	if (ex_control.mousewheel_change == -1
+		 && control.mouse_panel == PANEL_MAIN)
+	{
+		if (view.zoom_int < view.zoom_target [3])
+		 view.zoom_int ++;
+		view.zoom = view.zoom_int * 0.03;
+		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+//		view.zoom += 0.009;
+//		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+	}
+
+	if	(ex_control.mousewheel_change == 1
+		 && control.mouse_panel == PANEL_MAIN)
+	{
+		if (view.zoom_int > view.zoom_target [1])
+		 view.zoom_int --;
+		view.zoom = view.zoom_int * 0.03;
+		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+//		view.zoom -= 0.009;
+//		if (view.zoom < 0.3)
+//			view.zoom = 0.3;
+//		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+	}
+*/
+//int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
+/*
+// if any of this zoom stuff changes, may also need to change in initialise_view() in i_view.c
+	if (view.zoom_int != view.zoom_target [view.zoom_level])
+	{
+		if (view.zoom_int < view.zoom_target [view.zoom_level])
+			view.zoom_int ++;
+		if (view.zoom_int > view.zoom_target [view.zoom_level])
+			view.zoom_int --;
+		view.zoom = view.zoom_int * 0.03;
+		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+	}
+*/
+
+/*
+
 	if (ex_control.mousewheel_change == -1
 		 && control.mouse_panel == PANEL_MAIN)
 	{
@@ -375,6 +416,42 @@ mouse_unavailable:
 		view.zoom = view.zoom_int * 0.03;
 		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
 	}
+
+*/
+
+	if (ex_control.mousewheel_change == -1
+		 && control.mouse_panel == PANEL_MAIN)
+	{
+		if (view.zoom_level < ZOOM_MAX_LEVEL)
+		 view.zoom_level ++;
+//		view.zoom += 0.009;
+//		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+	}
+
+	if	(ex_control.mousewheel_change == 1
+		 && control.mouse_panel == PANEL_MAIN)
+	{
+		if (view.zoom_level > 1)
+		 view.zoom_level --;
+//		view.zoom -= 0.009;
+//		if (view.zoom < 0.3)
+//			view.zoom = 0.3;
+//		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+	}
+
+//int zoom_target [ZOOM_MAX_LEVEL + 1] = {10, 16, 26, 36};
+
+// if any of this zoom stuff changes, may also need to change in initialise_view() in i_view.c
+	if (view.zoom_int != view.zoom_target [view.zoom_level])
+	{
+		if (view.zoom_int < view.zoom_target [view.zoom_level])
+			view.zoom_int ++;
+		if (view.zoom_int > view.zoom_target [view.zoom_level])
+			view.zoom_int --;
+		view.zoom = view.zoom_int * 0.03;
+		reset_view_values(view.window_x_unzoomed, view.window_y_unzoomed);
+	}
+
 
  if (ex_control.unichar_input == 'f')
 	{

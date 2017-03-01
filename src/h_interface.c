@@ -283,11 +283,12 @@ void init_story_interface(void)
 void open_story_interface(void)
 {
 
- inter.mode_button_available [MODE_BUTTON_SYSTEM] = 1;
+// inter.mode_button_available [MODE_BUTTON_MIN_MAX] = 1;
+/* inter.mode_button_available [MODE_BUTTON_SYSTEM] = 1;
  inter.mode_button_available [MODE_BUTTON_TEMPLATES] = 1;
  inter.mode_button_available [MODE_BUTTON_EDITOR] = 1;
  inter.mode_button_available [MODE_BUTTON_DESIGN] = 1;
- inter.mode_button_available [MODE_BUTTON_CLOSE] = 1;
+ inter.mode_button_available [MODE_BUTTON_CLOSE] = 1;*/
 
 	story_inter.region_mouse_over = -1;
 

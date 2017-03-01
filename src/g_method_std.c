@@ -838,7 +838,7 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 
 
 		case SMETHOD_CALL_CHECK_MESSAGES:
-			return core->messages_received + 1 - core->message_reading; // +1 because message_reading starts at -1
+			return core->messages_received - 1 - core->message_reading; // +1 because message_reading starts at -1
 		case SMETHOD_CALL_GET_MESSAGE_TYPE:
 			if (core->message_reading < 0
 			 || core->message_reading >= core->messages_received)

@@ -112,34 +112,13 @@ void init_main_loop(void)
 
 // settings.edit_window = EDIT_WINDOW_CLOSED;
 // settings.keyboard_capture = INPUT_WORLD;
-
+/*
  int i;
 
  for (i = 0; i < MODE_BUTTONS; i ++)
 	{
 		inter.mode_button_available [i] = 1;
 	}
-// game.editor_mode_button_x = game.option [OPTION_WINDOW_W] - MODE_BUTTON_FROM_EDGE - EDITOR_MODE_BUTTON_SIZE;
-// game.editor_mode_button_y = MODE_BUTTON_FROM_EDGE;
-
-// close_editor();
-/*
- if (need_to_initialise) // should currently always be 0
- {
-// put in here the things that are already initialised if the game is loaded from disk (need_to_initialise is 1 if loading from disk, 0 otherwise)
-//  * loading game from disk not currently supported
-  w.playing_mission = playing_mission;
-  start_game(); //, w_init.game_turns, w_init.game_minutes_each_turn);
-  game.total_time = 255;
-  start_world();
-  initialise_view(settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]); // if loading, this function is called from within the load game functions (which is why it's within if (need_to_initialise) here)
-  init_consoles(); // this function is called from within the load game functions
-  setup_consoles();
-  view.camera_x = al_itofix(400);
-  view.camera_y = al_itofix(300);
-  initialise_control();
-
- }
 */
 // open_sysmenu();
  resize_display_window(settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);

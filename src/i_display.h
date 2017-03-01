@@ -7,7 +7,6 @@
 void init_drand(void);
 
 void run_display(void);
-void draw_mode_buttons(void);
 void clear_vbuf(void);
 void draw_mouse_cursor(void);
 void set_mouse_cursor(int mc_index);

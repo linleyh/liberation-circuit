@@ -433,7 +433,9 @@ static void read_character_input_event(void)
 
  ALLEGRO_EVENT char_input_event;
 
- while(al_get_next_event(char_input_queue, &char_input_event))
+// while(al_get_next_event(char_input_queue, &char_input_event))
+
+ if (al_get_next_event(char_input_queue, &char_input_event))
 	{
 	 if (char_input_event.type == ALLEGRO_EVENT_KEY_CHAR)
 		{

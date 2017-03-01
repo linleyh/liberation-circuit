@@ -24,6 +24,7 @@
 #include "e_log.h"
 #include "g_proc_new.h"
 #include "p_init.h"
+#include "p_panels.h"
 #include "i_header.h"
 #include "i_input.h"
 #include "i_view.h"
@@ -542,6 +543,9 @@ void enter_story_mode(int story_type)
 //run_story_cutscene(AREA_YELLOW);
 
  game.story_type = story_type;
+
+	game.phase = GAME_PHASE_MENU; // makes sure reset_mode_buttons works properly
+	reset_mode_buttons();
 
 	run_story_mode();
 

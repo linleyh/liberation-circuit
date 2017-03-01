@@ -75,7 +75,7 @@ void open_panel(int pan)
 
 }
 
-void close_panel(int pan)
+void close_panel(int pan, int set_panel_restore) // set_panel_restore will be zero if all panels are being closed at once
 {
 
  if (panel[pan].open)
@@ -92,6 +92,22 @@ void close_panel(int pan)
 	 panel[pan].open = 0;
 
 	 reset_panel_positions();
+
+	 if (set_panel_restore
+			&&	!panel[PANEL_SYSMENU].open
+			&& !panel[PANEL_EDITOR].open
+			&& !panel[PANEL_DESIGN].open
+			&& !panel[PANEL_TEMPLATE].open)
+		{
+// closed all panels. Set panel_restore to just the panel that was just closed:
+   int i;
+   for (i = 1; i < PANEL_TEMPLATE+1; i ++)
+			{
+				inter.panel_restore [i] = 0;
+			}
+			inter.panel_restore [pan] = 1;
+		}
+
 	}
 
 }
@@ -166,6 +182,24 @@ void resize_panel(int p, int new_w, int new_h)
 // assumes that if a panel is open it is at least wide enough to hold all necessary mode buttons (so I might need to make them a bit smaller)
 void reset_mode_buttons(void)
 {
+
+ if (panel[PANEL_DESIGN].open
+		|| panel[PANEL_EDITOR].open
+		|| panel[PANEL_SYSMENU].open
+		|| panel[PANEL_TEMPLATE].open
+		|| game.phase == GAME_PHASE_MENU)
+	{
+		inter.mode_buttons_x1 = inter.display_w - 25;
+		inter.mode_buttons_y1 = 5;
+	}
+	 else
+		{
+//			inter.mode_buttons_x1 = inter.display_w - 166;
+			inter.mode_buttons_x1 = inter.display_w - 156;
+			inter.mode_buttons_y1 = 88;
+		}
+
+/*
 //	int pan;
 //	int buttons_in_current_panel = 0;
 	int current_button = MODE_BUTTON_SYSTEM;
@@ -177,62 +211,6 @@ void reset_mode_buttons(void)
 	{
 		 inter.mode_button_x [current_button] = inter.display_w - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * (current_button + 1);
 	}
-/*
- if (panel[PANEL_SYSMENU].open == 1)
-	{
-		while(current_button <= MODE_BUTTON_CLOSE)
-		{
-			buttons_in_current_panel++;
-		 inter.mode_button_x [current_button] = panel[PANEL_SYSMENU].x2 - (MODE_BUTTON_TOTAL_SIZE) * buttons_in_current_panel;
-		 current_button ++;
-		}
-	}
-
- buttons_in_current_panel = 0;
-
- if (panel[PANEL_EDITOR].open == 1)
-	{
-		while(current_button <= MODE_BUTTON_EDITOR)
-		{
-			buttons_in_current_panel++;
-		 inter.mode_button_x [current_button] = panel[PANEL_EDITOR].x2 - (MODE_BUTTON_TOTAL_SIZE) * buttons_in_current_panel;
-		 current_button ++;
-		}
-	}
-
- buttons_in_current_panel = 0;
-
- if (panel[PANEL_DESIGN].open == 1)
-	{
-		while(current_button <= MODE_BUTTON_DESIGN)
-		{
-			buttons_in_current_panel++;
-		 inter.mode_button_x [current_button] = panel[PANEL_DESIGN].x2 - (MODE_BUTTON_TOTAL_SIZE) * buttons_in_current_panel;
-		 current_button ++;
-		}
-	}
-
- buttons_in_current_panel = 0;
-
- if (panel[PANEL_TEMPLATE].open == 1)
-	{
-		while(current_button <= MODE_BUTTON_TEMPLATES)
-		{
-			buttons_in_current_panel++;
-		 inter.mode_button_x [current_button] = panel[PANEL_TEMPLATE].x2 - (MODE_BUTTON_TOTAL_SIZE) * buttons_in_current_panel;
-		 current_button ++;
-		}
-	}
-
- buttons_in_current_panel = 0;
-
-		while(current_button <= MODE_BUTTON_CLOSE)
-		{
-			buttons_in_current_panel++;
-		 inter.mode_button_x [current_button] = panel[PANEL_MAIN].x2 - (MODE_BUTTON_TOTAL_SIZE) * buttons_in_current_panel;
-		 current_button ++;
-		}
-
 */
 }
 
@@ -282,8 +260,8 @@ void run_panels(void)
 		return; // no input when mouse outside?
 
 
- if (control.mouse_y_screen_pixels < MODE_BUTTON_Y + MODE_BUTTON_SIZE
-		&& control.mouse_x_screen_pixels >= inter.mode_button_x [LEFT_MODE_BUTTON]) //inter.display_w - ((MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS))
+ if (control.mouse_y_screen_pixels < inter.mode_buttons_y1 + MODE_BUTTON_SIZE
+		&& control.mouse_x_screen_pixels >= inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS) //inter.display_w - ((MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS))
 	{
 		mode_button_input();
 	}
@@ -474,7 +452,7 @@ void subpanel_input(int pan, int subpan)
 
 
 
-
+// Call this function only if mouse is within bounding box surrounding all mode buttons
 void mode_button_input(void)
 {
 
@@ -487,16 +465,20 @@ void mode_button_input(void)
 
    inter.mode_button_highlight = -1;
 
-/*  if (ex_control.mouse_x_pixels >= inter.mode_button_x [0]
+/*
+These things are checked before this function is called:
+
+  if (ex_control.mouse_x_pixels >= inter.mode_button_x [0]
    && ex_control.mouse_x_pixels <= inter.mode_button_x [MODE_BUTTONS - 1] + MODE_BUTTON_SIZE
    && ex_control.mouse_y_pixels >= MODE_BUTTON_Y
    && ex_control.mouse_y_pixels <= MODE_BUTTON_Y + MODE_BUTTON_SIZE)*/
+
   {
    for (i = 0; i < MODE_BUTTONS; i ++)
    {
-    if (inter.mode_button_available [i] == 1
-     && ex_control.mouse_x_pixels >= inter.mode_button_x [i]
-     && ex_control.mouse_x_pixels <= inter.mode_button_x [i] + MODE_BUTTON_SIZE)
+// don't need to check for y values because that should have been checked before this function was called.
+    if (ex_control.mouse_x_pixels >= inter.mode_buttons_x1 - (i * (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING))
+     && ex_control.mouse_x_pixels <= inter.mode_buttons_x1 - (i * (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING)) + MODE_BUTTON_SIZE)
     {
      inter.mode_button_highlight = i;
      inter.mode_button_highlight_time = inter.running_time;
@@ -574,8 +556,8 @@ void mode_button_input(void)
 void mode_button(int mode_pressed)
 {
 
- if (inter.mode_button_available [mode_pressed] == 0)
-  return;
+// if (inter.mode_button_available [mode_pressed] == 0)
+//  return;
 
 #define MODE_BUTTON_SAMPLE SAMPLE_BLIP4
 #define MODE_BUTTON_TONE_OPEN TONE_3C
@@ -586,7 +568,7 @@ void mode_button(int mode_pressed)
 	 case MODE_BUTTON_SYSTEM:
 	 	if (panel[PANEL_SYSMENU].open)
 			{
-				close_panel(PANEL_SYSMENU);
+				close_panel(PANEL_SYSMENU, 1);
     play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
 // 	 	panel[PANEL_SYSMENU].element [FPE_SYSMENU_CONFIRM_QUIT].open = 0; this is now done by close_panel
 			}
@@ -600,7 +582,7 @@ void mode_button(int mode_pressed)
 	 	if (panel[PANEL_EDITOR].open)
 			{
     play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
-				close_panel(PANEL_EDITOR);
+				close_panel(PANEL_EDITOR, 1);
 			}
 			  else
 					{
@@ -612,7 +594,7 @@ void mode_button(int mode_pressed)
 	 	if (panel[PANEL_DESIGN].open)
 			{
     play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
-				close_panel(PANEL_DESIGN);
+				close_panel(PANEL_DESIGN, 1);
 			}
 			  else
 					{
@@ -624,7 +606,7 @@ void mode_button(int mode_pressed)
 	 	if (panel[PANEL_TEMPLATE].open)
 			{
     play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
-				close_panel(PANEL_TEMPLATE);
+				close_panel(PANEL_TEMPLATE, 1);
 			}
 			  else
 					{
@@ -633,9 +615,37 @@ void mode_button(int mode_pressed)
 					}
 			break;
 	 case MODE_BUTTON_CLOSE:
-   play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
-	 	close_all_panels();
+//	 	if (inter.mode_buttons_maximised)
+   if (panel[PANEL_DESIGN].open
+				|| panel[PANEL_EDITOR].open
+				|| panel[PANEL_TEMPLATE].open
+				|| panel[PANEL_SYSMENU].open)
+			{
+    play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
+	 	 close_all_panels();
+			}
+				else
+				{
+      play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_OPEN);
+      int opened_any = 0;
+      int i;
+      for (i = 1; i < PANEL_TEMPLATE+1; i ++) // note i starts at 1
+						{
+							if (inter.panel_restore [i])
+							{
+  						open_panel(i);
+  						opened_any = 1;
+							}
+						}
+					 if (!opened_any)
+							open_panel(PANEL_SYSMENU);
+				}
+//			 else
+//					inter.mode_buttons_maximised = 1;
 			break;
+//		case MODE_BUTTON_MIN_MAX:
+//			inter.mode_buttons_maximised ^= 1;
+//			break;
 
  }
 
@@ -643,14 +653,19 @@ void mode_button(int mode_pressed)
 
 void close_all_panels(void)
 {
-// actually doesn't close panel 0
+// actually doesn't close main or log panels
 
    int i;
 
-	 	for (i = 1; i < PANELS; i ++) // note i = 1
+	 	for (i = 1; i < PANEL_TEMPLATE+1; i ++) // note i = 1
 			{
 				if (panel[i].open)
-					close_panel(i);
+				{
+					inter.panel_restore [i] = 1;
+					close_panel(i, 0);
+				}
+				 else
+  				inter.panel_restore [i] = 0;
 			}
 
 

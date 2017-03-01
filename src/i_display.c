@@ -7191,7 +7191,8 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 	float box_x2 = box_x + BOX_W;
  float text_x = box_x + 11;
  float text_x2 = box_x2 - 9;
-	float box_y = 25;
+	float box_y = 5;
+	float process_box_y;
 	int box_lines;
 	float	box_h = BOX_HEADER_H + BOX_LINE_H * 3 + 8;
  float text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
@@ -7223,7 +7224,9 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 #endif
 	{
 
-		box_y = box_y + box_h + 8;
+		box_y = box_y + box_h + 28;
+
+		process_box_y = box_y; // this may be used later if the component box needs to be moved out of the way of the map
 
 		core = &w.core[command.selected_core [0]];
 
@@ -7629,6 +7632,15 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 			box_lines = 4 + selected_proc->nshape_ptr->links;
 
  		box_h = BOX_HEADER_H + BOX_LINE_H * box_lines + 8;
+
+ 		if (box_y + box_h > view.map_y - 4)
+			{
+				box_x -= BOX_W + 4;
+				box_x2 -= BOX_W + 4;
+				text_x -= BOX_W + 4;
+				text_x2 -= BOX_W + 4;
+				box_y = process_box_y;
+			}
 
    add_menu_button(box_x, box_y, box_x2, box_y + box_h, colours.base_trans [COL_AQUA] [SHADE_MED] [TRANS_MED], 8, 3);
    add_menu_button(box_x + 3, box_y + 3, box_x2 - 3, box_y + BOX_HEADER_H, colours.base_trans [COL_AQUA] [SHADE_MAX] [TRANS_MED], 8, 3);
@@ -9424,84 +9436,6 @@ static unsigned int packet_rand(struct packet_struct* pack, int mod)
 {
  return (pack->position.x + pack->position.y) % mod;
 }*/
-
-
-// Call this last of all the panel drawing functions
-void draw_mode_buttons(void)
-{
-
- return;
-/*
-	al_set_clipping_rectangle(0, 0, settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
-
- int button_fill_shade;
- int mbutton_mode;
- int i;
-
- reset_i_buttons();
-
- for (i = 0; i < MODE_BUTTONS; i ++)
- {
-  if (inter.mode_button_available [i] == 0)
-   continue;
-  button_fill_shade = SHADE_LOW;
-  mbutton_mode = MBUTTON_TYPE_MODE;
-
-  if (inter.mode_button_highlight [i] == 1)
-  {
-   mbutton_mode = MBUTTON_TYPE_MODE_HIGHLIGHT;
-   switch(i)
-   {
-    case MODE_BUTTON_PROGRAMS:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 24, ALLEGRO_ALIGN_CENTRE, "Program details"); break;
-    case MODE_BUTTON_TEMPLATES:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 24, ALLEGRO_ALIGN_CENTRE, "Templates"); break;
-    case MODE_BUTTON_EDITOR:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 24, ALLEGRO_ALIGN_CENTRE, "code Editor"); break;
-    case MODE_BUTTON_SYSMENU:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2) - 5, inter.mode_button_y [i] + 24, ALLEGRO_ALIGN_CENTRE, "System menu"); break;
-    case MODE_BUTTON_CLOSE:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2) - 25, inter.mode_button_y [i] + 24, ALLEGRO_ALIGN_CENTRE, "Close panel"); break;
-   }
-   add_menu_button(inter.mode_button_x [i] - 3, inter.mode_button_y [i] - 1,
-    inter.mode_button_x [i] + MODE_BUTTON_SIZE + 3, inter.mode_button_y [i] + MODE_BUTTON_SIZE + 1, colours.base [COL_BLUE] [SHADE_MAX],
-    mbutton_mode);
-  }
-  if (settings.edit_window == i)
-  {
-   button_fill_shade = SHADE_HIGH;
-  }
-
-  add_menu_button(inter.mode_button_x [i] - 2, inter.mode_button_y [i],
-   inter.mode_button_x [i] + MODE_BUTTON_SIZE + 2, inter.mode_button_y [i] + MODE_BUTTON_SIZE, colours.base [COL_BLUE] [button_fill_shade],
-   mbutton_mode);
-
-
-  switch(i)
-  {
-   case MODE_BUTTON_PROGRAMS:
-   	add_menu_string(inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 4,
-																				&colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Pr"); break;
-   case MODE_BUTTON_TEMPLATES:
-       	add_menu_string(inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 4,
-																				&colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Te"); break;
-   case MODE_BUTTON_EDITOR:
-       	add_menu_string(inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 4,
-																				&colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Ed"); break;
-   case MODE_BUTTON_SYSMENU:
-       	add_menu_string(inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 4,
-																				&colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Sy"); break;
-   case MODE_BUTTON_CLOSE:
-       	add_menu_string(inter.mode_button_x [i] + (MODE_BUTTON_SIZE / 2), inter.mode_button_y [i] + 4,
-																				&colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "X"); break;
-
-  }
-
- }
-
- draw_menu_buttons();
-*/
-}
 
 
 static void draw_spray(float x, float y, float spray_size, int base_bit_size, int player_index, int shade, int time_elapsed, int max_time, int spray_bits, int drand_seed)
