@@ -516,6 +516,11 @@ fpr("\nInitialising:");
 //fpr("\n OpenGL %i", al_get_opengl_version());
 fpr("\n display");
 
+if (settings.option [OPTION_WINDOW_W] == 1024 && settings.option [OPTION_WINDOW_H] == 768)
+{
+	fpr(" (Warning: 1024x768 resolution is playable, but higher is recommended.)");
+}
+
    init_inter();
 fpr("\n interface");
 

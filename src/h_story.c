@@ -426,6 +426,8 @@ static void remove_story_region(int region_index)
 // can call this any time a region is defeated, or during initialisation
 static void work_out_story_region_locks(void)
 {
+//		 story.region[2].defeated = 1;
+//		 story.region[3].defeated = 1;
 
 //	story.region[0].defeated = 1;
 //	story.region[1].defeated = 1;
@@ -445,6 +447,7 @@ static void work_out_story_region_locks(void)
 
 	for (i = 0; i < STORY_REGIONS; i ++)
 	{
+//		 story.region[i].defeated = 1;
 
 		story.region[i].can_be_played = 0;
 
@@ -479,6 +482,7 @@ static void work_out_story_region_locks(void)
 		 story.region[1].can_be_played = 1;
 		 story.region[2].can_be_played = 1;
 		}
+
 
 
 	for (i = 0; i < STORY_REGIONS; i ++)

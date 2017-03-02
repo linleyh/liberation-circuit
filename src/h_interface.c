@@ -131,7 +131,7 @@ char *story_unlock_name [UNLOCKS] =
 
 
 #define FIXED_STORY_BOX_X 20
-#define FIXED_STORY_BOX_Y 550
+#define FIXED_STORY_BOX_Y 610
 
 #define STORY_BOX_W 390
 #define STORY_BOX_H 110
@@ -441,6 +441,9 @@ void story_input(void)
        reset_log();
        open_template(0, 0); // prevents a situation where the user has a player 1 template open then goes back to the story select screen
 
+       game.phase = GAME_PHASE_MENU;
+      	reset_mode_buttons();
+
 //   				story_inter.region_selected = -1;
        return;
 
@@ -488,7 +491,7 @@ static void reset_region_screen_positions(void)
 {
 
 	story_inter.region_x_start = 150;
-	story_inter.region_y_start = 460;
+	story_inter.region_y_start = 540;
 
 	int i;
 
@@ -660,7 +663,7 @@ static void draw_story_regions(void)
 	}
 
 float intro_text_x = 300;
-float intro_text_y = 50;
+float intro_text_y;
 
 #define INTRO_TEXT_LINE_H 15
 #define INTRO_TEXT_LINE_H_2 32
@@ -755,6 +758,9 @@ float intro_text_y = 50;
 	if (story.region[2].defeated
 		&& !story.region[3].defeated)
 	{
+
+		intro_text_y = 50;
+
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
 															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
 															 "Defeating your first region has unlocked two new objects:");
@@ -810,6 +816,9 @@ float intro_text_y = 50;
 		&& !story.region[5].defeated // should be yellow or green 1
 		&& !story.region[8].defeated) // other yellow or green 1
 	{
+
+		intro_text_y = 20;
+
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX],
 															 intro_text_x, intro_text_y, ALLEGRO_ALIGN_CENTRE,
 															 "Defeating your second region has unlocked");
