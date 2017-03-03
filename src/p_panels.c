@@ -93,20 +93,28 @@ void close_panel(int pan, int set_panel_restore) // set_panel_restore will be ze
 
 	 reset_panel_positions();
 
-	 if (set_panel_restore
-			&&	!panel[PANEL_SYSMENU].open
-			&& !panel[PANEL_EDITOR].open
-			&& !panel[PANEL_DESIGN].open
-			&& !panel[PANEL_TEMPLATE].open)
+	 if (set_panel_restore)
 		{
+			if (!panel[PANEL_SYSMENU].open
+			 && !panel[PANEL_EDITOR].open
+			 && !panel[PANEL_DESIGN].open
+			 && !panel[PANEL_TEMPLATE].open)
+		 {
 // closed all panels. Set panel_restore to just the panel that was just closed:
-   int i;
-   for (i = 1; i < PANEL_TEMPLATE+1; i ++)
-			{
-				inter.panel_restore [i] = 0;
-			}
-			inter.panel_restore [pan] = 1;
+    int i;
+    for (i = 1; i < PANEL_TEMPLATE+1; i ++)
+			 {
+ 				inter.panel_restore [i] = 0;
+			 }
+			 inter.panel_restore [pan] = 1;
+// also block mode button area scrolling:
+    inter.block_mode_button_area_scrolling	= 1;
+		 }
 		}
+		 else
+		 {
+    inter.block_mode_button_area_scrolling	= 1;
+		 }
 
 	}
 
@@ -260,7 +268,8 @@ void run_panels(void)
 		return; // no input when mouse outside?
 
 
- if (control.mouse_y_screen_pixels < inter.mode_buttons_y1 + MODE_BUTTON_SIZE
+ if (control.mouse_y_screen_pixels < inter.mode_buttons_y1 + (MODE_BUTTON_SIZE + 3)
+		&&	control.mouse_y_screen_pixels > inter.mode_buttons_y1 - 3
 		&& control.mouse_x_screen_pixels >= inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS) //inter.display_w - ((MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS))
 	{
 		mode_button_input();

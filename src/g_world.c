@@ -814,6 +814,23 @@ void load_default_source(char* filename, int player_index, int template_index)
 int load_source_file_into_template(char* filename, int player_index, int template_index)
 {
 
+	int open_the_template = 1;
+
+	if (templ[player_index][template_index].locked)
+		open_the_template = 0;
+
+ if (load_source_file_into_template_without_compiling(filename, player_index, template_index, open_the_template) == -1)
+		return -1;
+
+ return compile(&templ[player_index][template_index], templ[player_index][template_index].source_edit, COMPILE_MODE_BUILD);
+// returns 1 or 0
+
+}
+
+// open_the_template should be 1 if the template is already open and doesn't need to be reset (currently used for editor reload function)
+int load_source_file_into_template_without_compiling(char* filename, int player_index, int template_index, int open_the_template)
+{
+
  int target_esource = (player_index * TEMPLATES_PER_PLAYER) + template_index;
 
  struct source_struct temp_src;
@@ -825,16 +842,14 @@ int load_source_file_into_template(char* filename, int player_index, int templat
 		error_call();
 	}*/
 
- open_new_template(&templ[player_index][template_index]);
+ if (open_the_template)
+  open_new_template(&templ[player_index][template_index]);
 
  source_to_editor(&temp_src, target_esource);
  editor.source_edit[target_esource].from_a_file = 1;
  editor.source_edit[target_esource].saved = 1;
 
- return compile(&templ[player_index][template_index], templ[player_index][template_index].source_edit, COMPILE_MODE_BUILD);
-// returns 1 or 0
+	return 1;
 
 }
-
-
 

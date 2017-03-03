@@ -615,8 +615,22 @@ void run_commands(void)
 //			|| control.mouse_x_screen_pixels < settings.option [OPTION_WINDOW_W] - 140)
 //		&& mouse_on_map == 0)
 
-if (mouse_on_map == 0)
+ if (mouse_on_map == 0)
 	{
+// don't scroll if the mouse is only in the corner because the player just closed all panels:
+  if (inter.block_mode_button_area_scrolling)
+		{
+//			fpr("\nblocked");
+			if (control.mouse_x_screen_pixels < inter.display_w - MODE_BUTTON_SCROLL_BLOCK_W
+			 || control.mouse_y_screen_pixels > MODE_BUTTON_SCROLL_BLOCK_H)
+					inter.block_mode_button_area_scrolling = 0;
+
+		}
+		 else
+			{
+
+
+
 #ifndef RECORDING_VIDEO_2
   if (control.mouse_x_screen_pixels < MOUSE_SCROLL_BORDER)
  		mouse_scroll_x = 0 - ((MOUSE_SCROLL_BORDER - control.mouse_x_screen_pixels) / MOUSE_SCROLL_SPEED_DIVISOR);
@@ -660,7 +674,8 @@ if (mouse_on_map == 0)
 				  view.camera_y += al_itofix(mouse_scroll_y);
 		}
 
-	}
+			} // end else for if inter.block_mode_button_area_scrolling
+	} // end if mouse not on map
 	} // end if mouse on main panel
 
 	if (view.following

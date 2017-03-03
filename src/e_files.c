@@ -96,7 +96,8 @@ void open_file_into_current_source_edit(void)
 
   case OPENED_SOURCE:
 // init_source_edit_struct(&editor.source_edit [sei]); unneeded - source_to_editor() does this
-		 open_new_template(dwindow.templ);
+   if (!dwindow.templ->locked)
+		  open_new_template(dwindow.templ);
    source_to_editor(&src, sei);
    editor.source_edit[sei].from_a_file = 1;
    editor.source_edit[sei].saved = 1;
@@ -593,7 +594,7 @@ void save_source_buffer_to_file(char buffer [WRITE_SIZE], int buf_length, struct
  fclose(file);
 
  if (se->from_a_file == 0)
-  se->from_a_file = 1;
+  se->from_a_file = 1; // if it wasn't already from a file, it is now.
 
   start_log_line(MLOG_COL_EDITOR);
   write_to_log("File ");

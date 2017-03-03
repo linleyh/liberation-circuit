@@ -1128,6 +1128,8 @@ void init_inter(void)
 		inter.panel_restore [i] = 0; // PANEL_LOG value is just ignored
 	}
 
+	inter.block_mode_button_area_scrolling = 0;
+
  init_panels();
 }
 

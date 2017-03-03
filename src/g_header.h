@@ -1886,6 +1886,9 @@ BASIC_TRANS
 #define MODE_BUTTON_SPACING 7
 #define MODE_BUTTON_Y 5
 
+#define MODE_BUTTON_SCROLL_BLOCK_W 190
+#define MODE_BUTTON_SCROLL_BLOCK_H 70
+
 enum
 {
 OPTION_WINDOW_W, // resolution of monitor or size of window
@@ -1996,6 +1999,8 @@ struct inter_struct
  timestamp mode_button_highlight_time;
 
  int panel_restore [PANELS];
+
+ int block_mode_button_area_scrolling; // if 1, the screen won't scroll in the top right corner (this is set when closing all panels).
 
 // int panel_x_split; // x location of split between game and editor sides of the screen (when editor is up)
  int edit_window_columns; // fix! - this should go into editorstruct

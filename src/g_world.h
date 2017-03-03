@@ -24,5 +24,6 @@ void run_markers(void);
 void load_mission_source(char* filename, int player_index, int template_index);
 void load_default_source(char* filename, int player_index, int template_index);
 int load_source_file_into_template(char* filename, int player_index, int template_index);
+int load_source_file_into_template_without_compiling(char* filename, int player_index, int template_index, int open_the_template);
 
 #endif

@@ -7199,8 +7199,21 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 
 #ifndef RECORDING_VIDEO_2
 
+
+if (inter.block_mode_button_area_scrolling)
+{
+ add_menu_button(view.window_x_unzoomed - MODE_BUTTON_SCROLL_BLOCK_W,
+																	-8,
+																	view.window_x_unzoomed + 8,
+																	MODE_BUTTON_SCROLL_BLOCK_H,
+																	colours.base_trans [COL_BLUE] [SHADE_MAX] [TRANS_FAINT], 5, 5);
+}
+
+
  add_menu_button(box_x, box_y, box_x2, box_y + box_h, colours.base_trans [COL_BLUE] [SHADE_MED] [TRANS_MED], 8, 3);
  add_menu_button(box_x + 3, box_y + 3, box_x2 - 3, box_y + BOX_HEADER_H, colours.base_trans [COL_BLUE] [SHADE_MAX] [TRANS_MED], 8, 3);
+
+
 
  draw_vbuf();
 

@@ -32,6 +32,7 @@
 #include "d_draw.h"
 #include "c_compile.h"
 #include "c_prepr.h"
+#include "g_world.h"
 
 #include "p_panels.h"
 #include "t_template.h"
@@ -171,10 +172,11 @@ struct submenustruct submenu [SUBMENUS] =
   SUBMENU_FILE_END,
   { // lines
 //   {"New", "", HELP_SUBMENU_NEW},
-   {"Open", ""},
-   {"Save", ""},
+   {"Open", ""},//"Ctrl-O"}, currently can't use a keyboard shortcut for this as Allegro's keyboard routines cause problems when returning from the native file dialogue. TO DO: use al_clear_keyboard_state() when it's available.
+   {"Reload", ""},
+   {"Save", "Ctrl-S"},
    {"Save as", ""},
-   {"Save all", ""},
+   {"Save all", "Ctrl-A"},
 //   {"Close", "", HELP_SUBMENU_CLOSE_FILE},
 //   {"Quit", ""},
   }
@@ -187,7 +189,7 @@ struct submenustruct submenu [SUBMENUS] =
    {"Cut", "Ctrl-X"},
    {"Copy", "Ctrl-C"},
    {"Paste", "Ctrl-V"},
-   {"Clear", ""},
+   {"Clear", "del"},
   }
  },
  {
@@ -200,8 +202,8 @@ struct submenustruct submenu [SUBMENUS] =
  {
   SUBMENU_COMPILE_END,
   {
-   {"Test Compile", "F9"},
-   {"Compile", ""},
+   {"Test Compile", "F8"},
+   {"Compile", "F9"},
    {"Compile+lock", ""},
 //   {"Build asm", "", HELP_SUBMENU_BUILD_ASM},
 //   {"Crunched asm", "", HELP_SUBMENU_CRUNCH_ASM},
@@ -1191,8 +1193,14 @@ static void close_submenu(void)
 
 }
 
+// Note that this can be called by keyboard shortcuts as well as by clicking on the submenu
 static void submenu_operation(int sm, int line)
 {
+
+ editor.key_delay = KEY_DELAY1;
+ editor.cursor_flash = CURSOR_FLASH_MAX;
+// these are mostly for keyboard shortcuts, but it can't hurt to do this anyway
+
 
  struct source_edit_struct* se;
 
@@ -1205,11 +1213,61 @@ static void submenu_operation(int sm, int line)
 //     new_empty_source_tab(); // may fail, but just ignore failure (an error will have been written to the log)
 //     break;
     case SUBMENU_FILE_OPEN:
+#ifndef DEBUG_MODE
+    	if (game.type == GAME_TYPE_MISSION
+						&& dwindow.templ->player_index == 1)
+					{
+      	write_line_to_log("Can't load a file into an enemy template during a mission!", MLOG_COL_ERROR);
+      	break;
+					}
+#endif
+    	if (dwindow.templ->locked)
+					{
+     	write_line_to_log("Warning: loading source file into locked template.", MLOG_COL_WARNING);
+		 	  write_line_to_log("(See 'Recompiling a locked template' in the manual for more detail)", MLOG_COL_COMPILER);
+					}
+     open_file_into_current_source_edit(); // may fail, but just ignore failure
+//					  else
+//       	write_line_to_log("Can't load file into locked template.", MLOG_COL_ERROR);
+
+/*
     	if (!dwindow.templ->locked)
       open_file_into_current_source_edit(); // may fail, but just ignore failure
 					  else
        	write_line_to_log("Can't load file into locked template.", MLOG_COL_ERROR);
+*/
      break;
+    case SUBMENU_FILE_RELOAD:
+#ifndef DEBUG_MODE
+    	if (game.type == GAME_TYPE_MISSION
+						&& dwindow.templ->player_index == 1)
+					{
+      	write_line_to_log("Can't load a file into an enemy template during a mission!", MLOG_COL_ERROR);
+      	break;
+					}
+#endif
+    	if (!dwindow.templ->active
+						|| dwindow.templ->source_edit->type != SOURCE_EDIT_TYPE_SOURCE
+						|| !dwindow.templ->source_edit->from_a_file
+						|| dwindow.templ->source_edit->src_file_path [0] == 0)
+					{
+      	write_line_to_log("Source reload failed.", MLOG_COL_ERROR);
+      	write_line_to_log("(Reload only works if the template contains source code from a file.)", MLOG_COL_ERROR);
+      	break;
+					}
+// the 0 at the end of the load_source_file_into_template_without_compiling call means that the template is already open, so it doesn't need to be opened or reset.
+ 				if (load_source_file_into_template_without_compiling(dwindow.templ->source_edit->src_file_path, dwindow.templ->player_index, dwindow.templ->template_index, 0) == 1)
+					{
+     	write_line_to_log("Source reloaded.", MLOG_COL_TEMPLATE);
+     	if (dwindow.templ->locked)
+	 				{
+      	write_line_to_log("Warning: source file loaded into locked template.", MLOG_COL_WARNING);
+		  	  write_line_to_log("(See 'Recompiling a locked template' in the manual for more detail)", MLOG_COL_COMPILER);
+				 	}
+					}
+					  else
+       	write_line_to_log("Source reload failed.", MLOG_COL_ERROR);
+					break;
     case SUBMENU_FILE_SAVE:
      save_current_file();
      break;
@@ -1543,10 +1601,14 @@ static void editor_input_keys(void)
 
  if (!control.editor_captures_input)
 		goto no_keys_accepted; // don't accept keypresses while mouse in main game panel
+
  if (editor.selecting)
   goto no_keys_accepted; // don't accept keypresses while the mouse is being dragged to select text.
+
  if (editor.overwindow_type != OVERWINDOW_TYPE_NONE)
   goto no_keys_accepted; // don't accept keypresses while overwindow open
+
+
 
 //#define DEBUG_MODE
 
@@ -1570,6 +1632,8 @@ static void editor_input_keys(void)
 
  if (ex_control.unichar_input != 0)
 	{
+
+
 #ifdef DEBUG_MODE
  if (editor.debug_keys)
 		fpr(" unichar %i", ex_control.unichar_input);
@@ -1578,8 +1642,9 @@ static void editor_input_keys(void)
 
   if (ex_control.unichar_input == 6) // ctrl-f (I hope)
   {
+  	submenu_operation(SUBMENU_SEARCH, SUBMENU_SEARCH_FIND);
 // if changed, check code for Edit submenu in submenu_operation
-     open_overwindow(OVERWINDOW_TYPE_FIND);
+//     open_overwindow(OVERWINDOW_TYPE_FIND);
 //     editor.key_delay = 15;
      return;
   }
@@ -1627,6 +1692,52 @@ no_keys_accepted:
     return;
    }
 
+
+   switch(ex_control.unichar_input)
+   {
+// edit menu
+   	case 3: // ctrl-C
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_COPY);
+   		return;
+   	case 22: // ctrl-V
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_PASTE);
+   		return;
+   	case 24: // ctrl-X
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_CLEAR);
+   		return;
+   	case 26: // ctrl-Z
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_UNDO);
+   		return;
+   	case 25: // ctrl-Y
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_REDO);
+   		return;
+// File menu
+   	case 1: // ctrl-A
+   		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE_ALL);
+   		return;
+   	case 19: // ctrl-S
+   		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE);
+   		return;
+//   	case 15: // ctrl-O // currently not supported because of problems updating Allegro's keyboard state when context changes.
+//
+// al_clear_keyboard_state(display);
+
+//   		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_OPEN);
+// unfortunately the window-switching involved in using native file dialogues
+//  seems to confuse the keyboard routines. So we need to reset the control
+//  key here:
+//     ex_control.special_key_press [SPECIAL_KEY_CTRL] = BUTTON_NOT_PRESSED;
+//   		return;
+
+// Need:
+//  S save
+//  A save all
+//  O open
+//
+
+   }
+
+/*
    if (ex_control.unichar_input == 3) // ctrl-C
 //    || ex_control.special_key_press [SPECIAL_KEY_INSERT] != 0)
 //    || ex_control.key_press [ALLEGRO_KEY_PAD_0] != 0)
@@ -1719,7 +1830,7 @@ no_keys_accepted:
     }
     return;
    }
-
+*/
    if (ex_control.special_key_press [SPECIAL_KEY_LEFT] > 0
     && ex_control.special_key_press [SPECIAL_KEY_RIGHT] <= 0)
    {
@@ -2579,8 +2690,15 @@ static void cursor_etc_key(int key_press)
  {
 
   case SPECIAL_KEY_F3:
-    find_next();
-    window_find_cursor(se);
+  	 submenu_operation(SUBMENU_SEARCH, SUBMENU_SEARCH_FIND_NEXT);
+//    find_next();
+//    window_find_cursor(se);
+    break;
+  case SPECIAL_KEY_F8:
+  	 submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_TEST);
+    break;
+  case SPECIAL_KEY_F9:
+  	 submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_COMPILE);
     break;
 
   case SPECIAL_KEY_LEFT:
