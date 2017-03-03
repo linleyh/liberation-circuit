@@ -11,3 +11,9 @@ It should compile on any OS supported by Allegro 5 - to build, compile the c fil
 You will also need the data files from the Windows release, and the game requires write access to its base directory to save mission progress.
 
 Don't try to compile the .c files in the /proc or /story subdirectories! They are code used by the game itself.
+
+It looks like this:
+
+![a screenshot](http://i.imgur.com/pPIJ03I.png)
+
+![another screenshot](http://i.imgur.com/QKWzkqA.png)
