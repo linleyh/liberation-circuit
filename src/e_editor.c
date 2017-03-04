@@ -164,6 +164,11 @@ static int compile_current_source_edit(int compile_mode);
 //s16b source_edit_bcode [ESOURCES] [BCODE_MAX];
 
 
+// This #define adds a keyboard shortcut (ctrl-R) for the "reload" function that
+//  reloads a file from disk.
+// It's disabled by default to avoid having a single shortcut that potentially overwrites work
+//#define RELOAD_KEYBOARD_SHORTCUT
+
 
 struct submenustruct submenu [SUBMENUS] =
 {
@@ -173,7 +178,11 @@ struct submenustruct submenu [SUBMENUS] =
   { // lines
 //   {"New", "", HELP_SUBMENU_NEW},
    {"Open", ""},//"Ctrl-O"}, currently can't use a keyboard shortcut for this as Allegro's keyboard routines cause problems when returning from the native file dialogue. TO DO: use al_clear_keyboard_state() when it's available.
+#ifdef RELOAD_KEYBOARD_SHORTCUT
+   {"Reload", "Ctrl-R"},
+#else
    {"Reload", ""},
+#endif
    {"Save", "Ctrl-S"},
    {"Save as", ""},
    {"Save all", "Ctrl-A"},
@@ -1718,6 +1727,13 @@ no_keys_accepted:
    	case 19: // ctrl-S
    		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE);
    		return;
+#ifdef RELOAD_KEYBOARD_SHORTCUT
+   	case 18: // ctrl-R
+   		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_RELOAD);
+   		return;
+#endif
+
+
 //   	case 15: // ctrl-O // currently not supported because of problems updating Allegro's keyboard state when context changes.
 //
 // al_clear_keyboard_state(display);

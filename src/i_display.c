@@ -817,7 +817,7 @@ void run_display(void)
 
 //  int block_size = BLOCK_SIZE_PIXELS;
   int screen_width_in_blocks = ((view.window_x_unzoomed / BLOCK_SIZE_PIXELS) / view.zoom) + 4;
-  int screen_height_in_blocks = ((view.window_y_unzoomed / BLOCK_SIZE_PIXELS) / view.zoom) + 3;
+  int screen_height_in_blocks = ((view.window_y_unzoomed / BLOCK_SIZE_PIXELS) / view.zoom) + 4;
   int bx;
   int by;
   int k;

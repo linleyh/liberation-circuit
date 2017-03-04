@@ -458,7 +458,7 @@ void load_template_file(int player_index)
      templ[player_index][i].source_edit->active = 1;
      templ[player_index][i].source_edit->saved = 1;
      strcpy(templ[player_index][i].source_edit->text [0], "// this file was loaded from a template file, ");
-     strcpy(templ[player_index][i].source_edit->text [0], "//  and does not have source code. ");
+     strcpy(templ[player_index][i].source_edit->text [1], "//  and does not have source code. ");
       // clear_source_edit_struct() call above reset the line index, so text[0] is the first line
 
 

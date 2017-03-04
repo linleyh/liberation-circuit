@@ -174,8 +174,24 @@ void get_ex_control(int close_button_status)
 
    al_get_mouse_state(&mouse_state);
 
+// it's possible that in some circumstances mouse_state.x/y is outside the expected display area
+//  (this may explain one reported bug that I couldn't reproduce).
+// the bounds-checks in the following code prevent this:
+
    ex_control.mouse_x_pixels = mouse_state.x;
+
+   if (ex_control.mouse_x_pixels < 0)
+			 ex_control.mouse_x_pixels = 0;
+   if (ex_control.mouse_x_pixels >= inter.display_w)
+			 ex_control.mouse_x_pixels = inter.display_w - 1;
+
    ex_control.mouse_y_pixels = mouse_state.y;
+
+   if (ex_control.mouse_y_pixels < 0)
+			 ex_control.mouse_y_pixels = 0;
+   if (ex_control.mouse_y_pixels >= inter.display_h)
+			 ex_control.mouse_y_pixels = inter.display_h - 1;
+
 
    for (i = 0; i < 2; i ++)
    {

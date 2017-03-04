@@ -9,7 +9,7 @@
 
 // SANITY_CHECK runs various checks for things that should never happen, and shuts the game down if they do.
 // It doesn't seem to slow things down much so I've left it on, at least for now:
-#define SANITY_CHECK
+//#define SANITY_CHECK
 
 #ifdef SANITY_CHECK
 #define sancheck(value, min, max, text) if(value<min||value>=max){fpr("\nError: [%s]=(%i) out of bounds (should be %i to %i).",text,value,min,max-1);error_call();}
@@ -19,7 +19,7 @@
 
 // RECORDING_VIDEO sets the resolution to 1280x720 (which is usually not possible, and makes some designer stuff unusable, as the minimum vertical resolution is 768)
 //  it also allows unlocking of player 1's templates in story mode
-//#define RECORDING_VIDEO
+#define RECORDING_VIDEO
 
 // RECORDING_VIDEO_2 hides some of the display elements
 //#define RECORDING_VIDEO_2

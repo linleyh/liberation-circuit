@@ -442,6 +442,18 @@ static void work_out_story_region_locks(void)
 //	story.region[8].defeated = 1;
 //	story.region[14].defeated = 1;
 //	story.region[30].defeated = 1;
+/*
+	story.region[0].defeated = 1;
+	story.region[1].defeated = 1;
+	story.region[2].defeated = 1;
+	story.region[3].defeated = 1;
+	story.region[4].defeated = 1;
+	story.region[5].defeated = 1;
+//	story.region[6].defeated = 1;
+//	story.region[7].defeated = 1;
+	story.region[8].defeated = 1;
+	story.region[9].defeated = 1;
+*/
 
 	int i, j;
 
