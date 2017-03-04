@@ -19,7 +19,7 @@
 
 // RECORDING_VIDEO sets the resolution to 1280x720 (which is usually not possible, and makes some designer stuff unusable, as the minimum vertical resolution is 768)
 //  it also allows unlocking of player 1's templates in story mode
-#define RECORDING_VIDEO
+//#define RECORDING_VIDEO
 
 // RECORDING_VIDEO_2 hides some of the display elements
 //#define RECORDING_VIDEO_2
