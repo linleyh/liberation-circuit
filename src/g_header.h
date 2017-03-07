@@ -1882,9 +1882,9 @@ BASIC_TRANS
 
 // settingsstruct stuff
 
-#define MODE_BUTTON_SIZE 16
-#define MODE_BUTTON_SPACING 7
-#define MODE_BUTTON_Y 5
+#define MODE_BUTTON_SIZE 20
+#define MODE_BUTTON_SPACING 3
+#define MODE_BUTTON_Y 3
 
 #define MODE_BUTTON_SCROLL_BLOCK_W 190
 #define MODE_BUTTON_SCROLL_BLOCK_H 70
@@ -1896,6 +1896,8 @@ OPTION_WINDOW_H,
 OPTION_FULLSCREEN,
 OPTION_FULLSCREEN_TRUE,
 OPTION_MSAA_OFF,
+OPTION_FAST_BACKGROUND,
+OPTION_NO_BACKGROUND,
 OPTION_VOL_MUSIC,
 OPTION_VOL_EFFECT,
 OPTION_SPECIAL_CURSOR, // draws a special mouse cursor instead of the system one. Included because of a report that the mouse cursor was not displaying correctly.

@@ -370,6 +370,7 @@ void main_game_loop(void)
     case ALLEGRO_EVENT_TIMER:
      skip_frame = 1; break;
    }
+   al_flush_event_queue(event_queue);
   }
 
 // wait for the timer so we can go to the next tick (unless we're fast-forwarding or the timer has already expired)
@@ -378,6 +379,7 @@ void main_game_loop(void)
 				|| game.pause_soft)) // don't skip frames if paused, even if fast-forwarding
   {
    al_wait_for_event(event_queue, &ev);
+   al_flush_event_queue(event_queue);
   }
 
  } while (TRUE); // end main game loop

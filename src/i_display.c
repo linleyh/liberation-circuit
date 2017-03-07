@@ -238,6 +238,9 @@ static void draw_object_base_shape(float proc_x,
 
 static void select_arrows(int number, float centre_x, float centre_y, float select_arrow_angle, float dist, float out_dist, float side_angle, float side_dist, ALLEGRO_COLOR arrow_col);
 static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, int bubble_col, int bubble_text_length, char* bubble_text, int draw_triangle);
+static void draw_data_well(int i, int j, struct backblock_struct* backbl,
+																				float top_left_corner_x [BACKBLOCK_LAYERS],
+                    float top_left_corner_y [BACKBLOCK_LAYERS]);
 
 struct ribbon_state_struct
 {
@@ -357,21 +360,6 @@ void add_line(int layer, float x, float y, float xa, float ya, ALLEGRO_COLOR col
 
 static void add_orthogonal_hexagon(int layer, float x, float y, float size, ALLEGRO_COLOR col1)
 {
-/*
-	add_line(0, x-size, y, x, y-size, col1);
-	add_line(0, x, y-size, x+size, y, col1);
-	add_line(0, x+size, y, x, y+size, col1);
-	add_line(0, x, y+size, x-size, y, col1);*/
-
-//	int layer = 0;
-
-//  int i;
-
-/*  for (i = 0; i < 6; i ++)
-		{
-			vertex_list [i] [0] = x + cos(i * (PI / 3) + PI/2) * size;
-			vertex_list [i] [1] = y + sin(i * (PI / 3) + PI/2) * size;
-		}*/
 
 		vertex_list [0] [0] = x;
 		vertex_list [0] [1] = y - 1.0 * size;
@@ -1005,6 +993,22 @@ work out float x coordinate for that block in same way as for any object in worl
 
   float bx2, by2;
 
+// 12 should be plenty
+#define DEFERRED_DATA_WELL_DRAWINGS 12
+
+	int deferred_data_wells = 0;
+	int deferred_data_well_draw_i [DEFERRED_DATA_WELL_DRAWINGS];
+	int deferred_data_well_draw_j [DEFERRED_DATA_WELL_DRAWINGS];
+	struct backblock_struct* deferred_data_well_draw_backbl [DEFERRED_DATA_WELL_DRAWINGS];
+
+
+
+if (!settings.option[OPTION_NO_BACKGROUND])
+{
+
+	if (!settings.option[OPTION_FAST_BACKGROUND])
+	{
+// The following is the code to draw the full background:
   for (i = min_block_x; i < max_block_x; i ++)
   {
 
@@ -1104,7 +1108,6 @@ work out float x coordinate for that block in same way as for any object in worl
 
 
        add_orthogonal_hexagon((BACKBLOCK_LAYERS - 1) - backbl->node_depth [k], bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom, nsize * specific_zoom,
-//																														colours.base_trans [COL_BLUE] [SHADE_MED] [TRANS_MED]);
                                       colours.back_fill [backbl->node_depth [k]] [node_colour] [node_saturation] [nfillcol]);
 
 
@@ -1129,1133 +1132,12 @@ work out float x coordinate for that block in same way as for any object in worl
 
 							w.data_well[backbl->backblock_value].last_drawn = game.total_time;
 
-
-							int special_i, special_j; // versions of i and j adjusted for the actual location of the data well, which may not be this block
-
-							if (backbl->backblock_type == BACKBLOCK_DATA_WELL_EDGE)
-							{
-								special_i = w.data_well[backbl->backblock_value].block_position.x;
-								special_j = w.data_well[backbl->backblock_value].block_position.y;
-							}
-							 else
-								{
-									special_i = i;
-									special_j = j;
-								}
-
-							float specific_zoom = view.zoom * w.backblock_parallax [2];
-
-							float bx3 [2];
-							float by3 [2];
-							float base_part_zoom [2];
-
-							base_part_zoom [0] = view.zoom * w.backblock_parallax [2];;
-							base_part_zoom [1] = view.zoom * w.backblock_parallax [3];;
-
-       bx3 [0] = top_left_corner_x [2] + (BLOCK_SIZE_PIXELS * base_part_zoom [0]) * (special_i) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [0]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-       by3 [0] = top_left_corner_y [2] + (BLOCK_SIZE_PIXELS * base_part_zoom [0]) * (special_j) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [0]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-       bx3 [1] = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * base_part_zoom [1]) * (special_i) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [1]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-       by3 [1] = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * base_part_zoom [1]) * (special_j) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [1]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-//       bx2 = (((i * BLOCK_SIZE_PIXELS) - camera_offset_x) + (BLOCK_SIZE_PIXELS/2)) * view.zoom;
-//       by2 = (((j * BLOCK_SIZE_PIXELS) - camera_offset_y) + (BLOCK_SIZE_PIXELS/2)) * view.zoom;
-
-//    fprintf(stdout, "\n [tlc %f,%f] [bx,by %i,%i] [bx2,by2 %f,%f]", top_left_corner_x, top_left_corner_y, bx,by, bx2, by2);
-
-
-       float well_size = 20;
-       seed_drand(special_i+special_j);
-
-
-       switch(w.story_area)
-       {
-
-
-							 case AREA_BLUE:
-       	case AREA_TUTORIAL:
-								{
-                            for (k = 0; k < 6; k++)
-                            {
-                                float base_dist = drand(40, special_i) + 44;
-                                well_size = base_dist + 142 + drand(40, special_i);
-
-                                float bit_dist = 0.15;//0.05 + (drand(100, 1) * 0.008);
-                                float centre_dist = 42 + drand(30, 1);
-
-                                int bit_layer = 1;//(k+backbl->backblock_value) & 1;
-
-                                specific_zoom = base_part_zoom [bit_layer];
-                                bx2 = bx3 [bit_layer];
-                                by2 = by3 [bit_layer];
-
-#define BASE_WELL_ANGLE_2 0
-//(PI/6)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE_2 + (PI/3)*k + bit_dist) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE_2 + (PI/3)*k + bit_dist) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - bit_dist) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - bit_dist) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * centre_dist;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * centre_dist;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * centre_dist; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * centre_dist; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE_2 + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE_2 + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - 0.45) * (well_size + 96) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - 0.45) * (well_size + 96) * specific_zoom;
-                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE_2 + (PI/3)*k + 0.45) * (well_size + 96) * specific_zoom;
-                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE_2 + (PI/3)*k + 0.45) * (well_size + 96) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE_2 + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE_2 + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                add_poly_layer(bit_layer ^ 1, 6, colours.data_well_hexes [bit_layer ^ 1]);//base [COL_BLUE] [SHADE_MED]);//data_well_hexes);
-
-
-                            }
-
-
-                            well_size = 40;
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 24;
-                                well_size = base_dist + 22;
-
-#define BASE_WELL_ANGLE (PI/6)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                add_poly_layer(1, 6, colours.data_well_hexes [2]);
-
-
-                            }
-
-
-                            int transfer_colour_adjust;
-
-                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
-                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
-                              else
-                               transfer_colour_adjust = 0;
-
-                            if (w.data_well[backbl->backblock_value].data > 0)
-                            {
-
-                                specific_zoom = view.zoom;
-
-                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
-                            }
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
-#define WELL_RING_RADIUS (110)
-                            ALLEGRO_COLOR reserve_colour;
-
-                            reserve_colour = al_map_rgba(180,
-                            100,
-                            30,
-                            140);
-
-                            for (k = 0; k < DATA_WELL_RESERVES; k++)
-                            {
-                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
-                                    continue;
-                                int l;
-                                float reserve_square_arc = 0.13;
-                                float reserve_square_length = 36;
-                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
-                                reserve_square_length *= reserve_data_proportion;
-                                if (reserve_data_proportion < 1)
-                                 reserve_square_arc *= reserve_data_proportion;
-                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
-                                {
-                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                    add_diamond_layer(1,
-                                    bx2 + cos(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    by2 + sin(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    bx2 + cos(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    by2 + sin(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    bx2 + cos(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    by2 + sin(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    bx2 + cos(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    by2 + sin(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    reserve_colour);
-                                }
-                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
-                            }
-
-								}
-        break; // end AREA_BLUE/AREA_TUTORIAL
-
-default:
-							 case AREA_GREEN:
-								{
-
-
-
-                            well_size = 140;
-                            specific_zoom = view.zoom * w.backblock_parallax [3];
-
-                            bx2 = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 44;
-                                well_size = base_dist + 122;
-#undef BASE_WELL_ANGLE
-#define BASE_WELL_ANGLE (PI/6)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                add_poly_layer(1, 6, colours.data_well_hexes [0]);
-
-
-                            }
-
-
-
-                            well_size = 140;
-                            specific_zoom = view.zoom * w.backblock_parallax [2];
-
-                            bx2 = top_left_corner_x [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 44;
-                                well_size = base_dist + 72;
-#undef BASE_WELL_ANGLE
-#define BASE_WELL_ANGLE (0)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                add_poly_layer(1, 6, colours.data_well_hexes [1]);
-
-
-                            }
-
-
-
-
-                            well_size = 40;
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 24;
-                                well_size = base_dist + 22;
-
-#undef BASE_WELL_ANGLE
-#define BASE_WELL_ANGLE (PI/6)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                add_poly_layer(1, 6, colours.data_well_hexes [2]);
-
-
-                            }
-
-
-
-                            int transfer_colour_adjust;
-
-                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
-                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
-                              else
-                               transfer_colour_adjust = 0;
-
-                            if (w.data_well[backbl->backblock_value].data > 0)
-                            {
-
-                                specific_zoom = view.zoom;
-
-                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
-                            }
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
-
-#undef WELL_RING_RADIUS
-#define WELL_RING_RADIUS 140
-                            ALLEGRO_COLOR reserve_colour;
-
-                            reserve_colour = al_map_rgba(180,
-                            100,
-                            30,
-                            140);
-
-                            for (k = 0; k < DATA_WELL_RESERVES; k++)
-                            {
-                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
-                                    continue;
-                                int l;
-                                float well_ring_radius;
-                                if (k == 0)
-																																	well_ring_radius = 140 * specific_zoom;
-																																  else
-																																	  well_ring_radius = 120 * specific_zoom;
-                                float reserve_square_arc = 0.26;
-                                float reserve_square_length = 18.0 * specific_zoom;
-                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
-                                reserve_square_length *= reserve_data_proportion;
-                                if (reserve_data_proportion < 1)
-                                 reserve_square_arc *= reserve_data_proportion;
-                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
-                                {
-                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                    add_diamond_layer(1,
-                                    bx2 + cos(square_angle + reserve_square_arc) * well_ring_radius,
-                                    by2 + sin(square_angle + reserve_square_arc) * well_ring_radius,
-                                    bx2 + cos(square_angle) * (well_ring_radius + reserve_square_length * 1.3),
-                                    by2 + sin(square_angle) * (well_ring_radius + reserve_square_length * 1.3),
-                                    bx2 + cos(square_angle - reserve_square_arc) * well_ring_radius,
-                                    by2 + sin(square_angle - reserve_square_arc) * well_ring_radius,
-                                    bx2 + cos(square_angle) * (well_ring_radius - reserve_square_length),
-                                    by2 + sin(square_angle) * (well_ring_radius - reserve_square_length),
-                                    reserve_colour);
-                                }
-                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
-                            }
-
-
-								} // end AREA_GREEN
-								break;
-
-							 case AREA_YELLOW:
-									{
-									 float vertex_dist [4] [6];
-
-									 vertex_dist [0] [0] = 47;
-									 vertex_dist [0] [1] = 47;
-									 vertex_dist [0] [2] = 47;
-									 vertex_dist [0] [3] = 47;
-									 vertex_dist [0] [4] = 47;
-									 vertex_dist [0] [5] = 47;
-
-
-									 for (k = 0; k < 3; k++)
-										{
-											int l;
-               for (l = 0; l < 6; l ++)
-														 {
-															 vertex_dist [k + 1] [l] = vertex_dist [k] [l] + 48 + 8 + drand(11, special_i);// + drand(22, special_i);
-														 }
-										}
-
-									 for (k = 2; k >= 0; k--)
-										{
-
-
-                            specific_zoom = view.zoom * w.backblock_parallax [k + 1];
-
-                            bx2 = top_left_corner_x [k + 1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [k + 1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-              vertex_list [0] [0] = bx2;
-              vertex_list [0] [1] = by2 - 1.0 * vertex_dist [k + 1] [0] * specific_zoom;
-              vertex_list [1] [0] = bx2 + 0.866 * vertex_dist [k + 1] [1] * specific_zoom;
-              vertex_list [1] [1] = by2 - 0.5 * vertex_dist [k + 1] [1] * specific_zoom;
-              vertex_list [2] [0] = bx2 + 0.866 * vertex_dist [k + 1] [2] * specific_zoom;
-              vertex_list [2] [1] = by2 + 0.5 * vertex_dist [k + 1] [2] * specific_zoom;
-              vertex_list [3] [0] = bx2;
-              vertex_list [3] [1] = by2 + 1.0 * vertex_dist [k + 1] [3] * specific_zoom;
-              vertex_list [4] [0] = bx2 - 0.866 * vertex_dist [k + 1] [4] * specific_zoom;
-              vertex_list [4] [1] = by2 + 0.5 * vertex_dist [k + 1] [4] * specific_zoom;
-              vertex_list [5] [0] = bx2 - 0.866 * vertex_dist [k + 1] [5] * specific_zoom;
-              vertex_list [5] [1] = by2 - 0.5 * vertex_dist [k + 1] [5] * specific_zoom;
-
-              add_poly_layer(2, 6, colours.data_well_hexes [2 - k]);
-
-
-              vertex_list [0] [0] = bx2;
-              vertex_list [0] [1] = by2 - 1.0 * (vertex_dist [k] [0] + 22) * specific_zoom;
-              vertex_list [1] [0] = bx2 + 0.866 * (vertex_dist [k] [1] + 22) * specific_zoom;
-              vertex_list [1] [1] = by2 - 0.5 * (vertex_dist [k] [1] + 22) * specific_zoom;
-              vertex_list [2] [0] = bx2 + 0.866 * (vertex_dist [k] [2] + 22) * specific_zoom;
-              vertex_list [2] [1] = by2 + 0.5 * (vertex_dist [k] [2] + 22) * specific_zoom;
-              vertex_list [3] [0] = bx2;
-              vertex_list [3] [1] = by2 + 1.0 * (vertex_dist [k] [3] + 22) * specific_zoom;
-              vertex_list [4] [0] = bx2 - 0.866 * (vertex_dist [k] [4] + 22) * specific_zoom;
-              vertex_list [4] [1] = by2 + 0.5 * (vertex_dist [k] [4] + 22) * specific_zoom;
-              vertex_list [5] [0] = bx2 - 0.866 * (vertex_dist [k] [5] + 22) * specific_zoom;
-              vertex_list [5] [1] = by2 - 0.5 * (vertex_dist [k] [5] + 22) * specific_zoom;
-
-              add_poly_layer(2, 6, colours.world_background);
-
-									 }
-
-
-//          bx2 = top_left_corner_x [k] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-//          by2 = top_left_corner_y [k] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-//          add_orthogonal_hexagon(0, bx2, by2, 42 * view.zoom, colours.world_background);
-
-
-                            int transfer_colour_adjust;
-
-                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
-                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
-                              else
-                               transfer_colour_adjust = 0;
-
-                            if (w.data_well[backbl->backblock_value].data > 0)
-                            {
-
-                                specific_zoom = view.zoom;
-
-                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                                add_orthogonal_hexagon(4, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
-                            }
-
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
-#undef WELL_RING_RADIUS
-#define WELL_RING_RADIUS (80)
-                            ALLEGRO_COLOR reserve_colour;
-
-                            reserve_colour = al_map_rgba(180,
-                            100,
-                            30,
-                            140);
-
-                            for (k = 0; k < DATA_WELL_RESERVES; k++)
-                            {
-                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
-                                    continue;
-                                int l;
-                                float reserve_square_arc_inner = 0.16;
-                                float reserve_square_arc_outer = 0.13;
-                                float reserve_square_length = 42;
-                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
-                                reserve_square_length *= reserve_data_proportion * specific_zoom;
-                                if (reserve_data_proportion < 1)
-																																{
-                                 reserve_square_arc_inner *= reserve_data_proportion;
-                                 reserve_square_arc_outer *= reserve_data_proportion;
-																																}
-                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
-                                {
-                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                    float square_dist = 70 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
-                                    float special_bx2 = bx2;// + (drand(60, 1) - 30) * specific_zoom;
-                                    float special_by2 = by2;// + (drand(60, 1) - 30) * specific_zoom;
-                                    add_diamond_layer(3,
-                                    special_bx2 + cos(square_angle - reserve_square_arc_inner) * square_dist,
-                                    special_by2 + sin(square_angle - reserve_square_arc_inner) * square_dist,
-                                    special_bx2 + cos(square_angle + reserve_square_arc_inner) * square_dist,
-                                    special_by2 + sin(square_angle + reserve_square_arc_inner) * square_dist,
-                                    special_bx2 + cos(square_angle + reserve_square_arc_outer) * (square_dist + reserve_square_length),
-                                    special_by2 + sin(square_angle + reserve_square_arc_outer) * (square_dist + reserve_square_length),
-                                    special_bx2 + cos(square_angle - reserve_square_arc_outer) * (square_dist + reserve_square_length),
-                                    special_by2 + sin(square_angle - reserve_square_arc_outer) * (square_dist + reserve_square_length),
-                                    reserve_colour);
-                                }
-                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
-                            }
-
-
-									}
-									break; // end AREA_YELLOW
-
-
-       	case AREA_ORANGE:
-								{
-
-                            well_size = 40;
-
-
-#define ORANGE_WELL_BASE_LAYER 2
-                            specific_zoom = view.zoom * w.backblock_parallax [ORANGE_WELL_BASE_LAYER];
-
-                            bx2 = top_left_corner_x [ORANGE_WELL_BASE_LAYER] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [ORANGE_WELL_BASE_LAYER] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                            add_orthogonal_hexagon(1, bx2, by2, 112 * specific_zoom, colours.data_well_hexes [1]);
-                            add_orthogonal_hexagon(1, bx2, by2, 80 * specific_zoom, colours.world_background);
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                if ((k + backbl->backblock_value) & 1)
-																																		continue;
-
-
-                                float base_dist = 36;//drand(30, special_i) + 24;
-                                well_size = base_dist + 22;
-
-                                float base_angle = (float) w.world_time * w.data_well [backbl->backblock_value].spin_rate;
-
-
-                                float left_xpart = cos(base_angle + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(base_angle + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(base_angle + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(base_angle + (PI/3)*(k+1) - 0.05) * specific_zoom;
-
-                                float far_dist = well_size + 100 + drand(30, special_i);
-
-                                vertex_list[0][0] = bx2 + left_xpart * 36;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 36;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 36; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 36; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(base_angle + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(base_angle + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-
-                                vertex_list[3][0] = vertex_list[2][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
-                                vertex_list[3][1] = vertex_list[2][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
-                                vertex_list[4][0] = vertex_list[1][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
-                                vertex_list[4][1] = vertex_list[1][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
-
-                                vertex_list[7][0] = vertex_list[0][0] + cos(base_angle + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[7][1] = vertex_list[0][1] + sin(base_angle + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                vertex_list[6][0] = vertex_list[7][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
-                                vertex_list[6][1] = vertex_list[7][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
-
-
-/*
-
-                                vertex_list[0][0] = bx2 + left_xpart * 32;// well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;// well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-*/
-
-                                add_poly_layer(1, 8, colours.data_well_hexes [2]);
-
-
-                            }
-
-
-
-                            int transfer_colour_adjust;
-
-                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
-                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
-                              else
-                               transfer_colour_adjust = 0;
-
-                            if (w.data_well[backbl->backblock_value].data > 0)
-                            {
-
-                                specific_zoom = view.zoom;
-
-                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
-                            }
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-//                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
-//#define WELL_ORANGE_RING_RADIUS (140)
-/*                            ALLEGRO_COLOR reserve_colour;
-
-                            reserve_colour = al_map_rgba(180,
-                            100,
-                            30,
-                            140);*/
-
-                            for (k = 0; k < DATA_WELL_RESERVES; k++)
-                            {
-
-                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
-                                    continue;
-
-                                int l;
-
-																																float circle_base_rad = 220 - k * 70;
-
-																																int circle_distribution = w.data_well[backbl->backblock_value].reserve_squares * 24;
-
-																																float circle_thickness = w.data_well[backbl->backblock_value].reserve_data [k] * 0.005;
-																																if (circle_thickness > 10)
-																																	circle_thickness = 10;
-
-                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares * 2; l ++)
-                                {
-
-                                	float circle_rad = ((w.world_time) + (l * 24)) % (circle_distribution * 2);
-                                	circle_rad *= 0.5;
-
-                                	int circle_alpha;
-                                	if (circle_rad < (circle_distribution / 2))
-																																		circle_alpha = circle_rad * 4;
-																																	  else
-  																																		circle_alpha = (circle_distribution - circle_rad) * 4;
-
-  																															if (circle_alpha > 100)
-																																		circle_alpha = 100;
-
-                                 ALLEGRO_COLOR res_col = al_map_rgba(250,
-                                 40 + circle_alpha,
-                                 30,
-                                 circle_alpha);
-
-//                            	    draw_ring(1, bx2, by2, circle_rad * specific_zoom, 24, 64, res_col2);
-                            	    draw_ring(1, bx2, by2, circle_base_rad - circle_rad, circle_thickness, 64, res_col);
-
-                                }
-
-/*
-                                int l;
-                                float reserve_square_arc = 0.13;
-                                float reserve_square_length = 36;
-                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
-                                reserve_square_length *= reserve_data_proportion;
-                                if (reserve_data_proportion < 1)
-                                 reserve_square_arc *= reserve_data_proportion;
-                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
-                                {
-                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                    add_diamond_layer(1,
-                                    bx2 + cos(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    by2 + sin(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    bx2 + cos(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    by2 + sin(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
-                                    bx2 + cos(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    by2 + sin(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    bx2 + cos(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    by2 + sin(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
-                                    reserve_colour);
-                                }
-                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
-
-*/
-                            }
-
-								}
-        break; // end AREA_ORANGE
-
-
-       	case AREA_PURPLE:
-								{
-
-                            well_size = 40;
-
-
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                            float inner_size = 42 * specific_zoom;
-                            float outer_size = 128 * specific_zoom;
-                            float far_outer_size = 240 * specific_zoom;
-
-
-                            for (k = 0; k < 3; k++)
-                            {
-
-//                            	if (k != 0)
-//																														break;
-
-
-
-                                float base_angle;
-                                if (backbl->backblock_value & 1)
-																																	base_angle = (PI/-6) + ((PI*2) / 3) * k;
-																																  else
-																																			base_angle = (PI/6) + ((PI*2) / 3) * k;
-                                float left_inner_angle = base_angle - PI/3 + 0.18;
-                                float left_outer_angle = base_angle - PI/3 + 0.05;
-                                float right_inner_angle = base_angle + PI/3 - 0.18;
-                                float right_outer_angle = base_angle + PI/3 - 0.05;
-
-
-                                vertex_list[0][0] = bx2 + cos(base_angle) * inner_size;
-                                vertex_list[0][1] = by2 + sin(base_angle) * inner_size;
-                                vertex_list[1][0] = bx2 + cos(right_inner_angle) * inner_size;
-                                vertex_list[1][1] = by2 + sin(right_inner_angle) * inner_size;
-                                vertex_list[2][0] = bx2 + cos(right_outer_angle) * outer_size;
-                                vertex_list[2][1] = by2 + sin(right_outer_angle) * outer_size;
-#define FAR_OUTER_ANGLE 0.04
-                                vertex_list[3][0] = bx2 + cos(base_angle + FAR_OUTER_ANGLE) * far_outer_size;
-                                vertex_list[3][1] = by2 + sin(base_angle + FAR_OUTER_ANGLE) * far_outer_size;
-                                vertex_list[4][0] = bx2 + cos(base_angle - FAR_OUTER_ANGLE) * far_outer_size;
-                                vertex_list[4][1] = by2 + sin(base_angle - FAR_OUTER_ANGLE) * far_outer_size;
-
-                                vertex_list[5][0] = bx2 + cos(left_outer_angle) * outer_size;
-                                vertex_list[5][1] = by2 + sin(left_outer_angle) * outer_size;
-                                vertex_list[6][0] = bx2 + cos(left_inner_angle) * inner_size;
-                                vertex_list[6][1] = by2 + sin(left_inner_angle) * inner_size;
-//                                vertex_list[5][0] = bx2 + cos(left_angle) * 36;
-//                                vertex_list[5][1] = by2 + sin(left_angle) * 36;
-
-
-
-                                add_poly_layer(1, 7, colours.data_well_hexes [2]);
-
-
-                            }
-
-
-
-                            int transfer_colour_adjust;
-
-                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
-                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
-                              else
-                               transfer_colour_adjust = 0;
-
-                            if (w.data_well[backbl->backblock_value].data > 0)
-                            {
-
-                                specific_zoom = view.zoom;
-
-                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
-                            }
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                            ALLEGRO_COLOR reserve_colour;
-
-                            reserve_colour = al_map_rgba(180,
-                            100,
-                            30,
-                            140);
-
-
-                            for (k = 0; k < DATA_WELL_RESERVES; k++)
-                            {
-                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
-                                    continue;
-                                int l;
-                                float reserve_square_arc_inner;// = 0.16;
-                                float reserve_square_arc_outer;// = 0.13;
-                                float reserve_square_length = 42;
-                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.001;
-                                float base_dist, base_well_ring_angle;
-//                                base_well_ring_angle += (PI / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                reserve_square_length *= reserve_data_proportion * specific_zoom;
-                                if (reserve_data_proportion < 1)
-																																{
-                                 reserve_square_arc_inner *= reserve_data_proportion;
-                                 reserve_square_arc_outer *= reserve_data_proportion;
-																																}
-																																if (k == 0)
-																																{
-                                     base_dist = 180 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
-                                     base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
-                                     reserve_square_arc_inner = 0.16;
-                                     reserve_square_arc_outer = 0.13;
-																																}
-																																 else
-																																	{
-                                      base_dist = 150 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
-                                      base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate * -1);
-                                      reserve_square_arc_inner = 0.24;
-                                      reserve_square_arc_outer = 0.32;
-																																	}
-                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
-                                {
-                                    float special_bx2 = bx2;// + (drand(60, 1) - 30) * specific_zoom;
-                                    float special_by2 = by2;// + (drand(60, 1) - 30) * specific_zoom;
-                                    if (k == 0)
-																																				{
-                                     float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                     add_diamond_layer(3,
-                                      special_bx2 + cos(square_angle - reserve_square_arc_inner) * base_dist,
-                                      special_by2 + sin(square_angle - reserve_square_arc_inner) * base_dist,
-                                      special_bx2 + cos(square_angle + reserve_square_arc_inner) * base_dist,
-                                      special_by2 + sin(square_angle + reserve_square_arc_inner) * base_dist,
-                                      special_bx2 + cos(square_angle + reserve_square_arc_outer) * (base_dist + reserve_square_length),
-                                      special_by2 + sin(square_angle + reserve_square_arc_outer) * (base_dist + reserve_square_length),
-                                      special_bx2 + cos(square_angle - reserve_square_arc_outer) * (base_dist + reserve_square_length),
-                                      special_by2 + sin(square_angle - reserve_square_arc_outer) * (base_dist + reserve_square_length),
-                                      reserve_colour);
-																																				}
-																																				   else
-																																							{
-                                        float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
-                                        add_diamond_layer(3,
-                                         special_bx2 + cos(square_angle - reserve_square_arc_inner) * base_dist,
-                                         special_by2 + sin(square_angle - reserve_square_arc_inner) * base_dist,
-                                         special_bx2 + cos(square_angle + reserve_square_arc_inner) * base_dist,
-                                         special_by2 + sin(square_angle + reserve_square_arc_inner) * base_dist,
-                                         special_bx2 + cos(square_angle + reserve_square_arc_outer) * (base_dist - reserve_square_length),
-                                         special_by2 + sin(square_angle + reserve_square_arc_outer) * (base_dist - reserve_square_length),
-                                         special_bx2 + cos(square_angle - reserve_square_arc_outer) * (base_dist - reserve_square_length),
-                                         special_by2 + sin(square_angle - reserve_square_arc_outer) * (base_dist - reserve_square_length),
-                                         reserve_colour);
-                                       }
-//                                base_well_ring_angle += (PI/2) / w.data_well[backbl->backblock_value].reserve_squares;
-//                                     base_well_ring_angle += (PI / w.data_well[backbl->backblock_value].reserve_squares);
-                              }
-                            }
-
-								}
-        break; // end AREA_PURPLE
-
-
-
-							 case AREA_RED:
-								{
-
-
-/*
-                            well_size = 140;
-                            specific_zoom = view.zoom * w.backblock_parallax [3];
-
-                            bx2 = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 44;
-                                well_size = base_dist + 122;
-#undef BASE_WELL_ANGLE
-#define BASE_WELL_ANGLE (PI/6)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;// * well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;// * well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size + 64) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size + 64) * specific_zoom;
-//                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-//                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-                                vertex_list[4][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
-
-                                add_poly_layer(1, 4, colours.data_well_hexes [0]);
-
-
-                            }
-
-*/
-
-
-                            well_size = 140;
-                            specific_zoom = view.zoom * w.backblock_parallax [2];
-
-                            bx2 = top_left_corner_x [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 44;
-                                well_size = base_dist + 112 + drand(80, 1);
-#undef BASE_WELL_ANGLE
-#define BASE_WELL_ANGLE (0)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;//  * well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;// * well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
-//                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5) - 0.45) * (well_size + 48) * specific_zoom;
-//                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5) - 0.45) * (well_size + 48) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
-//                                vertex_list[5][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5) + 0.45) * (well_size + 48) * specific_zoom;
-//                                vertex_list[5][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5) + 0.45) * (well_size + 48) * specific_zoom;
-                                vertex_list[4][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
-                                vertex_list[4][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
-
-                                add_poly_layer(1, 5, colours.data_well_hexes [1]);
-
-
-                            }
-
-
-
-
-                            well_size = 40;
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-
-                            for (k = 0; k < 6; k++)
-                            {
-
-                                float base_dist = drand(30, special_i) + 24;
-                                well_size = base_dist + 60 + drand(60, 1);
-
-#undef BASE_WELL_ANGLE
-#define BASE_WELL_ANGLE (PI/6)
-
-                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
-                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
-                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
-                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
-                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
-                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
-                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
-                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
-                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
-                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
-//                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-//                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
-                                vertex_list[4][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
-                                vertex_list[4][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
-
-                                add_poly_layer(1, 5, colours.data_well_hexes [2]);
-
-
-                            }
-
-
-                            int transfer_colour_adjust;
-
-                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
-                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
-                              else
-                               transfer_colour_adjust = 0;
-
-                            if (w.data_well[backbl->backblock_value].data > 0)
-                            {
-
-                                specific_zoom = view.zoom;
-
-                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
-                            }
-
-                            specific_zoom = view.zoom * w.backblock_parallax [1];
-
-                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
-
-//                            float base_well_ring_angle = (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
-
-#undef WELL_RING_RADIUS
-#define WELL_RING_RADIUS 140
-                            ALLEGRO_COLOR reserve_colour;
-
-                            reserve_colour = al_map_rgba(180,
-                            100,
-                            30,
-                            140);
-
-                            seed_drand(special_i+special_j + w.world_time);
-
-
-                            for (k = 0; k < DATA_WELL_RESERVES; k++)
-                            {
-                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
-                                    continue;
-                                int swirl, l;
-                                float reserve_angle;
-                                float swirl_spin;
-                                if (k == 0)
-																																	swirl_spin = w.data_well[backbl->backblock_value].spin_rate;
-																																	 else
-  																																	swirl_spin = 0 - w.data_well[backbl->backblock_value].spin_rate;
-																																reserve_angle = (w.world_time * swirl_spin);
-																																int reserve_swirl_steps = 10 + w.data_well[backbl->backblock_value].reserve_data [k] / 35;//3 + w.data_well[backbl->backblock_value].reserve_data [k] / 100;
-																																float reserve_dist = (250 - k * 100) * specific_zoom;
-																																float reserve_step_arc = 0 - swirl_spin;
-                              	 float reserve_width;// = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
-                              	 float reserve_width_prop = 1;
-                              	 for (swirl = 0; swirl < w.data_well[backbl->backblock_value].reserve_squares; swirl ++)
-																																{
-//																																	float reserve_front_x = bx2 + cos(reserve_angle) * reserve_dist;
-//																																	float reserve_front_y = by2 + sin(reserve_angle) * reserve_dist;
-
-                              	 reserve_width = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
-/*
-																																 start_ribbon(1,
-																																													 bx2 + cos(reserve_angle - reserve_step_arc * 6) * reserve_dist,
-																																													 by2 + sin(reserve_angle - reserve_step_arc * 6) * reserve_dist,
-																																													 bx2 + cos(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist + reserve_width * 0.6),
-																																													 by2 + sin(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist + reserve_width * 0.6),
-																																													 reserve_colour);
-																																 add_ribbon_vertex(bx2 + cos(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist - reserve_width * 0.6),
-																																													      by2 + sin(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist - reserve_width * 0.6),
-																																																		 reserve_colour);
-																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
-																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
-																																																		 reserve_colour);
-																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
-																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
-																																																		 reserve_colour);
-*/
-
-																																 start_ribbon(1,
-																																													 bx2 + cos(reserve_angle - reserve_step_arc * 4) * reserve_dist,
-																																													 by2 + sin(reserve_angle - reserve_step_arc * 4) * reserve_dist,
-																																													 bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
-																																													 by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
-																																													 reserve_colour);
-																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
-																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
-																																																		 reserve_colour);
-
-
-                                 for (l = 2; l < reserve_swirl_steps; l ++) // note starts at 2
-                                 {
-                                	 reserve_width_prop = (float) (reserve_swirl_steps - l) / (float) (reserve_swirl_steps);
-                                	 reserve_width = ((reserve_swirl_steps - l) * 0.4 + drand(6, -1)) * specific_zoom * reserve_width_prop;
-                                    float step_angle = reserve_angle + reserve_step_arc * l;
-																																  add_ribbon_vertex(bx2 + cos(step_angle) * (reserve_dist + reserve_width),
-																																													       by2 + sin(step_angle) * (reserve_dist + reserve_width),
-																																																		  reserve_colour);
-																																  add_ribbon_vertex(bx2 + cos(step_angle) * (reserve_dist - reserve_width),
-																																													       by2 + sin(step_angle) * (reserve_dist - reserve_width),
-																																																		  reserve_colour);
-
-                                 }
-
-                                 reserve_angle += (2 * PI) / w.data_well[backbl->backblock_value].reserve_squares;
-
-																																}
-                            }
-
-
-								} // end AREA_ORANGE
-								break;
-
-
-
-       }
-       break;
+							sancheck(deferred_data_wells, 0, DEFERRED_DATA_WELL_DRAWINGS, "deferred_data_wells");
+
+      	deferred_data_well_draw_i [deferred_data_wells] = i;
+	      deferred_data_well_draw_j [deferred_data_wells] = j;
+	      deferred_data_well_draw_backbl [deferred_data_wells] = backbl;
+       deferred_data_wells ++;
 
 
 
@@ -2270,6 +1152,185 @@ default:
 
    }
   }
+
+	} // end if (!settings.option[OPTION_FAST_BACKGROUND])
+	 else
+		{
+
+// The following is the code to draw the reduced detail (1) background:
+  for (i = min_block_x; i < max_block_x; i ++)
+  {
+
+   bx = i; //base_bx + i;
+
+
+   if (bx < 0)
+    continue;
+   if (bx >= w.blocks.x)
+    break;
+
+   check_vbuf();
+
+
+   for (j = min_block_y; j < max_block_y; j ++)
+   {
+    by = j;//base_by + j;
+
+    if (by < 0)
+     continue;
+    if (by >= w.blocks.y)
+     break;
+
+    backbl = &w.backblock [bx] [by];
+
+    switch(backbl->backblock_type)
+    {
+				 case BACKBLOCK_BASIC_HEX:
+				 	{
+
+       float nsize;
+       int nfillcol;
+       int node_colour;
+       int node_saturation;
+
+       for (k = 0; k < 9; k ++)
+       {
+        if (backbl->node_exists [k] == 0)
+									continue;
+
+								float specific_zoom = view.zoom * w.backblock_parallax [backbl->node_depth [k]];
+
+       bx2 = top_left_corner_x [backbl->node_depth [k]] + (BLOCK_SIZE_PIXELS * specific_zoom) * (i); //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+       by2 = top_left_corner_y [backbl->node_depth [k]] + (BLOCK_SIZE_PIXELS * specific_zoom) * (j); //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+// node_size is set a bit smaller (in the world generation functions) with this setting activated
+        nsize = backbl->node_size [k];
+        nfillcol = 0;
+        node_colour = backbl->node_team_col [k];
+        node_saturation = backbl->node_col_saturation [k];
+        if (w.world_time > backbl->node_colour_change_timestamp [k])
+								{
+         node_colour = backbl->node_new_colour [k];
+								 node_saturation = backbl->node_new_saturation [k];
+								}
+
+        if (backbl->node_pending_explosion_timestamp [k] > w.world_time
+									&& backbl->node_pending_explosion_timestamp [k] < w.world_time + 32)
+								{
+//									float explosion_strength_at_node =
+         float size_increase = (backbl->node_pending_explosion_timestamp [k] - w.world_time) / 2;
+         if (size_increase > 6)
+										size_increase = 6;
+         nsize += size_increase;
+         nfillcol = (backbl->node_pending_explosion_timestamp [k] - w.world_time) / 4;
+
+         if (nfillcol >= BACK_COL_FADE)
+          nfillcol = BACK_COL_FADE - 1;
+         if (nfillcol < 0)
+										nfillcol = 0;
+
+
+								}
+
+//        nsize -= 1;
+        nsize *= specific_zoom;
+
+        float diamond_centre_x = bx2 + (backbl->node_x [k]) * specific_zoom;
+        float diamond_centre_y = by2 + (backbl->node_y [k]) * specific_zoom;
+
+/*
+        add_diamond_layer((BACKBLOCK_LAYERS - 1) - backbl->node_depth [k],
+																										diamond_centre_x,
+																										diamond_centre_y - nsize,
+																										diamond_centre_x + nsize,
+																										diamond_centre_y,
+																										diamond_centre_x,
+																										diamond_centre_y + nsize,
+																										diamond_centre_x - nsize,
+																										diamond_centre_y,
+                          colours.back_fill [backbl->node_depth [k]] [node_colour] [node_saturation] [nfillcol]);
+*/
+
+        add_diamond_layer((BACKBLOCK_LAYERS - 1) - backbl->node_depth [k],
+																										diamond_centre_x - nsize,
+																										diamond_centre_y - nsize,
+																										diamond_centre_x + nsize,
+																										diamond_centre_y - nsize,
+																										diamond_centre_x + nsize,
+																										diamond_centre_y + nsize,
+																										diamond_centre_x - nsize,
+																										diamond_centre_y + nsize,
+                          colours.back_fill [backbl->node_depth [k]] [node_colour] [node_saturation] [nfillcol]);
+
+
+
+//               al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREEN] [SHADE_MAX],
+//																				bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom,
+//																				0, "%i:%i", j & 1, k);
+
+//               al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREEN] [SHADE_MAX],
+//																				bx2 + (backbl->node_x [k]) * specific_zoom, by2 + (backbl->node_y [k]) * specific_zoom, 0,
+//																													"%i", backbl->node_depth [k]);
+
+
+       }
+				 	}
+					 break;
+
+					case BACKBLOCK_DATA_WELL:
+					case BACKBLOCK_DATA_WELL_EDGE:
+						{
+							if (w.data_well[backbl->backblock_value].last_drawn == game.total_time)
+								continue;
+
+							w.data_well[backbl->backblock_value].last_drawn = game.total_time;
+
+							sancheck(deferred_data_wells, 0, DEFERRED_DATA_WELL_DRAWINGS, "deferred_data_wells");
+
+      	deferred_data_well_draw_i [deferred_data_wells] = i;
+	      deferred_data_well_draw_j [deferred_data_wells] = j;
+	      deferred_data_well_draw_backbl [deferred_data_wells] = backbl;
+       deferred_data_wells ++;
+
+
+
+						}
+      break; // end data well drawing code
+
+    	default:
+						break;
+
+    }
+
+
+   }
+  }
+
+
+
+
+
+
+
+		}
+
+} // end if (!settings.option[OPTION_NO_BACKGROUND])
+
+
+  i = 0;
+
+  while (i < deferred_data_wells)
+		{
+
+       draw_data_well(deferred_data_well_draw_i [i],
+																						deferred_data_well_draw_j [i],
+																						deferred_data_well_draw_backbl [i],
+																						top_left_corner_x, top_left_corner_y);
+
+
+			i++;
+
+		};
 
   draw_vbuf();
 
@@ -6567,6 +5628,12 @@ far_dist = 12 + (shade);//*= 0.1;
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen
 
 #ifndef RECORDING_VIDEO_2
+
+
+
+
+
+
   int bubble_core_index = bubble_list_index; // bubble_list_index set above during main core drawing loop
 
 
@@ -7810,7 +6877,7 @@ if (inter.block_mode_button_area_scrolling)
 //		float box_x = view.window_x_unzoomed - BOX_W - 10;
 //		float box_x2 = box_x + BOX_W;
 
-		box_y = box_y + box_h + 8;
+		box_y = box_y + box_h + 28;
 
 		box_h = BOX_HEADER_H + BOX_LINE_H * 4 + 8;
 
@@ -15745,7 +14812,7 @@ void check_vbuf(void)
 
 void draw_vbuf(void)
 {
-
+//al_hold_bitmap_drawing(1);
 // fprintf(stdout, "\ndraw: vp %i ", vbuf.vertex_pos);
 //fprintf(stdout, "\ndraw_vbuf");
 	int i;
@@ -15781,7 +14848,7 @@ void draw_vbuf(void)
 
 	vbuf.vertex_pos_triangle = 0;
 	vbuf.vertex_pos_line = 0;
-
+//al_hold_bitmap_drawing(0);
 }
 
 
@@ -17991,6 +17058,14 @@ static void vision_check_for_display(void)
 
 	}
 
+
+
+
+
+
+
+
+
 /*
 	int c;
 	int base_min_x, base_max_x, base_min_y, base_max_y;
@@ -18246,6 +17321,1169 @@ static void vision_check_for_display(void)
 	}
 */
 }
+
+
+
+
+
+
+
+
+
+
+static void draw_data_well(int i, int j, struct backblock_struct* backbl,
+																				float top_left_corner_x [BACKBLOCK_LAYERS],
+                    float top_left_corner_y [BACKBLOCK_LAYERS])
+{
+
+
+							int special_i, special_j; // versions of i and j adjusted for the actual location of the data well, which may not be this block
+
+							int k;
+							float bx2, by2;
+
+							if (backbl->backblock_type == BACKBLOCK_DATA_WELL_EDGE)
+							{
+								special_i = w.data_well[backbl->backblock_value].block_position.x;
+								special_j = w.data_well[backbl->backblock_value].block_position.y;
+							}
+							 else
+								{
+									special_i = i;
+									special_j = j;
+								}
+
+							float specific_zoom = view.zoom * w.backblock_parallax [2];
+
+							float bx3 [2];
+							float by3 [2];
+							float base_part_zoom [2];
+
+							base_part_zoom [0] = view.zoom * w.backblock_parallax [2];;
+							base_part_zoom [1] = view.zoom * w.backblock_parallax [3];;
+
+       bx3 [0] = top_left_corner_x [2] + (BLOCK_SIZE_PIXELS * base_part_zoom [0]) * (special_i) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [0]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+       by3 [0] = top_left_corner_y [2] + (BLOCK_SIZE_PIXELS * base_part_zoom [0]) * (special_j) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [0]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+       bx3 [1] = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * base_part_zoom [1]) * (special_i) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [1]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+       by3 [1] = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * base_part_zoom [1]) * (special_j) + (BLOCK_SIZE_PIXELS/2) * base_part_zoom [1]; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+//       bx2 = (((i * BLOCK_SIZE_PIXELS) - camera_offset_x) + (BLOCK_SIZE_PIXELS/2)) * view.zoom;
+//       by2 = (((j * BLOCK_SIZE_PIXELS) - camera_offset_y) + (BLOCK_SIZE_PIXELS/2)) * view.zoom;
+
+//    fprintf(stdout, "\n [tlc %f,%f] [bx,by %i,%i] [bx2,by2 %f,%f]", top_left_corner_x, top_left_corner_y, bx,by, bx2, by2);
+
+
+       float well_size = 20;
+       seed_drand(special_i+special_j);
+
+
+       switch(w.story_area)
+       {
+
+
+							 case AREA_BLUE:
+       	case AREA_TUTORIAL:
+								{
+                            for (k = 0; k < 6; k++)
+                            {
+                                float base_dist = drand(40, special_i) + 44;
+                                well_size = base_dist + 142 + drand(40, special_i);
+
+                                float bit_dist = 0.15;//0.05 + (drand(100, 1) * 0.008);
+                                float centre_dist = 42 + drand(30, 1);
+
+                                int bit_layer = 1;//(k+backbl->backblock_value) & 1;
+
+                                specific_zoom = base_part_zoom [bit_layer];
+                                bx2 = bx3 [bit_layer];
+                                by2 = by3 [bit_layer];
+
+#define BASE_WELL_ANGLE_2 0
+//(PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE_2 + (PI/3)*k + bit_dist) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE_2 + (PI/3)*k + bit_dist) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - bit_dist) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - bit_dist) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * centre_dist;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * centre_dist;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * centre_dist; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * centre_dist; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE_2 + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE_2 + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - 0.45) * (well_size + 96) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE_2 + (PI/3)*(k+1) - 0.45) * (well_size + 96) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE_2 + (PI/3)*k + 0.45) * (well_size + 96) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE_2 + (PI/3)*k + 0.45) * (well_size + 96) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE_2 + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE_2 + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                add_poly_layer(bit_layer ^ 1, 6, colours.data_well_hexes [bit_layer ^ 1]);//base [COL_BLUE] [SHADE_MED]);//data_well_hexes);
+
+
+                            }
+
+
+                            well_size = 40;
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 24;
+                                well_size = base_dist + 22;
+
+#define BASE_WELL_ANGLE (PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                add_poly_layer(1, 6, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+#define WELL_RING_RADIUS (110)
+                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+                                int l;
+                                float reserve_square_arc = 0.13;
+                                float reserve_square_length = 36;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
+                                reserve_square_length *= reserve_data_proportion;
+                                if (reserve_data_proportion < 1)
+                                 reserve_square_arc *= reserve_data_proportion;
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                    add_diamond_layer(1,
+                                    bx2 + cos(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    by2 + sin(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    bx2 + cos(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    by2 + sin(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    bx2 + cos(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    by2 + sin(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    bx2 + cos(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    by2 + sin(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    reserve_colour);
+                                }
+                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
+                            }
+
+								}
+        break; // end AREA_BLUE/AREA_TUTORIAL
+
+default:
+							 case AREA_GREEN:
+								{
+
+
+
+                            well_size = 140;
+                            specific_zoom = view.zoom * w.backblock_parallax [3];
+
+                            bx2 = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 44;
+                                well_size = base_dist + 122;
+#undef BASE_WELL_ANGLE
+#define BASE_WELL_ANGLE (PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                add_poly_layer(1, 6, colours.data_well_hexes [0]);
+
+
+                            }
+
+
+
+                            well_size = 140;
+                            specific_zoom = view.zoom * w.backblock_parallax [2];
+
+                            bx2 = top_left_corner_x [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 44;
+                                well_size = base_dist + 72;
+#undef BASE_WELL_ANGLE
+#define BASE_WELL_ANGLE (0)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                add_poly_layer(1, 6, colours.data_well_hexes [1]);
+
+
+                            }
+
+
+
+
+                            well_size = 40;
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 24;
+                                well_size = base_dist + 22;
+
+#undef BASE_WELL_ANGLE
+#define BASE_WELL_ANGLE (PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                add_poly_layer(1, 6, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+
+#undef WELL_RING_RADIUS
+#define WELL_RING_RADIUS 140
+                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+                                int l;
+                                float well_ring_radius;
+                                if (k == 0)
+																																	well_ring_radius = 140 * specific_zoom;
+																																  else
+																																	  well_ring_radius = 120 * specific_zoom;
+                                float reserve_square_arc = 0.26;
+                                float reserve_square_length = 18.0 * specific_zoom;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
+                                reserve_square_length *= reserve_data_proportion;
+                                if (reserve_data_proportion < 1)
+                                 reserve_square_arc *= reserve_data_proportion;
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                    add_diamond_layer(1,
+                                    bx2 + cos(square_angle + reserve_square_arc) * well_ring_radius,
+                                    by2 + sin(square_angle + reserve_square_arc) * well_ring_radius,
+                                    bx2 + cos(square_angle) * (well_ring_radius + reserve_square_length * 1.3),
+                                    by2 + sin(square_angle) * (well_ring_radius + reserve_square_length * 1.3),
+                                    bx2 + cos(square_angle - reserve_square_arc) * well_ring_radius,
+                                    by2 + sin(square_angle - reserve_square_arc) * well_ring_radius,
+                                    bx2 + cos(square_angle) * (well_ring_radius - reserve_square_length),
+                                    by2 + sin(square_angle) * (well_ring_radius - reserve_square_length),
+                                    reserve_colour);
+                                }
+                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
+                            }
+
+
+								} // end AREA_GREEN
+								break;
+
+							 case AREA_YELLOW:
+									{
+									 float vertex_dist [4] [6];
+
+									 vertex_dist [0] [0] = 47;
+									 vertex_dist [0] [1] = 47;
+									 vertex_dist [0] [2] = 47;
+									 vertex_dist [0] [3] = 47;
+									 vertex_dist [0] [4] = 47;
+									 vertex_dist [0] [5] = 47;
+
+
+									 for (k = 0; k < 3; k++)
+										{
+											int l;
+               for (l = 0; l < 6; l ++)
+														 {
+															 vertex_dist [k + 1] [l] = vertex_dist [k] [l] + 48 + 8 + drand(11, special_i);// + drand(22, special_i);
+														 }
+										}
+
+									 for (k = 2; k >= 0; k--)
+										{
+
+
+                            specific_zoom = view.zoom * w.backblock_parallax [k + 1];
+
+                            bx2 = top_left_corner_x [k + 1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [k + 1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+              vertex_list [0] [0] = bx2;
+              vertex_list [0] [1] = by2 - 1.0 * vertex_dist [k + 1] [0] * specific_zoom;
+              vertex_list [1] [0] = bx2 + 0.866 * vertex_dist [k + 1] [1] * specific_zoom;
+              vertex_list [1] [1] = by2 - 0.5 * vertex_dist [k + 1] [1] * specific_zoom;
+              vertex_list [2] [0] = bx2 + 0.866 * vertex_dist [k + 1] [2] * specific_zoom;
+              vertex_list [2] [1] = by2 + 0.5 * vertex_dist [k + 1] [2] * specific_zoom;
+              vertex_list [3] [0] = bx2;
+              vertex_list [3] [1] = by2 + 1.0 * vertex_dist [k + 1] [3] * specific_zoom;
+              vertex_list [4] [0] = bx2 - 0.866 * vertex_dist [k + 1] [4] * specific_zoom;
+              vertex_list [4] [1] = by2 + 0.5 * vertex_dist [k + 1] [4] * specific_zoom;
+              vertex_list [5] [0] = bx2 - 0.866 * vertex_dist [k + 1] [5] * specific_zoom;
+              vertex_list [5] [1] = by2 - 0.5 * vertex_dist [k + 1] [5] * specific_zoom;
+
+              add_poly_layer(2, 6, colours.data_well_hexes [2 - k]);
+
+
+              vertex_list [0] [0] = bx2;
+              vertex_list [0] [1] = by2 - 1.0 * (vertex_dist [k] [0] + 22) * specific_zoom;
+              vertex_list [1] [0] = bx2 + 0.866 * (vertex_dist [k] [1] + 22) * specific_zoom;
+              vertex_list [1] [1] = by2 - 0.5 * (vertex_dist [k] [1] + 22) * specific_zoom;
+              vertex_list [2] [0] = bx2 + 0.866 * (vertex_dist [k] [2] + 22) * specific_zoom;
+              vertex_list [2] [1] = by2 + 0.5 * (vertex_dist [k] [2] + 22) * specific_zoom;
+              vertex_list [3] [0] = bx2;
+              vertex_list [3] [1] = by2 + 1.0 * (vertex_dist [k] [3] + 22) * specific_zoom;
+              vertex_list [4] [0] = bx2 - 0.866 * (vertex_dist [k] [4] + 22) * specific_zoom;
+              vertex_list [4] [1] = by2 + 0.5 * (vertex_dist [k] [4] + 22) * specific_zoom;
+              vertex_list [5] [0] = bx2 - 0.866 * (vertex_dist [k] [5] + 22) * specific_zoom;
+              vertex_list [5] [1] = by2 - 0.5 * (vertex_dist [k] [5] + 22) * specific_zoom;
+
+              add_poly_layer(2, 6, colours.world_background);
+
+									 }
+
+
+//          bx2 = top_left_corner_x [k] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+//          by2 = top_left_corner_y [k] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+//          add_orthogonal_hexagon(0, bx2, by2, 42 * view.zoom, colours.world_background);
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(4, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+#undef WELL_RING_RADIUS
+#define WELL_RING_RADIUS (80)
+                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+                                int l;
+                                float reserve_square_arc_inner = 0.16;
+                                float reserve_square_arc_outer = 0.13;
+                                float reserve_square_length = 42;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
+                                reserve_square_length *= reserve_data_proportion * specific_zoom;
+                                if (reserve_data_proportion < 1)
+																																{
+                                 reserve_square_arc_inner *= reserve_data_proportion;
+                                 reserve_square_arc_outer *= reserve_data_proportion;
+																																}
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                    float square_dist = 70 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
+                                    float special_bx2 = bx2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    float special_by2 = by2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    add_diamond_layer(3,
+                                    special_bx2 + cos(square_angle - reserve_square_arc_inner) * square_dist,
+                                    special_by2 + sin(square_angle - reserve_square_arc_inner) * square_dist,
+                                    special_bx2 + cos(square_angle + reserve_square_arc_inner) * square_dist,
+                                    special_by2 + sin(square_angle + reserve_square_arc_inner) * square_dist,
+                                    special_bx2 + cos(square_angle + reserve_square_arc_outer) * (square_dist + reserve_square_length),
+                                    special_by2 + sin(square_angle + reserve_square_arc_outer) * (square_dist + reserve_square_length),
+                                    special_bx2 + cos(square_angle - reserve_square_arc_outer) * (square_dist + reserve_square_length),
+                                    special_by2 + sin(square_angle - reserve_square_arc_outer) * (square_dist + reserve_square_length),
+                                    reserve_colour);
+                                }
+                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
+                            }
+
+
+									}
+									break; // end AREA_YELLOW
+
+
+       	case AREA_ORANGE:
+								{
+
+                            well_size = 40;
+
+
+#define ORANGE_WELL_BASE_LAYER 2
+                            specific_zoom = view.zoom * w.backblock_parallax [ORANGE_WELL_BASE_LAYER];
+
+                            bx2 = top_left_corner_x [ORANGE_WELL_BASE_LAYER] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [ORANGE_WELL_BASE_LAYER] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            add_orthogonal_hexagon(1, bx2, by2, 112 * specific_zoom, colours.data_well_hexes [1]);
+                            add_orthogonal_hexagon(1, bx2, by2, 80 * specific_zoom, colours.world_background);
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                if ((k + backbl->backblock_value) & 1)
+																																		continue;
+
+
+                                float base_dist = 36;//drand(30, special_i) + 24;
+                                well_size = base_dist + 22;
+
+                                float base_angle = (float) w.world_time * w.data_well [backbl->backblock_value].spin_rate;
+
+
+                                float left_xpart = cos(base_angle + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(base_angle + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(base_angle + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(base_angle + (PI/3)*(k+1) - 0.05) * specific_zoom;
+
+                                float far_dist = well_size + 100 + drand(30, special_i);
+
+                                vertex_list[0][0] = bx2 + left_xpart * 36;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 36;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 36; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 36; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(base_angle + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(base_angle + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+
+                                vertex_list[3][0] = vertex_list[2][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+                                vertex_list[3][1] = vertex_list[2][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+                                vertex_list[4][0] = vertex_list[1][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+                                vertex_list[4][1] = vertex_list[1][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist + 52) * specific_zoom;
+
+                                vertex_list[7][0] = vertex_list[0][0] + cos(base_angle + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[7][1] = vertex_list[0][1] + sin(base_angle + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                vertex_list[6][0] = vertex_list[7][0] + cos(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+                                vertex_list[6][1] = vertex_list[7][1] + sin(base_angle + (PI/3)*(k+0.5)) * (far_dist) * specific_zoom;
+
+
+/*
+
+                                vertex_list[0][0] = bx2 + left_xpart * 32;// well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;// well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[5][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[5][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+*/
+
+                                add_poly_layer(1, 8, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+//                            float base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+//#define WELL_ORANGE_RING_RADIUS (140)
+/*                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);*/
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+
+                                int l;
+
+																																float circle_base_rad = 220 - k * 70;
+
+																																int circle_distribution = w.data_well[backbl->backblock_value].reserve_squares * 24;
+
+																																float circle_thickness = w.data_well[backbl->backblock_value].reserve_data [k] * 0.005;
+																																if (circle_thickness > 10)
+																																	circle_thickness = 10;
+
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares * 2; l ++)
+                                {
+
+                                	float circle_rad = ((w.world_time) + (l * 24)) % (circle_distribution * 2);
+                                	circle_rad *= 0.5;
+
+                                	int circle_alpha;
+                                	if (circle_rad < (circle_distribution / 2))
+																																		circle_alpha = circle_rad * 4;
+																																	  else
+  																																		circle_alpha = (circle_distribution - circle_rad) * 4;
+
+  																															if (circle_alpha > 100)
+																																		circle_alpha = 100;
+
+                                 ALLEGRO_COLOR res_col = al_map_rgba(250,
+                                 40 + circle_alpha,
+                                 30,
+                                 circle_alpha);
+
+//                            	    draw_ring(1, bx2, by2, circle_rad * specific_zoom, 24, 64, res_col2);
+                            	    draw_ring(1, bx2, by2, circle_base_rad - circle_rad, circle_thickness, 64, res_col);
+
+                                }
+
+/*
+                                int l;
+                                float reserve_square_arc = 0.13;
+                                float reserve_square_length = 36;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.002;
+                                reserve_square_length *= reserve_data_proportion;
+                                if (reserve_data_proportion < 1)
+                                 reserve_square_arc *= reserve_data_proportion;
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                    add_diamond_layer(1,
+                                    bx2 + cos(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    by2 + sin(square_angle - reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    bx2 + cos(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    by2 + sin(square_angle + reserve_square_arc) * WELL_RING_RADIUS*specific_zoom,
+                                    bx2 + cos(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    by2 + sin(square_angle + reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    bx2 + cos(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    by2 + sin(square_angle - reserve_square_arc) * (WELL_RING_RADIUS + reserve_square_length)*specific_zoom,
+                                    reserve_colour);
+                                }
+                                base_well_ring_angle += PI / w.data_well[backbl->backblock_value].reserve_squares;
+
+*/
+                            }
+
+								}
+        break; // end AREA_ORANGE
+
+
+       	case AREA_PURPLE:
+								{
+
+                            well_size = 40;
+
+
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            float inner_size = 42 * specific_zoom;
+                            float outer_size = 128 * specific_zoom;
+                            float far_outer_size = 240 * specific_zoom;
+
+
+                            for (k = 0; k < 3; k++)
+                            {
+
+//                            	if (k != 0)
+//																														break;
+
+
+
+                                float base_angle;
+                                if (backbl->backblock_value & 1)
+																																	base_angle = (PI/-6) + ((PI*2) / 3) * k;
+																																  else
+																																			base_angle = (PI/6) + ((PI*2) / 3) * k;
+                                float left_inner_angle = base_angle - PI/3 + 0.18;
+                                float left_outer_angle = base_angle - PI/3 + 0.05;
+                                float right_inner_angle = base_angle + PI/3 - 0.18;
+                                float right_outer_angle = base_angle + PI/3 - 0.05;
+
+
+                                vertex_list[0][0] = bx2 + cos(base_angle) * inner_size;
+                                vertex_list[0][1] = by2 + sin(base_angle) * inner_size;
+                                vertex_list[1][0] = bx2 + cos(right_inner_angle) * inner_size;
+                                vertex_list[1][1] = by2 + sin(right_inner_angle) * inner_size;
+                                vertex_list[2][0] = bx2 + cos(right_outer_angle) * outer_size;
+                                vertex_list[2][1] = by2 + sin(right_outer_angle) * outer_size;
+#define FAR_OUTER_ANGLE 0.04
+                                vertex_list[3][0] = bx2 + cos(base_angle + FAR_OUTER_ANGLE) * far_outer_size;
+                                vertex_list[3][1] = by2 + sin(base_angle + FAR_OUTER_ANGLE) * far_outer_size;
+                                vertex_list[4][0] = bx2 + cos(base_angle - FAR_OUTER_ANGLE) * far_outer_size;
+                                vertex_list[4][1] = by2 + sin(base_angle - FAR_OUTER_ANGLE) * far_outer_size;
+
+                                vertex_list[5][0] = bx2 + cos(left_outer_angle) * outer_size;
+                                vertex_list[5][1] = by2 + sin(left_outer_angle) * outer_size;
+                                vertex_list[6][0] = bx2 + cos(left_inner_angle) * inner_size;
+                                vertex_list[6][1] = by2 + sin(left_inner_angle) * inner_size;
+//                                vertex_list[5][0] = bx2 + cos(left_angle) * 36;
+//                                vertex_list[5][1] = by2 + sin(left_angle) * 36;
+
+
+
+                                add_poly_layer(1, 7, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);
+
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+                                int l;
+                                float reserve_square_arc_inner;// = 0.16;
+                                float reserve_square_arc_outer;// = 0.13;
+                                float reserve_square_length = 42;
+                                float reserve_data_proportion = w.data_well[backbl->backblock_value].reserve_data [k] * 0.001;
+                                float base_dist, base_well_ring_angle;
+//                                base_well_ring_angle += (PI / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                reserve_square_length *= reserve_data_proportion * specific_zoom;
+                                if (reserve_data_proportion < 1)
+																																{
+                                 reserve_square_arc_inner *= reserve_data_proportion;
+                                 reserve_square_arc_outer *= reserve_data_proportion;
+																																}
+																																if (k == 0)
+																																{
+                                     base_dist = 180 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
+                                     base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+                                     reserve_square_arc_inner = 0.16;
+                                     reserve_square_arc_outer = 0.13;
+																																}
+																																 else
+																																	{
+                                      base_dist = 150 * specific_zoom;//(80 + drand(60, 1)) * specific_zoom;
+                                      base_well_ring_angle = PI/6 + (w.world_time * w.data_well[backbl->backblock_value].spin_rate * -1);
+                                      reserve_square_arc_inner = 0.24;
+                                      reserve_square_arc_outer = 0.32;
+																																	}
+                                for (l = 0; l < w.data_well[backbl->backblock_value].reserve_squares; l ++)
+                                {
+                                    float special_bx2 = bx2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    float special_by2 = by2;// + (drand(60, 1) - 30) * specific_zoom;
+                                    if (k == 0)
+																																				{
+                                     float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                     add_diamond_layer(3,
+                                      special_bx2 + cos(square_angle - reserve_square_arc_inner) * base_dist,
+                                      special_by2 + sin(square_angle - reserve_square_arc_inner) * base_dist,
+                                      special_bx2 + cos(square_angle + reserve_square_arc_inner) * base_dist,
+                                      special_by2 + sin(square_angle + reserve_square_arc_inner) * base_dist,
+                                      special_bx2 + cos(square_angle + reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      special_by2 + sin(square_angle + reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      special_bx2 + cos(square_angle - reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      special_by2 + sin(square_angle - reserve_square_arc_outer) * (base_dist + reserve_square_length),
+                                      reserve_colour);
+																																				}
+																																				   else
+																																							{
+                                        float square_angle = base_well_ring_angle + ((PI*2) / w.data_well[backbl->backblock_value].reserve_squares) * l;
+                                        add_diamond_layer(3,
+                                         special_bx2 + cos(square_angle - reserve_square_arc_inner) * base_dist,
+                                         special_by2 + sin(square_angle - reserve_square_arc_inner) * base_dist,
+                                         special_bx2 + cos(square_angle + reserve_square_arc_inner) * base_dist,
+                                         special_by2 + sin(square_angle + reserve_square_arc_inner) * base_dist,
+                                         special_bx2 + cos(square_angle + reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         special_by2 + sin(square_angle + reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         special_bx2 + cos(square_angle - reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         special_by2 + sin(square_angle - reserve_square_arc_outer) * (base_dist - reserve_square_length),
+                                         reserve_colour);
+                                       }
+//                                base_well_ring_angle += (PI/2) / w.data_well[backbl->backblock_value].reserve_squares;
+//                                     base_well_ring_angle += (PI / w.data_well[backbl->backblock_value].reserve_squares);
+                              }
+                            }
+
+								}
+        break; // end AREA_PURPLE
+
+
+
+							 case AREA_RED:
+								{
+
+
+/*
+                            well_size = 140;
+                            specific_zoom = view.zoom * w.backblock_parallax [3];
+
+                            bx2 = top_left_corner_x [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [3] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 44;
+                                well_size = base_dist + 122;
+#undef BASE_WELL_ANGLE
+#define BASE_WELL_ANGLE (PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;// * well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;// * well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size + 64) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size + 64) * specific_zoom;
+//                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+//                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+                                vertex_list[4][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size / 2 + 12) * specific_zoom;
+
+                                add_poly_layer(1, 4, colours.data_well_hexes [0]);
+
+
+                            }
+
+*/
+
+
+                            well_size = 140;
+                            specific_zoom = view.zoom * w.backblock_parallax [2];
+
+                            bx2 = top_left_corner_x [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [2] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 44;
+                                well_size = base_dist + 112 + drand(80, 1);
+#undef BASE_WELL_ANGLE
+#define BASE_WELL_ANGLE (0)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;//  * well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;// * well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
+//                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5) - 0.45) * (well_size + 48) * specific_zoom;
+//                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5) - 0.45) * (well_size + 48) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
+//                                vertex_list[5][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5) + 0.45) * (well_size + 48) * specific_zoom;
+//                                vertex_list[5][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5) + 0.45) * (well_size + 48) * specific_zoom;
+                                vertex_list[4][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
+                                vertex_list[4][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
+
+                                add_poly_layer(1, 5, colours.data_well_hexes [1]);
+
+
+                            }
+
+
+
+
+                            well_size = 40;
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+
+                            for (k = 0; k < 6; k++)
+                            {
+
+                                float base_dist = drand(30, special_i) + 24;
+                                well_size = base_dist + 60 + drand(60, 1);
+
+#undef BASE_WELL_ANGLE
+#define BASE_WELL_ANGLE (PI/6)
+
+                                float left_xpart = cos(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float left_ypart = sin(BASE_WELL_ANGLE + (PI/3)*k + 0.05) * specific_zoom;
+                                float right_xpart = cos(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                float right_ypart = sin(BASE_WELL_ANGLE + (PI/3)*(k+1) - 0.05) * specific_zoom;
+                                vertex_list[0][0] = bx2 + left_xpart * 32;//* well_size;
+                                vertex_list[0][1] = by2 + left_ypart * 32;//* well_size;
+                                vertex_list[1][0] = bx2 + right_xpart * 32; //well_size;
+                                vertex_list[1][1] = by2 + right_ypart * 32; //well_size;
+                                vertex_list[2][0] = vertex_list[1][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
+                                vertex_list[2][1] = vertex_list[1][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k+1)) * (well_size) * specific_zoom;
+                                vertex_list[3][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
+                                vertex_list[3][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*(k+0.5)) * (well_size * 1.5) * specific_zoom;
+//                                vertex_list[4][0] = bx2 + cos(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+//                                vertex_list[4][1] = by2 + sin(BASE_WELL_ANGLE + (PI/3)*k + 0.45) * (well_size + 64) * specific_zoom;
+                                vertex_list[4][0] = vertex_list[0][0] + cos(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
+                                vertex_list[4][1] = vertex_list[0][1] + sin(BASE_WELL_ANGLE + (PI/3)*(k)) * (well_size) * specific_zoom;
+
+                                add_poly_layer(1, 5, colours.data_well_hexes [2]);
+
+
+                            }
+
+
+                            int transfer_colour_adjust;
+
+                            if (w.world_time - w.data_well[backbl->backblock_value].last_transferred < 32)
+                             transfer_colour_adjust = 32 - (w.world_time - w.data_well[backbl->backblock_value].last_transferred);
+                              else
+                               transfer_colour_adjust = 0;
+
+                            if (w.data_well[backbl->backblock_value].data > 0)
+                            {
+
+                                specific_zoom = view.zoom;
+
+                                bx2 = top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                                by2 = top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+                                add_orthogonal_hexagon(2, bx2, by2, (30 * w.data_well[backbl->backblock_value].data * view.zoom) / w.data_well[backbl->backblock_value].data_max, al_map_rgba(220 + transfer_colour_adjust, 200 - transfer_colour_adjust, 50 - transfer_colour_adjust, 180 + transfer_colour_adjust));
+                            }
+
+                            specific_zoom = view.zoom * w.backblock_parallax [1];
+
+                            bx2 = top_left_corner_x [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_i) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+                            by2 = top_left_corner_y [1] + (BLOCK_SIZE_PIXELS * specific_zoom) * (special_j) + (BLOCK_SIZE_PIXELS/2) * specific_zoom; //((i * BLOCK_SIZE_PIXELS) - camera_offset_x);
+
+//                            float base_well_ring_angle = (w.world_time * w.data_well[backbl->backblock_value].spin_rate);
+
+#undef WELL_RING_RADIUS
+#define WELL_RING_RADIUS 140
+                            ALLEGRO_COLOR reserve_colour;
+
+                            reserve_colour = al_map_rgba(180,
+                            100,
+                            30,
+                            140);
+
+                            seed_drand(special_i+special_j + w.world_time);
+
+
+                            for (k = 0; k < DATA_WELL_RESERVES; k++)
+                            {
+                                if (w.data_well[backbl->backblock_value].reserve_data [k] == 0)
+                                    continue;
+                                int swirl, l;
+                                float reserve_angle;
+                                float swirl_spin;
+                                if (k == 0)
+																																	swirl_spin = w.data_well[backbl->backblock_value].spin_rate;
+																																	 else
+  																																	swirl_spin = 0 - w.data_well[backbl->backblock_value].spin_rate;
+																																reserve_angle = (w.world_time * swirl_spin);
+																																int reserve_swirl_steps = 10 + w.data_well[backbl->backblock_value].reserve_data [k] / 35;//3 + w.data_well[backbl->backblock_value].reserve_data [k] / 100;
+																																float reserve_dist = (250 - k * 100) * specific_zoom;
+																																float reserve_step_arc = 0 - swirl_spin;
+                              	 float reserve_width;// = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
+                              	 float reserve_width_prop = 1;
+                              	 for (swirl = 0; swirl < w.data_well[backbl->backblock_value].reserve_squares; swirl ++)
+																																{
+//																																	float reserve_front_x = bx2 + cos(reserve_angle) * reserve_dist;
+//																																	float reserve_front_y = by2 + sin(reserve_angle) * reserve_dist;
+
+                              	 reserve_width = ((reserve_swirl_steps) * 0.4 + drand(6, -1)) * specific_zoom;
+/*
+																																 start_ribbon(1,
+																																													 bx2 + cos(reserve_angle - reserve_step_arc * 6) * reserve_dist,
+																																													 by2 + sin(reserve_angle - reserve_step_arc * 6) * reserve_dist,
+																																													 bx2 + cos(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist + reserve_width * 0.6),
+																																													 by2 + sin(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist + reserve_width * 0.6),
+																																													 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist - reserve_width * 0.6),
+																																													      by2 + sin(reserve_angle - reserve_step_arc * 4.5) * (reserve_dist - reserve_width * 0.6),
+																																																		 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
+																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
+																																																		 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
+																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
+																																																		 reserve_colour);
+*/
+
+																																 start_ribbon(1,
+																																													 bx2 + cos(reserve_angle - reserve_step_arc * 4) * reserve_dist,
+																																													 by2 + sin(reserve_angle - reserve_step_arc * 4) * reserve_dist,
+																																													 bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
+																																													 by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist + reserve_width),
+																																													 reserve_colour);
+																																 add_ribbon_vertex(bx2 + cos(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
+																																													      by2 + sin(reserve_angle + reserve_step_arc) * (reserve_dist - reserve_width),
+																																																		 reserve_colour);
+
+
+                                 for (l = 2; l < reserve_swirl_steps; l ++) // note starts at 2
+                                 {
+                                	 reserve_width_prop = (float) (reserve_swirl_steps - l) / (float) (reserve_swirl_steps);
+                                	 reserve_width = ((reserve_swirl_steps - l) * 0.4 + drand(6, -1)) * specific_zoom * reserve_width_prop;
+                                    float step_angle = reserve_angle + reserve_step_arc * l;
+																																  add_ribbon_vertex(bx2 + cos(step_angle) * (reserve_dist + reserve_width),
+																																													       by2 + sin(step_angle) * (reserve_dist + reserve_width),
+																																																		  reserve_colour);
+																																  add_ribbon_vertex(bx2 + cos(step_angle) * (reserve_dist - reserve_width),
+																																													       by2 + sin(step_angle) * (reserve_dist - reserve_width),
+																																																		  reserve_colour);
+
+                                 }
+
+                                 reserve_angle += (2 * PI) / w.data_well[backbl->backblock_value].reserve_squares;
+
+																																}
+                            }
+
+
+								} // end AREA_ORANGE
+								break;
+
+
+
+       }
+
+
+
+
+} // end data wells
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

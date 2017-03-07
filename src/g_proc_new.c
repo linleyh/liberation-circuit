@@ -306,6 +306,8 @@ int start_setting_up_core_from_template(int c, struct core_struct* core, struct 
  core->data_stored = 0;
  core->data_storage_capacity = 0;
 
+	core->self_destruct = 0;
+
 
  int i;
 

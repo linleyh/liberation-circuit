@@ -180,6 +180,8 @@ int write_design_structure_to_source_edit(int verified_clear_file)
 		{
 			if (!written_a_class_declaration)
 			{
+		  dcode_header_newline();
+		  dcode_header_newline();
     dcode_header_add_string("// This process has objects with the following auto classes:");
 				written_a_class_declaration = 1;
 			}

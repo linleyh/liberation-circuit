@@ -429,6 +429,8 @@ fpr("\nInitialising:");
    settings.option [OPTION_FULLSCREEN] = 0;
    settings.option [OPTION_FULLSCREEN_TRUE] = 0;
    settings.option [OPTION_MSAA_OFF] = 0;
+   settings.option [OPTION_FAST_BACKGROUND] = 0;
+   settings.option [OPTION_NO_BACKGROUND] = 0;
    settings.option [OPTION_VOL_MUSIC] = 80;
    settings.option [OPTION_VOL_EFFECT] = 80;
    settings.option [OPTION_SPECIAL_CURSOR] = 0;
@@ -877,6 +879,26 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
    fprintf(stdout, "\nEffects volume (%i) fixed to %i.", read_number, settings.option [OPTION_VOL_EFFECT]);
   return bpos;
  }
+
+ invalid_value_fixed = 0;
+
+ if (strcmp(initfile_word, "background_detail") == 0)
+ {
+  bpos = read_initfile_number(&read_number, buffer, buffer_length, bpos);
+  if (bpos == -1)
+   return -1;
+		switch(read_number)
+		{
+			case 0: settings.option [OPTION_NO_BACKGROUND] = 1; break;
+			case 1: settings.option [OPTION_FAST_BACKGROUND] = 1; break;
+			default: fprintf(stdout, "\nInvalid background_detail setting (%i) - should be 0 or 1.", read_number);
+
+		}
+
+  return bpos;
+ }
+
+
 
 static int default_templates_loaded [PLAYERS] = {0,0,0,0};
 

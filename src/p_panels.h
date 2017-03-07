@@ -382,6 +382,8 @@ void run_panels(void);
 void reset_panel_positions(void);
 void reset_mode_buttons(void);
 void close_all_panels(void);
+void close_panel(int pan, int set_panel_restore); // set_panel_restore will be zero if all panels are being closed at once
+void open_panel(int pan);
 
 #endif
 

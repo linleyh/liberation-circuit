@@ -636,6 +636,8 @@ static void check_block_collision(struct proc_struct* pr, struct block_struct* b
 
  while(check_proc != NULL)
  {
+// this function is only for non-group processes (i.e. just a core, with no components) so we don't
+//  need to exclude the possibility that check_proc is in the same group as pr
   if (check_proc != pr // i.e. we don't check the proc against itself
    && check_proc->exists // a proc destroyed immediately before this may still be on the blocklist, but needs to be ignored
    && (check_proc->player_index != pr->player_index
@@ -649,6 +651,14 @@ static void check_block_collision(struct proc_struct* pr, struct block_struct* b
      && check_proc->position.y - check_proc->nshape_ptr->max_length < pr->provisional_position.y + pr->nshape_ptr->max_length)
      {
 
+        collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->position.x, check_proc->position.y, check_proc->angle);
+
+// make sure we're not checking provisional vs provisional for each proc:
+        if (collision_vertex == -1
+									&& pr->core_index < check_proc->core_index)
+          collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->provisional_position.x, check_proc->provisional_position.y, check_proc->provisional_angle);
+
+/*
       collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->provisional_position.x, check_proc->provisional_position.y, check_proc->provisional_angle);
 
 
@@ -661,7 +671,7 @@ static void check_block_collision(struct proc_struct* pr, struct block_struct* b
         collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->position.x, check_proc->position.y, check_proc->angle);
        }
       }
-
+*/
 
 /*
 To do next: use check_shape_shape_collision to:
@@ -772,7 +782,15 @@ static void check_block_collision_group_member(struct proc_struct* pr, struct bl
 //      if ((collision_vertex = check_proc_proc_collision(pr, check_proc, cp_x, cp_y, cp_angle)) != -1)
 //      collision_vertex = check_proc_proc_collision(pr, check_proc, pr->provisional_x, pr->provisional_y, pr->provisional_angle, check_proc->provisional_x, check_proc->provisional_y, check_proc->provisional_angle);
 
-//      check_shape_shape_collision(pr1_nshape, check_proc->shape, check_proc->size, pr->x, pr->y, pr->angle, check_proc->x, check_proc->y, check_proc->angle);
+        collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->position.x, check_proc->position.y, check_proc->angle);
+
+// make sure we're not checking provisional vs provisional for each proc:
+        if (collision_vertex == -1
+									&& pr->core_index < check_proc->core_index)
+          collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->provisional_position.x, check_proc->provisional_position.y, check_proc->provisional_angle);
+
+
+/*
       collision_vertex = check_nshape_nshape_collision(pr1_nshape, check_proc->shape, pr->provisional_position.x, pr->provisional_position.y, pr->provisional_angle, check_proc->provisional_position.x, check_proc->provisional_position.y, check_proc->provisional_angle);
 
 
@@ -786,7 +804,7 @@ static void check_block_collision_group_member(struct proc_struct* pr, struct bl
        }
 // TO DO: optimise by not checking provisional values for immobile procs
       }
-
+*/
 
 //      if ((collision_vertex = check_proc_proc_collision(pr, check_proc, cp_x, cp_y, cp_angle)) != -1)
       if (collision_vertex != -1)
@@ -1101,6 +1119,8 @@ static int check_shape_shape_collision(struct shape_struct* sh1_dat, int sh2_sha
 }
 */
 
+
+
 extern unsigned char nshape_collision_mask [NSHAPES] [COLLISION_MASK_SIZE] [COLLISION_MASK_SIZE];
 
 int check_nshape_nshape_collision(struct nshape_struct* nshape1, int nshape2_index, al_fixed sh1_x, al_fixed sh1_y, al_fixed sh1_angle, al_fixed sh2_x, al_fixed sh2_y, al_fixed sh2_angle)
@@ -1138,8 +1158,6 @@ int check_nshape_nshape_collision(struct nshape_struct* nshape1, int nshape2_ind
  return -1;
 
 }
-
-
 
 
 

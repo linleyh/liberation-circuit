@@ -1,5 +1,6 @@
 
-// to remove z_poly code, remove this line
+// z_poly is my own process geometry editor.
+// It's not supported for general use, as using to design new components requires substantial changes to the code.
 //#define Z_POLY
 
 #ifdef Z_POLY

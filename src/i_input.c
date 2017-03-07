@@ -340,6 +340,112 @@ mouse_unavailable:
 */
 
 
+
+ if (ex_control.special_key_press [SPECIAL_KEY_F1] == BUTTON_JUST_PRESSED)
+	{
+		if (!w.debug_mode_general)
+		{
+			write_text_to_console(CONSOLE_GENERAL, PRINT_COL_DBLUE, -1, 0, "Debug mode activated.");
+			w.debug_mode_general = 1;
+		}
+		 else
+ 		{
+	 		write_text_to_console(CONSOLE_GENERAL, PRINT_COL_DBLUE, -1, 0, "Debug mode deactivated.");
+		 	w.debug_mode_general = 0;
+		 }
+	}
+
+// fast forward only available in world phase (not pregame or game over):
+//  (game.fast_forward is also set to 0 in game over code)
+ if (game.phase == GAME_PHASE_WORLD)
+	{
+
+ if (ex_control.special_key_press [SPECIAL_KEY_F2] == BUTTON_JUST_PRESSED)
+	{
+		if (game.fast_forward == 0
+			|| (game.fast_forward != 0
+				&& game.fast_forward_type != FAST_FORWARD_TYPE_SMOOTH))
+		{
+			game.fast_forward = 1;
+			game.fast_forward_type = FAST_FORWARD_TYPE_SMOOTH;
+		}
+		  else
+			  game.fast_forward = 0;
+	}
+
+ if (ex_control.special_key_press [SPECIAL_KEY_F3] == BUTTON_JUST_PRESSED)
+	{
+		if (game.fast_forward == 0
+			|| (game.fast_forward != 0
+				&& game.fast_forward_type != FAST_FORWARD_TYPE_SKIP))
+		{
+			game.fast_forward = 1;
+			game.fast_forward_type = FAST_FORWARD_TYPE_SKIP;
+		}
+		  else
+			  game.fast_forward = 0;
+	}
+
+ if (ex_control.special_key_press [SPECIAL_KEY_F4] == BUTTON_JUST_PRESSED)
+	{
+		if (game.fast_forward == 0
+			|| (game.fast_forward != 0
+				&& game.fast_forward_type != FAST_FORWARD_TYPE_NO_DISPLAY))
+		{
+			game.fast_forward = 1;
+			game.fast_forward_type = FAST_FORWARD_TYPE_NO_DISPLAY;
+		}
+		  else
+			  game.fast_forward = 0;
+	}
+
+	}
+
+//	if (game.phase == GAME_PHASE_WORLD
+//		|| game.phase == GAME_PHASE_PREGAME)
+	{
+
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F6] == BUTTON_JUST_PRESSED)
+ 	{
+		 if (panel[PANEL_TEMPLATE].open)
+ 			close_panel(PANEL_TEMPLATE, 0);
+			  else
+ 					open_panel(PANEL_TEMPLATE);
+ 	}
+
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F7] == BUTTON_JUST_PRESSED)
+ 	{
+		 if (panel[PANEL_DESIGN].open)
+ 			close_panel(PANEL_DESIGN, 0);
+			  else
+ 					open_panel(PANEL_DESIGN);
+ 	}
+
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F8] == BUTTON_JUST_PRESSED)
+ 	{
+ 		fpr("\nA[%i]", panel[PANEL_EDITOR].open);
+		 if (panel[PANEL_EDITOR].open)
+ 			close_panel(PANEL_EDITOR, 0);
+			  else
+ 					open_panel(PANEL_EDITOR);
+ 	}
+/*
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F8] == BUTTON_JUST_PRESSED)
+ 	{
+		 if (panel[PANEL_SYSMENU].open)
+ 			close_panel(PANEL_SYSMENU, 0);
+			  else
+ 					open_panel(PANEL_SYSMENU);
+ 	}*/
+
+	}
+
+
+
+
+
+
+
  if (control.editor_captures_input)
 	 return;
 
@@ -485,67 +591,6 @@ mouse_unavailable:
 	}
 
 
-
- if (ex_control.special_key_press [SPECIAL_KEY_F1] == BUTTON_JUST_PRESSED)
-	{
-		if (!w.debug_mode_general)
-		{
-			write_text_to_console(CONSOLE_GENERAL, PRINT_COL_DBLUE, -1, 0, "Debug mode activated.");
-			w.debug_mode_general = 1;
-		}
-		 else
- 		{
-	 		write_text_to_console(CONSOLE_GENERAL, PRINT_COL_DBLUE, -1, 0, "Debug mode deactivated.");
-		 	w.debug_mode_general = 0;
-		 }
-	}
-
-// fast forward only available in world phase (not pregame or game over):
-//  (game.fast_forward is also set to 0 in game over code)
- if (game.phase == GAME_PHASE_WORLD)
-	{
-
- if (ex_control.special_key_press [SPECIAL_KEY_F2] == BUTTON_JUST_PRESSED)
-	{
-		if (game.fast_forward == 0
-			|| (game.fast_forward != 0
-				&& game.fast_forward_type != FAST_FORWARD_TYPE_SMOOTH))
-		{
-			game.fast_forward = 1;
-			game.fast_forward_type = FAST_FORWARD_TYPE_SMOOTH;
-		}
-		  else
-			  game.fast_forward = 0;
-	}
-
- if (ex_control.special_key_press [SPECIAL_KEY_F3] == BUTTON_JUST_PRESSED)
-	{
-		if (game.fast_forward == 0
-			|| (game.fast_forward != 0
-				&& game.fast_forward_type != FAST_FORWARD_TYPE_SKIP))
-		{
-			game.fast_forward = 1;
-			game.fast_forward_type = FAST_FORWARD_TYPE_SKIP;
-		}
-		  else
-			  game.fast_forward = 0;
-	}
-
- if (ex_control.special_key_press [SPECIAL_KEY_F4] == BUTTON_JUST_PRESSED)
-	{
-		if (game.fast_forward == 0
-			|| (game.fast_forward != 0
-				&& game.fast_forward_type != FAST_FORWARD_TYPE_NO_DISPLAY))
-		{
-			game.fast_forward = 1;
-			game.fast_forward_type = FAST_FORWARD_TYPE_NO_DISPLAY;
-		}
-		  else
-			  game.fast_forward = 0;
-	}
-
-	}
-
 #ifdef DEBUG_MODE
  if (ex_control.special_key_press [SPECIAL_KEY_F5] == BUTTON_JUST_PRESSED)
 #else
@@ -560,8 +605,9 @@ mouse_unavailable:
 			game.user_player_index = 0;
 
 	}
-
+/*
 #ifdef DEBUG_MODE
+
  if (ex_control.special_key_press [SPECIAL_KEY_F7] == BUTTON_JUST_PRESSED)
 	{
 		if (ex_control.debug_special_keys == 0)
@@ -584,7 +630,7 @@ fpr("\n resetting music - area %i seed %i", game.area_index, mrand_seed);
 
 
 #endif
-
+*/
 
 // control may not reach here (e.g. if input being captured by editor  - control.editor_captures_input == 1)
 

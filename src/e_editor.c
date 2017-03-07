@@ -135,7 +135,7 @@ static void reset_cursor_after_action(void);
 //static int insert_empty_lines(struct source_edit_struct* se, int before_line, int lines);
 //static void delete_lines(struct source_edit_struct* se, int start_line, int lines);
 static void movement_keys(struct source_edit_struct* se);
-static void consider_selecting_to_cursor(struct source_edit_struct* se, int old_line, int old_pos);
+static void consider_selecting_to_cursor(struct source_edit_struct* se, int old_line, int old_pos, int require_shift);
 static int get_skip_word_type(char current_char);
 static void select_text(int x, int y);
 //static int is_something_selected(struct source_edit_struct* se);
@@ -148,6 +148,7 @@ static void submenu_operation(int sm, int line);
 //static void change_tab(int new_tab);
 //static int get_current_source_edit_index(void);
 static void editor_change_source_edit(int new_source_edit_index);
+static int move_cursor_to_end_of_source(struct source_edit_struct* se);
 
 static void overwindow_input(void);
 //static void open_overwindow(int ow_type);
@@ -185,7 +186,7 @@ struct submenustruct submenu [SUBMENUS] =
 #endif
    {"Save", "Ctrl-S"},
    {"Save as", ""},
-   {"Save all", "Ctrl-A"},
+   {"Save all", "Shift-Ctrl-S"},
 //   {"Close", "", HELP_SUBMENU_CLOSE_FILE},
 //   {"Quit", ""},
   }
@@ -199,6 +200,7 @@ struct submenustruct submenu [SUBMENUS] =
    {"Copy", "Ctrl-C"},
    {"Paste", "Ctrl-V"},
    {"Clear", "del"},
+   {"Select all", "Ctrl-A"},
   }
  },
  {
@@ -211,7 +213,7 @@ struct submenustruct submenu [SUBMENUS] =
  {
   SUBMENU_COMPILE_END,
   {
-   {"Test Compile", "F8"},
+   {"Test Compile", "Shift-F9"},
    {"Compile", "F9"},
    {"Compile+lock", ""},
 //   {"Build asm", "", HELP_SUBMENU_BUILD_ASM},
@@ -1330,6 +1332,30 @@ static void submenu_operation(int sm, int line)
 //					  else
 //						  template_locked_editor_message();
      break;
+    case SUBMENU_EDIT_SELECT_ALL:
+    	{
+      se = get_current_source_edit();
+      if (se != NULL
+					 	&& se->active == 1
+       && se->type == SOURCE_EDIT_TYPE_SOURCE)
+      {
+      	se->cursor_line = 0;
+      	se->cursor_pos = 0;
+      	se->cursor_base = 0;
+//       editor.selecting = 1;
+       se->select_fix_line = 0;
+       se->select_fix_pos = 0;
+       se->select_free_line = 0;
+       se->select_free_pos = 0;
+       if (move_cursor_to_end_of_source(se))
+							{
+								consider_selecting_to_cursor(se, 0, 0, 0);
+							}
+      }
+
+
+    	}
+					break;
    }
    break;
   case SUBMENU_SEARCH:
@@ -1476,7 +1502,7 @@ static void click_in_edit_window(int x, int y)
 
 // if (editor.selecting)
 // if (se->selected)
-  consider_selecting_to_cursor(se, old_line, old_pos);
+  consider_selecting_to_cursor(se, old_line, old_pos, 1);
 
   if (!se->selected)
 			{
@@ -1620,7 +1646,7 @@ static void editor_input_keys(void)
 
 
 //#define DEBUG_MODE
-
+/*
 #ifdef DEBUG_MODE
  if (ex_control.special_key_press [SPECIAL_KEY_F6] == BUTTON_JUST_PRESSED)
 	{
@@ -1635,7 +1661,7 @@ static void editor_input_keys(void)
 
 
 #endif
-
+*/
  int i, j, found_word;
  struct source_edit_struct* se;
 
@@ -1722,10 +1748,13 @@ no_keys_accepted:
    		return;
 // File menu
    	case 1: // ctrl-A
-   		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE_ALL);
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_SELECT_ALL);
    		return;
-   	case 19: // ctrl-S
-   		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE);
+   	case 19: // ctrl-S and ctrl-shift-S
+   		if (ex_control.special_key_press [SPECIAL_KEY_SHIFT])
+    		submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE_ALL);
+    		 else
+   		   submenu_operation(SUBMENU_FILE, SUBMENU_FILE_SAVE);
    		return;
 #ifdef RELOAD_KEYBOARD_SHORTCUT
    	case 18: // ctrl-R
@@ -1929,7 +1958,7 @@ no_keys_accepted:
         editor.key_delay = KEY_DELAY2;
     editor.cursor_flash = CURSOR_FLASH_MAX;
     window_find_cursor(se);
-    consider_selecting_to_cursor(se, old_line, old_pos);
+    consider_selecting_to_cursor(se, old_line, old_pos, 1);
     return;
    } // end if left cursor key pressed
 
@@ -2002,9 +2031,41 @@ no_keys_accepted:
          editor.key_delay = KEY_DELAY2;
      editor.cursor_flash = CURSOR_FLASH_MAX;
      window_find_cursor(se);
-     consider_selecting_to_cursor(se, old_line, old_pos);
+     consider_selecting_to_cursor(se, old_line, old_pos, 1);
      return;
     } // end if right cursor key pressed
+
+   if (ex_control.special_key_press [SPECIAL_KEY_END] > 0)
+			{
+    se = get_current_source_edit();
+    if (se == NULL
+     || !se->active)
+     return;
+    int old_line = se->cursor_line;
+    int old_pos = se->cursor_pos;
+    editor.cursor_flash = CURSOR_FLASH_MAX;
+				if (move_cursor_to_end_of_source(se))
+     consider_selecting_to_cursor(se, old_line, old_pos, 1);
+    return;
+			} // end if end pressed
+
+   if (ex_control.special_key_press [SPECIAL_KEY_HOME] > 0)
+			{
+    se = get_current_source_edit();
+    if (se == NULL
+     || !se->active)
+     return;
+    int old_line = se->cursor_line;
+    int old_pos = se->cursor_pos;
+    se->cursor_line = 0;
+    se->cursor_pos = 0;
+    se->cursor_base = 0;
+    editor.cursor_flash = CURSOR_FLASH_MAX;
+    window_find_cursor(se);
+    consider_selecting_to_cursor(se, old_line, old_pos, 1);
+    return;
+			} // end if home pressed
+
 
    editor.key_delay = 0;
    return;
@@ -2284,10 +2345,11 @@ static int get_skip_word_type(char current_char)
 
 
 
-static void consider_selecting_to_cursor(struct source_edit_struct* se, int old_line, int old_pos)
+static void consider_selecting_to_cursor(struct source_edit_struct* se, int old_line, int old_pos, int require_shift)
 {
 
- if (ex_control.special_key_press [SPECIAL_KEY_SHIFT] > 0)
+ if (ex_control.special_key_press [SPECIAL_KEY_SHIFT] > 0
+	|| !require_shift)
  {
   if (se->selected == 0)
   {
@@ -2710,11 +2772,14 @@ static void cursor_etc_key(int key_press)
 //    find_next();
 //    window_find_cursor(se);
     break;
-  case SPECIAL_KEY_F8:
-  	 submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_TEST);
-    break;
+//  case SPECIAL_KEY_F8:
+//  	 submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_TEST);
+//    break;
   case SPECIAL_KEY_F9:
-  	 submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_COMPILE);
+  	 if (ex_control.special_key_press [SPECIAL_KEY_SHIFT])
+  	  submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_TEST);
+  	   else
+  	    submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_COMPILE);
     break;
 
   case SPECIAL_KEY_LEFT:
@@ -3160,7 +3225,7 @@ static void movement_keys(struct source_edit_struct* se)
 			}
   }
 
- consider_selecting_to_cursor(se, old_line, old_pos);
+ consider_selecting_to_cursor(se, old_line, old_pos, 1);
 /*
 
  if (ex_control.key_press [ALLEGRO_KEY_LSHIFT] > 0
@@ -3416,6 +3481,28 @@ TO DO:  put this code back in (with undo)
 
  return 1;
 
+}
+
+// returns 1 if the cursor found anything before right at the start of the file
+// returns 0 if the cursor is right at the start
+static int move_cursor_to_end_of_source(struct source_edit_struct* se)
+{
+
+	int last_line = SOURCE_TEXT_LINES - 1;
+
+	while(se->text [se->line_index [last_line]] [0] == 0)
+	{
+		last_line --;
+		if (last_line <= 1)
+			break;
+	};
+
+	se->cursor_line = last_line;
+	se->cursor_pos = strlen(se->text [se->line_index [last_line]]);
+ window_find_cursor(se);
+ se->cursor_base = se->cursor_pos;
+
+ return 1;
 }
 
 

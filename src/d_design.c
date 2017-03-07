@@ -857,7 +857,7 @@ struct design_sub_button_struct design_sub_button [DSB_STRUCT_SIZE] =
 	{DSBTYPE_OBJECT, OBJECT_TYPE_REPAIR_OTHER, "repair_other"}, // DSB_OBJECT_DEFEND_REPAIR_OTHER,
 	{DSBTYPE_OBJECT, OBJECT_TYPE_STABILITY, "stability"}, // DSB_OBJECT_DEFEND_STABILITY,
 
-	{DSBTYPE_AUTOCODE_TYPE, AUTOCODE_NONE, "none"}, // DSB_AUTOCODE_NONE,
+	{DSBTYPE_AUTOCODE_TYPE, AUTOCODE_NONE, "no attack"}, // DSB_AUTOCODE_NONE,
 	{DSBTYPE_AUTOCODE_TYPE, AUTOCODE_STANDARD, "standard"}, // DSB_AUTOCODE_STANDARD,
 	{DSBTYPE_AUTOCODE_TYPE, AUTOCODE_CHARGE, "charge"}, // DSB_AUTOCODE_CHARGE,
 	{DSBTYPE_AUTOCODE_TYPE, AUTOCODE_BOMBARD, "bombard"}, // DSB_AUTOCODE_BOMBARD,
@@ -2405,12 +2405,14 @@ static int mirror_process_on_axis_recursively(int member_index)
 // Need to find which mirror axis we're using.
 // This is different for cores and non-cores:
 
+#define MIRROR_AXIS_TOLERANCE 32
+
  if (member_index == 0)
 	{
   for (i = 0; i < axis_nshape->mirror_axes; i++)
 	 {
 
- 		if (angle_difference_int((ANGLE_1 - dwindow.templ->member[member_index].connection_angle_offset_angle) & ANGLE_MASK, axis_nshape->mirror_axis_angle [i]) < 64)
+ 		if (angle_difference_int((ANGLE_1 - dwindow.templ->member[member_index].connection_angle_offset_angle) & ANGLE_MASK, axis_nshape->mirror_axis_angle [i]) < MIRROR_AXIS_TOLERANCE)
 		 {
 			 mirror_axis_index = i;
 			 break;
@@ -2422,7 +2424,7 @@ static int mirror_process_on_axis_recursively(int member_index)
    for (i = 0; i < axis_nshape->mirror_axes; i++)
 	  {
 
-		  if (angle_difference_int((ANGLE_1 - fixed_angle_to_int(dwindow.templ->member[member_index].group_angle_offset)) & ANGLE_MASK, axis_nshape->mirror_axis_angle [i]) < 64)
+		  if (angle_difference_int((ANGLE_1 - fixed_angle_to_int(dwindow.templ->member[member_index].group_angle_offset)) & ANGLE_MASK, axis_nshape->mirror_axis_angle [i]) < MIRROR_AXIS_TOLERANCE)
 		  {
  			 mirror_axis_index = i;
 			  break;

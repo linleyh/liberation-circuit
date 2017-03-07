@@ -13,6 +13,9 @@ Its name starts with z so it stays at the end of the list of files.
 
 // to remove Z_POLY code, also remove definition in z_poly.h
 #ifdef Z_POLY
+// z_poly is my own process geometry editor.
+// It's not supported for general use, as using to design new components requires substantial changes to the code.
+
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>

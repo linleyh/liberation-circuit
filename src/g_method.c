@@ -1949,7 +1949,7 @@ static void stand_off_angle(struct core_struct* core, struct proc_struct* proc, 
 		return;
 	}
 
-	if (angle_difference(core->group_angle, target_angle) > al_itofix(8))
+	if (angle_difference(core->group_angle, target_angle) > al_itofix(4))
 	{
 		calculate_turn(core, proc, object_index, target_angle);
 		return;

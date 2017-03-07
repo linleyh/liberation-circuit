@@ -1916,6 +1916,11 @@ static void finalise_node_depths(void)
 
 									}
 						}
+						if (settings.option [OPTION_FAST_BACKGROUND]
+							&& backbl->node_size [nd] > 4)
+						{
+							backbl->node_size [nd] -= 3;
+						}
 
      }
     }

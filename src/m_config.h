@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 // DEBUG_MODE gives access to various special commands, etc and does some other stuff like give player 0 free data
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 // SANITY_CHECK runs various checks for things that should never happen, and shuts the game down if they do.
 // It doesn't seem to slow things down much so I've left it on, at least for now:

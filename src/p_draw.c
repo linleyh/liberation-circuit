@@ -181,9 +181,9 @@ void draw_panels(void)
 // MODE_BUTTON_CLOSE:
 
 				if (any_panel_open)
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 8, inter.mode_buttons_y1 + 4, ALLEGRO_ALIGN_CENTER, "X");
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 10, inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "X");
       else
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 8,
+       al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 10,
 																					inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "<<");
 
 
@@ -201,7 +201,7 @@ void draw_panels(void)
 						 col = COL_BLUE;
 
 //   if (i != MODE_BUTTON_MIN_MAX)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [col] [SHADE_MAX], mode_button_i_x1 + 8, inter.mode_buttons_y1 + 4, ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [col] [SHADE_MAX], mode_button_i_x1 + 10, inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
 
 		}
 
@@ -489,6 +489,7 @@ static void print_sysmenu_help(float base_x, float base_y)
 // print_sysmenu_line("FF (SKIP)", "F3 to toggle extra fast forward (skips frames).");
 // print_sysmenu_line("FF (ND)", "F4 to toggle super fast forward (no display).");
  print_sysmenu_line("CHANGE PLAYER", "F5 to change player (custom game only).", 1);
+ print_sysmenu_line("PANELS", "F6, F7 and F8 to open/close Te/De/Ed panels.", 1);
  print_sysmenu_line("ZOOM", "Use mousewheel to zoom in/out.", 1);
  print_sysmenu_line("QUIT", "Escape to quit program entirely.", 1);
 

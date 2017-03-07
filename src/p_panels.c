@@ -197,8 +197,8 @@ void reset_mode_buttons(void)
 		|| panel[PANEL_TEMPLATE].open
 		|| game.phase == GAME_PHASE_MENU)
 	{
-		inter.mode_buttons_x1 = inter.display_w - 25;
-		inter.mode_buttons_y1 = 5;
+		inter.mode_buttons_x1 = inter.display_w - 21;
+		inter.mode_buttons_y1 = MODE_BUTTON_Y;
 	}
 	 else
 		{
@@ -269,7 +269,7 @@ void run_panels(void)
 
 
  if (control.mouse_y_screen_pixels < inter.mode_buttons_y1 + (MODE_BUTTON_SIZE + 3)
-		&&	control.mouse_y_screen_pixels > inter.mode_buttons_y1 - 3
+		&&	control.mouse_y_screen_pixels > inter.mode_buttons_y1 - 5
 		&& control.mouse_x_screen_pixels >= inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS) //inter.display_w - ((MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS))
 	{
 		mode_button_input();
@@ -486,8 +486,8 @@ These things are checked before this function is called:
    for (i = 0; i < MODE_BUTTONS; i ++)
    {
 // don't need to check for y values because that should have been checked before this function was called.
-    if (ex_control.mouse_x_pixels >= inter.mode_buttons_x1 - (i * (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING))
-     && ex_control.mouse_x_pixels <= inter.mode_buttons_x1 - (i * (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING)) + MODE_BUTTON_SIZE)
+    if (ex_control.mouse_x_pixels >= inter.mode_buttons_x1 - (i * (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING)) - 1
+     && ex_control.mouse_x_pixels <= inter.mode_buttons_x1 - (i * (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING)) + MODE_BUTTON_SIZE + 1)
     {
      inter.mode_button_highlight = i;
      inter.mode_button_highlight_time = inter.running_time;
