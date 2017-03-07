@@ -476,6 +476,9 @@ void set_group_object_properties(struct core_struct* core)
 				case OBJECT_TYPE_SLICE:
 					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_SLICE);
 					break;
+				case OBJECT_TYPE_REPAIR_OTHER:
+					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_REPAIR_OTHER);
+					break;
 
 			}
 		}
