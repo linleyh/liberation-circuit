@@ -439,6 +439,7 @@ void set_group_object_properties(struct core_struct* core)
 // note: linked list for similar objects is set in the template object structures (which are copied to the core structures)
 				 break;
 				case OBJECT_TYPE_REPAIR_OTHER:
+					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_REPAIR_OTHER);
 				 core->has_repair_other_object = 1;
 // fall through
 				case OBJECT_TYPE_REPAIR:
@@ -475,9 +476,6 @@ void set_group_object_properties(struct core_struct* core)
 					break;
 				case OBJECT_TYPE_SLICE:
 					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_SLICE);
-					break;
-				case OBJECT_TYPE_REPAIR_OTHER:
-					core->scan_bitfield |= (1 << SCAN_BITFIELD_OBJ_REPAIR_OTHER);
 					break;
 
 			}
