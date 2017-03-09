@@ -280,7 +280,7 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
  switch(call_value)
  {
   case SMETHOD_CALL_SCAN_FOR_THREAT:
-   return scan_single(core, stack_parameters, 0, 10000, 0x7FFF, 0); // 0-10000 are min and max components. 0xFFFF means accept whole bitfield (don't filter targets). 0 means do not accept friendly targets.
+   return scan_single(core, stack_parameters, 0, 10000, 0, 0); // 0-10000 are min and max components. next 0 means accept any target signature. 0 means do not accept friendly targets.
 //			return scan_for_threat(core, stack_parameters);
   case SMETHOD_CALL_SCAN_SINGLE: //  (x_offset, y_offset, target memory, accept_or_require_friendly, components_min, components_max, scan_bitfield)
    return scan_single(core, stack_parameters, stack_parameters [4], stack_parameters [5], stack_parameters [6], stack_parameters [3]); // 0xFFFF means accept whole bitfield (don't filter targets). 0 means do not accept friendly targets.
@@ -1244,15 +1244,15 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 				}
 				return 0;
 			case SMETHOD_CALL_TARGET_COMPARE:
-				if (stack_parameters [0] >= 0
-					&& stack_parameters [0] < PROCESS_MEMORY_SIZE
-					&& stack_parameters [1] >= 0
-					&& stack_parameters [1] < PROCESS_MEMORY_SIZE)
-				{
-					if (core->process_memory [stack_parameters [0]] == core->process_memory [stack_parameters [1]]
-						&& core->process_memory_timestamp [stack_parameters [0]] == core->process_memory_timestamp [stack_parameters [1]])
-					return 1;
-				}
+			 if (stack_parameters [0] >= 0
+			 	&& stack_parameters [0] < PROCESS_MEMORY_SIZE
+			 	&& stack_parameters [1] >= 0
+			 	&& stack_parameters [1] < PROCESS_MEMORY_SIZE)
+			 {
+			 	if (core->process_memory [stack_parameters [0]] == core->process_memory [stack_parameters [1]]
+			 		&& core->process_memory_timestamp [stack_parameters [0]] == core->process_memory_timestamp [stack_parameters [1]])
+			 	return 1;
+			 }
 				return 0;
 			case SMETHOD_CALL_TARGET_COPY:
 				if (stack_parameters [0] >= 0
@@ -2239,7 +2239,7 @@ s16b scan_for_auto_attack(struct core_struct* core, int angle, int scan_distance
  mock_stack_parameters [1] = al_fixtoi(fixed_ypart(core->group_angle + int_angle_to_fixed(angle), al_itofix(scan_distance)));
  mock_stack_parameters [2] = target_index;
 
-	return scan_single(core, mock_stack_parameters, 0, 100, 0xffff, 0);
+	return scan_single(core, mock_stack_parameters, 0, 100, 0, 0);
 
 }
 
@@ -2317,7 +2317,7 @@ static s16b scan_single(struct core_struct* core, s16b* stack_parameters, int co
 			bitstring [b] = 0;
 			fpr("%i [%s]", w.core[target_core_index].scan_bitfield, bitstring);
 #endif
-   if ((w.core[target_core_index].scan_bitfield & scan_bitfield) == 0)
+   if ((w.core[target_core_index].scan_bitfield & scan_bitfield) != scan_bitfield) // requires the target's bitfield to contain all bits in the scanning test bitfield. It can have others too.
 				continue;
 			if (w.core[target_core_index].group_members_current < components_min
 				|| w.core[target_core_index].group_members_current > components_max)
@@ -2419,7 +2419,7 @@ static s16b scan_multi(struct core_struct* core, s16b* stack_parameters)
    if (w.core[target_core_index].player_index == core->player_index
 			 && !stack_parameters [4]) // stack_parameters [4] is accept_or_require_friendly
 				continue;
-   if ((w.core[target_core_index].scan_bitfield & stack_parameters [7]) == 0)
+   if ((w.core[target_core_index].scan_bitfield & stack_parameters [7]) != stack_parameters [7])
 				continue;
 			if (w.core[target_core_index].group_members_current < stack_parameters [5] // min & max components
 				|| w.core[target_core_index].group_members_current > stack_parameters [6])

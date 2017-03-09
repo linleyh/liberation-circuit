@@ -653,10 +653,23 @@ void run_commands(void)
 		{
 			if (game.fast_forward)
 			{
-				if (game.fast_forward_type == FAST_FORWARD_TYPE_SMOOTH)
+				int fps_adjust = view.fps;
+				if (fps_adjust < 60)
+					fps_adjust = 60;
+			 if (fps_adjust > 500)
+					fps_adjust = 500;
+ 			if (game.fast_forward_type == FAST_FORWARD_TYPE_SMOOTH)
+ 				mouse_scroll_x *= 60;
+ 				 else
+   				mouse_scroll_x *= 15;
+				mouse_scroll_x /= fps_adjust;
+
+			 view.camera_x += al_itofix(mouse_scroll_x);
+
+/*				if (game.fast_forward_type == FAST_FORWARD_TYPE_SMOOTH)
 				 view.camera_x += al_itofix(mouse_scroll_x) / 4;
 				  else
-				   view.camera_x += al_itofix(mouse_scroll_x) / 12;
+				   view.camera_x += al_itofix(mouse_scroll_x) / 12;*/
 			}
 			  else
 				  view.camera_x += al_itofix(mouse_scroll_x);
@@ -665,10 +678,24 @@ void run_commands(void)
 		{
 			if (game.fast_forward)
 			{
+				int fps_adjust = view.fps;
+				if (fps_adjust < 60)
+					fps_adjust = 60;
+			 if (fps_adjust > 500)
+					fps_adjust = 500;
+ 			if (game.fast_forward_type == FAST_FORWARD_TYPE_SMOOTH)
+ 				mouse_scroll_y *= 60;
+ 				 else
+   				mouse_scroll_y *= 15;
+				mouse_scroll_y /= fps_adjust;
+
+			 view.camera_y += al_itofix(mouse_scroll_y);
+/*
+
  			if (game.fast_forward_type == FAST_FORWARD_TYPE_SMOOTH)
 	 			view.camera_y += al_itofix(mouse_scroll_y) / 4;
 				  else
-				   view.camera_y += al_itofix(mouse_scroll_y) / 12;
+				   view.camera_y += al_itofix(mouse_scroll_y) / 12;*/
 			}
 			  else
 				  view.camera_y += al_itofix(mouse_scroll_y);

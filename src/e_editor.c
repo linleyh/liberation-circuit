@@ -1738,7 +1738,7 @@ no_keys_accepted:
    		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_PASTE);
    		return;
    	case 24: // ctrl-X
-   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_CLEAR);
+   		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_CUT);
    		return;
    	case 26: // ctrl-Z
    		submenu_operation(SUBMENU_EDIT, SUBMENU_EDIT_UNDO);

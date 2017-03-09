@@ -202,7 +202,7 @@ void main_game_loop(void)
   	run_panels();
 
    run_editor();
-
+/*
 // should probably run display at the end of the loop rather than the start
 //  - so that the game has run through at least once when loading game
   if (!skip_frame || force_display_update)
@@ -211,7 +211,7 @@ void main_game_loop(void)
    fps ++;
    force_display_update = 0;
   }
-
+*/
   game.total_time++;
 
 //  if (game.pause_hard == 0)
@@ -365,13 +365,22 @@ void main_game_loop(void)
 // now check whether the timer has expired during game processing. If it has, don't generate a display this tick (unless force_display_update==1)
   if (al_get_next_event(event_queue, &ev))
   {
-   switch(ev.type)
-   {
-    case ALLEGRO_EVENT_TIMER:
-     skip_frame = 1; break;
-   }
+//   switch(ev.type)
+//   {
+//    case ALLEGRO_EVENT_TIMER: this should be the only possible type.
+     skip_frame = 1;
+//     break;
+//   }
    al_flush_event_queue(event_queue);
   }
+
+  if (!skip_frame || force_display_update)
+  {
+   run_display();
+   fps ++;
+   force_display_update = 0;
+  }
+
 
 // wait for the timer so we can go to the next tick (unless we're fast-forwarding or the timer has already expired)
   if (!skip_frame
@@ -379,7 +388,7 @@ void main_game_loop(void)
 				|| game.pause_soft)) // don't skip frames if paused, even if fast-forwarding
   {
    al_wait_for_event(event_queue, &ev);
-   al_flush_event_queue(event_queue);
+//   al_flush_event_queue(event_queue);
   }
 
  } while (TRUE); // end main game loop

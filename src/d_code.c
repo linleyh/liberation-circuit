@@ -354,6 +354,8 @@ static void generate_dcode(void)
  	dcode_add_line("MODE_MOVE_BUILD, // process is moving somewhere to build a process there");
 	if (dcode_state.automode [AUTOMODE_GUARD])
  	dcode_add_line("MODE_GUARD, // process is circling a friendly process");
+ if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
+ 	dcode_add_line("MODE_WITHDRAW, // cautious process is retreating");
 
 	dcode_add_line("MODES");
 	dcode_state.indent_level --;
@@ -411,8 +413,14 @@ static void generate_dcode(void)
  	dcode_add_line("TARGET_ALLOCATOR, // process that this process will return to when finished harvesting");
  if (dcode_state.automode [AUTOMODE_GUARD])
  	dcode_add_line("TARGET_GUARD, // target of guard command");
+	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
+ 	dcode_add_line("TARGET_WITHDRAW, // target that the process is withdrawing from");
 // if (dcode_state.object_type_present [OBJECT_TYPE_REPAIR_OTHER])
  	//dcode_add_line("TARGET_REPAIR, // process that this process is trying to repair");
+#ifdef AUTOCODE_SELF_DESTRUCT
+ if (!dcode_state.mobile)
+	 dcode_add_line("TARGET_SELF_CHECK, // check against self for self-destruct commands");
+#endif
 	dcode_state.indent_level --;
 	dcode_add_line("};");
  dcode_newline();
@@ -498,10 +506,13 @@ static void generate_dcode(void)
 	}
 	dcode_add_line("int target_component; // target component for an attack command (allows user to");
 	dcode_add_line(" // target specific components)");
-	if (dcode_state.autocode_type == AUTOCODE_HARASS)
+	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
 	{
-	 dcode_add_line("int harass_withdraw; // counts up while attacking. After it reaches a certain value (see below), withdraw");
-  dcode_add_line("int withdraw_x, withdraw_y, withdraw_angle; // withdrawal movement information");
+		if (!dcode_state.unindexed_auto_class_present [AUTO_CLASS_RETRO])
+	  dcode_add_line("int withdraw_angle; // angle of retreat");
+  dcode_add_line("int withdraw_x, withdraw_y; // cautious process retreats here");
+//	 dcode_add_line("int harass_withdraw; // counts up while attacking. After it reaches a certain value (see below), withdraw");
+//  dcode_add_line("int withdraw_x, withdraw_y, withdraw_angle; // withdrawal movement information");
 	}
 
 
@@ -558,6 +569,8 @@ static void generate_dcode(void)
 	{
  	dcode_add_line("auto_stability.set_stability(1); // activate stability objects");
 	}
+	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
+ 	dcode_add_line("target_copy(TARGET_GUARD, TARGET_PARENT); // for cautious processes");
 	dcode_state.indent_level --;
 	dcode_add_line("}");
 
@@ -585,9 +598,9 @@ static void generate_dcode(void)
 	dcode_add_line("if (check_new_command() == 1) // returns 1 if a command has been given"); // mention command queues here?
 	dcode_add_line("{");
 	dcode_state.indent_level ++;
-	if (dcode_state.autocode_type == AUTOCODE_HARASS)
+	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
 	{
-	 dcode_add_line("harass_withdraw = 0; // a new command resets harassment mode to attack");
+//	 dcode_add_line("harass_withdraw = 0; // a new command resets harassment mode to attack");
 	}
 /* if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_BUILD])
 	{
@@ -695,6 +708,15 @@ static void generate_dcode(void)
 	 dcode_add_line("allocator_x = get_command_x();");
 	 dcode_add_line("allocator_y = get_command_y();");
 	 dcode_add_line("get_command_target(TARGET_ALLOCATOR); // writes the target of the command to address TARGET_ALLOCATOR in targetting memory");
+#ifdef AUTOCODE_SELF_DESTRUCT
+	 dcode_add_line("if (get_command_ctrl() && process[TARGET_ALLOCATOR].get_core_x() == get_core_x() && process[TARGET_ALLOCATOR].get_core_y() == get_core_y())");
+  dcode_add_line("{");
+ 	dcode_state.indent_level ++;
+ 	 dcode_add_line("if (verbose) printf(\"\\nTerminating.\");");
+   dcode_add_line("terminate;");
+  	dcode_state.indent_level --;
+  dcode_add_line("}");
+#endif
 	 dcode_add_line("if (mode != MODE_HARVEST)");
  	dcode_state.indent_level ++;
 	 dcode_add_line("mode = MODE_HARVEST_RETURN;");
@@ -720,6 +742,15 @@ static void generate_dcode(void)
 	  {
 	   dcode_add_line("get_command_target(TARGET_GUARD); // writes the target of the command to address TARGET_GUARD in targetting memory");
 	   dcode_add_line(" // (targetting memory stores the target and allows the process to examine it if it's in scanning range)");
+#ifdef AUTOCODE_SELF_DESTRUCT
+	 dcode_add_line("if (get_command_ctrl() && process[TARGET_GUARD].get_core_x() == get_core_x() && process[TARGET_GUARD].get_core_y() == get_core_y())");
+  dcode_add_line("{");
+ 	dcode_state.indent_level ++;
+ 	 dcode_add_line("if (verbose) printf(\"\\nTerminating.\");");
+   dcode_add_line("terminate;");
+  	dcode_state.indent_level --;
+  dcode_add_line("}");
+#endif
 	   dcode_add_line("mode = MODE_GUARD;");
 	   dcode_add_line("if (verbose) printf(\"\\nGuarding.\");");
     dcode_add_line("break;");
@@ -727,12 +758,25 @@ static void generate_dcode(void)
 	  }
 	   else
 				{
+
+#ifdef AUTOCODE_SELF_DESTRUCT
+  dcode_add_line("get_command_target(TARGET_SELF_CHECK); // writes the target of the command to address TARGET_SELF_CHECK in targetting memory");
+	 dcode_add_line("if (get_command_ctrl() && process[TARGET_SELF_CHECK].get_core_x() == get_core_x() && process[TARGET_SELF_CHECK].get_core_y() == get_core_y())");
+  dcode_add_line("{");
+ 	dcode_state.indent_level ++;
+ 	 dcode_add_line("if (verbose) printf(\"\\nTerminating.\");");
+   dcode_add_line("terminate;");
+  	dcode_state.indent_level --;
+  dcode_add_line("}");
+#endif
+
 			  if (!dcode_state.mobile
 				  && dcode_state.object_type_present [OBJECT_TYPE_BUILD])
+				 {
   	   dcode_add_line("if (verbose) printf(\"\\nFriendly target command will be sent to new processes.\");");
+				 }
 				   else
 							{
-								// I don't think this is possible. Maybe if a non-static core has no move objects?
  	      dcode_add_line("if (verbose) printf(\"\\nFriendly target command not recognised.\");");
 							}
       dcode_add_line("break;");
@@ -1100,8 +1144,8 @@ when build command on queue
    dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
  	 dcode_add_line("target_component = 0; // attack the core");
   	dcode_add_line("saved_mode = MODE_IDLE; // when leaving MODE_ATTACK_FOUND, will return to this mode");
-  	if (dcode_state.autocode_type == AUTOCODE_HARASS)
-    dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
+//  	if (dcode_state.autocode_type == AUTOCODE_HARASS)
+//    dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
    dcode_add_line("if (verbose) printf(\"\\nTarget found; attacking.\");");
  	 dcode_state.indent_level --;
   	dcode_add_line("}");
@@ -1130,8 +1174,8 @@ when build command on queue
  	   dcode_add_line("target_component = 0; // attack the core");
   	  dcode_add_line("saved_mode = MODE_MOVE_ATTACK; // when leaving MODE_ATTACK_FOUND, will return to this mode");
      dcode_add_line("if (verbose) printf(\"\\nTarget found - attacking.\");");
-  	  if (dcode_state.autocode_type == AUTOCODE_HARASS)
-      dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
+//  	  if (dcode_state.autocode_type == AUTOCODE_HARASS)
+//      dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
   	  dcode_add_line("break;");
  	   dcode_state.indent_level --;
   	 dcode_add_line("}");
@@ -1378,8 +1422,8 @@ when build command on queue
  	    dcode_add_line("target_y = process[TARGET_MAIN].get_core_y();");
     	 dcode_add_line("target_component = 0; // attack the core");
  	    dcode_add_line("saved_mode = MODE_GUARD; // when leaving MODE_ATTACK_FOUND, will return to this mode");
-     	if (dcode_state.autocode_type == AUTOCODE_HARASS)
-       dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
+//     	if (dcode_state.autocode_type == AUTOCODE_HARASS)
+//       dcode_add_line("harass_withdraw = 0; // finding a new target resets harassment to attack mode");
       dcode_add_line("if (verbose) printf(\"\\nTarget found - attacking.\");");
  	    dcode_add_line("break;");
 	     dcode_state.indent_level --;
@@ -1411,6 +1455,85 @@ when build command on queue
     dcode_add_line("if (verbose) printf(\"\\nGuard target lost.\");");
     dcode_add_line("break;");
 	   dcode_state.indent_level --;
+	}
+
+	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
+	{
+   dcode_newline();
+  	dcode_add_line("case MODE_WITHDRAW:");
+ 	 dcode_add_line("// Trying to retreat");
+ 	 dcode_add_line("if (get_damage())");
+ 	 dcode_add_line("  get_damage_source(TARGET_WITHDRAW);");
+ 	 if (dcode_state.object_type_present [OBJECT_TYPE_INTERFACE])
+			{
+ 	 dcode_add_line("if (get_interface_strength() == get_interface_capacity()");
+ 	 dcode_add_line(" && get_total_integrity() == get_unharmed_integrity_max())");
+			}
+			else
+			{
+ 	 dcode_add_line("if (get_total_integrity() == get_unharmed_integrity_max())");
+			}
+   dcode_add_line("{");
+   dcode_state.indent_level ++;
+  	 dcode_add_line("mode = saved_mode;");
+  	 dcode_add_line("break;");
+    dcode_state.indent_level --;
+   dcode_add_line("}");
+  	if (dcode_state.object_type_present [OBJECT_TYPE_REPAIR]
+			 || dcode_state.object_type_present [OBJECT_TYPE_REPAIR_OTHER])
+			{
+ 	 dcode_add_line("if (process[TARGET_WITHDRAW].visible())");
+   dcode_add_line("{");
+   dcode_state.indent_level ++;
+  	 dcode_add_line("withdraw_x = process[TARGET_WITHDRAW].get_core_x();");
+  	 dcode_add_line("withdraw_y = process[TARGET_WITHDRAW].get_core_y();");
+    dcode_state.indent_level --;
+   dcode_add_line("}");
+   if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_RETRO])
+			{
+ 	 dcode_add_line("auto_move.approach_xy(withdraw_x, withdraw_y, 1600);");
+   if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_ATTACK_MAIN])
+			{
+//   dcode_add_line("if (process[TARGET_MAIN].distance_less(1000)");
+   dcode_add_line("if (distance_from_xy_less(withdraw_x, withdraw_y, 1000))");
+//   dcode_add_line(" && arc_length(angle, process[TARGET_MAIN].target_angle()) < 500)");
+   dcode_state.indent_level ++;
+    dcode_add_line("auto_att_main.fire(0); // tries to fire all objects in the auto_att_main class. 0 is firing delay (in ticks)");
+    dcode_state.indent_level --;
+   dcode_add_line(" // (attack class is for fixed attack objects that point more or less forwards)");
+			} // end if AUTO_CLASS_ATTACK_MAIN
+			if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_SPIKE_FRONT])
+			{
+//    dcode_add_line("if (process[TARGET_MAIN].distance_less(1600))");
+// should this check angle as well?
+//    dcode_add_line("{");
+//    dcode_state.indent_level ++;
+    dcode_add_line("auto_att_spike.fire_spike_xy(withdraw_x,withdraw_y); // Calls fire_spike_xy() on all spike objects in the spike class.");
+//    dcode_state.indent_level --;
+//    dcode_add_line("}");
+			} // end if AUTO_CLASS_SPIKE
+			} // end if AUTO_CLASS_RETRO
+  	else
+			{
+ 	 dcode_add_line("withdraw_angle = atan2(core_y - withdraw_y, core_x - withdraw_x);");
+ 	 dcode_add_line("auto_move.move_to(withdraw_x + cos(withdraw_angle, 1600), withdraw_y + sin(withdraw_angle, 1600));");
+			}
+			} // end if process has repair objects
+			else
+			{
+ 	 dcode_add_line("if (!process[TARGET_GUARD].visible()) // nothing to retreat to.");
+   dcode_add_line("{");
+   dcode_state.indent_level ++;
+  	 dcode_add_line("mode = saved_mode;");
+  	 dcode_add_line("break;");
+    dcode_state.indent_level --;
+   dcode_add_line("}");
+   dcode_add_line("auto_move.approach_target(TARGET_GUARD, 0, 500);");
+			}
+   dcode_add_line("break;");
+   dcode_state.indent_level --;
+
+
 
 
 	}
@@ -1784,6 +1907,22 @@ static void add_main_attacking_code(int attack_or_attack_found)
 
  switch(dcode_state.autocode_type)
  {
+	 case AUTOCODE_CAUTIOUS:
+   dcode_add_line("if (get_damage()");
+   if (dcode_state.object_type_present [OBJECT_TYPE_INTERFACE])
+   dcode_add_line(" && get_interface_strength() < 20)");
+   else
+   dcode_add_line(" && get_total_integrity() * 2 < get_unharmed_integrity_max())");
+   dcode_add_line("{");
+ 	 dcode_state.indent_level ++;
+ 	  if (!attack_or_attack_found) // i.e. MODE_ATTACK
+     dcode_add_line("saved_mode = MODE_ATTACK;");
+    dcode_add_line("mode = MODE_WITHDRAW;");
+    dcode_add_line("get_damage_source(TARGET_WITHDRAW);");
+    dcode_add_line("if (verbose) printf(\"\\nRetreating.\");");
+ 	  dcode_state.indent_level --;
+   dcode_add_line("}");
+// fall-through...
 	 case AUTOCODE_STANDARD:
 // move to medium range and attack
    dcode_add_line("// Now see whether the commanded target is visible:");
@@ -2006,8 +2145,8 @@ static void add_main_attacking_code(int attack_or_attack_found)
     dcode_add_line("}");
     dcode_state.indent_level --;
     break;
-
-		case AUTOCODE_HARASS:
+/*
+		case AUTOCODE_CAUTIOUS:
 // move to medium range and attack, then withdraw to a safe distance, then attack again
 //   dcode_add_line("printf(\"[%i,%i] (%i,%i) d %i hw %i\", core_x, core_y, target_x, target_y, distance_from_xy(target_x, target_y), harass_withdraw);");
    dcode_add_line("if (harass_withdraw > 10)");
@@ -2076,7 +2215,7 @@ static void add_main_attacking_code(int attack_or_attack_found)
     dcode_add_line("}");
     dcode_state.indent_level --;
 		 break;
-
+*/
 
 
  }

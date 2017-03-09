@@ -383,7 +383,7 @@ int start_setting_up_core_from_template(int c, struct core_struct* core, struct 
  core->construction_complete_timestamp = core->next_execution_timestamp;
 // next_execution_timestamp and construction_complete_timestamp are likely to be reset by the calling function as they depend on the conditions in which the process was built.
  core->cycles_executed = 0;
- core->mobile = 1; // fix later
+ core->mobile = 1; // this is fixed later if the core is static
  core->group_speed.x = 0;
  core->group_speed.y = 0;
  core->group_spin = 0;

@@ -1633,7 +1633,7 @@ static void design_help_highlight(int base_x, int base_y)
   			case AUTOCODE_STANDARD:
   		  draw_design_help_strings_autocode(ac_base_x,
 																																						  base_y,
-																																						  "Standard",
+																																						  "Basic attack",
 																																						  "When attacking, process will move to medium range and fire on",
 																																						  "its target. If it has retro move objects, it will move backwards",
 																																						  "to try to maintain distance.",
@@ -1690,12 +1690,12 @@ static void design_help_highlight(int base_x, int base_y)
 																																						  "Not suitable for processes with front-facing fixed attacks.",
 																																						  panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [3]);
 							break;
-  			case AUTOCODE_HARASS:
+  			case AUTOCODE_CAUTIOUS:
   		  draw_design_help_strings_autocode(ac_base_x,
 																																						  base_y,
-																																						  "Harass",
-																																						  "Process will attack target briefly then retreat before attacking again.",
-																																						  "Not very suitable for slow processes.",
+																																						  "Cautious",
+																																						  "Process will attack target, but retreat if damaged.",
+																																						  "",
 																																						  "",
 																																						  "",
 																																						  panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [3]);

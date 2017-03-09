@@ -570,7 +570,10 @@ mouse_unavailable:
 		if (game.pause_soft == 0)
 			game.pause_soft = 1;
 		  else
+				{
 			  game.pause_soft = 0;
+			  flush_game_event_queues();
+				}
 	}
 
  static int pause_advance = 0;
