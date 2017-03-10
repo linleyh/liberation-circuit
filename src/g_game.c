@@ -371,7 +371,7 @@ void main_game_loop(void)
      skip_frame = 1;
 //     break;
 //   }
-   al_flush_event_queue(event_queue);
+//   al_flush_event_queue(event_queue);
   }
 
   if (!skip_frame || force_display_update)
@@ -388,7 +388,7 @@ void main_game_loop(void)
 				|| game.pause_soft)) // don't skip frames if paused, even if fast-forwarding
   {
    al_wait_for_event(event_queue, &ev);
-   al_flush_event_queue(event_queue);
+//   al_flush_event_queue(event_queue);
   }
 
  } while (TRUE); // end main game loop
