@@ -1410,9 +1410,9 @@ static void build_mobile_process_command(void)
 																				     al_fixtoi(command.build_position.x),
 																				     al_fixtoi(command.build_position.y),
 																				     fixed_angle_to_int(command.build_angle),
-																				     0, // back or front (always back for commands)
+																				     (ex_control.special_key_press [SPECIAL_KEY_CTRL] > 0), // back or front (ctrl sets it to front)
 																				     (ex_control.special_key_press [SPECIAL_KEY_SHIFT] > 0), // repeat
-																				     (ex_control.special_key_press [SPECIAL_KEY_CTRL] <= 0), // queued (pressing control sets it to NOT queue - i.e. all build commands for selected process are replaced)
+																				     1, // queued (if 0, replaces other build commands for this process)
 																				     1))
 	{
 // add_to_build_queue returns 0 if build queue full (1 on success, -1 on error)
@@ -1659,9 +1659,9 @@ static void give_command_after_build_angle_selected(int queued)
 																				     al_fixtoi(command.build_position.x),
 																				     al_fixtoi(command.build_position.y),
 																				     fixed_angle_to_int(command.build_angle),
-																				     0, // back or front (always back for commands)
+																				     (ex_control.special_key_press [SPECIAL_KEY_CTRL] > 0), // back or front (ctrl sets it to front)
 																				     (ex_control.special_key_press [SPECIAL_KEY_SHIFT] > 0), // repeat
-																				     (ex_control.special_key_press [SPECIAL_KEY_CTRL] <= 0), // queued (pressing control sets it to NOT queue - i.e. all build commands for selected process are replaced)
+																				     1, // queued (if 0, replaces other build commands for this process)
 //																				     (ex_control.special_key_press [SPECIAL_KEY_CTRL] > 0),
 //																				     queued,
 																				     1))

@@ -1314,8 +1314,6 @@ if (!settings.option[OPTION_NO_BACKGROUND])
 
 		}
 
-} // end if (!settings.option[OPTION_NO_BACKGROUND])
-
 
   i = 0;
 
@@ -1331,6 +1329,33 @@ if (!settings.option[OPTION_NO_BACKGROUND])
 			i++;
 
 		};
+
+
+} // end if (!settings.option[OPTION_NO_BACKGROUND])
+ else
+	{
+// in no_background mode, only data wells are drawn:
+
+int test = 0;
+
+
+  for (i = 0; i < w.data_wells; i ++)
+		{
+			if (w.data_well[i].block_position.x >= min_block_x - 6
+				&& w.data_well[i].block_position.x <= max_block_x + 6
+				&& w.data_well[i].block_position.y >= min_block_y - 6
+				&& w.data_well[i].block_position.y <= max_block_y + 6)
+			{
+       draw_data_well(w.data_well[i].block_position.x,
+																						w.data_well[i].block_position.y,
+																						&w.backblock[w.data_well[i].block_position.x][w.data_well[i].block_position.y],
+																						top_left_corner_x, top_left_corner_y);
+test ++;
+			}
+		}
+		fpr("\ndw %i", test);
+
+	}
 
   draw_vbuf();
 

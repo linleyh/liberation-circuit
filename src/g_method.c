@@ -2402,7 +2402,6 @@ void run_objects_each_tick(struct core_struct* core)
 						if (w.proc[core->group_member[i].index].object_instance[j].attack_last_fire_timestamp >= w.world_time - SLICE_TOTAL_FIRING_TIME)
 								run_slice_object(core, &w.proc[core->group_member[i].index], j, w.proc[core->group_member[i].index].object[j].type);
 
-
 					 rotate_directional_object(&w.proc[core->group_member[i].index], j, otype[w.proc[core->group_member[i].index].object[j].type].object_details.rotate_speed);
 
 					 break;

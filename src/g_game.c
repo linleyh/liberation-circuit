@@ -371,7 +371,7 @@ void main_game_loop(void)
      skip_frame = 1;
 //     break;
 //   }
-//   al_flush_event_queue(event_queue);
+   al_flush_event_queue(event_queue);
   }
 
   if (!skip_frame || force_display_update)
@@ -388,7 +388,7 @@ void main_game_loop(void)
 				|| game.pause_soft)) // don't skip frames if paused, even if fast-forwarding
   {
    al_wait_for_event(event_queue, &ev);
-//   al_flush_event_queue(event_queue);
+   al_flush_event_queue(event_queue);
   }
 
  } while (TRUE); // end main game loop
@@ -789,7 +789,7 @@ build new processes.\
 \n\nTo begin, select your base process.");
 
 			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\n(Remember: open the system panel, by clicking on the Sy button in the top right of the display, for information about controls.)");
+"\n\n(Remember: open the system panel, by clicking on the Sy button in the top right of the display, for information about controls. Or to quit.)");
 
     	mission_state.phase = MPHASE2_SELECT;
     	break;
@@ -842,10 +842,10 @@ build new processes.\
     	 play_interface_sound(SAMPLE_BLIP3, TONE_2C);
  			 	write_mission_text(PRINT_COL_WHITE,
 "Now you should have two bases capable of harvesting data and building new processes.\
-\nIt's time for a new fleet! Start building attackers, destroyers and commanders\
+\nIt's time for a new fleet! Start building attackers, destroyers and commanders.\
 \n(you could also build a harvester to send to the other data well).");
  			 	write_mission_text(PRINT_COL_LBLUE,
-"\n\nHold shift when giving a build command to repeat-build.\nYou can use the queue buttons (above the build command buttons) to re-order (by dragging) or remove queued processes.");
+"\n\nHold shift to repeat-build, or control to go to the front of the queue. The queue buttons (above the build command buttons) let you re-order (by dragging) or cancel queued processes.");
     	 mission_state.phase = MPHASE2_BUILD_ATTACKERS2;
 					}
 					break;

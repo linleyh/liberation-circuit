@@ -417,6 +417,9 @@ static void generate_dcode(void)
  	dcode_add_line("TARGET_WITHDRAW, // target that the process is withdrawing from");
 // if (dcode_state.object_type_present [OBJECT_TYPE_REPAIR_OTHER])
  	//dcode_add_line("TARGET_REPAIR, // process that this process is trying to repair");
+
+#define AUTOCODE_SELF_DESTRUCT
+
 #ifdef AUTOCODE_SELF_DESTRUCT
  if (!dcode_state.mobile)
 	 dcode_add_line("TARGET_SELF_CHECK, // check against self for self-destruct commands");
@@ -520,6 +523,11 @@ static void generate_dcode(void)
 	dcode_newline();
  dcode_add_line("int scan_result; // used to hold the results of a scan of nearby processes");
 
+#ifdef AUTOCODE_SELF_DESTRUCT
+	dcode_newline();
+ dcode_add_line("int self_destruct_primed; // counter for confirming self-destruct command (ctrl-right-click on self)");
+#endif
+
  if (dcode_state.automode [AUTOMODE_HARVEST])
 	{
 	 dcode_newline();
@@ -598,10 +606,10 @@ static void generate_dcode(void)
 	dcode_add_line("if (check_new_command() == 1) // returns 1 if a command has been given"); // mention command queues here?
 	dcode_add_line("{");
 	dcode_state.indent_level ++;
-	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
-	{
+//	if (dcode_state.autocode_type == AUTOCODE_CAUTIOUS)
+//	{
 //	 dcode_add_line("harass_withdraw = 0; // a new command resets harassment mode to attack");
-	}
+//	}
 /* if (dcode_state.unindexed_auto_class_present [AUTO_CLASS_BUILD])
 	{
 	dcode_add_line("build_multi = 0; // commands cancel multi-build"); - don't know why this was here.
@@ -712,8 +720,17 @@ static void generate_dcode(void)
 	 dcode_add_line("if (get_command_ctrl() && process[TARGET_ALLOCATOR].get_core_x() == get_core_x() && process[TARGET_ALLOCATOR].get_core_y() == get_core_y())");
   dcode_add_line("{");
  	dcode_state.indent_level ++;
- 	 dcode_add_line("if (verbose) printf(\"\\nTerminating.\");");
-   dcode_add_line("terminate;");
+ 	 dcode_add_line("if (self_destruct_primed > 0)");
+   dcode_add_line("{");
+ 	 dcode_state.indent_level ++;
+ 	  dcode_add_line("printf(\"\\nTerminating.\");");
+    dcode_add_line("terminate; // this causes the process to self-destruct");
+   	dcode_state.indent_level --;
+   dcode_add_line("}");
+ 	 dcode_add_line("printf(\"\\nSelf destruct primed.\");");
+ 	 dcode_add_line("printf(\"\\nRepeat command (ctrl-right-click self) to confirm.\");");
+   dcode_add_line("self_destruct_primed = 20;");
+   dcode_add_line("break;");
   	dcode_state.indent_level --;
   dcode_add_line("}");
 #endif
@@ -746,8 +763,17 @@ static void generate_dcode(void)
 	 dcode_add_line("if (get_command_ctrl() && process[TARGET_GUARD].get_core_x() == get_core_x() && process[TARGET_GUARD].get_core_y() == get_core_y())");
   dcode_add_line("{");
  	dcode_state.indent_level ++;
- 	 dcode_add_line("if (verbose) printf(\"\\nTerminating.\");");
-   dcode_add_line("terminate;");
+ 	 dcode_add_line("if (self_destruct_primed > 0)");
+   dcode_add_line("{");
+ 	 dcode_state.indent_level ++;
+ 	  dcode_add_line("printf(\"\\nTerminating.\");");
+    dcode_add_line("terminate; // this causes the process to self-destruct");
+   	dcode_state.indent_level --;
+   dcode_add_line("}");
+ 	 dcode_add_line("printf(\"\\nSelf destruct primed.\");");
+ 	 dcode_add_line("printf(\"\\nRepeat command (ctrl-right-click self) to confirm.\");");
+   dcode_add_line("self_destruct_primed = 20;");
+   dcode_add_line("break;");
   	dcode_state.indent_level --;
   dcode_add_line("}");
 #endif
@@ -764,8 +790,17 @@ static void generate_dcode(void)
 	 dcode_add_line("if (get_command_ctrl() && process[TARGET_SELF_CHECK].get_core_x() == get_core_x() && process[TARGET_SELF_CHECK].get_core_y() == get_core_y())");
   dcode_add_line("{");
  	dcode_state.indent_level ++;
- 	 dcode_add_line("if (verbose) printf(\"\\nTerminating.\");");
-   dcode_add_line("terminate;");
+ 	 dcode_add_line("if (self_destruct_primed > 0)");
+   dcode_add_line("{");
+ 	 dcode_state.indent_level ++;
+ 	  dcode_add_line("printf(\"\\nTerminating.\");");
+    dcode_add_line("terminate; // this causes the process to self-destruct");
+   	dcode_state.indent_level --;
+   dcode_add_line("}");
+ 	 dcode_add_line("printf(\"\\nSelf destruct primed.\");");
+ 	 dcode_add_line("printf(\"\\nRepeat command (ctrl-right-click self) to confirm.\");");
+   dcode_add_line("self_destruct_primed = 20;");
+   dcode_add_line("break;");
   	dcode_state.indent_level --;
   dcode_add_line("}");
 #endif
@@ -797,6 +832,21 @@ static void generate_dcode(void)
 
 	dcode_state.indent_level = 0;
 
+#ifdef AUTOCODE_SELF_DESTRUCT
+ 	dcode_newline();
+ 	dcode_newline();
+	 dcode_add_line("if (self_destruct_primed > 0)");
+  dcode_add_line("{");
+ 	dcode_state.indent_level ++;
+ 	 dcode_add_line("self_destruct_primed --;");
+ 	 dcode_add_line("if (self_destruct_primed == 0");
+ 	 dcode_add_line(" && verbose)");
+ 	 dcode_state.indent_level ++;
+ 	  dcode_add_line("printf(\"\\nSelf destruct cancelled.\");");
+   	dcode_state.indent_level --;
+  	dcode_state.indent_level --;
+  dcode_add_line("}");
+#endif
 
 // Now do special code for static builders (mobile builders are a bit more complicated as they may need to move to the build location)
 		if (dcode_state.object_type_present [OBJECT_TYPE_BUILD]
@@ -1912,7 +1962,10 @@ static void add_main_attacking_code(int attack_or_attack_found)
    if (dcode_state.object_type_present [OBJECT_TYPE_INTERFACE])
    dcode_add_line(" && get_interface_strength() < 20)");
    else
-   dcode_add_line(" && get_total_integrity() * 2 < get_unharmed_integrity_max())");
+			{
+   dcode_add_line(" && (get_total_integrity() * 2 < get_unharmed_integrity_max()");
+   dcode_add_line("  || component[0].get_integrity() * 2 < component[0].get_integrity_max()))");
+			}
    dcode_add_line("{");
  	 dcode_state.indent_level ++;
  	  if (!attack_or_attack_found) // i.e. MODE_ATTACK
