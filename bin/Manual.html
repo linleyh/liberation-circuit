@@ -1,0 +1,1074 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta content="text/html; charset=utf-8" http-equiv="content-type"><title>Manual</title><style type="text/css">
+html {
+  background-color: #226699;
+}
+body {
+  background-color: #226699;
+  color: white;
+  font-family: Arial,Helvetica,sans-serif;
+}
+*:link {
+  color: #66cccc;
+}
+*:link:active {
+  color: #9999ff;
+}
+*:link:visited {
+  color: #ddffdd;
+}
+.excode {
+  border-width: medium;
+  padding: 2px 0px 4px 8px;
+  visibility: visible;
+  font-size: medium;
+  display: block;
+  margin-left: 32px;
+  background-color: #2277aa;
+  line-height: normal;
+}
+.list {
+  border-left-style: hidden;
+  border-left-width: 10px;
+  border-top-width: 10px;
+  border-top-style: hidden;
+}
+h1 {
+  font-size: 1.3em;
+  display: block;
+  margin-left: 0px;
+  padding-left: 12px;
+  background-color: #6666cc;
+  padding-bottom: 4px;
+  padding-top: 6px;
+  font-weight: bold;
+}
+h2 {
+  display: block;
+  margin-left: 0px;
+  padding-left: 12px;
+  padding-bottom: 4px;
+  padding-top: 6px;
+  font-weight: bold;
+  background-color: #3388dd;
+  font-size: 1.1em;
+}
+h3 {
+  display: block;
+  margin-left: 0px;
+  padding-left: 12px;
+  padding-bottom: 4px;
+  padding-top: 6px;
+  font-size: 1.1em;
+  font-weight: normal;
+  background-color: #00cccc;
+}
+.method {
+  display: block;
+  margin-left: 0px;
+  padding-left: 12px;
+  padding-bottom: 4px;
+  padding-top: 6px;
+  background-color: #227799;
+  font-family: "Courier New",Courier,monospace;
+  font-weight: normal;
+}
+.object {
+  font-weight: bold;
+  display: block;
+  margin-left: 0px;
+  padding-left: 12px;
+  padding-bottom: 4px;
+  padding-top: 6px;
+  background-color: #339999;
+  font-family: Arial,Helvetica,sans-serif;
+}
+.keyword {
+  border-width: medium;
+  padding: 2px 0px 4px 8px;
+  visibility: visible;
+  font-size: medium;
+  display: block;
+  margin-left: 0px;
+  background-color: #2277aa;
+  line-height: normal;
+}
+
+</style></head>
+<body style="color: white; background-color: rgb(34, 102, 153);" alink="#33ffff" link="#66cccc" vlink="#339999">
+<div style="text-align: left;"><big style="font-weight: bold;"><big><big>Liberation Circuit</big></big></big><br>
+</div>
+<br>Copyright 2017 Linley Henzell<br><br>
+Version: beta<br>
+<br>
+<h1><a class="mozTocH1" name="mozTocId524339"></a><span class="chapter"> 1. Introduction</span></h1>
+<br>Liberation Circuit is a game of fighting for control of a&nbsp;computer system
+(although it&nbsp;won't teach you anything about how to do this in
+the real
+world!). It has singleplayer modes and also supports play-by-email
+multiplayer.&nbsp;Networked multiplayer is possible in theory and may be implemented sometime
+in
+the future.<br>
+<br>You don't need to read&nbsp;this manual to play the
+game - it's mostly a detailed reference for advanced players, so if you
+just want to play then start up the game and start playing.<br><br>Game
+settings (like the size of the
+game window, fullscreen, sound volume, keyboard mapping, colourblind settings etc) can be changed by editing
+init.txt in the game directory - just follow the instructions in the
+init.txt file. <br>
+<br>Liberation Circuit is licensed under the GPL v3 (or any
+later version), and source
+code is available online, probably at <a href="https://github.com/linleyh/liberation-circuit">https://github.com/linleyh/liberation-circuit</a>.<br><br>To build it you will need a C compiler (I use
+gcc) with the Allegro 5 library. See the comments in
+m_main.c for more information about building the game.<br><br>The procedural music generator is based on Batuhan Bozkurt's <a href="http://www.earslap.com/page/otomata.html">Otomata</a>.<br><span style="font-weight: bold;"><br><br>A note on security</span><br><br>This
+game executes user-supplied bytecode inside a simple virtual machine.
+I've done my best to make sure everything the bytecode interpreter
+does&nbsp;is bounds-checked,&nbsp;heavily supervised and as far away
+from system calls as practicable. But I'm not a
+professional&nbsp;programmer and I can't guarantee that the virtual
+machine is bulletproof when running unknown code by other people. Exercise discretion when
+running other people's processes, particularly in bytecode form!<br><br>See also the Disclaimer and Limitation clauses of the GPL (in licence.txt in the main game directory).<br>
+<br>
+<span style="font-weight: bold;"><br>
+Contents</span><br><br><br><ul id="mozToc"><!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId524339"> 1. Introduction</a></li><li><a href="#mozTocId65966">
+2. Basic things</a><ul><li><a href="#mozTocId768458"> 2.1 Processes</a></li><li><a href="#mozTocId748685">2.2
+Templates</a></li><li><a href="#mozTocId756951">2.3 Process designer</a></li><li><a href="#mozTocId683651">2.4
+Code editor</a></li><li><a href="#mozTocId240196">2.5 Menu interface</a></li></ul></li><li><a href="#mozTocId681248">3.
+Playing the game</a><ul><li><a href="#mozTocId784123">
+3.1 Story&nbsp;and command mode</a></li><li><a href="#mozTocId690224">3.2 Autonomous mode</a></li><li><a href="#mozTocId690224">3.3 Multiplayer</a></li></ul></li><li><a href="#mozTocId983713">4.
+Compiler</a><ul><li><a href="#mozTocId381621">4.1 Keywords recognised by the compiler</a></li><li><a href="#mozTocId353779">4.2 Recompiling a locked template</a></li><li><a href="#mozTocId32272">4.3 Methods</a></li></ul></li><li><a href="#mozTocId983713">5.
+Standard methods</a><ul><li><a href="#mozTocId831569">5.1 Scanning and targetting</a></li><li><a href="#mozTocId831569">5.2 Power management</a></li><li><a href="#mozTocId522002">5.3 Contact and damage</a></li><li><a href="#mozTocId961199">5.4 Data</a></li><li><a href="#mozTocId487058">5.5 Messages and broadcasting</a></li><li><a href="#mozTocId621510">5.6 Building new processes</a></li><li><a href="#mozTocId831569">5.7 Interface</a></li><li><a href="#mozTocId831569">5.8 Repairing and restoring</a></li><li><a href="#mozTocId43896">5.9 Selection</a></li><li><a href="#mozTocId242316">5.10 Commands</a></li><li><a href="#mozTocId609011">5.11 Build commands</a></li><li><a href="#mozTocId673824">5.12 Mathematics</a></li><li><a href="#mozTocId465681">5.13 Miscellaneous</a></li></ul></li><li><a href="#mozTocId282111"> 6. Process and component methods</a><ul><li><a href="#mozTocId530141"> 6.1 Process methods</a></li><li><a href="#mozTocId446041"> 6.2 Component methods</a></li></ul></li><li><a href="#mozTocId282111"> 7. Objects, object methods and classes</a><ul><li><a href="#mozTocId530141"> 7.1 Classes</a></li><li><a href="#mozTocId530141"> 7.2 Objects and object methods</a><ul><li><a href="#mozTocId745">7.2.1 Link objects</a><ul><li><a href="#mozTocId446932">Downlink (object_downlink)</a></li><li><a href="#mozTocId27248">Uplink (object_uplink)</a></li></ul></li><li><a href="#mozTocId266853">7.2.2 Data objects</a><ul><li><a href="#mozTocId897277">Harvest (object_harvest)</a></li><li><a href="#mozTocId27547">Storage (object_storage)</a></li><li><a href="#mozTocId312328">Allocate (object_allocate)</a></li><li><a href="#mozTocId854706">Build (object_build)</a></li></ul></li><li><a href="#mozTocId107796">7.2.3 Movement objects</a><ul><li><a href="#mozTocId33898">Move (object_move)</a></li></ul></li><li><a href="#mozTocId324350">7.2.4 Attacking objects</a><ul><li><a href="#mozTocId874342">API type: Burst</a></li><li><a href="#mozTocId768851">API type: pulse</a></li><li><a href="#mozTocId214216">API type: spike</a></li></ul></li><li><a href="#mozTocId946828">7.2.5 Defensive/repair objects</a><ul><li><a href="#mozTocId206847">Interface (object_interface)</a></li><li><a href="#mozTocId896849">stability (object_stability)</a></li><li><a href="#mozTocId902341">Repair (object_repair)</a></li><li><a href="#mozTocId542577">Repair other (object_repair_other)</a></li></ul></li></ul></li></ul></li></ul><br><br><br><br>
+<h1><a class="mozTocH1" name="mozTocId65966"></a>
+2. Basic things</h1>
+<br>
+Your task is to escape a hostile computer system by&nbsp;taking control
+of the sub-systems along the way. To do this, you will need to
+eliminate all hostile processes. <br><br>In this world
+your will is executed by processes running on the system; processes can
+move, sense their surroundings, attack, reproduce and many other
+things. In some environments you can control them directly, while in
+others they are free to make their own decisions.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId768458"></a><span class="chapter"> 2.1 Processes</span></h2>
+<br>You can think of processes in two ways: they are the equivalents of
+units and structures in Liberation Circuit's real-time strategy game,
+and they are also small programs running in your computer's CPU (as
+bytecode in a virtual machine).<br><br>Each process has a core, which might look like this:<br><br><img style="width: 213px; height: 159px;" alt="simple core" src="data/manual/just_core.png"><br><br>But a core by itself can't do much; it needs&nbsp;objects. Objects can be attached to the core at each of its links:<br><br><img style="width: 243px; height: 199px;" alt="basic core" src="data/manual/basic_core.png"><br><br>This
+process consists of a core, two move objects (which work like little
+rocket engines) and a pulse object to attack other processes with. <br><br>The
+code to generate this process (which the game can generate for you; you don't need to type it in manually) looks like
+this:<br><br><img style="width: 334px; height: 177px;" alt="process header code" src="data/manual/process_header.png"><br><br>As well as the core, a process can have other components attached to the core by link objects, like this:<br><br><img style="width: 360px; height: 280px;" alt="multi-component process" src="data/manual/multi_process.png"><br><br>Or this:<br><br><img style="width: 400px; height: 320px;" alt="large process" src="data/manual/large_process.png"><br><br><br><br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId748685"></a>2.2
+Templates</h2>
+<br><img style="width: 336px; height: 615px; float: right;" alt="template panel" src="data/manual/template_panel.png" hspace="10">A template contains the source code for a process' AI routines and
+the structure of the process' components. Builder processes use
+templates to build new processes, and a&nbsp;process from template 0 is
+automatically
+placed for you at the start of each game.<br><br>You can open the template panel by clicking on the little "Te" button
+near the top right of the screen. The template panel lets you choose which template is open in the designer and editor panels.<br>
+<br>Templates
+can be unlocked or locked. An unlocked template can&nbsp;be edited or
+deleted. A locked template can only be modified in limited ways (you
+can't change the process design, although you can recompile the code -
+see section 4.3 below on recompiling a locked template). A template is
+automatically locked when it is used to place a process in the game; it
+can be unlocked again only when no processes built from it remain.<br><br> To load a process from
+disk into a template, open its source code using the File menu&nbsp;in the <a href="#Part:_Code_editor">editor panel</a>. The
+source code will be automatically compiled (and the template locked)
+when a new process is built from the template. You can also compile
+source code manually.<br><br>You
+can edit the init.txt file&nbsp;in the main game directory to tell the
+game to automatically load files into templates when you start the game (see instructions in init.txt).<br clear="all"><br><br clear="all"><h2><a class="mozTocH2" name="mozTocId756951"></a><a class="mozTocH2" name="Section_process_designer"></a>2.3 Process designer</h2>
+<br><img style="width: 535px; height: 629px; float: left;" alt="design panel" src="data/manual/design_panel.png" hspace="40">
+You can open the process designer panel by clicking on the little "De" button
+near the top right of the screen. The process designer lets you design a process without hand-coding the process definition.<br><br>When
+you create a new process (by clicking the "New" button that appears on
+the lower part of the panel when the current template is empty), only
+the core will appear. You can:<br><ul><li>Select the core (by clicking on it), then use the menu below to change the kind of core the process will have.</li></ul><ul><li>Select one of the core's links (the points on the core which things can be connected to), then:</li></ul><ul style="margin-left: 480px;"><ul><li>&nbsp;click on the "New component" button to add a downlinked component to that link;</li><li>&nbsp;click on the "change uplink" button to change the component's uplink to the selected link;</li><li>&nbsp;click on the "Clear" button to remove any object on the link;</li><li>&nbsp;click on any of the other buttons to add an object to the link.</li></ul></ul><ul><li>Select any component (including the core), then select the rotation icon that appears to rotate the component. </li></ul><ul style="margin-left: 360px;"><ul><li>also, hold control to lock the rotation to a limited range of angles.</li></ul></ul><ul><li>Select a component then click "delete" to remove it. (Doesn't work on the core.)</li></ul><ul><li>Click on "Symmetry" to make the process symmetrical around the
+horizontal axis (components above the axis will be copied below).</li></ul><ul><li>Click on "Write header" to replace the process header part of the process' source code with what you've designed</li></ul><ul><li>Click on "Autocode" to automatically generate source code for the
+process.</li></ul><ul><li>Click on "Lock" to try to compile the
+source code and lock the template so it can be used to build processes
+(you should probably click "Write header" before doing this, or any
+changes made in the designer won't have been written to the source
+code). This is done automatically when a process is built from an
+unlocked template, so you don't strictly need to do it.</li></ul><ul><li>Click on "Unlock" to try to unlock the template so that it can be
+edited. You can only do this if there are no processes build from that
+template in the current game.</li></ul><br><br>Designing
+a process is a matter of giving it a tactically effective structure,
+the right objects for its role in your force and enough power to run
+properly, while not making it too expensive. <br><br>Some process design considerations:<br><ul><li>A
+process' data cost determines its inertia (weight). The more inertia it
+has, the slower it moves. More expensive processes also take longer to
+complete when built.</li></ul><ul><li>More advanced cores produce more
+power, have more links to place objects on, and are more robust (core
+integrity determines the integrity of all components). But they are
+much heavier and more expensive.</li></ul><ul><li>A process can get
+away with being a bit underpowered if it won't need to use all of its
+objects at the same time (the example process above has a peak power
+use of 248, if all of its objects are operating at once, but a capacity
+of only 214).</li></ul><ul><li>A process with spread-out
+components&nbsp;rotates more slowly (its moment of inertia is greater)
+than a tightly clustered process.</li></ul><ul><li>On the other hand, move objects can generate more torque (turning force) the further they are from the process' centre of mass.</li></ul><ul><li>When a process' core is destroyed, the whole process is lost. Make sure the core is protected!</li></ul><br><h2><a class="mozTocH2" name="mozTocId683651"></a><a name="Part:_Code_editor"></a>2.4
+Code editor</h2>
+<br><img style="width: 607px; height: 775px; float: right;" alt="editor panel" src="data/manual/editor_panel.png" hspace="10">
+To open the code editor, click on the little "Ed" button near the top
+right of the screen.&nbsp;<br>
+<br>
+The code editor is a basic&nbsp;integrated development
+environment&nbsp;for
+the game's built-in compiler. You don't have to use it -
+you can use another program entirely to edit your source files - but
+it has some&nbsp;features that can be useful, like test
+compilation,&nbsp;code completion&nbsp;for built-in keywords and a help function (right-click on a keyword for help).<br><br>The
+code editor always has the source code for the currently selected
+template. Use the template panel to change the selected template.<br><br><br>The File, Edit and Find menus contain basic editor functions.<br>
+<br>
+The Compile menu has the following functions:<br>
+<dl style="font-weight: bold;">
+<dt>Test compile</dt>
+</dl>
+<dl>
+<dd>This attempts to compile the currently open file. If
+successful, the results are discarded.</dd>
+</dl>
+<dl style="font-weight: bold;">
+<dt>Compile</dt>
+</dl>
+<dl>
+<dd>This attempts to compile the currently open tab, and if
+successful updates the design in the design panel.&nbsp;</dd>
+</dl>
+<dl style="font-weight: bold;">
+<dt>Compile+lock</dt>
+</dl>
+<dl>
+<dd>Does the same as Compile, but if successful also locks the template
+so it's ready to be used in the game.</dd>
+</dl>If an unlocked template is used to place a process in the game, it will automatically be compiled and locked.<br><br>
+<span style="font-weight: bold;">Some limitations of the
+editor:</span><br>
+<ul>
+<li>Source files can't be longer than 2000 lines;</li>
+</ul>
+<ul>
+<li>Each line of a source file can't be longer than 160
+characters.</li></ul>
+<ul><li>Undo/redo is a bit dodgy. Don't rely on it too much.</li></ul><h2><a class="mozTocH2" name="mozTocId240196"></a><span style="font-weight: bold;">2.5 Menu interface</span></h2>
+<br><img style="width: 394px; height: 410px; float: right;" alt="start menu" src="data/manual/start_menu.png" hspace="10">
+When you first start the game, you are in the start-up screen.<br>
+<br>
+The left side of the screen has a game menu with the following options:<br>
+<br>
+<span style="font-weight: bold;">Start</span>
+<dl style="font-weight: bold;">
+</dl>
+<dl>
+<dd>Start playing the single-player RTS game.</dd>
+</dl>
+<dl style="font-weight: bold;"><li>Start (Hard)</li></dl><span style="font-weight: bold;"></span><div style="margin-left: 40px;">Like the normal game, but enemies are more plentiful and robust.</div><br><span style="font-weight: bold;">Start (Autonomous)</span><dl><dd>This is like
+the standard game but you play in autonomous mode (which means that
+you have no direct control over your processes).</dd></dl><span style="font-weight: bold;">Start (Autonomous+Hard)</span><br><br><div style="margin-left: 40px;">Autonomous mode and Hard mode at the same time.</div><dl style="font-weight: bold;"><dt>Custom game</dt>
+</dl>
+
+<dl>
+<dd>Set up a custom game (including&nbsp;multiplayer).</dd>
+</dl><dl style="font-weight: bold;">
+<dt>Exit</dt>
+</dl>
+<dl>
+<dd>Exit.</dd>
+</dl>
+<br>
+<h1><a class="mozTocH1" name="mozTocId681248"></a>3.
+Playing the game</h1>
+<br>
+<h2><a class="mozTocH2" name="mozTocId784123"></a>
+3.1 Story&nbsp;and command mode</h2>
+<br>The normal story is played in command mode. In
+command mode, processes can accept commands from the
+user and act on them. The commands accepted are pretty standard RTS commands (they're mostly based on Starcraft).<br><br>To
+select a process to give commands to, left-click on it. Multiple
+processes can be selected by holding the left mouse button to drag a
+box-select around them. Shift-clicking adds or removes processes from
+the selection. Double-clicking on a process selects all visible
+processes of the same type (i.e. built from the same template). There
+is a limit on the number of processes you can have selected at the same
+time (currently 32).<br><br>The commands you can give are:<br><ul><li><span style="font-weight: bold;">Location</span> - right-click somewhere on the screen or map. Most processes interpret this as a&nbsp;command to move to the location.<br></li></ul><ul><li><span style="font-weight: bold;">Attack</span>
+- right-click on an enemy process. The selected process/processes will
+attack the target (although some processes can't attack).<br></li></ul><ul><li><span style="font-weight: bold;">Attack-move</span>
+- right-click on a location while holding the&nbsp;control key.
+Processes will move, but attack things they find on the way.<br></li></ul><ul><li><span style="font-weight: bold;">Data well</span>
+- right-click on a data well. Harvester processes will try to harvest
+data from it (although autocoded harvesters don't require you to click
+exactly on the well; anywhere in scanning range of it is fine).<br></li></ul><ul><li><span style="font-weight: bold;">Friendly
+target</span>
+- right-click on a friendly process. In most cases this will activate
+guard mode and the selected process will move in a circle around the
+target. But if the
+selected process has a harvest object it will set the target as the
+process it returns to after harvesting.</li></ul><br>Holding shift while giving commands queues them. Up to 4 commands can be queued for each process.<br><br>Builder
+processes (processes with build objects) have a separate set of
+build commands, with a separate queue - see the buttons that appear on
+the left side of the screen when you click on a builder process. Each
+button is for a different template; templates for static processes are a different colour.<br><br>To
+give a build command,&nbsp;click on the button. If you're building a
+mobile process, it will be built just in front of the builder. To build
+a static process, right-click on a location and then drag the mouse to
+indicate the direction the new process should face. Left-click to
+cancel.<br><br>Build commands are&nbsp;queued automatically; only the
+command at the front of the queue will be built. You can re-order
+queued commands by dragging them, and delete them by clicking on the X
+button.<br><br>Holding control while giving a build command
+tells the builder to build the same thing repeatedly (every time it
+fulfills a command, the command goes to the back of the queue instead
+of disappearing).<br><br>When
+a new process is built by an autocoded static builder process, any commands on the
+builder's&nbsp;command queue are copied to the new process. For
+example, if you tell a static builder to guard itself, anything it
+builds will guard it.<br><br>The
+keys Z, X, C, V, B, N and M (the bottom row of a QWERTY keyboard; these
+can be remapped by editing init.txt) are used for control groups. Set
+all selected processes to a control group by pressing ctrl-Z (etc). Add
+selected processes to a control group by pressing shift-Z (etc). Select
+a control group by pressing Z (etc).<br><br><br><h2><a class="mozTocH3" name="mozTocId690224"></a><span class="chapter">3.2 Autonomous mode</span></h2><br>In
+autonomous mode, you can't give commands to your processes - they need
+to be programmed to make their own decisions. The autocoder isn't much
+help here; it can't make up complex AI.<br><br>All
+of the enemies in the
+missions are designed to work in autonomous mode, so if you want
+examples of autonomous processes you can look at the source code in the
+story directories.<br><br><br><h2><a class="mozTocH3" name="mozTocId690224"></a><span class="chapter">3.3 Multiplayer</span></h2>
+<br>
+Currently, asynchronous multiplayer with up to four players in
+autonomous mode is
+supported (simultaneous networked command-mode multiplayer may happen
+one day). <br><br>The
+goal of a multiplayer game is to design a set of processes that will
+defeat the opponent's processes, without further input from you. Here's
+how to set up and play a multiplayer game:<br><br>
+<div style="margin-left: 40px;">1. Each player (let's call them Alice
+and Bob) starts a game (the settings don't matter) and loads
+process files into as many templates as needed.<br><br>2. Alice and Bob
+each&nbsp;save a template file (using the "save template file" button
+at the top of the template panel). This contains the binary code
+for&nbsp;their templates.<br><br>3. Alice and Bob send their
+template files to each other, decide that Alice will be&nbsp;player 0 and Bob will be
+player 1, and agree on which map code to use (you can make map codes on the&nbsp;Custom Game screen).<br><br>4. Alice clicks on "Custom Game" on the main menu, enters the agreed map code, then clicks "Start Game". Bob does the same.<br><br>5.&nbsp;Before
+clicking on the "Click when ready" button, Alice&nbsp;loads her
+template file into the player 0 templates and Bob's template file into
+the Player 1 templates&nbsp;(using the "load template file" button on
+the template panel). Bob also loads Alice's file into Player 0 and his
+file into Player 1.<br><br>6. Now they both click "Click when ready", and watch to see who wins!<br>
+</div>
+<br>A custom game with the same starting
+conditions (the same template files and the same map code) *should* unfold in exactly the same way on all computers.<br><br><br>
+<h1><a class="mozTocH1" name="mozTocId983713"></a><span class="chapter"><a name="Chapter:_Compiler"></a>4.
+Compiler</span></h1>
+<br>Liberation Circuit is in essence a programming game.<br><br>The
+programming is done in a&nbsp;simple scripting language with syntax
+based on&nbsp;C. The quickest way to get started with it
+is&nbsp;probably to use the
+autocoder to generate code for various different
+kinds of process, and look at the results. You could also look at the
+source code for the story processes (look in the story directory).<br><br>
+The game's built-in compiler is available from the code editor, and
+is also automatically called when an unlocked template is used to place
+a process into the game. It is not a very good compiler. It has a range
+of limitations
+and odd features, some dictated by the&nbsp;environment
+but most resulting from the fact that I don't really know how to write
+a compiler.<br>
+<br>
+(What I do know about how compilers work I
+learned&nbsp;from&nbsp;Serge Zaitsev's CUCU
+project (quote: "Never, please, never do it this way!"),
+which&nbsp;is the clearest
+explanation of simple compiler design that I've found anywhere. See
+<a href="http://zserge.com/blog/cucu-part1.html">http://zserge.com/blog/cucu-part1.html</a>.)<br><br>
+Some of the compiler's "special" characteristics are:<br>
+<ul>
+<li>It has only one basic variable type: int, which is a 16-bit
+signed
+integer. No floats, chars, structs, unions or unsigned. It
+does allow arrays of ints, with up to three dimensions.<br></li>
+</ul><ul>
+<li>Pointers are not supported.</li></ul><ul>
+</ul>
+
+<ul>
+<li>It doesn't recognise statements used as
+expressions. That
+means no <code>a = b++;</code>. You'll have to keep them separate, sorry :(</li>
+</ul>
+<ul>
+<li>Variable scope is always global. There is no block scope.</li>
+</ul>
+<ul>
+<li>Functions are not supported. Everything is just one long shapeless main
+function. Instead of functions, you can use BASIC-style gosub/return subroutines! They are almost as good.<br></li>
+</ul>
+<ul>
+<li>It doesn't give many warnings. Also, some of its error
+messages could
+be a little more useful.</li>
+</ul>
+<ul>
+<li>It doesn't really optimise anything. Constant folding and other basic optimisations are on my to-do list.</li>
+</ul>
+<ul>
+<li>Octal numbers aren't supported. I hope this will not cause
+any great
+inconvenience. Hexadecimal is supported, though.</li>
+</ul>
+<ul>
+<li>Binary numbers with the 0b prefix are supported (e.g. 0b11
+is 3).</li>
+</ul>
+
+<ul>
+<li>Programs need to be designed to be executed repeatedly (about 4 times a second).
+This has
+consequences for variable initialisation: variables retain their
+values between executions, so you may need&nbsp;special
+initialisation code that you wouldn't usually need in a C program.<br></li>
+</ul>
+<ul>
+<li>There are&nbsp;limits on compiled code size, although
+this is really
+a game mechanic rather than a limitation of the compiler. Processes must
+fit in 2048 bcode words (each word is one 16-bit instruction).</li>
+</ul>
+<ul>
+<li>There is no&nbsp;dynamic memory allocation.</li>
+</ul>
+<ul>
+<li>There is no linker. Everything that a program needs should
+be in the
+same .c file.
+</li>
+</ul>
+<ul>
+<li>There isn't really a preprocessor. No standard C preprocessor directives are supported.</li>
+</ul>
+
+<ul>
+<li>Things
+that would
+normally be done with libraries, like&nbsp;complicated
+maths operations, are done using&nbsp;special built-in "methods" (like functions).<br></li>
+</ul>
+<ul>
+<li>Programs have a special "process" definition at the
+start, which defines the process' structure in the game. Although you
+can edit this manually, it's usually easier to use the designer to
+generate it for you.</li>
+</ul>
+<br>
+The&nbsp;programs in the story directories, and programs generated by the autocoder, have plenty of
+comments, so you could look at those if you're trying to work out how
+to code in this environment.<br><br>Also, you can right-click on a keyword in the editor panel for details of what it does.<br><br>
+<br>
+<h2><a class="mozTocH3" name="mozTocId381621"></a>4.1 Keywords recognised by the compiler</h2>
+<span style="font-weight: bold;"><br></span>The compiler recognises some, but not all, basic C keywords, and has a few special ones of its own.<span style="font-weight: bold;"><br><br></span>These should work as expected:<br><br>
+<code><span class="excode">if/else<br><br>do<br><br>while<br><br>switch/case/default<br><br>break<br><br>continue<br><br>goto<br><br>enum<br><br></span></code><br><br><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span>Some others work, but maybe not quite as expected, and there are a few special keywords:<br><br>
+<br><code class="excode keyword">int</code><br>This is the only
+data type currently supported. It's a signed 16-bit integer, from
+-32768 to +32767. Arrays of ints, with up to 3 dimensions, are
+supported.<br><br>Each process has its own separate memory (large enough
+to hold up to 512 ints), and all variables are initialised to 0 when a
+process is created then retain their value between execution cycles.
+This means that you can't combine variable declarations with
+assignments. So you can't do this:<br><br><code><span class="excode">int a = 1; // doesn't work</span></code><br>If you need to initialise variables, use special initialisation code that only runs once. For example:<br><br><code><span class="excode">int initialised; // starts as zero<br>int special_number;<br><br>if (!initialised)<br>{<br>&nbsp;special_number = 100;<br>&nbsp;initialised = 1; // makes sure that this code will only run once, the first time the process runs.<br>}</span></code><code><span class="excode"></span></code><code><span class="excode"></span></code><br><br><code><span class="keyword">for</span></code><br>
+Because statements and expressions aren't interchangeable, for
+statements must always be in the form<code> for (&lt;statement&gt;;
+&lt;expression&gt;; &lt;statement&gt;)</code>. The first statement can't be a combined variable declaration and initialisation.<br>
+<br>
+This shouldn't be a problem for basic uses like <code>&nbsp;for (i = 0; i &lt;
+10; i++) {...}</code>.<br><br><br><code><span class="keyword">printf</span></code><span style="font-weight: bold;"></span><br>Prints formatted text to the console on the bottom left of the game screen. For example:<br><br><code><span class="excode">printf("\n Counter is equal to %i.", counter); // assumes counter has been declared as an int.</span></code><br>
+ The only format specifier currently accepted is %i. Line breaks (\n) can be used too. <br><br><br><code><span class="keyword">bubblef</span></code><span style="font-weight: bold;"></span><br>Like
+printf, but prints up to 40 characters of formatted text to a speech
+bubble that appears next to the process for a few seconds. <br><br><br><code><span class="keyword">exit</span></code><br>Since there's no stdlib, there's no exit() function. The exit keyword (just <code>exit;</code> without brackets) is turned directly into a stop instruction, which ends execution.<br><br><br><code><span class="keyword">terminate</span></code><br>Self-destruct.<br><br><br><code><span class="keyword">gosub/return</span></code><br>
+Functions
+are not supported, but subroutines are! Gosub works just like goto,
+except that when a return is found the program jumps back to the next
+statement after the gosub. For example:<br><br><code><span class="excode">gosub sub_routine_code;<br>&nbsp;&lt;next statement 1&gt;<br>gosub sub_routine_code;<br>&nbsp;&lt;next statement 2&gt;<br>&nbsp;&lt;other code&gt;<br>exit;<br><br>sub_routine_code:<br>&nbsp; &lt;subroutine code goes here&gt;<br>&nbsp;return; // jumps back to the next statement after the gosub</span></code><span style="font-weight: bold;"></span><br>Gosubs can be nested, within reason.<br><br><br><code><span class="keyword">#process "name"</span><br class="keyword"><span class="keyword">&nbsp;&lt;process header goes here&gt;</span><br class="keyword"><span class="keyword">#code</span></code><br>These
+should appear only once, at the start of a program. #process is at the
+start of the header setting out the structure of the process, and #code
+is at the start of the code. "name" is the name that will be given to
+the process' template.<br><br>The process header is usually generated from the designer, but you can edit it manually if you want to.<br><br><br><code><span class="keyword">class</span></code><code class="keyword"></code><br>This
+keyword is used in the process header to designate object classes (and
+can also be used to call classes of objects by class index). See the
+object method section below for more about classes.<br><br>
+<br>
+Some other keywords aren't supported:<br>
+<br>
+<code><span class="excode">variable types that are
+not int<br><br>static<br><br>auto<br><br>const<br><br>typedef<br><br>sizeof<br><br>restrict<br><br>extern<br><br>register<br><br>volatile<br></span><span class="excode"></span></code><br>
+<br>Also, the ternary ? operator isn't supported. Most other operators
+should be, and I *think* operator precedence should work as expected,
+except that bitwise operators bind more closely than logical and
+comparison operators (as they should!).<br><br><br><br><h2><a class="mozTocH2" name="mozTocId353779"></a>4.2 Recompiling a locked template</h2><br>Although
+the process design of a locked template can't be changed, you can
+recompile the code to change the behaviour of processes created from
+it. This affects all processes based on the template, including any
+already created.<br><br>There are a few things to be aware of when recompiling a locked template:<br><ul><li>The
+process header should&nbsp;be left alone. Any changes to the
+component/object design will just be ignored, but changes in&nbsp;class
+declarations or assignments can cause problems.</li></ul><ul><li>You can rename the process by changing the #process line, though.</li></ul><ul><li>Any
+existing processes based on the&nbsp;template will retain the contents of
+their
+variable memory, so any new variable declarations should come after
+all of the existing variable declarations to avoid&nbsp;the processes
+getting confused about the addresses of existing variables
+(variables&nbsp;are stored in order of declaration).</li></ul><ul><li>Also,
+existing variable declarations shouldn't be removed or re-ordered,&nbsp;and
+existing array size should not be changed.</li></ul><ul><li>Existing processes also retain their targetting memory.</li></ul><br><br><h2><a class="mozTocH2" name="mozTocId32272"></a><a class="mozTocH2" name="Section_4_3_methods"></a>4.3 Methods</h2>
+<br>Methods are built-in functions, a bit like C library functions,
+that let a process interact with the world and perform complex operations. There
+are a few different kinds of methods:<br><ul><li><a href="#Chapter:_Standard_methods"><span style="font-weight: bold;">Standard methods</span></a> are the most
+basic kind, and there are lots of them. They do things like perform
+special calculations, scan a process' surroundings and receive commands
+from the user.</li></ul><ul><li><a href="#Chapter:_Objects_and_object_methods"><span style="font-weight: bold;">Object methods</span></a> control a process' objects, and
+allow a process to do things like move (using move objects) or attack
+other processes (using attacking objects like pulse objects). They can
+be called on specific objects, but they are usually called on classes
+of objects. Some objects which don't need to be controlled individually
+are used with standard methods instead of object methods.</li></ul><ul><li><a href="#Chapter:_Process_and_component_methods"><span style="font-weight: bold;">Process methods</span></a> return useful information about a process, like its location,
+speed and damage level. A process can call them on itself, and also on
+other&nbsp;processes that it has targetted.</li></ul><ul><li><a href="#Chapter:_Process_and_component_methods"><span style="font-weight: bold;">Component methods</span></a> are like process methods, but are called on individual components of a process.</li></ul><br>
+<h1><a class="mozTocH1" name="mozTocId983713"></a><span class="chapter"><a name="Chapter:_Standard_methods"></a>5.
+Standard methods</span></h1><br>
+<h2><a class="mozTocH3" name="mozTocId831569"></a>5.1 Scanning and targetting</h2>
+<br>Scanning methods allow a process to detect other nearby processes.
+Scans have a range of about 900 pixels (at maximum zoom level) in a
+rough circle (actually an octagon) around the process. The 'fog of war'
+clearing effect around a process is about the size and shape of its
+scanning area.<br><br>The first time a scanning
+method is called during a cycle is quite expensive,
+because the process is building a list of all targets that are in range.
+Each subsequent call is&nbsp;cheaper, because the process just queries the
+list (this is all done implicitly).<br><br>Each
+process has a special targetting memory which can store up to 64
+targets. Once a target has been stored in targetting memory, process
+methods can be called on it when it is visible (within scanning range of any
+friendly process).<br><br><br><br class="method"><div style="margin-left: 40px;"><span class="method" style="font-weight: bold;">scan_for_threat(x_offset, y_offset, target_index)</span><br></div><div style="margin-left: 80px;">Simple scan method that finds the nearest enemy core and saves it to targetting memory at index target_index.<br><br>x_offset
+and y_offset let you choose the point from which proximity is
+calculated&nbsp;(for the purpose of working out which enemy is
+nearest). They can be any distance away from the core, although only
+targets actually within scanning range of the core itself will&nbsp;be
+detected.<br><br>target_index is the address in targetting memory that the target should be stored in. Set this to -1 to discard the target.<br><br>Returns 1 if a target was found, 0 if not.<br><br>Example:<br><br><code><span class="excode">target_found = scan_for_threat(cos(get_core_angle(), 400), sin(get_core_angle(), 400), 1);<br><br>//
+searches for the enemy targest nearest to a point 400 pixels in front
+of the core, and saves it in targetting memory address 1. Returns 1 if a target was found.<br class="excode"></span>
+<br class="excode">
+<span class="excode"></span></code><br></div><div style="margin-left: 40px;"><br><span class="method">scan_single(x_offset, y_offset, target_index, friendly, components_min, components_max, scan_bitfield)</span><br></div><div class="list" style="margin-left: 80px;">A more complex scan method that allows more filtering of targets.<br><br>x_offset, y_offset and target_index work the same way as for scan_for_threat().<br><br>friendly should be:<br><br><div style="margin-left: 40px;">0 to accept only enemy targets;<br>1&nbsp;to accept both friendly targets and enemy targets;<br>2 to accept only friendly targets.<br></div><br>components_min
+and components_max let you scan for only small or large processes. A
+process with fewer components (including the core) than components_min
+or more than components_max is ignored. To detect processes of any size
+set components_min to 0 and components_max to any very high value (100
+will do).<br><br>scan_bitfield
+is a bitfield that allows you to set which targets will be detected in
+more detail. If one of the bits is set, any target that matches that
+bit will be accepted. If multiple bits are set, all targets that match
+at least one of the bits will be accepted. The bits are:<br><br><div style="margin-left: 40px;"><code>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0b1 - process is static<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0b10 - process is mobile<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0b100 - process has at least one build object<br>&nbsp; &nbsp; &nbsp; &nbsp; 0b1000 - at least one allocate object<br>&nbsp; &nbsp; &nbsp; &nbsp;0b10000 - at least one harvest object<br>&nbsp; &nbsp; &nbsp; 0b100000 - at least one pulse object<br>&nbsp; &nbsp; &nbsp;0b1000000 - at least one spike object<br>&nbsp; &nbsp; 0b10000000 - at least one stream object<br>&nbsp; &nbsp;0b100000000 - at least one burst object<br>&nbsp; 0b1000000000 - at least one interface object<br>&nbsp;0b10000000000 - at least one ultra object<br>0b100000000000 - at least one surge object</code><br></div><br>For
+example, 0b1100 has the bits for build objects and allocate objects
+set, so it will detect any process that has either a build object or an
+allocate object (objects on destroyed components are ignored) and
+ignore other processes. To detect any process, use 0b11 (static +
+mobile).<br><br>Returns 1 if a target found, 0 otherwise.<br><br>Example:<br><br><code><span class="excode">target_found = scan_single(cos(get_core_angle(), 400), // x_offset<br>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;sin(get_core_angle(), 400), // y_offset<br>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; TARGET_MAIN, //
+an enum indicating an address in targetting memory<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; 0, // only detect enemy processes<br>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 0, // components_min - 0 means no
+minimum<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; 12, // components_max - ignores processes with more
+than 12 components<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; 0b100100000); // scan_bitfield -
+processes with either a pulse or burst object<br><br class="excode"></span>
+<br class="excode">
+<span class="excode"></span></code><br></div><div style="margin-left: 40px;"><br><span class="method">scan_multi(x_offset, y_offset, target_index, number_of_targets, friendly, components_min, components_max, scan_bitfield)</span><br></div><div style="margin-left: 80px;">Just
+like scan_single, except the number_of_targets parameter allows
+scanning for up to 6 targets. The targets will be stored in successive addresses in targetting
+memory starting from target_index, sorted by distance from the centre
+of the scan.<br><br>Returns the number of targets found.</div><div style="margin-left: 40px;"><br><span class="method">target_clear(target_index)</span><br></div><div style="margin-left: 80px;">Clears targetting memory at address target_index.<br><br>Returns 1 on success, 0 on error (e.g. if target_index is out of bounds).<br></div><div style="margin-left: 40px;"><br><span class="method">target_compare(target_index_1, target_index_2)</span><br></div><div style="margin-left: 80px;">Compares the targets at targetting memory address target_index_1 and target_index_2.<br><br>If they are the same process, returns 1. Returns 0 otherwise.<br></div><div style="margin-left: 40px;"><br><span class="method">target_copy(target_index_dest, target_index_source)</span><br></div><div style="margin-left: 80px;">Copies
+the target at target_index_source to target_index_dest. If
+target_index_source is empty, target_index_dest will be cleared too.<br><br>Returns 1 on success, 0 on failure.<br></div><div style="margin-left: 40px;"><div style="margin-left: 40px;"><br></div><span class="method">target_destroyed(target_index)</span><br><div style="margin-left: 40px;">Checks whether the target has recently been destroyed.<br><br>If the target is (or was)&nbsp;friendly, returns 1 if the target was destroyed within about 200 ticks before present.<br><br>If the target is (was) an enemy, returns 1 if:<br>- the target was destroyed within about 200 ticks before present; and<br>-&nbsp;the location at which the target was destroyed is currently visible (to any friendly process).<br><br>Returns 0 otherwise.<br></div><br><span class="method">check_point(x_offset,&nbsp;y_offset, target_index)</span><br></div><div style="margin-left: 80px;">Checks
+for a process at a particular point; if a process is there (i.e. if any
+part of it overlaps the point) the process is stored in targetting
+memory address target_index.<br><br>x_offset
+and y_offset are offsets from the calling core, and must be within scanning
+range of the calling core. However, this method does not execute a scan.<br><br>Returns 1 if a process is detected, 0 if not, -1 on error.<br></div><br><div style="margin-left: 40px;"><span class="method">check_xy_visible(x_point,&nbsp;y_point)</span><br></div><div style="margin-left: 80px;">Checks
+whether a particular point is visible (i.e. within scanning range of
+any friendly process). x/y_point are absolute values.<br><br>Returns 1 if the point is visible, 0 otherwise.</div><br><h2><a class="mozTocH3" name="mozTocId831569"></a>5.2 Power management and instructions</h2><br>A&nbsp;process&nbsp;generates a certain amount of power each cycle to use its objects and do various other
+things. The exact amount is
+determined by the core type and the number of components. <br><br>Power
+is used by object method calls, and&nbsp;some objects have an ongoing
+cost which is applied just before each cycle starts. For example, an
+active interface object uses&nbsp;10 power at the start of each cycle,
+and a pulse object uses 20 power when called to fire and also uses 20
+power at the start of a cycle if it is still recycling from being fired.<br><br>If
+the process runs out of power partway through executing, subsequent
+object method calls may fail. Failures like this show up as a red bar
+on top of the power use bar in the graph in the process data display.<br><br>A
+process also has a certain number of instructions it can perform each
+cycle; the exact amount depends on the core type. Instructions are used
+by program logic and method calls. For example, assigning a value to a
+variable costs a few instructions, while performing a scan costs a lot
+of instructions. If the process runs out of instructions partway
+through execution, it will stop.<br><br><br><div style="margin-left: 40px;"><span class="method">get_power_capacity()</span><br></div><div style="margin-left: 80px;">Returns the power generation capacity of the process.<br></div><div style="margin-left: 40px;"><br><span class="method">get_power_used()</span><br></div><div style="margin-left: 80px;">Returns the amount of power used so far this cycle.<br></div><div style="margin-left: 40px;"><br><span class="method">get_power_left()</span><br></div><div style="margin-left: 80px;">Returns the amount of power left this cycle.<br><br></div><div style="margin-left: 40px;"><span class="method">get_instructions_left()</span><br></div><div style="margin-left: 80px;">Returns the number&nbsp;of instructions left this cycle.<br></div><br><br><h2><a class="mozTocH2" name="mozTocId522002"></a><a class="mozTocH3" name="Section_5_3_contact_and_damage"></a>5.3 Contact and damage</h2>These methods are like a sense of touch, and return information about collisions and damage taken since the previous cycle.<br><br><div style="margin-left: 40px;"><span class="method">check_contact(target_index)</span><br></div><div style="margin-left: 80px;">Returns
+1 if the process has collided with another process. If it
+has, saves the other process in targetting memory at the address
+indicated by target_index (set target_index to -1 if you don't want to
+save the target).<br><br>If the process&nbsp;collided with multiple other processes during the previous cycle, the most recent one is saved.<br></div><div style="margin-left: 40px;"><br><span class="method">get_damage()</span><br></div><div style="margin-left: 80px;">Returns the amount of damage taken by the entire process since the previous cycle (including any damage taken by its interface).<br><br>More information about how much integrity the process has (or how much damage it's taken) is available using <a href="#Chapter:_Process_and_component_methods">process methods</a> like get_total_integrity().<br></div><div style="margin-left: 40px;"><br><span class="method">get_damage_source(target_index)</span><br></div><div style="margin-left: 80px;">If
+the process has taken damage (including to its interface) since the
+previous cycle, saves the source of that damage (e.g. a process that
+fired a pulse at it) to targetting memory at target_index then returns 1.
+Returns 0 if no damage taken.<br><br>If multiple processes have caused damage, the most recent one to do so is saved.<br></div><br><br>
+<h2><a class="mozTocH2" name="mozTocId961199"></a><a class="mozTocH3" name="Section_5_4_data"></a>5.4 Data</h2>These
+methods allow a process to look for and examine nearby data wells (the
+source of the data that's used to build new processes).<br><br>Some of these methods (the ones that involve interaction with data wells) can only be used by a process which has at least
+one&nbsp;harvest or build object (otherwise they will just fail and return 0 or
+-1).<br><br><br><div style="margin-left: 40px;"><span class="method">search_for_well()</span><br></div><div style="margin-left: 80px;">Searches for a well within scan range of the process. Returns 1 if a well is found, 0 otherwise.<br><br>Requires a harvest or build object.<br></div><div style="margin-left: 40px;"><br><span class="method">get_well_x()</span><span class="method">get_well_y()</span><br></div><div style="margin-left: 80px;">If
+a well is within scan range, returns its x or y coordinate (as an
+absolute, not an offset from the process). Or returns -1 if no well is
+nearby.<br><br>If more than one well is within scan range, the location
+of the closest one to the process is returned (the same is true of all
+of the following data well methods as well).<br><br>Requires a harvest or build object.<br></div><div style="margin-left: 40px;"><br><span class="method">get_well_data()</span><br></div><div style="margin-left: 80px;">Returns
+the amount of data currently available (not in reserves) in the nearest well, or -1 if no well is within range.<br><br>Requires a harvest or build object.<br></div><div style="margin-left: 40px;"><br><span class="method">get_data_stored()</span><br></div><div style="margin-left: 80px;">Returns the total amount of data stored in the process' data storage objects.<br></div><div style="margin-left: 40px;"><br><span class="method">get_data_capacity()</span><br></div><div style="margin-left: 80px;">Returns the maximum amount of data the process can store in its storage objects.<br></div><br><div style="margin-left: 40px;"><span class="method">get_available_data()</span><br></div><div style="margin-left: 80px;">Returns
+the amount of data available to the player for building new processes
+(this is the amount of allocated data shown in the information box at
+the top right of the display; it doesn't include unallocated data in
+storage objects on your processes).<br></div><br><br>
+<h2><a class="mozTocH2" name="mozTocId487058"></a><a class="mozTocH3" name="Section_5_5_messages"></a>5.5 Messages and broadcasting</h2>These
+methods allow a process to communicate with other friendly processes by sending messages consisting of up to 8 ints.<br><br>To send a message, a process either:<br><br><div style="margin-left: 40px;">- uses a transmit method to send the message to a friendly process in targetting memory; or<br>- uses a broadcast method to send the message to all friendly processes, or all friendly processes within a specified range.<br></div><br>Broadcast
+methods send the message on a particular channel, from 0 to 7. A
+process only receives a broadcast if it is listening to the channel
+(see the listen_channel method).<br><br>Transmit methods do not use
+channels, and a process always receives a message transmitted to it
+specifically (unless its message buffer is full).<br><br>To check and read its messages, a process:<br><br><div style="margin-left: 40px;">1. calls next_message() to start reading the first message<br>2. if next_message() returned&nbsp;1, calls read_message() to read the first value sent in the first message<br>3. then calls read_message() again to read the second, third etc. value in the message.<br>4. calls next_message() again to go to the next message. If next_message() returns 0, there are no more messages.<br></div><br><br>Example:<br><br><code><span class="excode"><br>while(next_message()) // starts reading the first message, or the next message on the queue, and returns 1 if there is one<br>{<br>&nbsp;<br>&nbsp;switch(read_message()) // reads the first value in the message contents<br>&nbsp;{<br><br>&nbsp; case MESSAGE_MOVE_TO:<br>&nbsp;&nbsp; move_x = read_message(); // reads the second value<br>&nbsp;&nbsp; move_y = read_message(); // reads the third value<br>&nbsp;&nbsp; continue;<br><br>&nbsp; case&nbsp;MESSAGE_ATTACK_TARGET:<br> &nbsp;&nbsp; attack_x = read_message(); // reads the second value<br>&nbsp;&nbsp; attack_y = read_message(); // reads the third value<br>&nbsp;&nbsp; get_message_target(TARGET_ATTACK); // saves the target that was attached to the message<br>&nbsp; &nbsp;continue;<br><br>&nbsp;}<br><br>}<br><br class="excode"></span>
+<br class="excode">
+<span class="excode"></span></code><br><br>A
+process' message received buffer can hold up to 8 messages received
+since the previous cycle, and is cleared at the end of each cycle.
+Transmissions and broadcasts use the same buffer.<br><br><div style="margin-left: 40px;"><br><span class="method">transmit(target_index, priority, &lt;message_value_0&gt;, &lt;message_value_1&gt;, ...)</span><br></div><div style="margin-left: 80px;">Sends
+a message to the process in targetting memory entry target_index. The
+target must be friendly, and can be any distance from the transmitter.<br><br>priority
+is 0 or 1. The&nbsp;difference is that if the target already has 8
+messages in its buffer, a priority 1 message will displace and
+overwrite a priority 0 message.<br><br>The message_values are the
+contents of the message. There can be up to 8 of them; any that are not
+specified in the call are written as 0.<br><br>Example:<br></div><div style="margin-left: 40px;"><br><div style="margin-left: 40px;"><code><span class="excode">transmit(0,&nbsp;1, 100, 2); // sends a message to target 0 with priority 1. </span></code><code><span class="excode">&nbsp; // The message is 100, then 2, then six zeroes.</span></code><br></div><br><span class="method">broadcast(range, channel, priority, &lt;message_value_0&gt;, &lt;message_value_1&gt;, ...)</span><br></div><div style="margin-left: 80px;">Like transmit, but sends the message to all friendly processes that are
+within&nbsp;range and are listening to the channel. <br><br>range is in pixels and can be as
+high as needed. Set range to -1 for unlimited range.<br><br>channel
+should be 0 to 7; the message will be received only by processes that
+have called listen_channel to listen to the correct channel.<br><br>priority is 0 or 1.<br></div><br><div style="margin-left: 40px;"><span class="method">transmit_target(target_of_transmission, priority, target_to_transmit, &lt;message_value_0&gt;, &lt;message_value_1&gt;, ...)</span><br></div><div style="margin-left: 80px;">Like
+transmit, except an entry in targetting memory is attached to the
+transmission. The process that receives the transmission can copy the
+targetted process to its own targetting memory using the
+get_message_target() method.<br><br>This can be used, for example, by
+processes that need to coordinate their attacks. If one process
+transmits an enemy target to other friendly processes, they can then
+target it directly as long as it is visible to any friendly process.<br><br>target_of_transmission is the friendly process to which the transmission is being made.<br><br>priority
+is 0 or 1.<br><br>target_to_transmit is the index of the target in the transmitting process' targetting memory.<br><br>The message_values are the
+same as for transmit(), and there can also be up to 8 of them.<br><br>Example:<br></div><br><div style="margin-left: 80px;"><code><span class="excode">transmit_target(TARGET_FRIENDLY,&nbsp;1, TARGET_ENEMY, 100, 2);<br>&nbsp; // sends a message to target TARGET_FRIENDLY with priority 1.<br>&nbsp; // the message is 100, then 2, then six zeroes.<br>&nbsp; // target TARGET_FRIENDLY will also receive targetting information about TARGET_ENEMY. </span></code><code><span class="excode"></span></code></div><div style="margin-left: 40px;"><div style="margin-left: 40px;"><br></div><span class="method">broadcast_target(range, channel, priority, target_to_broadcast, &lt;message_value_0&gt;, &lt;message_value_1&gt;, ...)</span><span class="method"></span><br></div><div style="margin-left: 80px;">Like broadcast(), but sends a target in the same way as transmit_target().<br></div><div style="margin-left: 40px;"><br><span class="method">check_messages()</span><br></div><div style="margin-left: 80px;">Returns
+the number of unread messages received by the process since the last time it
+executed. <br><br>Doesn't include the current message set by next_message() (if any), or any messages discarded by next_message.<br><br>If
+there's&nbsp;more than one message, the messages will be in a queue in
+order of time received (although a priority 1 message that displaces a
+priority 0 message may be out of order).<br></div><div style="margin-left: 40px;"><br><span class="method">read_message()</span><br></div><div style="margin-left: 80px;">Returns
+the contents of the current message. Calling it more
+than once returns the second, third, etc value. Returns 0 if no
+message, or if the end of the message has been reached.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br><span class="method">next_message()</span><br></div><div style="margin-left: 80px;">The
+first time next_message() is called in a cycle, it sets the&nbsp;first
+message received since the previous cycle to be the current message.
+This allows the message to be read.<br><br>Subsequent&nbsp;calls discard the current message and move to the next one.<br><br>Returns 1 on success (if there is a&nbsp;message to read), or 0 if there are no more messages.<br></div><div style="margin-left: 40px;"><br><span class="method">get_message_type()</span><br></div><div style="margin-left: 80px;">Returns
+the type of the current message. <br><br>Returns
+1 for a
+message sent by transmit(), 2 for a message sent by transmit_target(),
+3 for a broadcast() message and 4 if the message was sent by
+broadcast_target().<br><br>Returns 0 if there is no
+message on the queue.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br><span class="method">get_message_channel()</span><br></div><div style="margin-left: 80px;">Returns the channel the current message was sent on. <br><br>Returns 0 if the message was transmitted directly. Returns -1 if there is no current message.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br><span class="method">get_message_priority()</span><br></div><div style="margin-left: 80px;">Returns the priority the current message was sent on. Returns -1 if there is no current message.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br><span class="method">get_message_source(target_index)</span><br></div><div style="margin-left: 80px;">Saves the process that sent the current message to targetting memory at address target_index.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 40px;"><span class="method">get_message_target(target_index)</span><br></div><div style="margin-left: 80px;">If
+the current message was sent by transmit_target() or broadcast_target(), this
+saves the target attached to the message to&nbsp;targetting
+memory, at address target_index.<br><br>Returns 1 on success, 0 if no target was attached or -1 on error.<br><br>Note that this method returns 1 if a target was attached, even if the targetted process no longer exists.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br><span class="method">get_message_x()</span><span class="method">get_message_y()</span><br></div><div style="margin-left: 80px;">Returns
+the absolute x/y position of the process that sent the current message,
+at the time the message was sent. Returns -1 if there is no
+current message.<br><br>Requires a call to next_message(), to set the current message.<br></div><div style="margin-left: 40px;"><br><span class="method">listen_channel(channel)</span><br></div><div style="margin-left: 80px;">Makes
+the process listen to a particular channel from 0 to 7. The process
+will listen to the channel permanently (or until it is told to ignore
+the channel). A process can listen to as many channels as needed.<br><br>All channels default to being ignored, so if you want a
+process to receive messages it must use this method.<br></div><div style="margin-left: 40px;"><br><span class="method">ignore_channel(channel)</span><span class="method">ignore_all_channels()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Reverses
+listen_channel by making the process ignore a particular channel, or
+all channels. The process can re-listen by calling listen_channel.<br></div><br><h2><a class="mozTocH2" name="mozTocId621510"></a><a class="mozTocH3" name="Section:_standard_methods:build"></a>5.6 Building new processes</h2>Standard
+methods (rather than object methods) are used to operate build objects,
+because a single build call activates all of a process' build objects
+at once (multiple build objects reduce the recycle period after which
+the process can build something again).<br><br><div style="margin-left: 40px;"><span class="method">check_build_range(x, y)</span><br></div><div style="margin-left: 80px;">A
+build object can build a new process anywhere within its scan range (only the
+core of the new process must be within range). This method checks whether the
+absolute location x,y is currently within range, and returns 1 if it is
+or 0 if not.<br></div><div style="margin-left: 40px;"><br><span class="method">build_process(template_index, x_offset, y_offset, angle, target_index)</span><br></div><div style="margin-left: 80px;">Tries
+to build a new process from template template_index. If the template is
+not locked, the compiler will automatically try to compile and lock it.<br><br>The
+new process will be built at a location indicated by x_offset/y_offset
+(which are offsets from the builder process' core). <br><br>There
+must be space
+at that location for the new process to be placed without overlapping
+another process that it could collide with. If there is not, the build call will fail but any
+mobile friendly process at the target location will be nudged away.<br><br>If
+the new process is static, it must&nbsp;be placed at least 450 pixels
+away from a data well (this is indicated on the display when you are
+placing a static process).<br><br>The new process will be pointing in the direction indicated by angle.<br><br>The builder can save the new process to its targetting memory at target_index (set target_index to -1 if this isn't needed).<br><br>(The new process will automatically have the builder process at address 0 of its targetting memory.)<br><br>This
+method has the following return values (errors will generally print an
+error message if the builder is selected, or if debug mode is on):<br><br><div style="margin-left: 40px;"><a name="build_result_codes"></a>1 - success<br>0 - cannot build - process has no build objects<br>-1 - template empty<br>-2 - invalid template index<br>-3 - (not currently used)<br>-4 - the template couldn't be locked (e.g. because of a compiler error)<br>-5 - player already has too many cores<br>-6 - player already has too many components<br>-7 - process would collide with an existing process<br>-8 - build objects are recycling<br>-9 - a component of the new process would be outside the map<br>-10 - build location out of range of builder<br>-11 - not enough data to build<br>-12 - tried to build a static process too close to a data well<br>-13 - builder doesn't have enough power to be able to build<br></div></div><br><div style="margin-left: 40px;"><span class="method">build_repeat(target_index)</span><br></div><div style="margin-left: 80px;">Tries
+to repeat the process' most recent attempt at building something. For
+example, if a process tries to build something but there isn't enough
+data, in the next cycle it can call build_repeat to try again without
+needing to repeat the build_process parameters.<br><br>Otherwise, works just like build_process().<br></div><br><div style="margin-left: 40px;"><span class="method">get_template_cost(template_index)</span><br></div><div style="margin-left: 80px;">Returns the data cost of building from a template.<br></div><br><br><h2><a class="mozTocH3" name="mozTocId831569"></a><a name="Section:_Interface_std_methods"></a>5.7 Interface</h2>Since
+a process' interface is usually shared among several
+components,&nbsp;the methods used to control the interface are standard
+methods
+rather than object methods.<br><br><br><div style="margin-left: 40px;"><span class="method">charge_interface(charge_amount)</span><br></div><div style="margin-left: 80px;">Charges
+the process' interface.<br><br>charge_amount
+is the number of interface objects to use to charge the interface. Each
+object costs 10 power and charges the interface by an amount that
+depends on the core type.<br><br>A process can only call this (or charge_interface_max()) once per cycle. Subsequent calls do nothing.<br><br>Returns the increase in interface strength.<br></div><div style="margin-left: 40px;">&nbsp;<br><span class="method">charge_interface_max()</span><br></div><div style="margin-left: 80px;">Like
+charge_interface, but
+without a set charge_amount; it just tries to put as much power as
+possible into the interface. Calling it is the equivalent of calling
+charge_interface with a very high charge_amount, but saves a few
+instructions.<br></div><br><div style="margin-left: 40px;"><span class="method">set_interface_general(setting)</span><br></div><div style="margin-left: 80px;">Call
+with a zero value to lower the interface for the entire process. While
+lowered the interface does not protect the process and interface
+objects do not&nbsp;consume power, but the interface retains its strength
+and can&nbsp;be charged.<br><br>Call with 1 or any other non-zero value to
+raise the interface for the entire process, unless it's broken.<br><br>The
+default state of an interface is raised, and while raised it will come
+back as soon as possible after being broken,
+so there's no reason to explicitly raise a process' interface
+unless&nbsp;it's previously been explicitly lowered by this method.<br></div><br><h2><a class="mozTocH3" name="mozTocId831569"></a><a name="Section:_Repair_std_methods"></a>5.8 Repairing and restoring</h2>Like
+the standard interface methods, the standard repair methods use all
+repair objects at once (it's not possible to call them separately).<br><br>Having
+multiple repair objects increases the amount of repairing that can be
+done each cycle, and reduces the recycle period after restoring a
+destroyed component. They also increase the power cost.<br><br>Having
+a repair_other object allows the
+process to repair other processes within scan range. A single
+repair_other object effectively turns all other&nbsp;repair objects
+into repair_other objects as well, and a repair_other object also functions as
+an ordinary
+repair object.<br><br><br><div style="margin-left: 40px;"><span class="method">repair_self()</span><br></div><div style="margin-left: 80px;">Looks
+for a damaged component of the process and, if found, repairs it.
+Searches in the order the components appear in the process header in
+the process' source code (so the core is always first).<br><br>Each
+repair object repairs 1 integrity per cycle, and the power cost is 16 per point
+repaired.<br><br>Returns the amount repaired, or -1 on error.<br></div><div style="margin-left: 40px;"><br><span class="method">restore_self()</span><br><div style="margin-left: 40px;">Looks
+for a destroyed component and, if found, tries to restore it. Searches
+in the same order as repair_self(). Will not work on a component that
+would collide with another process if restored.<br><br>Costs 24 power,
+and has a recycle time based on the data cost of the component and any
+objects on it (although there is no actual data cost for restoring a
+component). While recycling, the object can still be used to repair.<br><br>The
+new component is restored with only partial integrity, and can easily
+be destroyed again if not repaired or protected by an interface.<br><br>Returns 1 if a component was restored,&nbsp;0 otherwise.<br></div><br><span class="method">repair_other(target_index)</span><span class="method">restore_other(target_index)</span><span class="method"></span><br></div><div style="margin-left: 80px;">Like
+repair_self() or restore_self(), but repairs or restores the process in
+targetting memory indicated by target_index. The target must be within
+scan range.<br><br>Requires at least one repair_other object.<br><br>repair_other() returns the amount repaired, or -1 on error.<br>restore_other() returns 1 on success, 0 on failure (if nothing was restored), -1 on error.<br></div><div style="margin-left: 40px;"><br><span class="method">repair_scan(x_offset, y_offset)</span><span class="method">restore_scan(x_offset, y_offset)</span><span class="method"></span><br></div><div style="margin-left: 80px;">These methods scan
+for a&nbsp;friendly process with a damaged or destroyed component, and
+try to repair or restore it. The closest suitable target to the
+position indicated by x_offset,y_offset (the offsets are from the repairing process' core) will be affected.<br><br>These methods perform a scan if the process has not already scanned this cycle.<br><br>Each requires at least one repair_other object.<br><br>repair_scan() returns the amount repaired, or -1 on error.<br>restore_scan() returns 1 on success, 0 on failure, -1 on error.<br></div><div style="margin-left: 40px;"><br></div><br><h2><a class="mozTocH2" name="mozTocId43896"></a><a class="mozTocH3" name="Section_5_9_selection"></a>5.9 Selection</h2>These only work in command mode, and return information about whether the user has selected the process (by clicking on it).<br><br><div style="margin-left: 40px;"><span class="method">check_selected()</span><br></div><div style="margin-left: 80px;">Returns 1 if the process is selected by the user, 0 if not.<br></div><div style="margin-left: 40px;"><br><span class="method">check_selected_single()</span><br></div><div style="margin-left: 80px;">Returns 1 if the process is selected by the user and no other process is selected by the user, 0 otherwise.<br></div><br><br><h2><a class="mozTocH2" name="mozTocId242316"></a><a class="mozTocH3" name="Section_5_10"></a>5.10 Commands</h2>These
+methods only work in command mode, and allow the process to read
+commands (move, attack etc.) given by the user using mouse or keyboard controls.<br><br>Each
+process has a queue that holds up to 4 commands (the user can queue
+commands by pressing shift). The command at the front of the queue is
+available for reading.<br><br>Build commands are dealt with separately (see standard methods: build commands below).<br><br><div style="margin-left: 40px;"><span class="method">check_new_command()</span><br></div><div style="margin-left: 80px;">Returns
+1 if the user has just,&nbsp;since the previous cycle, given a new
+command to the process (unless the new command went to the back of the queue).<br><br>Also
+returns 1 if the process has called clear_command() to clear the
+current command, and there is another command on the queue.<br><br>Returns 0 if there's no new command.<br></div><div style="margin-left: 40px;"><br><span class="method">get_commands()</span><br></div><div style="margin-left: 80px;">Returns the number of commands in the queue.<br></div><div style="margin-left: 40px;"><br><span class="method">get_command_type()</span><br></div><div style="margin-left: 80px;">Returns the type of the command at the front of the queue.<br><br>Possible values are:<br><br><div style="margin-left: 40px;">0 - no command<br>1 - location (user right-clicked on a location on the main display or the map; probably means a move command)<br>2 - target (user right-clicked on an enemy process; probably means an attack command)<br>3 - friend (user right-clicked on a friendly process)<br>4 - data well (user right-clicked on a data well)<br></div><br>The source code for an autocoded process should contain an enum declaration setting out all of these.<br></div><div style="margin-left: 40px;"><br><span class="method">get_command_x()</span><span class="method">get_command_y()</span><br></div><div style="margin-left: 80px;">These
+return the location of the command at the front of the queue. If the
+target is a friendly process, returns the current location of the
+process. <br><br>If the target is an enemy process that is within scan range of any friendly process, returns its location.<br><br>Return
+-1 if no command, or if the target is an enemy process that is out of
+range, or if the target no longer exists.<br></div><div style="margin-left: 40px;"><br><span class="method">get_command_target(target_index)</span><br></div><div style="margin-left: 80px;">Saves the target of the command at the front of the queue to targetting memory at the address indicated by target_index.<br><br>Only works if the command type is 2 (target) or 3 (friend).<br><br>Returns 1 on success, 0 on failure.<br></div><div style="margin-left: 40px;"><br><span class="method">get_command_target_component()</span><br></div><div style="margin-left: 80px;">If
+the current command has a target process, returns the index of the
+component that was targetted (or 0 if that component doesn't exist).
+The result can, if needed, be fed into targetting methods (some of
+which allow a target component to be designated).<br><br>Only works if the command type is 2 (target) or 3 (friend).<br><br>Returns -1 on failure.<br><br></div><br><div style="margin-left: 40px;"><span class="method">get_command_ctrl()</span><br></div><div style="margin-left: 80px;">Returns 1 if control was pressed when the command at the front of the queue was given. Otherwise, returns 0.<br></div><div style="margin-left: 40px;"><br><span class="method">clear_command()</span><br></div><div style="margin-left: 80px;">Clears
+the command at the front of the queue. If another command is waiting on
+the queue, it moves to the front of the queue. The check_new_command()
+method can be used to check whether there is another command waiting.<br><br>Returns 1.<br></div><div style="margin-left: 40px;"><br><span class="method">clear_all_commands()</span><br></div><div style="margin-left: 80px;">Clears the whole command queue for this process.<br><br>Returns 1.<br><br></div><div style="margin-left: 40px;"><span class="method">copy_commands(target_index)</span><br></div><div style="margin-left: 80px;">Copies all commands in the process' command buffer (not including build commands) to a friendly target in its targetting memory.<br><br>The
+main use for this method is to allow the user to give movement
+commands&nbsp;to
+a static builder process so that the builder can copy them to any
+processes it builds (autocoded static builder processes do this).<br><br></div><h2><a class="mozTocH2" name="mozTocId609011"></a><a class="mozTocH3" name="Section_5_11"></a>5.11 Build commands</h2>Processes
+with build objects have access to the build queue (when a
+builder process is selected, the queue is displayed on the left of the
+display, above the buttons that allow build commands to be given). The
+build queue lets you coordinate building among all of your builders.<br><br>As
+with normal commands, build commands are queued by pressing shift. You
+can also&nbsp;request a repeat build by pressing control - when the
+process has been built, it will go to the back of the queue to be built
+again. A + sign on the queue button represents a repeat build command.<br><br>Queue buttons can be mouse-dragged to re-order them, and clicking on the X button deletes a queued command.<br><br>You can also ignore the build queue and just use the build_process() method instead.<br><br><div style="margin-left: 40px;"><br><span class="method">check_build_queue()</span><br></div><div style="margin-left: 80px;">Returns the number of build commands for this process on the build queue. 0 means there are none.<br></div><div style="margin-left: 40px;"><br><span class="method">check_build_queue_front()</span><br></div><div style="margin-left: 80px;">Returns 1 if a build command for this process is at the front of the build queue. Returns 0 otherwise.<br></div><br><div style="margin-left: 40px;"><span class="method">build_from_queue(target_index)</span><br></div><div style="margin-left: 80px;">Tries
+to follow the build command at the front of the queue - the source
+template, location, angle etc are all taken from the command.<br><br>The command must have been given to the calling process (or added to the queue by the calling process).<br><br>Returns 0 if the build command at the front of the queue is not for this process, or if there are no commands on the queue.<br><br>Otherwise, returns <a href="Manual.html#build_result_codes">the same codes as the build_process() method</a>.<br><br>If the new process is successfully built, it is stored in targetting memory at address target_index.<br></div><div style="margin-left: 40px;"><br><span class="method">add_to_build_queue(template_index, build_x, build_y, angle, back_or_front, repeat)</span><br></div><div style="margin-left: 80px;">Adds a build command for the calling process to the back or front of the build queue.<br><br>When
+the command reaches the front, other builders will wait until it has
+been either executed (with build_from_queue()) or cleared (with
+cancel_build_queue()). If the calling process is destroyed, the command
+will disappear too.<br><br>template_index is the template to build.<br>build_x, build_y are the (absolute) coordinates of the new process.<br>angle is the angle the new process will be facing.<br>back_or_front: if 0, the command will go to the back of the queue. Otherwise, it will go on the front.<br>repeat: if 0, the build command will not repeat. Otherwise, it will (it will be sent to the back of the queue when built)<br><br>Returns 1 if the command was successfully added, -1 on error, 0 if the build queue is full (it can hold up to 12 commands).<br><br>This method does <span style="text-decoration: underline;">not</span>
+confirm that the target location is within range and collision free
+(although it does confirm that the location is not off the map, and
+will return -1 if it is).<br></div><div style="margin-left: 40px;"><br><span class="method">build_queue_get_template()</span><span class="method">build_queue_get_x()<br></span><span class="method">build_queue_get_y()<br></span><span class="method">build_queue_get_angle()</span></div><div style="margin-left: 80px;"><br>Finds
+the first command for this process on the queue and returns information
+about it. The command may not necessarily be at the front of the queue
+as a whole.<br><br>Returns -1 on error.<br><br></div><div style="margin-left: 40px;"><br><span class="method">cancel_build_queue()</span><br></div><div style="margin-left: 80px;">Removes all build commands for the calling process from the queue.<br></div><br><div style="margin-left: 40px;"><span class="method">give_command(target_index, command_type, x, y, command_target, component, queued, control)</span><br></div><div style="margin-left: 80px;">Issues a command to a friendly process, as if the player had given the command. Works in both command mode and autonomous mode.<br><br>target_index is the index of the command recipient in targetting memory.<br><br>command_type is one of the following:<br><br>0 (COM_NONE) &nbsp;no command<br>1 (COM_LOCATION) usually a movement command. command_target and component are ignored.<br>2 (COM_TARGET) gives command as if user clicked on an enemy process.<br>3 (COM_FRIEND) gives command as if user clicked on a friendly process.<br>4 (COM_DATA_WELL) &nbsp;gives command as if user clicked on a data well.<br><br>x, y are the location of the command.<br><br>command_target
+is an index in the command-giver's targetting memory, indicating the
+target of the command (e.g. for COM_TARGET this is the enemy process to
+attack). Set to -1 if no target.<br><br>component is the component of the target of the command to attack etc.<br><br>queued: set to 1 if the command should go the end of the target's queue. Set to 0 if it should reset the target's queue.<br><br>control: if 1, gives the command &nbsp;as if the user were pressing control.<br><br><br>Returns 1 if the command was received, 0 otherwise (including if the command is ignored because the target's queue is full).<br><br></div><br><div style="margin-left: 40px;"><span class="method">give_build_command(target_index, template, x, y, angle, back_or_front, repeat, queued)</span><br></div><div style="margin-left: 80px;">Issues
+a build command to a friendly process, as if the player had given the
+command. Works in both command mode and autonomous mode.<br><br>target_index is the index of the command recipient in targetting memory.<br><br>template is the template to build.<br><br>x, y are the location to build at.<br><br>angle is the angle of the process to be built.<br><br>back_or_front: set to 0 to put the command at the back of the build queue. Set to 1 for the front.<br><br>repeat: set to 1 for a repeat-build command.<br><br>queued: if 0, all build commands on the build queue for the recipient (but not any other&nbsp;process)&nbsp; will be cancelled.<br><br>Returns 1 if the command was received, 0 on failure, -1 on error.<br><br></div><h2><a class="mozTocH2" name="mozTocId673824"></a><a class="mozTocH3" name="Section_5_12"></a>5.12 Mathematics</h2><br>Your processes will probably need basic trigonometry to get around their 2-dimensional world. Since processes can only
+use integer values, the maths methods use a 0-8192 integer angle
+format where 0 is right, 2048 is down, 4096 is left and 6144 is up.
+Values outside this range wrap around (so 8300 is the same as 108, and -2048 is the same as 6144).<br><br><br><div style="margin-left: 40px;"><span class="method">sin(angle, multiplier)</span><span class="method">cos(angle, multiplier)</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+the sine or cosine of angle, multiplied by the multiplier (the
+multiplier is needed because the return value would otherwise be a
+fraction that would just round to 0, 1 or -1).<br><br>The main use of these methods is to
+get the y and x components of a vector of (multiplier) length pointing
+in (angle) direction. For example:<br></div><div style="margin-left: 40px;"><br><div style="margin-left: 40px;"><span class="excode"><code>int point_x, point_y, core_angle;</code></span><span class="excode"><code>core_angle = get_core_angle(); // this is the angle the process is pointing in</code></span><span class="excode"><code></code></span><span class="excode"><code>point_x = get_core_x() + cos(core_angle, 400);</code></span><span class="excode"><code>point_y = get_core_y() + sin(core_angle, 400);</code></span><span class="excode"><code></code></span><span class="excode"><code>&nbsp; // point_x,point_y is now a point 400 pixels in front of the process</code></span><span class="excode"></span><br></div><br><span class="method">atan2(y_component, x_component)</span><br></div><div style="margin-left: 80px;">Returns
+the arctangent of y_component/x_component, in integer angle format.
+This is an expensive operation,&nbsp;with an overhead of 16
+instructions.<br><br>Note
+the order of the y and x components, which is different from most other
+methods but is consistent with the C atan2 function.<br><br>The main use of this method is to work out the angle between two points. For example:<br></div><div style="margin-left: 40px;"><br><div style="margin-left: 40px;"><span class="excode"><code>int target_x, target_y,&nbsp;target_direction;</code></span><span class="excode"><code>int core_x, core_y;</code></span><span class="excode"><code></code></span><span class="excode"><code>core_x = get_core_x();</code></span><span class="excode"><code>core_y = get_core_y();</code></span><span class="excode"><code></code></span><span class="excode"><code>target_x = process[1].get_core_x();</code></span><span class="excode"><code>target_y = process[1].get_core_y();</code></span><span class="excode"><code></code></span><span class="excode"><code>target_direction = atan2(target_y - core_y, target_x - core_x);</code></span><span class="excode"><code></code></span><span class="excode"><code>&nbsp; // target_direction now holds the angle from the core of this process</code></span><span class="excode"><code>&nbsp;&nbsp;// &nbsp;to the core of the process in targetting memory address 1.<br></code></span></div></div><div style="margin-left: 80px;"><br>Although
+atan2 is very useful, many of the object methods that deal with
+movement and targetting call it implicitly, so you may not need to
+actually use it very much. The <code>target_angle()</code> process method also often replaces the need for atan2.<br></div><div style="margin-left: 40px;"><br><span class="method">hypot(y_component, x_component)</span><br></div><div style="margin-left: 80px;">Returns
+the hypotenuse of y_component,x_component (that is, the square root of
+(y_component*y_component) + (x_component*x_component)). Use this for relatively
+precise calculations of distance (it uses an integer-based approximation of sqrt). Like atan2 it has an overhead of 16
+instructions.<br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 40px;"><span class="method">distance_xy(x_component, y_component)</span><br></div><div style="margin-left: 80px;">Returns&nbsp;the
+distance from (0,0) to (x_component,y_component). Uses an octagonal
+distance algorithm that should be accurate enough for most purposes
+(and is much cheaper than hypot).<br></div><div style="margin-left: 40px;"><br><span class="method">distance_from_xy(x_target, y_target)</span><br></div><div style="margin-left: 80px;">Returns&nbsp;the
+distance between the process and the
+location at coordinates (x_target, y_target).&nbsp;Uses the same
+distance algorithm as distance_xy.</div><div style="margin-left: 40px;"><br><span class="method">distance_from_xy_less(x_target, y_target, distance)</span><span class="method">distance_from_xy_more(x_target, y_target, distance)</span><br></div><div style="margin-left: 80px;">Returns
+1 if the distance between the process and the coordinates (x_target,
+y_target) is less (or more) than distance, 0 otherwise. Uses the same
+distance algorithm as distance_xy.<br></div><div style="margin-left: 40px;"><br><span class="method">abs(number)</span><br></div><div style="margin-left: 80px;">Returns the absolute value of number.<br></div><div style="margin-left: 40px;"><br><span class="method">arc_length(angle_1, angle_2)</span><br></div><div style="margin-left: 80px;">Returns
+the length (in absolute integer angle units) of the shortest arc between angle_1
+and angle_2. Should deal correctly with arcs that wrap around 0 or 8192. The
+order of the parameters doesn't matter.<br><br>One use for this method is to work out whether a process is pointing in more or less the right direction, e.g.:<br></div><div style="margin-left: 40px;"><br><div style="margin-left: 40px;"><code><span class="excode">if (arc_length(core_angle,&nbsp;angle_to_target) &lt; 600) // arc_length() always returns a positive number (or 0)</span></code><code><span class="excode">{</span></code><code><span class="excode">&nbsp;// do something</span></code><code><span class="excode">}&nbsp;</span></code></div><br><span class="method">angle_difference(angle_1, angle_2)</span><br></div><div style="margin-left: 80px;">Like
+arc_length, but returns the signed length of the shortest arc starting
+at angle_1 and ending at angle_2. Unlike arc_length, the order of the
+parameters matters. For example:<br></div><div style="margin-left: 40px;"><br><div style="margin-left: 40px;"><code class="excode">int a;</code><code class="excode"></code><code class="excode">a = arc_length(1000, 700); // a = 300</code><code class="excode">a = angle_difference(1000, 700); // a = -300</code><code class="excode">a = angle_difference(700, 1000); // a =&nbsp;300</code><br></div><br><span class="method">random(maximum)</span><br></div><div style="margin-left: 80px;">Returns a&nbsp;random number between 0 and (maximum - 1). Returns 0 if maximum is 0 or negative.<br><br>The
+random number generator
+gets its entropy from a variety of sources, but should always
+produce the same series of numbers across multiple games with identical
+starting conditions (so the use of this method doesn't prevent
+multiplayer games unfolding in exactly the same way when run on
+different computers. I hope). However, in story mode your opponent's
+random number generator will produce different results in different
+games.<br></div><br><h2><a class="mozTocH2" name="mozTocId465681"></a><a class="mozTocH3" name="Section_5_13"></a>5.13 Miscellaneous</h2><br><div style="margin-left: 40px;"><br><span class="method">attack_mode(setting)</span><span class="method"></span><br></div><div style="margin-left: 80px;">Controls
+the way classes of attacking objects will fire when called as a class.
+When attack mode is set it remains set (across cycles) until this
+method is used to change it again. Applies to all classes.<br><br>Settings can be:<br>0 - all objects will fire when called, if ready.<br>1
+- only the first object that is ready to fire will fire. Remaining
+objects will hold fire (but will continue to aim at the target if they
+can).<br>2 - like 1, but two objects will fire.<br>3 - three will fire.<br><br>0 is the default. Returns 1.<br></div><br><div style="margin-left: 40px;"><br><span class="method">get_process_count()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the number of processes the player controlling this process has.<br></div><br><div style="margin-left: 40px;"><span class="method">get_processes_max()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the maximum number of processes the player controlling this process can have.<br></div><br><div style="margin-left: 40px;"><span class="method">get_processes_unused()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the number of processes the player controlling this process can build.<br></div><br><div style="margin-left: 40px;"><span class="method">get_component_count()<br></span><span class="method">get_components_max()<br></span><span class="method">get_components_unused()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Like the previous methods about numbers of processes, but for components.<br></div><br><div style="margin-left: 40px;"><span class="method">world_x()</span><span class="method">world_y()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Return the size of the entire map, in pixels. Includes a buffer of about 255 pixels on each edge, which processes cannot enter.<br><br></div><div style="margin-left: 40px;"><br><span class="method">set_debug_mode(setting)</span><span class="method"></span><br></div><div style="margin-left: 80px;">Sets debug mode on (if setting = 1) or off (if setting = 0) until the end of the current process' execution.<br><br>Debug
+mode currently just prints some error messages to the console, if
+certain kinds of errors are encountered (for example, it will print the
+results of a failed build method call). Autocoded processes set it to 1
+if they are the only selected process.<br><br>You can also set debug mode on&nbsp;for all processes by pressing F1.<br></div><br><div style="margin-left: 40px;"><span class="method">special_AI(value1, value2)</span><span class="method"></span><br></div><div style="margin-left: 80px;">Used for AI chatter in story mode. Doesn't do anything else.<br></div><br><br><br>
+<h1><a class="mozTocH1" name="mozTocId282111"></a><a name="Chapter:_Process_and_component_methods"></a> 6. Process and component methods</h1>
+<br>Process and component methods give a process useful information about itself, like its location and levels of damage.<br><br>Unlike
+standard methods, a process can use the <code>process</code>
+keyword to call them on
+other processes as well. The other process must be in targetting memory
+and must be within scan range of a friendly process (not necessarily
+the process calling the method).<br><br>For example, here is how to call the get_core_x() method, which returns the x coordinate of the location of a process' core:<br><br><code><span class="excode">int x;</span><br class="excode"><span class="excode">x = get_core_x(); // returns the x coordinate of the calling process' core</span><br class="excode"></code><span class="excode"><code>x = process[1].get_core_x(); // returns the x coordinate of the process<br>&nbsp;//&nbsp;in targetting memory address 1</code> </span><br>
+Component methods use an additional component reference to get
+information about a specific component of a process. The automatically
+generated #process header of a process should have comments indicating
+the numbering of the process' components.<br><br><code><span class="excode">int x;</span><br class="excode"><span class="excode">x = component[1].get_component_x(); // returns the x coordinate of component 1 of the process</span><br class="excode"></code><span class="excode"><code>x = process[1].component[2].get_component_x(); // returns the x coordinate of component 2 of<br>&nbsp;// the process in targetting memory address 1</code> </span><br>
+If the target is not visible or does not exist, a process or component
+method&nbsp;returns 0. The standard method&nbsp;target_destroyed() can
+be used to check whether a process has been destroyed.<br><br>
+<h2><a class="mozTocH3" name="mozTocId530141"></a> 6.1 Process methods</h2><br><div style="margin-left: 40px;"><br><span class="method">visible()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns 1 if the target process is currently visible, 0 if the target is invisible or does not exist (or on error).<br><br>Friendly targets are always visible. Enemy targets are visible if they are within scanning range of any friendly process.<br><br>If a target is visible, other process methods can be called on it.<br><br></div><div style="margin-left: 40px;"><span class="method">get_core_x()</span><span class="method">get_core_y()</span><br></div><div style="margin-left: 80px;">Returns the x/y coordinates of the centre of the process core. <br><br>If
+you look at a process in the design panel, the centre of the core is
+exactly in the middle of the window (where the vertical and horizontal
+lines meet).<br></div><div style="margin-left: 40px;"><br><span class="method">get_process_x()</span><span class="method">get_process_y()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the x/y coordinates of the centre of mass of the process. Probably not too useful, and should probably be renamed.<br></div><div style="margin-left: 40px;"><br><span class="method">get_core_angle()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+the angle that the front of the process is pointing in, in integer
+angle units. The angle should always be between 0 and 8191.<br><br>If you look at a process in the design panel, the front points to the right.<br></div><div style="margin-left: 40px;"><br><span class="method">get_core_spin()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+the process' spin, in signed integer angle units. The return value is
+multiplied by 16 (making it spin per cycle rather than spin per
+tick)&nbsp;to make it more precise.<br></div><div style="margin-left: 40px;"><br><span class="method">get_core_speed_x()</span><span class="method">get_core_speed_y()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the x and y components of the process' speed. Like spin, speed is multiplied by 16.<br></div><div style="margin-left: 40px;"><br><span class="method">get_interface_strength()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+the current strength of the process' interface. This can be a negative
+number (if the interface was broken by an attack that took its strength
+below zero).<br></div><div style="margin-left: 40px;"><br><span class="method">get_interface_capacity()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the capacity (maximum strength) of the process' interface. Returns 0 if the process has no interface.<br></div><div style="margin-left: 40px;"><br><span class="method">get_user()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the index of the user controlling the process (0 for player 0, 1 for player 1 etc.).<br></div><div style="margin-left: 40px;"><br><span class="method">get_template()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the index of the template the process was generated from.<br></div><div style="margin-left: 40px;"><br><span class="method">distance()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+the distance between the core calling the method and the core on which
+the method is called (which will be 0 if they are the same). Uses an octagonal distance algorithm.<br></div><div style="margin-left: 40px;"><br><span class="method">distance_less(distance)</span><span class="method"></span><span class="method">distance_more(distance)</span><br></div><div style="margin-left: 80px;">Returns
+1 if the distance between the core calling the method and the core on which
+the method is called is less (or more) than distance. Returns 0 otherwise.<br><br></div><div style="margin-left: 40px;"><span class="method">target_angle()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+the angle between the core calling the method and the core on which the method is called.<br><br>Costs 16 instructions (as it involves calculating an arctangent).<br></div><div style="margin-left: 40px;"><br><span class="method">get_components()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the number of components the process has, including the core but not including any destroyed components.<br></div><div style="margin-left: 40px;"><br><span class="method">get_components_max()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the number of components the process has, including any destroyed components.<br></div><div style="margin-left: 40px;"><br><span class="method">get_total_integrity()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the total current integrity of the process (the sum of the current integrity of all components).<br></div><div style="margin-left: 40px;"><br><span class="method">get_total_integrity_max()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the maximum integrity of the process, not counting any destroyed components.<br></div><div style="margin-left: 40px;"><br><span class="method">get_unharmed_integrity_max()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the maximum integrity of the process, counting any destroyed components.<br></div><br><div style="margin-left: 40px;"><span class="method">target_signature()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the target signature of the process (this is the bitfield used by the scan_single and scan_multi standard methods).<br><br>Can be used to work out whether the target has particular objects.<br><br>Example:<br><br><code><span class="excode">if (process[TARGET_MAIN].target_signature() &amp; 0b1000)<br>{<br>&nbsp;// 0b1000 is the bit for an allocator, so the condition will be true<br>&nbsp;// &nbsp;if process[TARGET_MAIN] has an allocate object, and false<br>&nbsp;// &nbsp;if it does not.<br>}<br></span><span class="excode"></span></code><span class="excode"></span></div><br><br>
+<h2><a class="mozTocH2" name="mozTocId446041"></a><a class="mozTocH3" name="Section_6_2"></a> 6.2 Component methods</h2>There are currently only a few component methods, but more are planned.<br><div style="margin-left: 40px;"><br><span class="method">component_exists()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns 1 if the component exists, 0 otherwise.<br></div><br><div style="margin-left: 40px;"><span class="method">get_component_x()</span><span class="method">get_component_y()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the x and y coordinates of the component.<br></div><br><div style="margin-left: 40px;"><span class="method">get_integrity()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the integrity of the component.<br></div><br><div style="margin-left: 40px;"><span class="method">get_integrity_max()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns the maximum integrity of the component (this is the same for all components of a particular process).<br></div><br><div style="margin-left: 40px;"><span class="method">get_component_hit()</span><span class="method"></span><br></div><div style="margin-left: 80px;">Returns
+1 if the component was hit by an attack in the previous cycle, 0
+otherwise. A hit to the component's interface counts as a hit.<br></div><br><div style="margin-left: 40px;"><span class="method">get_component_hit_source(target_index)</span><span class="method"></span><br></div><div style="margin-left: 80px;">If
+the component was hit by an attack in the previous cycle, saves the
+process that was the source of the attack to targetting memory at
+target_index and returns 1. Returns 0&nbsp;otherwise.<br></div><br><br><h1><a class="mozTocH1" name="mozTocId282111"></a><a name="Chapter:_Objects_and_object_methods"></a> 7. Objects, object methods and classes</h1><br>Some
+kinds of objects can be invoked by calling standard methods, which
+affect all objects of the same type on the process. For example, when a
+build method is called it operates all of the process' build objects at
+the same time.<br><br>Other kinds of objects, such as attacking
+objects, need to be operated individually or in groups. These call be
+called with specific reference to the object, or through a class.<br><br>An object can be called directly like this:<br><br><code><span class="excode">component[0].object[2].fire(1); // calls the fire method on object 2 of component 0 (the core)</span></code><br>But this is awkward. It's usually much easier to assign objects to classes and call the classes instead.<br><br>
+<h2><a class="mozTocH3" name="mozTocId530141"></a> <a name="Section:_Classes"></a>7.1 Classes</h2>A class is a set of objects that can all be called together.<br><br>Each process can have up to 16 classes.<br>Each class can have up to 16 objects as members. <br>Each object can be a member
+of up to 4 classes. <br><br>Objects are assigned to classes in a process header. First, the class is declared using the <code>class</code> keyword. Then, objects are assigned to classes with the : operator.<br><br>Here's what a process header for a simple process generated by the autocoder might look like:<br><br><code><br class="excode"><span class="excode">#process "simple"<br><br><br class="excode"></span><br class="excode"><span class="excode">class auto_att_main; // a class for forward-facing fixed attack objects<br>class auto_move; // a class for movement objects<br>&nbsp;// all auto-coded classes start with "auto"<br><br>core_quad_A, 0, // core type and angle<br>&nbsp; {object_burst:auto_att_main, 0},<br>&nbsp; {object_move:auto_move, 2048},<br>&nbsp;&nbsp;{object_none, 0},<br>&nbsp; {object_move:auto_move, -2048},<br><br><br class="excode"></span><br class="excode"><span class="excode">#code</span><br class="excode"><br class="excode"></code><br>The burst object at the front is assigned to a class for the main
+attacking object or objects (a class doesn't need to&nbsp;have more than one member). The
+move objects are assigned to a single move class (the move object
+methods work out which ones need to be called to make the process turn&nbsp;left or right).<br><br>To call a class,&nbsp;give the name of the class, followed by a full stop, following by the object method. For example:<br><br><code><span class="excode">auto_att_main.fire(1); // fires all objects in class auto_att_main, with a 1 tick delay<br><br>auto_move.move_to(1000, 1000); // all move objects in class auto_move will cooperate in<br>&nbsp;// turning the process towards 1000,1000 then accelerating<br></span></code><br>You can also call a class by number (classes will be numbered in the order they're declared in, from 0 to 15):<br><br><code><span class="excode">&nbsp; class[1].fire(1); // fires all objects in class 1<br></span></code><br>An object can be assigned to multiple classes like this:<br><br><code><span class="excode">&nbsp; {object_burst:auto_att_main:burst_class, 0}, // this object is a member of both<br>&nbsp; &nbsp; // the auto_att_main class and the burst_class class<br></span></code><br><br>
+<h2><a class="mozTocH3" name="mozTocId530141"></a> 7.2 Objects and object methods</h2><br>This
+section lists the different types of objects and the particular objects
+in each type, and also the methods that can be used to operate the
+objects.<br><br>
+<h3><a class="mozTocH3" name="mozTocId745"></a><a class="mozTocH3" name="Subsection_7_2_1"></a>7.2.1 Link objects</h3><br>Link objects connect the components of a process together.<br><br>Link objects don't have methods.<br><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId446932"></a><span style="font-weight: bold;"><span class="object">Downlink (object_downlink)</span></span></h4><div style="margin-left: 80px;">Downlinks
+connect the core to components, and then components to other
+components. In the process designer, adding a downlink automatically
+creates a new component connected to the downlink.<br><br>If a component is destroyed, all other components downlinked from it are also destroyed.<br></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId27248"></a><span style="font-weight: bold;"><span class="object">Uplink (object_uplink)</span></span></h4><div style="margin-left: 80px;">Each
+component (other than the core) has an uplink that connects to a downlink on its parent
+component. <br><br>A
+component can have only one uplink; in the process designer, adding an
+uplink to a component swaps the component's uplink to the new position.<br></div><br>
+<h3><a class="mozTocH3" name="mozTocId266853"></a><a class="mozTocH3" name="Subsection_7_2_2"></a>7.2.2 Data objects</h3><img src="data/manual/harvesting.png" alt="harvesting" style="width: 605px; height: 362px; float: right;" hspace="10">Data objects are needed to run your economy. They gather, generate and store data, and use it to create new processes.<br><br clear="all"><br><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId897277"></a><span class="object" style="font-weight: bold;">Harvest (object_harvest)</span></h4><div style="margin-left: 80px;">Harvest
+objects gather data from nearby data wells. To harvest data, a process
+must also have a storage object to keep the data in until it can be
+allocated.<br><br>Harvest objects can also transfer data to other processes.<br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 80px;"><span class="method">gather_data()</span><br></div><div style="margin-left: 120px;">This
+method gathers data from the&nbsp;nearest data well within scanning
+range (if there is one). It automatically detects the nearest well.<br><br>Each harvest object can gather up to 4 data each time it is used, with a 4-cycle recycle time.<br><br>Returns the amount of data harvested, or -1 on failure.<br><br>Power cost: 40<br></div><div style="margin-left: 80px;"><br><span class="method">give_data(target_index, data_amount)</span><br></div><div style="margin-left: 120px;">Transfers data to a friendly process, which must be within scanning range.<br><br>target_index
+is the address of the target in targetting memory. data_amount is the
+amount of data to transfer. Each harvest object can transfer up to 32
+data each cycle (although if data_amount is too high it will just use
+the maximum value). If the method fails, or the target doesn't have
+enough storage, no data is lost.<br><br>Returns the amount of data transferred, or -1 on failure.<br><br>Power cost: 20<br><br></div><div style="margin-left: 40px;"><div style="margin-left: 40px;"><span class="method">take_data(target_index, data_amount)</span><br></div><div style="margin-left: 120px;">Transfers
+data from a friendly process, which must be within scanning range, to
+the calling process. The calling process must have a harvest object,
+but the target process doesn't (both must have storage objects).<br><br>target_index
+is the address of the target in targetting memory. data_amount is the
+amount of data to transfer. Each harvest object can transfer up to 32
+data each cycle (although if data_amount is too high it will just use
+the maximum value). If the method fails, or the calling process doesn't have
+enough storage, no data is lost.<br><br>Returns the amount of data transferred, or -1 on failure.<br><br>Power cost: 20<br></div><div style="margin-left: 40px;"><br></div></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId27547"></a><span class="object" style="font-weight: bold;">Storage (object_storage)</span></h4><div style="margin-left: 40px;"><br class="object"></div><div style="margin-left: 80px;">Each
+storage object stores up to 64 data. If a component with a storage
+object is destroyed, its data is spread among any remaining storage
+objects on the same process (or is lost if there are no others with enough spare&nbsp;capacity to store the data).<br><br>Storage objects have no methods and use no power.<br></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId312328"></a><span class="object" style="font-weight: bold;">Allocate (object_allocate)</span></h4><div style="margin-left: 80px;">Data
+stored by a process can't be used to build anything directly. To make it
+available for building (and make it count in your overall data amount,
+shown in the box at the top right of the game screen) it needs to be allocated. An allocate
+object&nbsp;can allocate 4 data each cycle, from
+storage objects on the same process.<br><br>Allocate objects are expensive, and can only be placed on static (immobile) processes.<br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 80px;"><span class="method">allocate_data(data_amount)</span><br></div><div style="margin-left: 120px;">Allocates up to 4 data.<br><br>Returns the amount of data allocated.<br><br>Power cost: 10 per data allocated.<br></div><div style="margin-left: 40px;"><br><br class="object"></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId854706"></a><span class="object" style="font-weight: bold;">Build (object_build)</span></h4><div style="margin-left: 40px;"><br class="object"><br></div><div style="margin-left: 80px;">Build objects can build new processes, using data that has been harvested and allocated.<br><br>A
+new process can be built anywhere within scan range (the core of the
+new process needs to be within range; components can be out of range).<br><br>Build
+objects aren't called individually with object methods. Instead, a
+process uses the <a href="#Section:_standard_methods:build">build standard methods</a> to call all build objects it has at once.<br><br>After
+being used, a build object stops working for a period of time depending
+on the data cost of the new process. A process with
+multiple build objects splits the recycle time (so two build objects halve
+it, etc), and also splits the time the new process takes to be ready.<br></div><br><h3><a class="mozTocH3" name="mozTocId107796"></a><a class="mozTocH3" name="Subsection_7_2_3"></a>7.2.3 Movement objects</h3>There is currently only one kind of movement object:<br><div style="margin-left: 40px;"><br class="object"></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId33898"></a><span class="object" style="font-weight: bold;">Move (object_move)</span></h4><div style="margin-left: 80px;"><img style="width: 236px; height: 189px; float: left;" alt="move objects" src="data/manual/move.png" hspace="10">Move
+objects are like little rocket engines, generating both acceleration
+and torque (turning force).<br><br>Move
+objects must&nbsp;not be obstructed by other components of the same process. In
+the designer, each move object has a line extending from it and each
+component has a square around it; if any of the lines are blocked by
+any of the squares, the process can't be built.<br><br>Move objects prevent an interface protecting a component.<br><br>Although you can set the power of each move object individually (using the<code> set_power()</code>
+method), you don't have to. The other move methods will calculate the
+angle the process needs to move in and set the power of each move
+object called to turn in that angle and accelerate towards the target.
+This means that you can call all move objects as a single class.<br><br>The
+power cost of each method depends on the power that the move objects
+are set to (up to 10 per object). This power is used when the method is
+called, although if for some reason you call multiple methods on the
+same move object in a single cycle any unused power is freed for other
+use (so if you call set_power(10) 10 units of power will be
+used,&nbsp;then if you call set_power(4) later in the same cycle 6
+units will be freed).<br><br>Each method returns 1 on success, or 0 on failure.<br clear="all"></div><div style="margin-left: 80px;"><br><span class="method">set_power(power)</span><br></div><div style="margin-left: 120px;">Sets the power level of each move object called, from 0 (off) to 10 (maximum).<br><br></div><div style="margin-left: 80px;"><span class="method">move_to(destination_x, destination_y)</span><br></div><div style="margin-left: 120px;">Sets the power level of each move object called so that the process turns towards the destination and then moves towards it.<br></div><div style="margin-left: 80px;"><br><span class="method">turn_to_xy(destination_x, destination_y)</span><br></div><div style="margin-left: 120px;">Turns the process towards the destination.<br><br>Depending
+on how the move objects are arranged on the process, this method (and
+the other methods that turn without deliberately moving) may also make
+the process move as it turns.<br></div><div style="margin-left: 80px;"><br><span class="method">turn_to_angle(angle)</span><br></div><div style="margin-left: 120px;">Turns the process so that it&nbsp;points in the direction indicated by angle.<br></div><div style="margin-left: 80px;"><br><span class="method">turn_to_target(target_index, component)</span><br></div><div style="margin-left: 120px;">Turns
+the process towards the process in the targetting memory address
+indicated by target_index. Component indicates which component should
+be targetted (usually this is 0, for the core).<br></div><div style="margin-left: 80px;"><br><span class="method">track_target(target_index, component, attack_class)</span><br></div><div style="margin-left: 120px;">Like turn_to_target, but aims a fixed attacking process at the target (using a basic target-leading algorithm). <br><br>attack_class
+should be the name of a class containing fixed attacking objects
+(burst, stream etc., but not spike or pulse). track_target() will try to aim the first member
+of the class (ignoring any that would be on components that have been
+destroyed) at the target.<br><br>For example:<br></div><div style="margin-left: 80px;"><code></code><br><div style="margin-left: 40px;"><code></code><span class="excode"><code>#process</code></span><span class="excode"><code>class attack_class;&nbsp;</code></span><span class="excode"><code>class move_objects;</code></span><span class="excode"><code></code></span><span class="excode"><code>// the rest of the process header goes here</code></span><span class="excode"><code></code></span><span class="excode"><code>#code</code></span><span class="excode"><code></code></span><span class="excode"><code>move_objects.track_target(1, 0, attack_class); // tries to aim the first object in class&nbsp;attack_class <br>&nbsp;// at&nbsp;component 0 (the core) of target 1</code></span><span class="excode"></span><br></div><br><span class="method">intercept(target_index, component, attack_class)</span><br></div><div style="margin-left: 120px;">Like track_target, but moves the process to intercept the target as well as turning it.<br></div><div style="margin-left: 80px;"><br><span class="method">approach_xy(destination_x, destination_y, approach_distance)</span><br></div><div style="margin-left: 120px;">Like move_to(), but the process will&nbsp;try to stay at least approach_distance (in pixels) away from the destination.<br><br>All
+of the approach methods work best if called on a class of move objects
+including some&nbsp;that face forwards (so that they can move&nbsp;the process backwards if needed).<br></div><div style="margin-left: 80px;"><br><span class="method">approach_target(target_index, component, approach_distance)</span><br></div><div style="margin-left: 120px;">Approaches
+the target in the targetting memory address indicated by target_index.
+A particular component of the target can be given as well. approach_distance works in the same way as for approach_xy.<br></div><div style="margin-left: 80px;"><br><span class="method">approach_track(target_index, component, attacking_class, approach_distance)</span><br></div><div style="margin-left: 120px;">A
+combination of approach_target() and intercept(). Tries to aim an
+attack object in class attacking_class at the target, while moving so
+as to remain approach_distance pixels away from the target.<br></div><br><div style="margin-left: 80px;"><span class="method">reposition(destination_x, destination_y, angle)</span><br></div><div style="margin-left: 120px;">A more precise movement method for processes with retro move objects (move objects pointing forwards).<br><br>Tries to reposition the process so that it is at destination_x,destination_y and is turned towards angle.<br><br>Is
+best used for adjusting the process' position rather than travel, as
+the process may try to move backwards to the destination even if that
+isn't&nbsp;the most efficient way to get there.<br></div><br><br><h3><a class="mozTocH3" name="mozTocId324350"></a><a class="mozTocH3" name="Subsection_7_2_4"></a>7.2.4 Attacking objects<br></h3><br><img style="width: 600px; height: 132px; float: left;" alt="attacking objects" src="data/manual/attack.png" hspace="10">Attacking objects are used to destroy enemy processes.<br><br>There are three different APIs used to control attacking objects:<br><br><br><br><br><br>API type: burst - for objects that point in fixed directions and can't rotate to track targets, like the burst object.<br><br>API type: pulse - for objects that can rotate, like the pulse object.<br><br>API type: spike - for objects that fire packets that can turn towards their target themselves.<br clear="all"><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId874342"></a><span class="object" style="font-weight: bold;">API type: burst</span></h4><br><div style="margin-left: 80px;">Objects that use the burst API have only one object method: fire(). They are also affected by the attack_mode() standard method.<br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 80px;"><span class="method">fire(firing_delay)</span><br></div><div style="margin-left: 120px;">Instructs
+the object to fire. Firing_delay is the number of ticks (frames) the
+object is to wait before firing; it should be 0 to 15 (as there are 16
+ticks between each cycle). Values below 0 will be set to 0 (which means fire immediately) and above 15
+set to 15.<br></div><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId768851"></a><span style="font-weight: bold;"><span class="object">API type: pulse</span></span></h4><br><div style="margin-left: 80px;">Objects that use the pulse API&nbsp;can rotate in a 180 degree arc to aim at targets around the process.<br><br>They generally cost more data to build than similar burst API objects, and are slightly less powerful.<br><br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 80px;"><span style="font-weight: bold;"></span><span class="method">rotate(angle_offset)</span><br></div><div style="margin-left: 120px;">Rotates
+the object to a specified angle offset (the offset is from the zero
+angle, which for most links points directly away from the centre of the
+component the object is on). angle_offset should be -2048 to 2048.<br></div><div style="margin-left: 80px;"><br><span class="method">aim_at(target_index, component)</span><br></div><div style="margin-left: 120px;">Aims
+the object at a process in targetting memory at target_index (component
+is the component to aim at; 0 is the core), without firing. The target
+must be visible, but can be at any distance.<br><br>This method automatically applies a simple target-leading algorithm.<br></div><div style="margin-left: 80px;"><br><span class="method">fire_at(target_index, component)</span><br></div><div style="margin-left: 120px;">Like aim_at(), but fires the object as well (if it is able to fire this cycle).<br></div><div style="margin-left: 80px;"><br><span class="method">attack_scan(scan_angle, scan_distance, target_index)</span><br></div><div style="margin-left: 120px;">Automatically scans for a target and then fires at it.<br><br>scan_angle
+and scan_distance are a vector indicating the centre of the scan; the
+enemy process closest to the centre will be targetted. scan_angle
+should be an offset from the process' overall angle (so if you want to
+always scan behind the process, to find a target for backwards-pointing
+pulse objects, use something like 4096). scan_distance is the distance
+from the core, in pixels (a value like 400 pixels might be right for this).<br><br>The target will be stored in target_index (which must be a valid index in targetting memory).<br><br>Executes a scan if the process hasn't previously scanned in the present cycle. <br><br>Returns 1 if an appropriate target is present, 0 otherwise.<br></div><div style="margin-left: 80px;"><br><span class="method">attack_scan_aim(scan_angle, scan_distance, target_index)</span><br></div><div style="margin-left: 120px;">Like attack_scan, but just aims the object and doesn't fire.<br></div><div style="margin-left: 80px;"><br><span class="method">no_target()</span><br></div><div style="margin-left: 120px;">Tells
+the object to return to its base angle. The base angle is the angle it
+is pointing in the process design (which may or may not be the zero
+angle that rotate(0) would rotate the object to).<br><br></div><div style="margin-left: 80px;"><span class="method">fire(firing_delay)</span><br></div><div style="margin-left: 120px;">Works just like for the burst API.</div><br><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId214216"></a><span style="font-weight: bold;"></span><span class="method object" style="font-weight: bold;">API type: spike</span></h4><div style="margin-left: 80px;">Spike is a
+long range attacking object which can hit targets outside scanning
+range. After being fired the spike&nbsp;turns and accelerates
+towards its target, although it has no tracking capability.<br><br>Spike objects can't be rotated, and always point outwards at the zero angle for the link they are on.<br><br>The
+autocoder currently can
+only use spike objects that point more or less forwards.<br></div><div style="margin-left: 40px;"><br></div><div style="margin-left: 80px;"><span class="method">fire_spike(angle_offset)</span><br></div><div style="margin-left: 120px;">Fires a spike at angle_offset, which should be -2048 to 2048 (the spike will rotate to this angle after firing).<br></div><div style="margin-left: 80px;"><br><span class="method">fire_spike_at(target_index, component)</span><br></div><div style="margin-left: 120px;">Fires
+a spike at a specified component of a target in targetting memory.
+Because of the way spikes travel, this kind of attack is not
+particularly accurate (and is best used against large or static
+targets).<br></div><div style="margin-left: 80px;"><br><span class="method">fire_spike_xy(x_target,&nbsp;y_target)</span><br></div><div style="margin-left: 120px;">Fires a spike at a target location. x/y_target should be absolute values (not offsets from the firing process).<br></div><br><h3><a class="mozTocH3" name="mozTocId946828"></a><a class="mozTocH3" name="Subsection_7_2_5"></a>7.2.5 Defensive/repair objects</h3><div style="margin-left: 40px;"><br></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId206847"></a><span class="object" style="font-weight: bold;">Interface (object_interface)</span></h4><div style="margin-left: 80px;">An
+interface is a rechargeable shield that protects parts of a
+process&nbsp;from damage.<br><br>A
+single interface object generates a shield that covers all components
+of the process (with some exceptions). Additional interface objects
+increase the maximum strength and charge rate of the process by amounts
+that depend on the core type, and also increase power consumption.<br><br>Interface
+strength is shared among all protected components. As an interface
+takes damage, its strength is reduced; if it falls below zero, the
+interface will be broken. A broken interface stays broken for about 5
+seconds, during which it can be charged but doesn't protect the process.<br><br>An interface does not protect any component that has either&nbsp;move objects or interface objects.<br><br>A
+process' interface is controlled using the <a href="#Section:_Interface_std_methods">interface standard methods</a> rather
+than object methods.<br></div><br><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId896849"></a><span class="object" style="font-weight: bold;">stability (object_stability)</span></h4><div style="margin-left: 80px;">Strengthens
+the interface at a single component - all interface damage taken by a
+component with an active stability object is halved. Costs 30 power per
+cycle while active. Does nothing if the component is not protected by
+an interface.<br></div><div style="margin-left: 40px;"><div style="margin-left: 40px;"><br></div></div><div style="margin-left: 80px;"><span class="method">set_stability(setting)</span><br></div><div style="margin-left: 120px;">Turns a stability object on (setting = 1) or off (setting = 0).</div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId902341"></a><span style="font-weight: bold;"><span class="object">Repair (object_repair)</span></span></h4><div style="margin-left: 80px;">A repair object allows a process to repair damage to any of its components, and also restore destroyed components. <br><br>Repairing damage costs quite a bit of power and is fairly slow, but is sped up by additional repair objects.<br><br>Restoring
+a destroyed component costs a lot of power too, and has a recycle time. The
+length of the recycle depends on the data cost of the restored
+component, and is reduced by additional repair objects. Restoring a
+component doesn't cost data.<br><br><a href="#Section:_Repair_std_methods">Repairing/restoring methods</a> are standard methods, and call all repair objects on a process at once.<br></div><div style="margin-left: 40px;"><br></div><h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId542577"></a><span class="object" style="font-weight: bold;">Repair other (object_repair_other)</span><span style="font-weight: bold;"></span></h4><div style="margin-left: 80px;">This
+is like a repair object, but allows a process to repair/restore other
+nearby processes as well as itself. It is also more expensive.<br><br>A single repair_other object allows all repair objects on the process to be used as repair_other objects as well.<br></div><div style="margin-left: 40px;"><br></div><br><br><span style="font-weight: bold;"></span><br>
+<br>
+</body></html>
