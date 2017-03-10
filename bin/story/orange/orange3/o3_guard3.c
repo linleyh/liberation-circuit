@@ -340,7 +340,7 @@ scan_for_target:
    special_AI(1, 6);
    return;
   }
-  if (scan_single(0,0,TARGET_MAIN,0,5,100,0b11)) // minimum 5 components
+  if (scan_single(0,0,TARGET_MAIN,0,5,100,0)) // minimum 5 components
   {
    broadcast_target(20000,
                     CHANNEL_TARGET,

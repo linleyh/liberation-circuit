@@ -285,7 +285,7 @@ listen_for_requests:
 scan_for_flagship_target:
 // this subroutine is only called if there's a flagship
   if (scan_single(0,0,TARGET_MAIN,0,0,100,0b1000) // 0b1000 means only processes with allocator
-   || scan_single(0,0,TARGET_MAIN,0,6,100,0b11)) // 0b11 means any process. The 6 is minimum size.
+   || scan_single(0,0,TARGET_MAIN,0,6,100,0)) // 0 means any target
   {
    transmit_target(TARGET_LEADER, // target of transmission
                    0, // priority 0 - this isn't really a high priority message

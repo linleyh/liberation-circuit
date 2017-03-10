@@ -99,7 +99,7 @@ h3 {
 <div style="text-align: left;"><big style="font-weight: bold;"><big><big>Liberation Circuit</big></big></big><br>
 </div>
 <br>Copyright 2017 Linley Henzell<br><br>
-Version: beta<br>
+Version: 1.0<br>
 <br>
 <h1><a class="mozTocH1" name="mozTocId524339"></a><span class="chapter"> 1. Introduction</span></h1>
 <br>Liberation Circuit is a game of fighting for control of a&nbsp;computer system
@@ -568,14 +568,12 @@ or more than components_max is ignored. To detect processes of any size
 set components_min to 0 and components_max to any very high value (100
 will do).<br><br>scan_bitfield
 is a bitfield that allows you to set which targets will be detected in
-more detail. If one of the bits is set, any target that matches that
-bit will be accepted. If multiple bits are set, all targets that match
-at least one of the bits will be accepted. The bits are:<br><br><div style="margin-left: 40px;"><code>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0b1 - process is static<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0b10 - process is mobile<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0b100 - process has at least one build object<br>&nbsp; &nbsp; &nbsp; &nbsp; 0b1000 - at least one allocate object<br>&nbsp; &nbsp; &nbsp; &nbsp;0b10000 - at least one harvest object<br>&nbsp; &nbsp; &nbsp; 0b100000 - at least one pulse object<br>&nbsp; &nbsp; &nbsp;0b1000000 - at least one spike object<br>&nbsp; &nbsp; 0b10000000 - at least one stream object<br>&nbsp; &nbsp;0b100000000 - at least one burst object<br>&nbsp; 0b1000000000 - at least one interface object<br>&nbsp;0b10000000000 - at least one ultra object<br>0b100000000000 - at least one surge object</code><br></div><br>For
+more detail. If one of the bits is set, any target whose signature&nbsp;matches that
+bit will be accepted. If multiple bits are set, targets' signatures must match all of the bits to be accepted. The bits are:<br><br><div style="margin-left: 40px;"><code>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;0b1 - process is static<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; 0b10 - process is mobile<br>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;0b100 - process has at least one build object<br>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; 0b1000 - at least one allocate object<br>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;0b10000 - at least one harvest object<br>&nbsp; &nbsp; &nbsp;&nbsp; 0b100000 - at least one pulse object<br>&nbsp; &nbsp;&nbsp; &nbsp;0b1000000 - at least one spike object<br>&nbsp; &nbsp;&nbsp; 0b10000000 - at least one stream object<br>&nbsp;&nbsp; &nbsp;0b100000000 - at least one burst object<br>&nbsp;&nbsp; 0b1000000000 - at least one interface object<br>&nbsp;&nbsp;0b10000000000 - at least one ultra object<br>&nbsp;0b100000000000 - at least one slice object<br>0b1000000000000 - at least one repair other object<br></code></div><br>For
 example, 0b1100 has the bits for build objects and allocate objects
-set, so it will detect any process that has either a build object or an
+set, so it will detect any process that has both a build object and an
 allocate object (objects on destroyed components are ignored) and
-ignore other processes. To detect any process, use 0b11 (static +
-mobile).<br><br>Returns 1 if a target found, 0 otherwise.<br><br>Example:<br><br><code><span class="excode">target_found = scan_single(cos(get_core_angle(), 400), // x_offset<br>&nbsp;&nbsp;&nbsp;
+ignore other processes. To detect any process, use 0.<br><br>Returns 1 if a target found, 0 otherwise.<br><br>Example:<br><br><code><span class="excode">target_found = scan_single(cos(get_core_angle(), 400), // x_offset<br>&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;sin(get_core_angle(), 400), // y_offset<br>&nbsp;&nbsp;&nbsp;
@@ -592,7 +590,7 @@ minimum<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 than 12 components<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; 0b100100000); // scan_bitfield -
-processes with either a pulse or burst object<br><br class="excode"></span>
+processes with both a pulse and burst object<br><br class="excode"></span>
 <br class="excode">
 <span class="excode"></span></code><br></div><div style="margin-left: 40px;"><br><span class="method">scan_multi(x_offset, y_offset, target_index, number_of_targets, friendly, components_min, components_max, scan_bitfield)</span><br></div><div style="margin-left: 80px;">Just
 like scan_single, except the number_of_targets parameter allows

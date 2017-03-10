@@ -1353,7 +1353,6 @@ int test = 0;
 test ++;
 			}
 		}
-		fpr("\ndw %i", test);
 
 	}
 
@@ -8000,7 +7999,8 @@ static void draw_command_marker(int core_index)
 			 break;
 		 case COM_TARGET:
 				 if (w.core[core->command_queue[queue_index].target_core].exists == 0
- 					|| w.core[core->command_queue[queue_index].target_core].created_timestamp != core->command_queue[queue_index].target_core_created)
+ 					|| w.core[core->command_queue[queue_index].target_core].created_timestamp != core->command_queue[queue_index].target_core_created
+ 					|| !check_proc_visible_to_user(w.core[core->command_queue[queue_index].target_core].process_index))
 					 continue;
 				 if (core->command_queue[queue_index].target_member == -1)
  				 member_proc_index = w.core[core->command_queue[queue_index].target_core].process_index;
@@ -16096,7 +16096,8 @@ static void draw_map(void)
 					break;
 			 case COM_TARGET:
 			 	if (w.core[core->command_queue[j].target_core].exists <= 0
-						|| core->command_queue[j].target_core_created != w.core[core->command_queue[j].target_core].created_timestamp)
+						|| core->command_queue[j].target_core_created != w.core[core->command_queue[j].target_core].created_timestamp
+						|| !check_proc_visible_to_user(w.core[core->command_queue[j].target_core].process_index))
 						break;
 			 	add_line(MAP_DETAIL_LAYER,
 														last_x,

@@ -394,7 +394,7 @@ void init_at_startup(void)
 
    fprintf(stdout, "Liberation Circuit");
    fprintf(stdout, "\nCopyright 2017 Linley Henzell");
-   fprintf(stdout, "\nVersion: beta");
+   fprintf(stdout, "\nVersion: 1.0");
 
    fprintf(stdout, "\n\nThis is free software and comes with no warranty; see licence.txt.");
 

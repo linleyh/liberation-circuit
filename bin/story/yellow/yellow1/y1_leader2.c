@@ -186,7 +186,7 @@ switch(mode)
    break;
   }
   gosub listen_for_broadcasts;
-  if (scan_single(0,0,TARGET_MAIN,0,6,100,0b11) // 0b11 means either mobile or static (i.e. any target)
+  if (scan_single(0,0,TARGET_MAIN,0,6,100,0) // 0 means any target
    || scan_single(0,0,TARGET_MAIN,0,0,100,0b1000)) // 0b1000 means only processes with allocator
   {
    special_AI(1, 6);

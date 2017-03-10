@@ -132,7 +132,7 @@ case MODE_SEEK_ALLOCATOR:
                             2, // 2 = accept friendly only
                             0, // components min
                             100, // components max (100 is too high so this will always pass)
-                            0b0001); // bitfield for accepting processes with allocators
+                            0b1000); // bitfield for accepting processes with allocators
   if (scan_result == 1)
   {
    allocator_x = process[TARGET_ALLOCATOR].get_core_x();

@@ -169,7 +169,7 @@ scan_for_target:
                0, // accept friendly (0 means ignore friendly)
                4, // minimum components
                100, // maximum components
-               0b11); // bitfield for accepting either mobile or static (i.e. all) processes
+               0); // bitfield for accepting any target
  if (scan_result)
  {
   attack_x = process[TARGET_FOUND].get_core_x();

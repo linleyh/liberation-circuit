@@ -185,7 +185,7 @@ case MODE_BUILD_BASE:
                              2, // 2 = accept friendly only
                              0, // components min
                              100, // components max (100 is too high so this will always pass)
-                             0b0001); // bitfield for accepting processes with allocators
+                             0b1000); // bitfield for accepting processes with allocators
    if (scan_result > 0)
    {
     ignore_well_x = data_well_x;
