@@ -31,13 +31,13 @@ It looks like this:
 
 To build using do/redo (using the .do scripts by Nils Dagsson Moskopp):
 
-  To build Liberation Circuit on
-  any Unix-like OS like GNU/Linux, execute the “do” script in the “src”
-  folder. Note that “do” always compiles all source files; if you want
-  to rebuild targets only when relevant source files have changed, you
-  should use “redo” instead. A version of “redo” can be obtained from
-  <http://news.dieweltistgarnichtso.net/bin/redo-sh.html> (written in
-  Bourne shell) or <http://jdebp.eu./Softwares/redo/> (written in C++).
+  To build Liberation Circuit on any Unix-like OS like GNU/Linux, 
+  execute the “do” script. Note that “do” always compiles all source 
+  files; if you want to rebuild targets only when relevant source files 
+  have changed, you should use “redo” instead. A version of “redo” can 
+  be obtained from <http://news.dieweltistgarnichtso.net/bin/redo-sh.html> 
+  (written in Bourne shell) or <http://jdebp.eu./Softwares/redo/> (written 
+  in C++).
 
   Packages needed for Liberation Circuit on Debian GNU/Linux or Ubuntu:
   - liballegro-acodec5-dev
