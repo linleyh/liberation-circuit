@@ -1,8 +1,8 @@
 # liberation-circuit
 
-version: beta
+version: 1.0
 
-This the beta version of Liberation Circuit, an RTS/programming game.
+This the release version of Liberation Circuit, an RTS/programming game.
 
 To play the prebuilt binaries, run LibCirc.exe.
 
@@ -16,7 +16,7 @@ Don't try to compile the .c files in the /proc or /story subdirectories! They ar
 
 - Edit init.txt to set screen resolution and other options (fullscreen, sound volume, key rebinding, colourblind mode etc).
 
-It looks like this:
+It looks like this (this is github markdown):
 
 ![a screenshot](http://i.imgur.com/pPIJ03I.png)
 
