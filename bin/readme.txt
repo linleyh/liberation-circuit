@@ -4,7 +4,7 @@ Copyright 2017 Linley Henzell
 
 version: 1.0
 
-This the beta version of Liberation Circuit, an RTS/programming game.
+This the release version of Liberation Circuit, an RTS/programming game.
 
 
 

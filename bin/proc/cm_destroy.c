@@ -65,7 +65,6 @@ enum
   MODE_ATTACK, // process is attacking a target it was commanded to attack
   MODE_ATTACK_FOUND, // process is attacking a target it found itself
   MODE_GUARD, // process is circling a friendly process
-  MODE_WITHDRAW, // cautious process is retreating
   MODES
 };
 
@@ -88,7 +87,6 @@ enum
   TARGET_PARENT, // a newly built process starts with its builder in address 0
   TARGET_MAIN, // main target
   TARGET_GUARD, // target of guard command
-  TARGET_WITHDRAW, // target that the process is withdrawing from
 };
 
 
@@ -114,9 +112,10 @@ int circle_distance; // distance to maintain from the centre of the circle
 
 int target_component; // target component for an attack command (allows user to
  // target specific components)
-int withdraw_x, withdraw_y; // cautious process retreats here
 
 int scan_result; // used to hold the results of a scan of nearby processes
+
+int self_destruct_primed; // counter for confirming self-destruct command (ctrl-right-click on self)
 int initialised; // set to 1 after initialisation code below run the first time
 
 if (!initialised)
@@ -128,7 +127,6 @@ if (!initialised)
   mode = MODE_MOVE;
   move_x = core_x + cos(angle, 300);
   move_y = core_y + sin(angle, 300);
-  target_copy(TARGET_GUARD, TARGET_PARENT); // for cautious processes
 }
 
 int verbose; // if 1, process will print various things to the console
@@ -178,6 +176,18 @@ if (check_new_command() == 1) // returns 1 if a command has been given
     case COM_FRIEND:
       get_command_target(TARGET_GUARD); // writes the target of the command to address TARGET_GUARD in targetting memory
        // (targetting memory stores the target and allows the process to examine it if it's in scanning range)
+      if (get_command_ctrl() && process[TARGET_GUARD].get_core_x() == get_core_x() && process[TARGET_GUARD].get_core_y() == get_core_y())
+      {
+        if (self_destruct_primed > 0)
+        {
+          printf("\nTerminating.");
+          terminate; // this causes the process to self-destruct
+        }
+        printf("\nSelf destruct primed.");
+        printf("\nRepeat command (ctrl-right-click self) to confirm.");
+        self_destruct_primed = 20;
+        break;
+      }
       mode = MODE_GUARD;
       if (verbose) printf("\nGuarding.");
       break;
@@ -188,6 +198,15 @@ if (check_new_command() == 1) // returns 1 if a command has been given
   
   } // end of command type switch
 } // end of new command code
+
+
+if (self_destruct_primed > 0)
+{
+  self_destruct_primed --;
+  if (self_destruct_primed == 0
+   && verbose)
+    printf("\nSelf destruct cancelled.");
+}
 
 
 // What the process does next depends on its current mode
@@ -244,13 +263,6 @@ switch(mode)
   case MODE_ATTACK_FOUND:
   // Attack target as long as it's visible.
   // If target lost or destroyed, go back to previous action.
-    if (get_damage()
-     && get_total_integrity() * 2 < get_unharmed_integrity_max())
-    {
-      mode = MODE_WITHDRAW;
-      get_damage_source(TARGET_WITHDRAW);
-      if (verbose) printf("\nRetreating.");
-    }
     // Now see whether the commanded target is visible:
     //  (targets are visible if within scanning range of any friendly process)
     if (!process[TARGET_MAIN].visible()) // returns zero if not target visible or doesn't exist
@@ -287,13 +299,6 @@ switch(mode)
   
   case MODE_ATTACK:
   // Attack target identified by user command
-    if (get_damage()
-     && get_total_integrity() * 2 < get_unharmed_integrity_max())
-    {
-      mode = MODE_WITHDRAW;
-      get_damage_source(TARGET_WITHDRAW);
-      if (verbose) printf("\nRetreating.");
-    }
     // Now see whether the commanded target is visible:
     //  (targets are visible if within scanning range of any friendly process)
     if (!process[TARGET_MAIN].visible()) // returns zero if not target visible or doesn't exist
@@ -360,26 +365,6 @@ switch(mode)
     mode = MODE_IDLE;
     if (verbose) printf("\nGuard target lost.");
     break;
-  
-  case MODE_WITHDRAW:
-  // Trying to retreat
-  if (get_damage())
-    get_damage_source(TARGET_WITHDRAW);
-  if (get_total_integrity() == get_unharmed_integrity_max())
-  {
-    mode = saved_mode;
-    break;
-  }
-  if (process[TARGET_WITHDRAW].visible())
-  {
-    withdraw_x = process[TARGET_WITHDRAW].get_core_x();
-    withdraw_y = process[TARGET_WITHDRAW].get_core_y();
-  }
-  auto_move.approach_xy(withdraw_x, withdraw_y, 1600);
-  if (distance_from_xy_less(withdraw_x, withdraw_y, 1000))
-    auto_att_main.fire(0); // tries to fire all objects in the auto_att_main class. 0 is firing delay (in ticks)
-   // (attack class is for fixed attack objects that point more or less forwards)
-  break;
 
 } // end of mode switch
 
@@ -394,19 +379,19 @@ exit; // stops execution, until the next cycle
 
 
 circle_around_target: // this is a label for gosub statements
-// this subroutine makes the process circle around a target.
-// before this subroutine was called, circle_target should have been set to
-//  the target that the process will circle around. The target should be visible.
-// And circle_rotation should have been set to 1024 (clockwise - for guard commands)
-//  or -1024 (anticlockwise - for attack commands)
-int angle_to_circle_target, circle_move_x, circle_move_y;
-angle_to_circle_target = process[circle_target].target_angle();
-angle_to_circle_target += circle_rotation; // this will lead the process in a circle around the target
-circle_move_x = process[circle_target].get_core_x() // location of target
-                + (process[circle_target].get_core_speed_x() * 10) // if the target is moving, aim for a point a little ahead of it
-                - cos(angle_to_circle_target, circle_distance); // work out the radius of the circle around the target
-circle_move_y = process[circle_target].get_core_y()
-                + (process[circle_target].get_core_speed_y() * 10)
-                - sin(angle_to_circle_target, circle_distance);
-auto_move.move_to(circle_move_x, circle_move_y);
-return; // returns to the statement immediately after the gosub
+  // this subroutine makes the process circle around a target.
+  // before this subroutine was called, circle_target should have been set to
+  //  the target that the process will circle around. The target should be visible.
+  // And circle_rotation should have been set to 1024 (clockwise - for guard commands)
+  //  or -1024 (anticlockwise - for attack commands)
+  int angle_to_circle_target, circle_move_x, circle_move_y;
+  angle_to_circle_target = process[circle_target].target_angle();
+  angle_to_circle_target += circle_rotation; // this will lead the process in a circle around the target
+  circle_move_x = process[circle_target].get_core_x() // location of target
+                  + (process[circle_target].get_core_speed_x() * 10) // if the target is moving, aim for a point a little ahead of it
+                  - cos(angle_to_circle_target, circle_distance); // work out the radius of the circle around the target
+  circle_move_y = process[circle_target].get_core_y()
+                  + (process[circle_target].get_core_speed_y() * 10)
+                  - sin(angle_to_circle_target, circle_distance);
+  auto_move.move_to(circle_move_x, circle_move_y);
+  return; // returns to the statement immediately after the gosub

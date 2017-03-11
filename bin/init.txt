@@ -20,9 +20,9 @@
 # fullscreen
 
 
-display_w 1600
-display_h 900
-# fullscreen
+# display_w 1600
+# display_h 900
+fullscreen
 vol_music 60
 vol_effect 80
 

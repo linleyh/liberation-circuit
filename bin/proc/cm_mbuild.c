@@ -1,6 +1,8 @@
 
 
-#process "mbuild"// This process has objects with the following auto classes:
+#process "mbuild"
+
+// This process has objects with the following auto classes:
 class auto_move;
 
 // The following auto classes are not currently used by any objects:
@@ -19,14 +21,14 @@ core_quad_B, 0,
   {object_build, 0},
   {object_repair, 0},
   {object_downlink, 147, 
-    {component_fork, // component 2
+    {component_fork, // component 1
       {object_move:auto_move, 2048},
       {object_uplink, 0},
       {object_move:auto_move, -986},
     }
   },
   {object_downlink, -147, 
-    {component_fork, // component 1
+    {component_fork, // component 2
       {object_move:auto_move, -2048},
       {object_move:auto_move, 986},
       {object_uplink, 0},
@@ -93,6 +95,8 @@ int target_component; // target component for an attack command (allows user to
 
 int scan_result; // used to hold the results of a scan of nearby processes
 
+int self_destruct_primed; // counter for confirming self-destruct command (ctrl-right-click on self)
+
 // builder variables
 int build_result; // build result code (returned by build call)
 int build_x, build_y; // build location for move-build commands
@@ -142,6 +146,18 @@ if (check_new_command() == 1) // returns 1 if a command has been given
     case COM_FRIEND:
       get_command_target(TARGET_GUARD); // writes the target of the command to address TARGET_GUARD in targetting memory
        // (targetting memory stores the target and allows the process to examine it if it's in scanning range)
+      if (get_command_ctrl() && process[TARGET_GUARD].get_core_x() == get_core_x() && process[TARGET_GUARD].get_core_y() == get_core_y())
+      {
+        if (self_destruct_primed > 0)
+        {
+          printf("\nTerminating.");
+          terminate; // this causes the process to self-destruct
+        }
+        printf("\nSelf destruct primed.");
+        printf("\nRepeat command (ctrl-right-click self) to confirm.");
+        self_destruct_primed = 20;
+        break;
+      }
       mode = MODE_GUARD;
       if (verbose) printf("\nGuarding.");
       break;
@@ -152,6 +168,15 @@ if (check_new_command() == 1) // returns 1 if a command has been given
   
   } // end of command type switch
 } // end of new command code
+
+
+if (self_destruct_primed > 0)
+{
+  self_destruct_primed --;
+  if (self_destruct_primed == 0
+   && verbose)
+    printf("\nSelf destruct cancelled.");
+}
 
 
 // What the process does next depends on its current mode

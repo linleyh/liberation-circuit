@@ -1,6 +1,8 @@
 
 
-#process "harvester"// This process has objects with the following auto classes:
+#process "harvester"
+
+// This process has objects with the following auto classes:
 class auto_harvest;
 class auto_move;
 
@@ -82,6 +84,8 @@ int target_component; // target component for an attack command (allows user to
 
 int scan_result; // used to hold the results of a scan of nearby processes
 
+int self_destruct_primed; // counter for confirming self-destruct command (ctrl-right-click on self)
+
 // Harvester variables
 int data_well_x, data_well_y; // location of data well
 int allocator_x, allocator_y; // location of process this process will return to with data
@@ -144,6 +148,18 @@ if (check_new_command() == 1) // returns 1 if a command has been given
       allocator_x = get_command_x();
       allocator_y = get_command_y();
       get_command_target(TARGET_ALLOCATOR); // writes the target of the command to address TARGET_ALLOCATOR in targetting memory
+      if (get_command_ctrl() && process[TARGET_ALLOCATOR].get_core_x() == get_core_x() && process[TARGET_ALLOCATOR].get_core_y() == get_core_y())
+      {
+        if (self_destruct_primed > 0)
+        {
+          printf("\nTerminating.");
+          terminate; // this causes the process to self-destruct
+        }
+        printf("\nSelf destruct primed.");
+        printf("\nRepeat command (ctrl-right-click self) to confirm.");
+        self_destruct_primed = 20;
+        break;
+      }
       if (mode != MODE_HARVEST)
         mode = MODE_HARVEST_RETURN;
       if (verbose) printf("\nHarvester return set.");
@@ -155,6 +171,15 @@ if (check_new_command() == 1) // returns 1 if a command has been given
   
   } // end of command type switch
 } // end of new command code
+
+
+if (self_destruct_primed > 0)
+{
+  self_destruct_primed --;
+  if (self_destruct_primed == 0
+   && verbose)
+    printf("\nSelf destruct cancelled.");
+}
 
 
 // What the process does next depends on its current mode

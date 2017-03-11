@@ -1,6 +1,8 @@
 
 
-#process "base"// This process has objects with the following auto classes:
+#process "base"
+
+// This process has objects with the following auto classes:
 class auto_allocate;
 class auto_harvest;
 
@@ -22,6 +24,7 @@ core_static_pent, 0,
   {object_storage, 0},
   {object_harvest:auto_harvest, 0},
 #code
+
 
 
 
@@ -51,6 +54,7 @@ enum
   TARGET_PARENT, // a newly built process starts with its builder in address 0
   TARGET_BUILT, // processes built by this process
   TARGET_ALLOCATOR, // process that this process will return to when finished harvesting
+  TARGET_SELF_CHECK, // check against self for self-destruct commands
 };
 
 
@@ -71,6 +75,8 @@ int target_component; // target component for an attack command (allows user to
  // target specific components)
 
 int scan_result; // used to hold the results of a scan of nearby processes
+
+int self_destruct_primed; // counter for confirming self-destruct command (ctrl-right-click on self)
 
 // builder variables
 int build_result; // build result code (returned by build call)
@@ -110,6 +116,19 @@ if (check_new_command() == 1) // returns 1 if a command has been given
       break;
     
     case COM_FRIEND:
+      get_command_target(TARGET_SELF_CHECK); // writes the target of the command to address TARGET_SELF_CHECK in targetting memory
+      if (get_command_ctrl() && process[TARGET_SELF_CHECK].get_core_x() == get_core_x() && process[TARGET_SELF_CHECK].get_core_y() == get_core_y())
+      {
+        if (self_destruct_primed > 0)
+        {
+          printf("\nTerminating.");
+          terminate; // this causes the process to self-destruct
+        }
+        printf("\nSelf destruct primed.");
+        printf("\nRepeat command (ctrl-right-click self) to confirm.");
+        self_destruct_primed = 20;
+        break;
+      }
       if (verbose) printf("\nFriendly target command will be sent to new processes.");
       break;
     
@@ -119,6 +138,15 @@ if (check_new_command() == 1) // returns 1 if a command has been given
   
   } // end of command type switch
 } // end of new command code
+
+
+if (self_destruct_primed > 0)
+{
+  self_destruct_primed --;
+  if (self_destruct_primed == 0
+   && verbose)
+    printf("\nSelf destruct cancelled.");
+}
 
 
 // Now try to build a new process from the build queue.
