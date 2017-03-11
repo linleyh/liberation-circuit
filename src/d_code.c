@@ -810,10 +810,19 @@ static void generate_dcode(void)
 				 {
   	   dcode_add_line("if (verbose) printf(\"\\nFriendly target command will be sent to new processes.\");");
 				 }
-				   else
-							{
- 	      dcode_add_line("if (verbose) printf(\"\\nFriendly target command not recognised.\");");
-							}
+			  else
+                            {
+                              if (!dcode_state.mobile && dcode_state.object_type_present [OBJECT_TYPE_HARVEST])
+                                {
+                                  dcode_add_line("get_command_target(TARGET_ALLOCATOR); // writes the target of the command to address TARGET_ALLOCATOR in targetting memory");
+                                  dcode_add_line("if (verbose) printf(\"\\nResource recipient set.\");");
+                                }
+                              else
+                                {
+                                    dcode_add_line("if (verbose) printf(\"\\nFriendly target command not recognised.\");");
+                                }
+                            }
+
       dcode_add_line("break;");
       dcode_state.indent_level --;
 				}
@@ -1111,6 +1120,8 @@ when build command on queue
 	{
  	dcode_newline();
 	 dcode_newline();
+        if (! dcode_state.unindexed_auto_class_present [AUTO_CLASS_ALLOCATE])
+          dcode_add_line("auto_harvest.give_data(TARGET_ALLOCATOR, 32);");
  	dcode_add_line("auto_harvest.gather_data();");
 	}
 
