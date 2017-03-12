@@ -35,10 +35,10 @@ The game requires write access to its home directory to save mission completion 
 To build using do/redo (using the .do scripts by Nils Dagsson Moskopp):
 
   To build Liberation Circuit on
-  any Unix-like OS like GNU/Linux, execute the ìdoî script. 
-  Note that ìdoî always compiles all source files; if you want
+  any Unix-like OS like GNU/Linux, execute the ‚Äúdo‚Äù script. 
+  Note that ‚Äúdo‚Äù always compiles all source files; if you want
   to rebuild targets only when relevant source files have changed, you
-  should use ìredoî instead. A version of ìredoî can be obtained from
+  should use ‚Äúredo‚Äù instead. A version of ‚Äúredo‚Äù can be obtained from
   <http://news.dieweltistgarnichtso.net/bin/redo-sh.html> (written in
   Bourne shell) or <http://jdebp.eu./Softwares/redo/> (written in C++).
 
@@ -71,10 +71,12 @@ To build using cmake (using the cmake scripts by Kyle Findlay; The following ins
 ---------------------------------------------------
 
 
-Acknowledgements:
+Thanks to:
 
 Nils Dagsson Moskopp (erlehmann) <nils+liberationcircuit@dieweltistgarnichtso.net> for very useful feedback on the alpha and beta versions.
 
 zugz (from the tigsource forum) for very useful feedback on the beta.
 
+Serge Zaitsev's cucu (http://zserge.com/blog/cucu-part1.html) for a very clear explanation of how to write a simple C compiler.
 
+Batuhan Bozkurt's otomata (http://www.earslap.com/page/otomata.html) for the basis of the cellular automata-based procedural music generation.
