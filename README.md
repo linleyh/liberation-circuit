@@ -68,10 +68,12 @@ To build using cmake (using the cmake scripts by Kyle Findlay; The following ins
 ---------------------------------------------------
 
 
-Acknowledgements:
+Thanks to:
 
 Nils Dagsson Moskopp (erlehmann) <nils+liberationcircuit@dieweltistgarnichtso.net> for very useful feedback on the alpha and beta versions.
 
 zugz (from the tigsource forum) for very useful feedback on the beta.
 
+Serge Zaitsev's cucu (http://zserge.com/blog/cucu-part1.html) for a very clear explanation of how to write a simple C compiler.
 
+Batuhan Bozkurt's otomata (http://www.earslap.com/page/otomata.html) for the basis of the cellular automata-based procedural music generation.
