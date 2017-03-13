@@ -75,8 +75,6 @@ void init_ex_control(void)
 
  ex_control.mouse_x_pixels = 0;
  ex_control.mouse_y_pixels = 0;
- ex_control.mb_press [0] = BUTTON_NOT_PRESSED;
- ex_control.mb_press [1] = BUTTON_NOT_PRESSED;
  ex_control.sticky_ctrl = 0;
  ex_control.mousewheel_change = 0;
 // ex_control.using_slider = 0;
@@ -91,6 +89,11 @@ void init_ex_control(void)
  {
   ex_control.key_press [i] = BUTTON_NOT_PRESSED;
  }*/
+
+ for (i = 0; i < MOUSE_BUTTONS; i ++)
+	{
+  ex_control.mb_press [i] = BUTTON_NOT_PRESSED;
+	}
 
  for (i = 0; i < SPECIAL_KEYS; i ++)
 	{
@@ -170,6 +173,10 @@ void get_ex_control(int close_button_status)
   //if (ex_control.mouse_on_display)
   {
 
+  	ex_control.old_mouse_x_pixels = ex_control.mouse_x_pixels; // these values are used in g_command.c for dragging the screen with the middle mouse button
+  	ex_control.old_mouse_y_pixels = ex_control.mouse_y_pixels;
+
+
    ALLEGRO_MOUSE_STATE mouse_state;
 
    al_get_mouse_state(&mouse_state);
@@ -193,7 +200,7 @@ void get_ex_control(int close_button_status)
 			 ex_control.mouse_y_pixels = inter.display_h - 1;
 
 
-   for (i = 0; i < 2; i ++)
+   for (i = 0; i < MOUSE_BUTTONS; i ++)
    {
     switch(ex_control.mb_press [i])
     {
@@ -219,6 +226,7 @@ void get_ex_control(int close_button_status)
       break;
     }
    }
+
 
 // if the left mouse button isn't being pressed, stop using any slider currently being used:
 //   if (ex_control.mb_press [0] <= 0)

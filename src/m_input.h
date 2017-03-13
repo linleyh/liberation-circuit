@@ -133,9 +133,12 @@ SPECIAL_KEYS
 
 struct ex_control_struct // this struct holds information taken directly from input, and is updated every frame. It is used to fill in the control_struct and also for editor input. See m_input.c
 {
+	int old_mouse_x_pixels;
+	int old_mouse_y_pixels;
+
  int mouse_x_pixels;
  int mouse_y_pixels;
- int mb_press [2];
+ int mb_press [MOUSE_BUTTONS];
  int mousewheel_pos;
  int mousewheel_change;
  int mouse_dragging_panel; // is the mouse dragging the editor panel?

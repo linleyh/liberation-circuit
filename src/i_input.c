@@ -151,8 +151,6 @@ void initialise_control(void)
  control.mouse_y_world_pixels = 0;
  control.mouse_x_screen_pixels = 0;
  control.mouse_y_screen_pixels = 0;
- control.mbutton_press [0] = BUTTON_NOT_PRESSED; // not sure about this - should we try to read the actual mouse status?
- control.mbutton_press [1] = BUTTON_NOT_PRESSED;
  control.mbutton_press_timestamp [0] = 0;
  control.mbutton_press_timestamp [1] = 0;
 
@@ -166,7 +164,12 @@ void initialise_control(void)
 	control.editor_captures_input = 0;
 
 
-// int i;
+ int i;
+
+ for (i = 0; i < MOUSE_BUTTONS; i ++)
+	{
+  control.mbutton_press [i] = BUTTON_NOT_PRESSED;
+	}
 
 // for (i = 0; i < KEYS; i ++)
 // {
@@ -258,7 +261,7 @@ void run_input(void)
 
 mouse_unavailable:
 
-  for (i = 0; i < 2; i ++)
+  for (i = 0; i < MOUSE_BUTTONS; i ++)
   {
    switch(control.mbutton_press [i])
    {
@@ -290,7 +293,6 @@ mouse_unavailable:
      break;
    }
   }
-
 
  if (control.mouse_drag != MOUSE_DRAG_NONE)
 	{

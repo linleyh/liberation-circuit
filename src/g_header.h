@@ -1761,7 +1761,8 @@ struct control_struct // this struct needs to be folded into ex_control (or vice
 // int mbutton_bitfield;
 // int mouse_hold_x_pixels [2], mouse_hold_y_pixels [2]; // if button is being held, this is the x/y position where it was when the hold started. x is -1 if the hold started offscreen or when mouse input not accepted.
 // int mb_bits [MBB_BITS];
- int mbutton_press [2];
+#define MOUSE_BUTTONS 3
+ int mbutton_press [MOUSE_BUTTONS];
  timestamp mbutton_press_timestamp [2];
 // int key_press [KEYS];
 // int any_key;
