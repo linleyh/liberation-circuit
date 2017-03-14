@@ -434,6 +434,7 @@ fpr("\nInitialising:");
    settings.option [OPTION_VOL_MUSIC] = 80;
    settings.option [OPTION_VOL_EFFECT] = 80;
    settings.option [OPTION_SPECIAL_CURSOR] = 0;
+   settings.option [OPTION_CAPTURE_MOUSE] = 0;
 
    init_key_maps(); // must be before read_initfile() as keys may be remapped
 
@@ -819,6 +820,12 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
  if (strcmp(initfile_word, "msaa_off") == 0)
  {
   settings.option [OPTION_MSAA_OFF] = 1;
+  return bpos;
+ }
+
+ if (strcmp(initfile_word, "capture_mouse") == 0)
+ {
+  settings.option [OPTION_CAPTURE_MOUSE] = 1;
   return bpos;
  }
 

@@ -1902,6 +1902,7 @@ OPTION_NO_BACKGROUND,
 OPTION_VOL_MUSIC,
 OPTION_VOL_EFFECT,
 OPTION_SPECIAL_CURSOR, // draws a special mouse cursor instead of the system one. Included because of a report that the mouse cursor was not displaying correctly.
+OPTION_CAPTURE_MOUSE,
 OPTION_DEBUG, // can be used to set certain debug values without recompiling.
 OPTIONS
 };

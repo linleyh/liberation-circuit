@@ -629,6 +629,19 @@ void run_commands(void)
 		 else
 			{
 
+  	if (control.mbutton_press [2] > 0)
+	  {
+
+		  int old_mouse_x_world_pixels = (ex_control.old_mouse_x_pixels / view.zoom + al_fixtoi(view.camera_x - view.centre_x_zoomed)) ;
+    int old_mouse_y_world_pixels = (ex_control.old_mouse_y_pixels / view.zoom + al_fixtoi(view.camera_y - view.centre_y_zoomed));
+
+    view.camera_x += al_itofix(old_mouse_x_world_pixels - control.mouse_x_world_pixels) / view.zoom;
+    view.camera_y += al_itofix(old_mouse_y_world_pixels - control.mouse_y_world_pixels) / view.zoom;
+//fpr("\n cmwp %i,%i old %i,%i ex_old %i,%i", control.mouse_x_world_pixels, control.mouse_y_world_pixels, old_mouse_x_world_pixels, old_mouse_y_world_pixels, ex_control.old_mouse_x_pixels, ex_control.old_mouse_y_pixels);
+	  }
+	  else
+			{
+
 
 
 #ifndef RECORDING_VIDEO_2
@@ -700,20 +713,9 @@ void run_commands(void)
 			  else
 				  view.camera_y += al_itofix(mouse_scroll_y);
 		}
-
+			} // end else for if mouse_button [2] pressed
 			} // end else for if inter.block_mode_button_area_scrolling
 	} // end if mouse not on map
-
-	if (control.mbutton_press [2] > 0)
-	{
-
-		int old_mouse_x_world_pixels = (ex_control.old_mouse_x_pixels / view.zoom + al_fixtoi(view.camera_x - view.centre_x_zoomed)) ;
-  int old_mouse_y_world_pixels = (ex_control.old_mouse_y_pixels / view.zoom + al_fixtoi(view.camera_y - view.centre_y_zoomed));
-
-  view.camera_x += al_itofix(old_mouse_x_world_pixels - control.mouse_x_world_pixels) / view.zoom;
-  view.camera_y += al_itofix(old_mouse_y_world_pixels - control.mouse_y_world_pixels) / view.zoom;
-//fpr("\n cmwp %i,%i old %i,%i ex_old %i,%i", control.mouse_x_world_pixels, control.mouse_y_world_pixels, old_mouse_x_world_pixels, old_mouse_y_world_pixels, ex_control.old_mouse_x_pixels, ex_control.old_mouse_y_pixels);
-	}
 
 
 	} // end if mouse on main panel

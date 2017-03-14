@@ -1,14 +1,23 @@
 # Liberation Circuit init.txt
 #
 # Options are:
-#  display_w (value): sets display width. Valid values are 1024 to 1920
-#  display h (value): sets height. Valid values are 768 to 1200
-#  vol_music (value): sets music volume. Valid values are 0 to 100
-#  vol_effect (value): sets effects volume. Valid values are 0 to 100 
-#  fullscreen: uses a fullscreen window at your current display resolution.
-#               (display_w/h values are ignored). This mode is recommended 
-#               unless you have a good reason not to use it.
-#               
+#
+#  display_w (value)
+#      sets display width. Valid values are 1024 to 1920
+#  display h (value)
+#      sets height. Valid values are 768 to 1200
+#
+#  vol_music
+#      sets music volume. Valid values are 0 to 100
+#  vol_effect (value)
+#      sets effects volume. Valid values are 0 to 100 
+#
+#  fullscreen
+#      uses a fullscreen window at your current display resolution.
+#      (display_w/h values are ignored). This mode is recommended 
+#      unless you have a good reason not to use it.
+#      If you are using multiple monitors, it may be useful to set 
+#      capture_mouse as well (see below).
 #
 #
 # Example:
@@ -29,21 +38,34 @@ vol_effect 80
 
 
 # Some more special options are:
-#  true_fullscreen: uses true fullscreen. May cause problems when a file
-#                   dialogue (load/save) is opened. Unlike fullscreen,
-#                   the display_w and h values should be set (to a resolution
-#                   that your monitor supports).
-#  msaa_off: turns off multisampled anti-aliasing. Improves performance
-#            at a terrible cost in jaggedness.
-#  background_detail (value): reduces the background detail to improve performance.
+#
+#  true_fullscreen
+#      uses true fullscreen. May cause problems when a file
+#      dialogue (load/save) is opened. Unlike fullscreen,
+#      the display_w and h values should be set (to a resolution
+#      that your monitor supports).
+#      If you are using multiple monitors, it may be useful to set 
+#      capture_mouse as well (see below).
+#
+#  msaa_off
+#      turns off multisampled anti-aliasing. Improves performance
+#      at a terrible cost in jaggedness.
+#
+#  background_detail (value)
+#      reduces the background detail to improve performance.
 #            values are:
-#            0 turns off the background completely (other than data wells). This
-#              is fast, but doesn't look so great.
-#            1 reduces detail a bit.
+#             0 turns off the background completely (other than data wells). This
+#               is fast, but doesn't look so great.
+#             1 reduces detail a bit.
+#
+#  capture_mouse
+#      for playing in fullscreen/true_fullscreen with a multi-monitor setup.
+#      tries to capture the mouse in the game window.
+#
 
 
-
-#  template: tells the game to automatically load a file into a template on start-up.
+#  template
+#      tells the game to automatically load a file into a template on start-up.
 #            example:
 #
 #             template 0 src/cm_base.c

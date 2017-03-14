@@ -36,10 +36,10 @@ static void close_window_box(void);
 static void init_character_input_events(void);
 static void read_character_input_event(void);
 void init_key_maps(void);
+//static void capture_mouse(void);
 
 
-
-ALLEGRO_DISPLAY* display;
+extern ALLEGRO_DISPLAY* display;
 
 ALLEGRO_EVENT_QUEUE* control_queue;
 extern ALLEGRO_EVENT_QUEUE* event_queue;
@@ -147,7 +147,11 @@ void get_ex_control(int close_button_status)
   while (al_get_next_event(control_queue, &control_event))
   {
    if (control_event.type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
+			{
+				if (settings.option [OPTION_CAPTURE_MOUSE])
+					al_grab_mouse(display);
     ex_control.mouse_on_display = 0;
+			}
      else
      {
       if (control_event.type != ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -181,23 +185,70 @@ void get_ex_control(int close_button_status)
 
    al_get_mouse_state(&mouse_state);
 
+
+   ex_control.mouse_x_pixels = mouse_state.x;
+   ex_control.mouse_y_pixels = mouse_state.y;
+/*
+   if (settings.option [OPTION_CAPTURE_MOUSE])
+			{
+// This deals with a reported problem with multi-monitor setups.
+// If OPTION_CAPTURE_MOUSE is set in init.txt, the mouse is forced back onto the display:
+    int relocate_mouse = 0;
+
+// However, this doesn't work - if the mouse leaves the display, its last valid x/y values are kept and these may not be right on the edge.
+//  this is now dealt with by
+
+
+    if (ex_control.mouse_x_pixels >= inter.display_w - 1)
+				{
+					ex_control.mouse_x_pixels = inter.display_w - 1;
+					relocate_mouse = 1;
+				}
+
+    if (ex_control.mouse_y_pixels >= inter.display_h - 1)
+				{
+					ex_control.mouse_y_pixels = inter.display_h - 1;
+					relocate_mouse = 1;
+				}
+
+    if (ex_control.mouse_x_pixels <= 0)
+				{
+					ex_control.mouse_x_pixels = 0;
+					relocate_mouse = 1;
+				}
+
+    if (ex_control.mouse_y_pixels <= 0)
+				{
+					ex_control.mouse_y_pixels = 0;
+					relocate_mouse = 1;
+				}
+
+				if (relocate_mouse)
+					al_set_mouse_xy(display, ex_control.mouse_x_pixels, ex_control.mouse_y_pixels);
+
+
+
+			}
+			 else
+*/
+				{
+
 // it's possible that in some circumstances mouse_state.x/y is outside the expected display area
 //  (this may explain one reported bug that I couldn't reproduce).
 // the bounds-checks in the following code prevent this:
 
-   ex_control.mouse_x_pixels = mouse_state.x;
+     if (ex_control.mouse_x_pixels < 0)
+			   ex_control.mouse_x_pixels = 0;
+     if (ex_control.mouse_x_pixels >= inter.display_w)
+			   ex_control.mouse_x_pixels = inter.display_w - 1;
 
-   if (ex_control.mouse_x_pixels < 0)
-			 ex_control.mouse_x_pixels = 0;
-   if (ex_control.mouse_x_pixels >= inter.display_w)
-			 ex_control.mouse_x_pixels = inter.display_w - 1;
 
-   ex_control.mouse_y_pixels = mouse_state.y;
+     if (ex_control.mouse_y_pixels < 0)
+			   ex_control.mouse_y_pixels = 0;
+     if (ex_control.mouse_y_pixels >= inter.display_h)
+			   ex_control.mouse_y_pixels = inter.display_h - 1;
 
-   if (ex_control.mouse_y_pixels < 0)
-			 ex_control.mouse_y_pixels = 0;
-   if (ex_control.mouse_y_pixels >= inter.display_h)
-			 ex_control.mouse_y_pixels = inter.display_h - 1;
+				}
 
 
    for (i = 0; i < MOUSE_BUTTONS; i ++)
@@ -432,6 +483,59 @@ void get_ex_control(int close_button_status)
 
 #endif
 }
+
+/*
+// called if settings.option [OPTION_CAPTURE_MOUSE] is set
+static void capture_mouse(void)
+{
+
+							al_grab_mouse(display);
+
+// unfortunately, in windowed mode al_grab_mouse doesn't confine the mouse to the display part of the window:
+
+   if (settings.option [OPTION_FULLSCREEN]
+				|| settings.option [OPTION_FULLSCREEN_TRUE])
+					return;
+
+// so we need to try to work out which side of the display the mouse went off :(
+// let's try to do that using the mouse's recent movement:
+
+  int mouse_move_x = ex_control.mouse_x_pixels - ex_control.old_mouse_x_pixels;
+  int mouse_move_y = ex_control.mouse_y_pixels - ex_control.old_mouse_y_pixels;
+
+int relocate_mouse = 0;
+
+    if (ex_control.mouse_x_pixels >= inter.display_w - 1)
+				{
+					ex_control.mouse_x_pixels = inter.display_w - 1;
+					relocate_mouse = 1;
+				}
+
+    if (ex_control.mouse_y_pixels >= inter.display_h - 1)
+				{
+					ex_control.mouse_y_pixels = inter.display_h - 1;
+					relocate_mouse = 1;
+				}
+
+    if (ex_control.mouse_x_pixels <= 0)
+				{
+					ex_control.mouse_x_pixels = 0;
+					relocate_mouse = 1;
+				}
+
+    if (ex_control.mouse_y_pixels <= 0)
+				{
+					ex_control.mouse_y_pixels = 0;
+					relocate_mouse = 1;
+				}
+
+				if (relocate_mouse)
+					al_set_mouse_xy(display, ex_control.mouse_x_pixels, ex_control.mouse_y_pixels);
+
+
+
+}
+*/
 
 ALLEGRO_EVENT_QUEUE* char_input_queue;
 
