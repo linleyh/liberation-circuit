@@ -3,17 +3,17 @@
 # Options are:
 #
 #  display_w (value)
-#      sets display width. Valid values are 1024 to 1920
+#      Sets display width. Valid values are 1024 to 1920
 #  display h (value)
-#      sets height. Valid values are 768 to 1200
+#      Sets height. Valid values are 768 to 1200
 #
 #  vol_music
-#      sets music volume. Valid values are 0 to 100
+#      Sets music volume. Valid values are 0 to 100
 #  vol_effect (value)
-#      sets effects volume. Valid values are 0 to 100 
+#      Sets effects volume. Valid values are 0 to 100 
 #
 #  fullscreen
-#      uses a fullscreen window at your current display resolution.
+#      Uses a fullscreen window at your current display resolution.
 #      (display_w/h values are ignored). This mode is recommended 
 #      unless you have a good reason not to use it.
 #      If you are using multiple monitors, it may be useful to set 
@@ -40,7 +40,7 @@ vol_effect 80
 # Some more special options are:
 #
 #  true_fullscreen
-#      uses true fullscreen. May cause problems when a file
+#      Uses true fullscreen. May cause problems when a file
 #      dialogue (load/save) is opened. Unlike fullscreen,
 #      the display_w and h values should be set (to a resolution
 #      that your monitor supports).
@@ -48,24 +48,24 @@ vol_effect 80
 #      capture_mouse as well (see below).
 #
 #  msaa_off
-#      turns off multisampled anti-aliasing. Improves performance
+#      Turns off multisampled anti-aliasing. Improves performance
 #      at a terrible cost in jaggedness.
 #
 #  background_detail (value)
-#      reduces the background detail to improve performance.
+#      Reduces the background detail to improve performance.
 #            values are:
 #             0 turns off the background completely (other than data wells). This
 #               is fast, but doesn't look so great.
 #             1 reduces detail a bit.
 #
 #  capture_mouse
-#      for playing in fullscreen/true_fullscreen with a multi-monitor setup.
+#      For playing in fullscreen/true_fullscreen with a multi-monitor setup.
 #      tries to capture the mouse in the game window.
 #
 
 
 #  template
-#      tells the game to automatically load a file into a template on start-up.
+#      Tells the game to automatically load a file into a template on start-up.
 #            example:
 #
 #             template 0 src/cm_base.c
@@ -115,6 +115,11 @@ template 0 proc/cm_tri_base.c
 #  - you should be able to ignore this part if you're using
 #    a standard QWERTY keyboard
 #  - but this may help if the game isn't registering cursor keys etc
+#  - Github user rHermes reports that unicode input does not work correctly
+#    for some keys on a Norwegian keyboard - the [] and () keys - and has
+#    written an AutoHotkey script to fix this (tested on Windows so far).
+#    See fix-altgr.ahk in the /bin/misc directory.
+#
 #
 # To remap a key, use a line like this:
 # keymap 2 47
@@ -149,9 +154,9 @@ template 0 proc/cm_tri_base.c
 # 23 F9
 # 24 F10
 
-#  remapping the following number keys only affects keyboard shortcuts for building
+#  Remapping the following number keys only affects keyboard shortcuts for building
 #   (which by default use the number keys on a QWERTY keyboard)
-#  it doesn't affect the way number keys work in text input.
+#  It doesn't affect the way number keys work in text input.
 # 25 build template 0
 # 26 build template 1
 # 27 build template 2
@@ -179,5 +184,8 @@ template 0 proc/cm_tri_base.c
 
 # Currently, a remapped function can only have a single key mapped to it (which prevents
 #  the use of both shift keys, for example). This may be fixed in future.
+
+
+
 
 # last line (leave this here)
