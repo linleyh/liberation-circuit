@@ -4,7 +4,8 @@ version: 1.0
 
 This the release version of Liberation Circuit, an RTS/programming game.
 
-To play the prebuilt binaries, run LibCirc.exe.
+To play the prebuilt binaries on Windows, [download the latest release](https://github.com/linleyh/liberation-circuit/releases) and run `LibCirc.exe`.
+
 
 It should compile on any OS supported by Allegro 5 - to build, compile the c files in the source directory and link with Allegro 5. More detailed instructions are below. More detail about the source file structure is at the start of m_main.c.
 
