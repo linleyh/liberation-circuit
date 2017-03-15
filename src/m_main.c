@@ -294,7 +294,7 @@ struct inter_struct inter;
 
 extern ALLEGRO_BITMAP* title_bitmap; // in s_menu.c
 
-int main(void)
+int main(int argc, char **argv)
 {
 
    display = NULL;
