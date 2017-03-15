@@ -32,12 +32,12 @@ It looks like this (this is github markdown):
 
 To build using do/redo (using the .do scripts by Nils Dagsson Moskopp):
 
-  To build Liberation Circuit on any Unix-like OS like GNU/Linux, 
-  execute the “do” script. Note that “do” always compiles all source 
-  files; if you want to rebuild targets only when relevant source files 
-  have changed, you should use “redo” instead. A version of “redo” can 
-  be obtained from <http://news.dieweltistgarnichtso.net/bin/redo-sh.html> 
-  (written in Bourne shell) or <http://jdebp.eu./Softwares/redo/> (written 
+  To build Liberation Circuit on any Unix-like OS like GNU/Linux,
+  execute the “do” script. Note that “do” always compiles all source
+  files; if you want to rebuild targets only when relevant source files
+  have changed, you should use “redo” instead. A version of “redo” can
+  be obtained from <http://news.dieweltistgarnichtso.net/bin/redo-sh.html>
+  (written in Bourne shell) or <http://jdebp.eu./Softwares/redo/> (written
   in C++).
 
   Packages needed for Liberation Circuit on Debian GNU/Linux or Ubuntu:
@@ -67,6 +67,24 @@ To build using cmake (using the cmake scripts by Kyle Findlay; The following ins
 
 
 ---------------------------------------------------
+
+To build on OSX (Sierra with latest Homebrew)
+
+```
+$ git clone https://github.com/linleyh/liberation-circuit.git
+$ cd liberation-circuit
+$ brew install allegro
+$ ./do
+
+$ bin/libcirc
+
+```
+
+Text is pretty small on a Retina screen.
+
+
+---------------------------------------------------
+
 
 
 Thanks to:
