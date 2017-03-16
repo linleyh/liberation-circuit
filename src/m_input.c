@@ -1120,7 +1120,7 @@ static void close_window_box(void)
 
 //   al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_HIGH]);
    add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_HIGH] [TRANS_FAINT], 5, 3);
-   add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Exit");
+   add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "E[x]it");
 //   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Exit");
    if (just_pressed)
     safe_exit(0);
@@ -1129,7 +1129,7 @@ static void close_window_box(void)
    {
     add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_MED] [TRANS_FAINT], 5, 3);
 //    al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_MED]);
-    add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Exit");
+    add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "E[x]it");
 //    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Exit");
    }
 
@@ -1145,7 +1145,7 @@ static void close_window_box(void)
   {
 //   al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_HIGH]);
    add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_HIGH] [TRANS_FAINT], 5, 3);
-   add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Cancel");
+   add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "[C]ancel");
 //   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Cancel");
    if (just_pressed)
     break;
@@ -1154,7 +1154,7 @@ static void close_window_box(void)
    {
 //    al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_MED]);
     add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_MED] [TRANS_FAINT], 5, 3);
-    add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "Cancel");
+    add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "[C]ancel");
 //    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Cancel");
    }
 
@@ -1163,6 +1163,13 @@ static void close_window_box(void)
 //  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 40, ALLEGRO_ALIGN_CENTRE, "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG");
 //  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 65, ALLEGRO_ALIGN_CENTRE, "the quick brown fox jumps over the lazy dog");
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 25, ALLEGRO_ALIGN_CENTRE, "(any unsaved changes will be lost)");
+
+  if (ex_control.unichar_input == 99 // c
+			|| ex_control.unichar_input == 67) // C
+			break;
+	 if (ex_control.unichar_input == 120 // x
+			||	ex_control.unichar_input == 88) // X
+			safe_exit(0);
 
 //  if (settings.option [OPTION_SPECIAL_CURSOR])
 //		{
