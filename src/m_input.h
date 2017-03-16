@@ -150,6 +150,7 @@ struct ex_control_struct // this struct holds information taken directly from in
  int sticky_ctrl; // is 1 if control was pressed and the keyboard hasn't been totally released since then (used by the editor to avoid e.g. ctrl-c capturing the c if ctrl is released a moment before the c key)
  int mouse_on_display;
  int mouse_cursor_type;
+ int mouse_grabbed; // should be 1 if the capture_mouse setting is on and the mouse is grabbed.
 
 // timestamp unichar_input_received; // most recent unichar received - based on inter.running_time
  int unichar_input; // used for text input where the character entered is important (e.g. the editor). Hopefully should work correctly for non-QWERTY keyboards.
@@ -170,7 +171,7 @@ struct ex_control_struct // this struct holds information taken directly from in
 };
 
 
-void get_ex_control(int close_button_status);
+void get_ex_control(int close_button_status, int grab_mouse_if_captured);
 void init_ex_control(void);
 void init_key_type(void);
 void init_key_maps(void);

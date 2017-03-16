@@ -1785,7 +1785,7 @@ void run_menu(void)
 void run_menu_input(void)
 {
 
- get_ex_control(0);
+ get_ex_control(0, 0);
 
  int i;
  int mouse_x = ex_control.mouse_x_pixels;
@@ -2428,7 +2428,7 @@ void run_intro_screen(void)
  do
  {
 
-  get_ex_control(1); // 1 means that clicking the native close window button will exit immediately
+  get_ex_control(1, 0); // 1 means that clicking the native close window button will exit immediately
   mouse_x = ex_control.mouse_x_pixels;
   mouse_y = ex_control.mouse_y_pixels;
   just_pressed = (ex_control.mb_press [0] == BUTTON_JUST_PRESSED);

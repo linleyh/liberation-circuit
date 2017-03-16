@@ -607,7 +607,7 @@ void add_line(int layer, float x, float y, float xa, float ya, ALLEGRO_COLOR col
 static void zpoly_input(void)
 {
 
-	get_ex_control(0);
+	get_ex_control(0, 0);
 
 	int i, j;
 	int mouse_x = ex_control.mouse_x_pixels;

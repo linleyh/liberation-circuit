@@ -675,7 +675,7 @@ void run_story_cutscene(int area_index)
   if (counter >= counter_max)
 			break;
 
-  get_ex_control(0); // input is ignored, but should probably be checked anyway
+  get_ex_control(0, 0); // input is ignored, but should probably be checked anyway
 
 //  story_input();
 
@@ -712,7 +712,7 @@ void run_ending_cutscene(void)
   if (counter >= counter_max)
 			break;
 
-  get_ex_control(0); // input is ignored, but should probably be checked anyway
+  get_ex_control(0, 0); // input is ignored, but should probably be checked anyway
 
 //  story_input();
 

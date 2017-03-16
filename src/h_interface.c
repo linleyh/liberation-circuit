@@ -331,7 +331,7 @@ void draw_story_interface(void)
 void story_input(void)
 {
 
-  get_ex_control(0); // 1 means pressing escape or the close window button closes the game. Need to fix.
+  get_ex_control(0, 0);
 
   run_input();
 

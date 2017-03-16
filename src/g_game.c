@@ -195,7 +195,7 @@ void main_game_loop(void)
  do // main game loop
  {
 //  if (game.phase != GAME_PHASE_PREGAME) // no input in pregame phase
-   get_ex_control(0); // ex_control needs to be updated even when halted (control will not be updated)
+   get_ex_control(0, (game.pause_soft == 0)); // ex_control needs to be updated even when halted (control will not be updated)
 
    run_input();
 

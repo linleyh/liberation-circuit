@@ -60,7 +60,8 @@ vol_effect 80
 #
 #  capture_mouse
 #      For playing in fullscreen/true_fullscreen with a multi-monitor setup.
-#      tries to capture the mouse in the game window.
+#      tries to capture the mouse in the game window during gameplay.
+#      May not work in Mac OSX.
 #
 
 

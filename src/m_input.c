@@ -81,6 +81,7 @@ void init_ex_control(void)
  ex_control.mouse_on_display = 1;
  ex_control.mouse_dragging_panel = 0;
 	ex_control.mouse_cursor_type = MOUSE_CURSOR_BASIC;
+	ex_control.mouse_grabbed = 0;
 
 
  int i;
@@ -123,7 +124,7 @@ void init_ex_control(void)
 // 0 means: open a close_window_box (usual action)
 // 1 means: exit immediately (start screen only)
 // 2 means: do nothing (probably means this is being called from inside close_window_box())
-void get_ex_control(int close_button_status)
+void get_ex_control(int close_button_status, int grab_mouse_if_captured)
 {
 
   int i;
@@ -149,7 +150,23 @@ void get_ex_control(int close_button_status)
    if (control_event.type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
 			{
 				if (settings.option [OPTION_CAPTURE_MOUSE])
-					al_grab_mouse(display);
+				{
+					if (grab_mouse_if_captured)
+					{
+ 					al_grab_mouse(display);
+ 					ex_control.mouse_grabbed = 1;
+					}
+ 					else
+							{
+								if (ex_control.mouse_grabbed)
+								{
+									al_ungrab_mouse();
+    					ex_control.mouse_grabbed = 1;
+								}
+							}
+
+
+				}
     ex_control.mouse_on_display = 0;
 			}
      else
@@ -1095,7 +1112,7 @@ static void close_window_box(void)
 
 //  al_clear_to_color(colours.base [COL_BLUE] [SHADE_LOW]);
 
-  get_ex_control(2); // 2 means that clicking the native close window button will not do anything, as the exit game box is already being displayed
+  get_ex_control(2, 0); // 2 means that clicking the native close window button will not do anything, as the exit game box is already being displayed
   mouse_x = ex_control.mouse_x_pixels;
   mouse_y = ex_control.mouse_y_pixels;
   just_pressed = (ex_control.mb_press [0] == BUTTON_JUST_PRESSED);
