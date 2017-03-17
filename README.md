@@ -68,7 +68,7 @@ To build using cmake (using the cmake scripts by Kyle Findlay; The following ins
 
 ---------------------------------------------------
 
-To build on OSX (Sierra with latest Homebrew)
+To build on OSX (Sierra (10.12) with latest Homebrew and Xcode)
 
 ```
 $ git clone https://github.com/linleyh/liberation-circuit.git
@@ -76,11 +76,13 @@ $ cd liberation-circuit
 $ brew install allegro
 $ ./do
 
-$ bin/libcirc
+$ cd bin
+
+$ libcirc
 
 ```
 
-Text is pretty small on a Retina screen.
+Text is pretty small on a Retina screen. But it looks and plays perfectly on a 11" or 13" MacBook Air (which are all non-retina).
 
 
 ---------------------------------------------------
