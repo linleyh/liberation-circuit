@@ -359,7 +359,8 @@ mouse_unavailable:
 
 // fast forward only available in world phase (not pregame or game over):
 //  (game.fast_forward is also set to 0 in game over code)
- if (game.phase == GAME_PHASE_WORLD)
+ if (game.phase == GAME_PHASE_WORLD
+		&& !control.editor_captures_input)
 	{
 
  if (ex_control.special_key_press [SPECIAL_KEY_F2] == BUTTON_JUST_PRESSED)

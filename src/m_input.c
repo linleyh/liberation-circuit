@@ -76,6 +76,7 @@ void init_ex_control(void)
  ex_control.mouse_x_pixels = 0;
  ex_control.mouse_y_pixels = 0;
  ex_control.sticky_ctrl = 0;
+ ex_control.numlock = 0;
  ex_control.mousewheel_change = 0;
 // ex_control.using_slider = 0;
  ex_control.mouse_on_display = 1;
@@ -345,18 +346,46 @@ void get_ex_control(int close_button_status, int grab_mouse_if_captured)
 
 #endif
 
-
-  for (i = 0; i < KEY_CODES; i ++)
+// We deal with key codes in separate steps, so that numlock prevents a pad key being treated as a cursor key
+//  (it will be interpreted as a unichar number or . instead)
+  for (i = 0; i < KEY_PAD_START; i ++)
   {
    if (ex_control.key_code_map [i] [0] != -1 // no key (used for duplicated remapped keys
 				&& al_key_down(&key_state, ex_control.key_code_map [i] [0]))
    {
     ex_control.keys_pressed ++;
-//   	ex_control.special_key_press_detected [ex_control.key_code_map [i] [1]] = 1;
    	ex_control.special_key_press_time [ex_control.key_code_map [i] [1]] = inter.running_time;
-//   	fpr("\n special key: key_code %i special key %i", i, ex_control.key_code_map [i] [1]);
    }
   }
+
+ if (!ex_control.numlock) // if numlock is on,
+	{
+  for (i = KEY_PAD_START; i < (KEY_PAD_END + 1); i ++)
+  {
+   if (ex_control.key_code_map [i] [0] != -1 // no key (used for duplicated remapped keys
+				&& al_key_down(&key_state, ex_control.key_code_map [i] [0]))
+   {
+    ex_control.keys_pressed ++;
+   	ex_control.special_key_press_time [ex_control.key_code_map [i] [1]] = inter.running_time;
+   }
+  }
+	}
+
+  for (i = (KEY_PAD_END+1); i < KEY_CODES; i ++)
+  {
+   if (ex_control.key_code_map [i] [0] != -1 // no key (used for duplicated remapped keys
+				&& al_key_down(&key_state, ex_control.key_code_map [i] [0]))
+   {
+    ex_control.keys_pressed ++;
+   	ex_control.special_key_press_time [ex_control.key_code_map [i] [1]] = inter.running_time;
+   }
+  }
+
+
+
+
+
+
 
 // need to have two loops because some special key values have more than one key code (e.g. lshift and rshift both affect SPECIAL_KEY_SHIFT)
 
@@ -490,6 +519,7 @@ void get_ex_control(int close_button_status, int grab_mouse_if_captured)
 					ex_control.sticky_ctrl = 0; // after being set to 1, sticky_ctrl stays as 1 until all keys are released. Used in e_editor.c.
 			}
 
+
 // check_mode_buttons_and_panel_drag();
 
 #ifdef DEBUG_MODE
@@ -578,17 +608,38 @@ static void read_character_input_event(void)
 
  ALLEGRO_EVENT char_input_event;
 
-// while(al_get_next_event(char_input_queue, &char_input_event))
+ while(al_get_next_event(char_input_queue, &char_input_event))
+	{
 
+	 if (char_input_event.type == ALLEGRO_EVENT_KEY_CHAR)
+		{
+			ex_control.unichar_input = char_input_event.keyboard.unichar;
+
+ 		if (char_input_event.keyboard.modifiers & ALLEGRO_KEYMOD_NUMLOCK)
+	 		ex_control.numlock = 1;
+		   else
+  	 		ex_control.numlock = 0;
+
+			return; // stop reading events once a character found (any further events will be dealt with next tick)
+		}
+
+	}
+
+/*
  if (al_get_next_event(char_input_queue, &char_input_event))
 	{
 	 if (char_input_event.type == ALLEGRO_EVENT_KEY_CHAR)
 		{
 			ex_control.unichar_input = char_input_event.keyboard.unichar;
-//			ex_control.unichar_input_received = inter.running_time;
+
+		if (char_input_event.keyboard.modifiers & ALLEGRO_KEYMOD_NUMLOCK)
+			ex_control.numlock = 1;
+		  else
+  			ex_control.numlock = 0;
+
 		}
 	}
-
+*/
 }
 
 

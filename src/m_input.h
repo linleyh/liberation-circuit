@@ -21,6 +21,7 @@ KEY_CODE_HOME,
 KEY_CODE_END,
 KEY_CODE_INSERT,
 KEY_CODE_PAD_0,
+#define KEY_PAD_START KEY_CODE_PAD_0
 KEY_CODE_PAD_1,
 KEY_CODE_PAD_2,
 KEY_CODE_PAD_3,
@@ -31,7 +32,8 @@ KEY_CODE_PAD_7,
 KEY_CODE_PAD_8,
 KEY_CODE_PAD_9,
 KEY_CODE_PAD_DELETE,
-KEY_CODE_PAD_ENTER,
+#define KEY_PAD_END KEY_CODE_PAD_DELETE
+KEY_CODE_PAD_ENTER, // doesn't count as a key_pad code because numlock doesn't affect it
 KEY_CODE_SHIFT_L,
 KEY_CODE_SHIFT_R,
 KEY_CODE_CTRL_L,
@@ -148,6 +150,7 @@ struct ex_control_struct // this struct holds information taken directly from in
  timestamp special_key_press_time [SPECIAL_KEYS];
  int keys_pressed;
  int sticky_ctrl; // is 1 if control was pressed and the keyboard hasn't been totally released since then (used by the editor to avoid e.g. ctrl-c capturing the c if ctrl is released a moment before the c key)
+ int numlock;
  int mouse_on_display;
  int mouse_cursor_type;
  int mouse_grabbed; // should be 1 if the capture_mouse setting is on and the mouse is grabbed.

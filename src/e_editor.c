@@ -167,8 +167,8 @@ static int compile_current_source_edit(int compile_mode);
 
 // This #define adds a keyboard shortcut (ctrl-R) for the "reload" function that
 //  reloads a file from disk.
-// It's disabled by default to avoid having a single shortcut that potentially overwrites work
-//#define RELOAD_KEYBOARD_SHORTCUT
+// It's an option because some players may prefer to avoid having a single shortcut that potentially overwrites work
+#define RELOAD_KEYBOARD_SHORTCUT
 
 
 struct submenustruct submenu [SUBMENUS] =
