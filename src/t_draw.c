@@ -175,7 +175,7 @@ void draw_template_panel(void)
     file_name_shade = SHADE_HIGH;
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [file_name_shade], button_x + 26, button_y + 34, ALLEGRO_ALIGN_RIGHT, "*");
 			}
-   snprintf(file_path_string, TEMPLATE_FILE_PATH_LENGTH, draw_templ->source_edit->src_file_path);
+   snprintf(file_path_string, TEMPLATE_FILE_PATH_LENGTH, "%s", draw_templ->source_edit->src_file_path);
    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [file_name_shade], button_x + 28, button_y + 34, ALLEGRO_ALIGN_LEFT, "%s", file_path_string);
 
 		 if (draw_templ->locked)

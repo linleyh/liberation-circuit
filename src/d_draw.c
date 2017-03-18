@@ -1904,7 +1904,7 @@ static void draw_design_help_strings_for_help_button(int base_x, int base_y)
  for (i = 0; i < DESIGN_HELP_STRINGS; i ++)
 	{
 
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, design_help_strings [i]);
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, "%s", design_help_strings[i]);
   line_y += 15;
 
 	}
@@ -1945,7 +1945,7 @@ static void draw_design_help_strings_for_help_more_button(int base_x, int base_y
  for (i = 0; i < DESIGN_HELP_MORE_STRINGS; i ++)
 	{
 
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, design_help_strings2 [i]);
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, "%s", design_help_strings2[i]);
   line_y += 15;
 
 	}
