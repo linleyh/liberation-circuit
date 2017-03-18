@@ -311,8 +311,8 @@ void update_editor_display(void)
   && editor.source_edit [editor.current_source_edit_index].active)
  {
  	if (!editor.source_edit [editor.current_source_edit_index].saved)
-   al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + 103, editor_panel_y + 3, ALLEGRO_ALIGN_RIGHT, "*");
-  al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + 105, editor_panel_y + 3, ALLEGRO_ALIGN_LEFT, "%s", editor.source_edit [editor.current_source_edit_index].src_file_path);
+   al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + scaleUI_x(FONT_SQUARE,103), editor_panel_y + 3, ALLEGRO_ALIGN_RIGHT, "*");
+  al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + scaleUI_x(FONT_SQUARE,105), editor_panel_y + 3, ALLEGRO_ALIGN_LEFT, "%s", editor.source_edit [editor.current_source_edit_index].src_file_path);
 //  al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + 105, editor_panel_y + 3, ALLEGRO_ALIGN_LEFT, "%s", editor.source_edit [editor.current_source_edit_index].src_file_path);
 		draw_scrollbar(SLIDER_EDITOR_SCROLLBAR_H);
 		draw_scrollbar(SLIDER_EDITOR_SCROLLBAR_V);
@@ -376,9 +376,8 @@ void update_editor_display(void)
      {
       x = editor_panel_x + EDIT_WINDOW_X + (((se->cursor_pos+1) - se->window_pos) * editor.text_width) - SOURCE_WINDOW_MARGIN;
       y = editor_panel_y + EDIT_WINDOW_Y + (se->cursor_line - se->window_line) * EDIT_LINE_H + EDIT_LINE_OFFSET;
-//      if (x >= 0 && y >= 0 && x <= editor.edit_window_w && y <= editor.edit_window_h)
-       al_draw_filled_rectangle(x - 1, y - 2, x + 1, y + EDIT_LINE_H - 4 + EDIT_LINE_OFFSET, edit_col [EDIT_COL_CURSOR]);
-//      fprintf(stdout, "\nCursor %f, %f", x, y);
+      al_draw_filled_rectangle(x - scaleUI_y(FONT_BASIC,2), y - 2, x + scaleUI_y(FONT_BASIC,1), y + EDIT_LINE_H - 4 + EDIT_LINE_OFFSET, edit_col [EDIT_COL_CURSOR]);
+//       al_draw_filled_rectangle(x - 1, y - 2, x + 1, y + EDIT_LINE_H - 4 + EDIT_LINE_OFFSET, edit_col [EDIT_COL_CURSOR]);
      }
      break; // end case SOURCE_EDIT_TYPE_SOURCE
     case 0: //SOURCE_EDIT_TYPE_BINARY:
@@ -653,7 +652,7 @@ void draw_source_line(struct source_edit_struct* se, int x, int y, int w_pixels,
 
 }
 
-#define SELECT_Y_ABOVE_LINE 5
+#define SELECT_Y_ABOVE_LINE 4
 // higher values for SELECT_Y_BELOW_LINE actually move the bottom of the selection rectangle upwards
 #define SELECT_Y_BELOW_LINE 3
 

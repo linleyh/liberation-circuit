@@ -133,8 +133,8 @@ char *story_unlock_name [UNLOCKS] =
 #define FIXED_STORY_BOX_X 20
 #define FIXED_STORY_BOX_Y 610
 
-#define STORY_BOX_W 390
-#define STORY_BOX_H 110
+#define STORY_BOX_W scaleUI_x(FONT_SQUARE,390)
+#define STORY_BOX_H scaleUI_y(FONT_SQUARE,110)
 
 #define GO_BUTTON_X (FIXED_STORY_BOX_X + STORY_BOX_W + 40)
 #define GO_BUTTON_Y FIXED_STORY_BOX_Y
@@ -960,7 +960,7 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
 
 	add_story_bquad(draw_x, draw_y, STORY_BOX_W, STORY_BOX_H, 7, 3, base_box_col);
 
-	add_story_bquad(draw_x + 4, draw_y + 4, STORY_BOX_W - 8, 22, 6, 2, base_box_col);
+	add_story_bquad(draw_x + 4, draw_y + 4, STORY_BOX_W - 8, scaleUI_y(FONT_SQUARE, 22), 6, 2, base_box_col);
 
 
  draw_vbuf();
@@ -975,8 +975,8 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
  int region_text_col;
  switch(story.region[region_index].area_index)
  {
-#define FUNCTION_X 72
-#define LINE_HEIGHT_MID 18
+#define FUNCTION_X scaleUI_x(FONT_SQUARE,72)
+#define LINE_HEIGHT_MID scaleUI_y(FONT_SQUARE,18)
  default:
  	case AREA_TUTORIAL:
  		region_text_col = COL_BLUE;
@@ -1011,11 +1011,11 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
    break;
  }
 
- line_y += LINE_HEIGHT_MID + 28;
+ line_y += LINE_HEIGHT_MID + scaleUI_y(FONT_SQUARE,28);
  if (story.region[region_index].defeated)
 	{
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], line_x, line_y, ALLEGRO_ALIGN_LEFT, "You have defeated this region.");
-  line_y += 28;
+  line_y += scaleUI_y(FONT_SQUARE,28);
   if (story.region[region_index].area_index != AREA_TUTORIAL && story.region[region_index].area_index != AREA_RED)
 		{
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Unlocked");
@@ -1025,7 +1025,7 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
    else
 			{
     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_LOW], line_x, line_y, ALLEGRO_ALIGN_LEFT, "You have not defeated this region.");
-    line_y += 28;
+    line_y += scaleUI_y(FONT_SQUARE,28);
     if (story.region[region_index].area_index != AREA_TUTORIAL && story.region[region_index].area_index != AREA_RED)
   		{
      al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], line_x, line_y, ALLEGRO_ALIGN_LEFT, "Unlock");

@@ -274,7 +274,7 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos);
 int read_initfile_number(int* read_number, char* buffer, int buffer_length, int bpos);
 int read_initfile_word(char* ifword, char* buffer, int buffer_length, int bpos);
 char check_initfile_char(char* buffer, int buffer_length, int bpos);
-void load_font(int f, const char* font_file_name, int height);
+void load_font(int f, const char* font_file_name, int height, float font_scale_x, float font_scale_y);
 void read_initfile(void);
 void init_inter(void);
 
@@ -435,6 +435,7 @@ fpr("\nInitialising:");
    settings.option [OPTION_VOL_EFFECT] = 80;
    settings.option [OPTION_SPECIAL_CURSOR] = 0;
    settings.option [OPTION_CAPTURE_MOUSE] = 0;
+   settings.option [OPTION_DOUBLE_FONTS] = 0;
 
    init_key_maps(); // must be before read_initfile() as keys may be remapped
 
@@ -524,6 +525,24 @@ if (settings.option [OPTION_WINDOW_W] == 1024 && settings.option [OPTION_WINDOW_
 	fpr(" (Warning: 1024x768 resolution is playable, but higher is recommended.)");
 }
 
+   al_init_font_addon(); // initialize the font addon
+
+   if (settings.option [OPTION_DOUBLE_FONTS])
+			{
+    load_font(FONT_BASIC, "data/images/fwss_font_L.bmp", 20, 1.9, 1.6);
+    load_font(FONT_SQUARE, "data/images/fwt_font_L.bmp", 20, 1.9, 1.6);
+			}
+			 else
+				{
+     load_font(FONT_BASIC, "data/images/fwss_font.bmp", 12, 1.0, 1.0);
+     load_font(FONT_SQUARE, "data/images/fwt_font.bmp", 16, 1.0, 1.0);
+				}
+
+
+   load_font(FONT_SQUARE_LARGE, "data/images/large_font.bmp", 20, 1.0, 1.0);
+
+fpr("\n fonts");
+
    init_inter();
 fpr("\n interface");
 
@@ -562,16 +581,6 @@ fpr("\n interface");
    al_register_event_source(event_queue, al_get_timer_event_source(timer));
    al_register_event_source(fps_queue, al_get_timer_event_source(timer_1_second));
 fpr("\n events");
-
-   al_init_font_addon(); // initialize the font addon
-
-   load_font(FONT_BASIC, "data/images/fwss_font.bmp", 12);
-//   load_font(FONT_BASIC_BOLD, "data/images/fwb_font.bmp", 12);
-   load_font(FONT_SQUARE, "data/images/fwt_font.bmp", 16);
-//   load_font(FONT_SQUARE_BOLD, "data/images/fwt_font.bmp", 16); // currently the same as FONT_SQUARE
-   load_font(FONT_SQUARE_LARGE, "data/images/large_font.bmp", 20);
-//   load_font(FONT_SQUARE_LARGE, "data/images/fwt_font.bmp", 16);
-fpr("\n fonts");
 
    init_trig();
 fpr("\n maths");
@@ -621,11 +630,10 @@ fpr("\n sound");
 
   al_convert_mask_to_alpha(title_bitmap, al_get_pixel(title_bitmap, 0, 0));
 
-
 }
 
 
-void load_font(int f, const char* font_file_name, int height)
+void load_font(int f, const char* font_file_name, int height, float font_scale_x, float font_scale_y)
 {
 
    ALLEGRO_BITMAP *font_bmp = al_load_bitmap(font_file_name);
@@ -636,7 +644,7 @@ void load_font(int f, const char* font_file_name, int height)
       safe_exit(-1);
    }
 
-   al_convert_mask_to_alpha(font_bmp, al_get_pixel(font_bmp, 1, 1));
+   al_convert_mask_to_alpha(font_bmp, al_get_pixel(font_bmp, 3, 3));
 
    int ranges[] = {0x0020, 0x007F};
    font[f].fnt = al_grab_font_from_bitmap(font_bmp, 1, ranges);
@@ -653,6 +661,8 @@ void load_font(int f, const char* font_file_name, int height)
    font[f].width = al_get_text_width(font[f].fnt, "a");
 
    font[f].height = height;
+   font[f].font_scale_x = font_scale_x;
+   font[f].font_scale_y = font_scale_y;
 
 
 }
@@ -838,6 +848,12 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
  if (strcmp(initfile_word, "special_cursor") == 0) // not currently implemented
  {
   settings.option [OPTION_SPECIAL_CURSOR] = 1;
+  return bpos;
+ }
+
+ if (strcmp(initfile_word, "double_fonts") == 0)
+ {
+  settings.option [OPTION_DOUBLE_FONTS] = 1;
   return bpos;
  }
 

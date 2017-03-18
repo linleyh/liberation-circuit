@@ -22,8 +22,8 @@ void scroll_completion_box_down(int amount);
 #define COMPLETION_LIST_LENGTH 128
 
 #define COMPLETION_BOX_MAX_LINES 12
-#define COMPLETION_BOX_W 180
-#define COMPLETION_BOX_LINE_H 11
+#define COMPLETION_BOX_W scaleUI_x(FONT_BASIC,180)
+#define COMPLETION_BOX_LINE_H scaleUI_y(FONT_BASIC,11)
 #define COMPLETION_BOX_LINE_Y_OFFSET 4
 // COMPLETION_BOX_LINE_Y_OFFSET is the number of pixels at the top of the completion box
 

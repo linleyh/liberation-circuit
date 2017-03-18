@@ -108,7 +108,7 @@ void draw_panels(void)
     al_clear_to_color(panel[i].background_colour);
     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], panel[i].x1 + 9, panel[i].y1 + 2, ALLEGRO_ALIGN_LEFT, "System");
 				display_standard_panel(PANEL_SYSMENU);
-				print_sysmenu_help(panel[i].x1 + 16, 150);
+				print_sysmenu_help(panel[i].x1 + scaleUI_x(FONT_BASIC,16), 150);
 				break;
 			case PANEL_DESIGN:
 		  al_clear_to_color(panel[i].background_colour);
@@ -201,7 +201,7 @@ void draw_panels(void)
 						 col = COL_BLUE;
 
 //   if (i != MODE_BUTTON_MIN_MAX)
-    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [col] [SHADE_MAX], mode_button_i_x1 + 10, inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [col] [SHADE_MAX], mode_button_i_x1 + scaleUI_x(FONT_SQUARE,10), inter.mode_buttons_y1 + scaleUI_y(FONT_SQUARE,5), ALLEGRO_ALIGN_CENTER, "%s", mode_button_text [i]);
 
 		}
 
@@ -292,7 +292,7 @@ void display_standard_panel(int pan)
 																							colours.base [COL_BLUE] [SHADE_MED + (panel[pan].element[el].last_highlight >= inter.running_time - 1)],
 																							12, 6);
 							add_menu_string(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 25,
-																							panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1 + 25,
+																							panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1 + 25 / font[FONT_BASIC].font_scale_y,
 																							&colours.base [COL_BLUE] [SHADE_MAX],
 																							ALLEGRO_ALIGN_LEFT,
 																							FONT_SQUARE,
@@ -443,10 +443,10 @@ static void print_sysmenu_line(const char* left_string, const char* right_string
 static void print_sysmenu_help(float base_x, float base_y)
 {
 
-#define SMH_LINE_HEIGHT 15
+#define SMH_LINE_HEIGHT scaleUI_y(FONT_BASIC,15)
 #define SMH_LINE_HEADER 4
 #define SMH_HEADER_X (base_x + 5)
-	smh_text_x = base_x + 69;
+	smh_text_x = base_x + scaleUI_x(FONT_BASIC,69);
 	smh_text_y = base_y;
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], SMH_HEADER_X - 10, smh_text_y, ALLEGRO_ALIGN_LEFT, "CONTROLS");
  smh_text_y += SMH_LINE_HEIGHT + SMH_LINE_HEADER;

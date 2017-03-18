@@ -1135,8 +1135,8 @@ int text_box_cursor_etc(int b, int key_pressed)
 
 }
 */
-#define CLOSEWINDOW_W 140
-#define CLOSEWINDOW_H 60
+#define CLOSEWINDOW_W scaleUI_x(FONT_SQUARE,140)
+#define CLOSEWINDOW_H scaleUI_y(FONT_SQUARE,60)
 
 // Displays a close window box and blocks everything else until the user either exits the game or continues
 static void close_window_box(void)
@@ -1172,10 +1172,10 @@ static void close_window_box(void)
 //  al_draw_filled_rectangle(x - CLOSEWINDOW_W, y - CLOSEWINDOW_H, x + CLOSEWINDOW_W, y + CLOSEWINDOW_H, colours.base [COL_RED] [SHADE_LOW]);
 //  al_draw_rectangle(x - CLOSEWINDOW_W, y - CLOSEWINDOW_H, x + CLOSEWINDOW_W, y + CLOSEWINDOW_H, colours.base [COL_RED] [SHADE_MED], 1);
 
-  xa = x - CLOSEWINDOW_W + 20;
-  ya = y + 10;
-  xb = x - CLOSEWINDOW_W + 90;
-  yb = y + 30;
+  xa = x - CLOSEWINDOW_W + scaleUI_x(FONT_SQUARE,20);
+  ya = y + scaleUI_y(FONT_SQUARE,10);
+  xb = x - CLOSEWINDOW_W + scaleUI_x(FONT_SQUARE,90);
+  yb = y + scaleUI_y(FONT_SQUARE,30);
 
  add_menu_button(x - CLOSEWINDOW_W, y - CLOSEWINDOW_H, x + CLOSEWINDOW_W, y + CLOSEWINDOW_H, colours.base_trans [COL_RED] [SHADE_LOW] [TRANS_MED], 5, 3);
 
@@ -1188,7 +1188,7 @@ static void close_window_box(void)
 
 //   al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_HIGH]);
    add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_HIGH] [TRANS_FAINT], 5, 3);
-   add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "E[x]it");
+   add_menu_string(xa + scaleUI_x(FONT_SQUARE,35), ya + scaleUI_y(FONT_SQUARE,6), &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "E[x]it");
 //   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Exit");
    if (just_pressed)
     safe_exit(0);
@@ -1197,14 +1197,14 @@ static void close_window_box(void)
    {
     add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_MED] [TRANS_FAINT], 5, 3);
 //    al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_MED]);
-    add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "E[x]it");
+    add_menu_string(xa + scaleUI_x(FONT_SQUARE,35), ya + scaleUI_y(FONT_SQUARE,6), &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "E[x]it");
 //    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Exit");
    }
 
-  xa = x + CLOSEWINDOW_W - 90;
-  ya = y + 10;
-  xb = x + CLOSEWINDOW_W - 20;
-  yb = y + 30;
+  xa = x + CLOSEWINDOW_W - scaleUI_x(FONT_SQUARE,90);
+  ya = y + scaleUI_y(FONT_SQUARE,10);
+  xb = x + CLOSEWINDOW_W - scaleUI_x(FONT_SQUARE,20);
+  yb = y + scaleUI_y(FONT_SQUARE,30);
 
   if (mouse_x > xa
    && mouse_x < xb
@@ -1213,7 +1213,7 @@ static void close_window_box(void)
   {
 //   al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_HIGH]);
    add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_HIGH] [TRANS_FAINT], 5, 3);
-   add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "[C]ancel");
+   add_menu_string(xa + scaleUI_x(FONT_SQUARE,35), ya + scaleUI_y(FONT_SQUARE,6), &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "[C]ancel");
 //   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Cancel");
    if (just_pressed)
     break;
@@ -1222,15 +1222,15 @@ static void close_window_box(void)
    {
 //    al_draw_filled_rectangle(xa, ya, xb, yb, colours.base [COL_RED] [SHADE_MED]);
     add_menu_button(xa, ya, xb, yb, colours.base_trans [COL_RED] [SHADE_MED] [TRANS_FAINT], 5, 3);
-    add_menu_string(xa + 35, ya + 6, &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "[C]ancel");
+    add_menu_string(xa + scaleUI_x(FONT_SQUARE,35), ya + scaleUI_y(FONT_SQUARE,6), &colours.base [COL_GREY] [SHADE_MAX], ALLEGRO_ALIGN_CENTRE, FONT_SQUARE, "[C]ancel");
 //    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], xa + 35, ya + 6, ALLEGRO_ALIGN_CENTRE, "Cancel");
    }
 
   draw_menu_buttons();
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 40, ALLEGRO_ALIGN_CENTRE, "Exit Liberation Circuit?");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - scaleUI_y(FONT_SQUARE,40), ALLEGRO_ALIGN_CENTRE, "Exit Liberation Circuit?");
 //  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 40, ALLEGRO_ALIGN_CENTRE, "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG");
 //  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 65, ALLEGRO_ALIGN_CENTRE, "the quick brown fox jumps over the lazy dog");
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - 25, ALLEGRO_ALIGN_CENTRE, "(any unsaved changes will be lost)");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], x, y - scaleUI_y(FONT_SQUARE,25), ALLEGRO_ALIGN_CENTRE, "(any unsaved changes will be lost)");
 
   if (ex_control.unichar_input == 99 // c
 			|| ex_control.unichar_input == 67) // C

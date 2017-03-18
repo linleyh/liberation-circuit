@@ -46,6 +46,7 @@
 extern struct nshape_struct nshape [NSHAPES];
 extern struct dshape_struct dshape [NSHAPES]; // uses same indices as NSHAPES
 extern struct object_type_struct otype [OBJECT_TYPES];
+extern struct fontstruct font [FONTS];
 
 extern struct object_type_struct otype [OBJECT_TYPES];
 

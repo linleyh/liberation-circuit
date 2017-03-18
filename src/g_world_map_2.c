@@ -2020,7 +2020,7 @@ void draw_map_vision_pixels(void)
 
   int i, j;
 
-  float map_proportion_x = al_fixtof(al_fixdiv(al_itofix(MAP_DISPLAY_SIZE), map_init.map_size_blocks * BLOCK_SIZE_FIXED));
+  float map_proportion_x = al_fixtof(al_fixdiv(al_itofix(view.map_w), map_init.map_size_blocks * BLOCK_SIZE_FIXED));
 
 
  for (i = 0; i < MAXIMUM_BLOCK_SIZE; i ++)

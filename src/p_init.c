@@ -176,8 +176,9 @@ void init_panels(void)
 
 	}
 
-	panel[PANEL_TEMPLATE].w = 340;
-	panel[PANEL_DESIGN].w = 540;
+	panel[PANEL_EDITOR].w = scaleUI_x(FONT_BASIC,400);
+	panel[PANEL_TEMPLATE].w = scaleUI_x(FONT_SQUARE,340);
+	panel[PANEL_DESIGN].w = scaleUI_x(FONT_SQUARE,540);
 
 	panel[0].open = 1;
 	panel[0].w = inter.display_w;
@@ -465,9 +466,11 @@ void setup_design_panel(void)
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].panel = PANEL_DESIGN;
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].type = SP_TYPE_WHOLE;
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1 = PANEL_RESIZE_W;
-	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y1 = 30;
+	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y1 = scaleUI_y(FONT_SQUARE,30);
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w = 250;
-	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h = 400;
+//#define DESIGN_WINDOW_HEIGHT_ADJUST 400
+//	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h = settings.option [OPTION_WINDOW_H] - 400;//scaleUI_y(FONT_BASIC, DESIGN_WINDOW_HEIGHT_ADJUST);//settings.option [OPTION_WINDOW_H] - DESIGN_WINDOW_HEIGHT_ADJUST; // scaleUI_y(FONT_BASIC, 400); // not sure about this...
+	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h = settings.option [OPTION_WINDOW_H] - panel[PANEL_LOG].h - scaleUI_y(FONT_BASIC,290);
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w;
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h;
 //	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w;
@@ -488,7 +491,7 @@ void setup_design_panel(void)
 	panel[PANEL_DESIGN].element[FPE_DESIGN_WINDOW].offset_y = 0;//STANDARD_PANEL_TOP;
 	panel[PANEL_DESIGN].element[FPE_DESIGN_WINDOW].fit = ELEMENT_FIT_FILL_WITH_SCROLLBARS;
  panel[PANEL_DESIGN].element[FPE_DESIGN_WINDOW].w = 400;
- panel[PANEL_DESIGN].element[FPE_DESIGN_WINDOW].h = 400;
+ panel[PANEL_DESIGN].element[FPE_DESIGN_WINDOW].h = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h; // settings.option [OPTION_WINDOW_H] - DESIGN_WINDOW_HEIGHT_ADJUST;
 
  attach_scrollbar_to_element(PANEL_DESIGN,
 																													FSP_DESIGN_WINDOW,
@@ -530,24 +533,24 @@ void setup_design_panel(void)
  panel[PANEL_DESIGN].element[FPE_DESIGN_DATA].w = 400;
  panel[PANEL_DESIGN].element[FPE_DESIGN_DATA].h = 20;
 
-#define DESIGN_TOOLS_WINDOW_W 100
-#define DESIGN_TOOLS_WINDOW_H 200
+#define DESIGN_TOOLS_WINDOW_W scaleUI_x(FONT_BASIC, 100)
+#define DESIGN_TOOLS_WINDOW_H scaleUI_x(FONT_BASIC, 200)
 
-#define DESIGN_SUBTOOLS_WINDOW_W 800
+#define DESIGN_SUBTOOLS_WINDOW_W scaleUI_x(FONT_BASIC, 800)
 
 
  init_basic_subpanel(PANEL_DESIGN, // pan
 																					FSP_DESIGN_TOOLS_EMPTY, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
  init_basic_subpanel(PANEL_DESIGN, // pan
 																					FSP_DESIGN_TOOLS_MAIN, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
  init_basic_subpanel(PANEL_DESIGN, // pan
@@ -562,21 +565,21 @@ void setup_design_panel(void)
 																					FSP_DESIGN_TOOLS_MEMBER, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
  init_basic_subpanel(PANEL_DESIGN, // pan
 																					FSP_DESIGN_TOOLS_DELETE, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
  init_basic_subpanel(PANEL_DESIGN, // pan
 																					FSP_DESIGN_TOOLS_AUTOCODE, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
 /* init_basic_subpanel(PANEL_DESIGN, // pan
@@ -593,7 +596,7 @@ void setup_design_panel(void)
 																					FSP_DESIGN_TOOLS_CORE, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
 // starts closed:
@@ -605,21 +608,21 @@ void setup_design_panel(void)
 																					FSP_DESIGN_TOOLS_EMPTY_LINK, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
  init_basic_subpanel(PANEL_DESIGN, // pan
 																					FSP_DESIGN_TOOLS_ACTIVE_LINK, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
  init_basic_subpanel(PANEL_DESIGN, // pan
 																					FSP_DESIGN_TOOLS_AUTOCODE, // subpan
 																					SP_TYPE_WINDOW, // subpanel type
 																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1, // x1
-																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 30, // int y1
+																					panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + scaleUI_y(FONT_SQUARE, 30), // int y1
 																					DESIGN_TOOLS_WINDOW_W, // int width
 																					DESIGN_TOOLS_WINDOW_H); // int h
 /* init_basic_subpanel(PANEL_DESIGN, // pan
@@ -646,8 +649,8 @@ void setup_design_panel(void)
 #define DESIGN_BUTTON_Y 1
  y = DESIGN_BUTTON_Y;
  int dbut = 0;
-#define DESIGN_BUTTON_W 90
-#define DESIGN_BUTTON_H 20
+#define DESIGN_BUTTON_W scaleUI_x(FONT_BASIC,90)
+#define DESIGN_BUTTON_H scaleUI_y(FONT_BASIC,20)
 #define DESIGN_BUTTON_Y_GAP 0
  init_element_button(PANEL_DESIGN, FSP_DESIGN_TOOLS_EMPTY,
 																					FPE_DESIGN_TOOLS_EMPTY_NEW, BUTTON_STYLE_DESIGN,
@@ -844,8 +847,8 @@ void setup_design_panel(void)
 // Now the sub-buttons:
  int i;
  int sub_but;
-#define DESIGN_SUB_BUTTON_W 120
-#define DESIGN_SUB_BUTTON_H 20
+#define DESIGN_SUB_BUTTON_W scaleUI_x(FONT_BASIC,120)
+#define DESIGN_SUB_BUTTON_H scaleUI_y(FONT_BASIC,20)
 #define DESIGN_SUB_BUTTON_Y_GAP 0
 // gap not currently used
 
@@ -858,7 +861,7 @@ void setup_design_panel(void)
 		}
 		 else
 			{
-    x = 145;
+    x = 5 + scaleUI_x(FONT_BASIC, 140);
     y = DESIGN_BUTTON_Y + (i-8) * (DESIGN_SUB_BUTTON_H + DESIGN_SUB_BUTTON_Y_GAP);
 			}
   sub_but = FPE_DESIGN_SUB_BUTTON_0 + i;
@@ -940,9 +943,9 @@ Clear
 */
 
 #define TEMPL_PANEL_TAB_X 1
-#define TEMPL_PANEL_TAB_Y 15
-#define TEMPL_PANEL_TAB_W 70
-#define TEMPL_PANEL_TAB_H 15
+#define TEMPL_PANEL_TAB_Y scaleUI_y(FONT_SQUARE,15)
+#define TEMPL_PANEL_TAB_W scaleUI_x(FONT_SQUARE,70)
+#define TEMPL_PANEL_TAB_H scaleUI_y(FONT_SQUARE,15)
 
  init_basic_subpanel(PANEL_TEMPLATE, // pan
 																					FSP_TEMPLATES_TABS, // subpan
@@ -968,9 +971,9 @@ Clear
 																					 button_name [BUTTON_NAME_TAB_P0 + i]);
 	}
 
-#define TEMPL_PANEL_FILE_Y 35
-#define TEMPL_PANEL_FILE_H 15
-#define TEMPL_PANEL_FILE_W 144
+#define TEMPL_PANEL_FILE_Y scaleUI_y(FONT_SQUARE,35)
+#define TEMPL_PANEL_FILE_H scaleUI_y(FONT_SQUARE,17)
+#define TEMPL_PANEL_FILE_W scaleUI_x(FONT_SQUARE,144)
 
  init_basic_subpanel(PANEL_TEMPLATE, // pan
 																					FSP_TEMPLATES_FILE, // subpan
@@ -1003,9 +1006,10 @@ Clear
 																					panel[PANEL_TEMPLATE].w, // int width
 																					panel[PANEL_TEMPLATE].h - (TEMPL_PANEL_TAB_Y + TEMPL_PANEL_TAB_H + TEMPL_PANEL_FILE_H)); // int h
 
-#define TEMPL_PANEL_TEMPL_W 320
+//#define TEMPL_PANEL_TEMPL_W scaleUI_x(FONT_SQUARE,280)
+#define TEMPL_PANEL_TEMPL_W scaleUI_x(FONT_SQUARE,320)
 //#define TEMPL_PANEL_TEMPL_H 70
-#define TEMPL_PANEL_TEMPL_H 50
+#define TEMPL_PANEL_TEMPL_H scaleUI_y(FONT_SQUARE,40)
 
  for (i = 0; i < TEMPLATES_PER_PLAYER; i ++)
 	{
@@ -1029,11 +1033,6 @@ Clear
 
 }
 
-
-#define EDIT_WINDOW_X 25
-#define EDIT_WINDOW_Y 50
-#define EDIT_LINE_H 12
-#define EDIT_LINE_OFFSET 2
 
 
 void setup_editor_panel(void)
@@ -1066,217 +1065,6 @@ void setup_editor_panel(void)
 
 return;
 
-/*
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].exists = 1;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].open = 1;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].panel = PANEL_EDITOR;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].type = SP_TYPE_WHOLE;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].x1 = PANEL_RESIZE_W;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].y1 = EDIT_WINDOW_Y;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].w = 250;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].h = 400;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].x2 = panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].x1 + panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].w;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].y2 = panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].y1 + panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].h;
-//	panel[PANEL_LOG].subpanel[subpan].first_element = FPE_LOG_WINDOW; // no elements
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].clip = 1;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].highlight = 0;
-	panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].last_highlight = 0;
-
-
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].exists = 1;
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].open = 1;
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].panel = PANEL_EDITOR;
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].subpanel = FSP_EDITOR_WINDOW;
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].type = PE_TYPE_EDITOR_WINDOW;
-	panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].location = ELEMENT_LOCATION_LEFT_TOP;
-	panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].offset_x = 0;
-	panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].offset_y = 0;//STANDARD_PANEL_TOP;
-	panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].fit = ELEMENT_FIT_FILL_WITH_SCROLLBARS;
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].w = 400;
- panel[PANEL_EDITOR].element[FPE_EDITOR_WINDOW].h = 400;
-
- attach_scrollbar_to_element(PANEL_EDITOR,
-																													FSP_EDITOR_WINDOW,
-																													FPE_EDITOR_WINDOW,
-																													FPE_EDITOR_WINDOW_SCROLLBAR_V,
-																													SLIDEDIR_VERTICAL,
-																													editor.edit_window_h,
-																													panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].h,
-																													SLIDER_EDITOR_SCROLLBAR_V,
-																													NULL); // NULL is set to correct source_edit[].window_x_pos when code opened in editor
-
- attach_scrollbar_to_element(PANEL_EDITOR,
-																													FSP_EDITOR_WINDOW,
-																													FPE_EDITOR_WINDOW,
-																													FPE_EDITOR_WINDOW_SCROLLBAR_H,
-																													SLIDEDIR_HORIZONTAL,
-																													editor.edit_window_w,
-																													panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].w,
-																													SLIDER_DESIGN_SCROLLBAR_H,
-																													NULL); // need to set to &source_edit[0].window_x_pos or whatever
-
-
- init_basic_subpanel(PANEL_EDITOR, // pan
-																					FSP_EDITOR_TABS, // subpan
-																					SP_TYPE_EDITOR_TABS, // subpanel type
-																					panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].x1, // x1
-																					panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].y1 - 30, // int y1
-																					panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].w, // int width
-																					15); // int h
-
-	for (i = 0; i < ESOURCES; i ++)
-	{
-
-	 init_element_button(PANEL_EDITOR,
-																					 FSP_EDITOR_TABS,
-																					 FPE_EDITOR_TAB_0 + i,
-																					 BUTTON_STYLE_TAB,
-																					 10 + (SOURCE_TAB_W * i),
-																					 1,
-																					 SOURCE_TAB_W,
-																					 SOURCE_TAB_H,
-																					 button_name [BUTTON_NAME_UNKNOWN]);
-	}
-
-#define SUBMENU_BAR_W 65
-#define SUBMENU_BAR_H 15
-
-#define SUBMENU_W 100
-#define SUBMENU_H 200
-#define SUBMENU_LINE_H 15
-
- init_basic_subpanel(PANEL_EDITOR, // pan
-																					FSP_EDITOR_SUBMENUS, // subpan
-																					SP_TYPE_EDITOR_SUBMENU, // subpanel type
-																					panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].x1, // x1
-																					panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].y1 - 15, // int y1
-																					panel[PANEL_EDITOR].subpanel[FSP_EDITOR_WINDOW].w, // int width
-																					SUBMENU_BAR_H); // int h
-
-	for (i = 0; i < 4; i ++)
-	{
-	 init_element_button(PANEL_EDITOR,
-																					 FSP_EDITOR_SUBMENUS,
-																					 FPE_EDITOR_SMB_FILE + i,
-																					 BUTTON_STYLE_SUBMENU,
-																					 10 + (SUBMENU_BAR_W * i),
-																					 1,
-																					 SUBMENU_BAR_W,
-																					 SUBMENU_BAR_H,
-																					 button_name [BUTTON_NAME_FILE + i]);
-  init_basic_subpanel(PANEL_EDITOR, // pan
-																				 	FSP_EDITOR_SUBMENU_FILE + i, // subpan
-																				 	SP_TYPE_EDITOR_SUBMENU, // subpanel type
-																			  		10 + (SUBMENU_BAR_W * i), // x1
-																			 		35, // int y1
-																		 			SUBMENU_W, // int width
-																		 			SUBMENU_H); // int h
-  panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_FILE + i].open = 0;
-	}
-
- int bname = BUTTON_NAME_OPEN;
- int x = 2;//x = panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_FILE].x1 + 2;
- int y = 0;//y = panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_FILE].y1;
-
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_FILE,
-																					FPE_EDITOR_FILE_NEW,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_FILE,
-																					FPE_EDITOR_FILE_OPEN,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_FILE,
-																					FPE_EDITOR_FILE_SAVE,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_FILE,
-																					FPE_EDITOR_FILE_SAVE_AS,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_FILE,
-																					FPE_EDITOR_FILE_CLOSE,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
-
- x = 2;//panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_EDIT].x1 + 2;
- y = 0;//panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_EDIT].y1;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_EDIT,
-																					FPE_EDITOR_EDIT_UNDO,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_EDIT,
-																					FPE_EDITOR_EDIT_REDO,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_EDIT,
-																					FPE_EDITOR_EDIT_CUT,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_EDIT,
-																					FPE_EDITOR_EDIT_COPY,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_EDIT,
-																					FPE_EDITOR_EDIT_PASTE,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_EDIT,
-																					FPE_EDITOR_EDIT_CLEAR,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
-
- x = 2;//panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_SEARCH].x1 + 2;
- y = 0;//panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_SEARCH].y1;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_SEARCH,
-																					FPE_EDITOR_SEARCH_FIND,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- y += SUBMENU_LINE_H;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_SEARCH,
-																					FPE_EDITOR_SEARCH_NEXT,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
- x = 2;//panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_SEARCH].x1 + 2;
- y = 0;//panel[PANEL_EDITOR].subpanel[FSP_EDITOR_SUBMENU_SEARCH].y1;
- init_element_button(PANEL_EDITOR, FSP_EDITOR_SUBMENU_BUILD,
-																					FPE_EDITOR_BUILD_TEST,
-																					BUTTON_STYLE_SUBMENU_LINE,
-																					x, y, SUBMENU_W, SUBMENU_LINE_H,
-																					button_name [bname++]);
-// y += SUBMENU_LINE_H;
-
-
-
- set_subpanel_positions(PANEL_EDITOR);
-
-//	slider_moved_to_value(&slider[SLIDER_DESIGN_SCROLLBAR_V], panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h / 2);
-//	slider_moved_to_value(&slider[SLIDER_DESIGN_SCROLLBAR_H], panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w / 2);
-
-// init_editor_window();
-*/
 }
 
 
@@ -1463,7 +1251,7 @@ void set_subpanel_positions(int pan)
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x2 - PANEL_RESIZE_W;
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_PANEL_RESIZE].y2 = panel[PANEL_DESIGN].h;
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_DATA].y1 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 + 5;
-	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_DATA].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_DATA].y1 + 20;
+	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_DATA].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_DATA].y1 + scaleUI_y(FONT_SQUARE, 20);
 // Empty
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_EMPTY].y1 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_DATA].y2 + 5;
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_EMPTY].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y1 + DESIGN_TOOLS_WINDOW_H;
@@ -1472,6 +1260,9 @@ void set_subpanel_positions(int pan)
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y1 + DESIGN_TOOLS_WINDOW_H;
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_SUBTOOLS].y1 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y1;
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_SUBTOOLS].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y2;
+// core toold
+	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_CORE].y1 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y1;
+	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_CORE].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y2;
 // member tools
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MEMBER].y1 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y1;
 	 panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MEMBER].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y2;

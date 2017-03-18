@@ -40,7 +40,6 @@ extern struct view_struct view;
 struct consolestruct console [CONSOLES];
 
 
-struct proc_boxstruct proc_box;
 
 void console_newline(int console_index, int print_colour);
 
@@ -62,7 +61,12 @@ void init_consoles(void)
  console[CONSOLE_GENERAL].h_lines = 6;
  console[CONSOLE_GENERAL].h_pixels = console[CONSOLE_GENERAL].h_lines * CONSOLE_LINE_HEIGHT;
  console[CONSOLE_GENERAL].w_letters = 66;
- console[CONSOLE_GENERAL].w_pixels = console[CONSOLE_GENERAL].w_letters * 7 + 32; // +25 is to leave space for the source index on the left
+ console[CONSOLE_GENERAL].w_pixels = scaleUI_x(FONT_SQUARE, (console[CONSOLE_GENERAL].w_letters * 7 + 32)); // +25 is to leave space for the source index on the left
+/* fpr("\n base %i scaled %i factor %f test %f",
+					console[CONSOLE_GENERAL].w_letters * 7 + 32,
+					console[CONSOLE_GENERAL].w_pixels,
+					font[FONT_SQUARE].font_scale_x,
+					scaleUI_x(FONT_SQUARE,100));*/
  console[CONSOLE_GENERAL].x = 40;
  console[CONSOLE_GENERAL].y = settings.option [OPTION_WINDOW_H] - console[CONSOLE_GENERAL].h_pixels - 40;
 
@@ -70,7 +74,7 @@ void init_consoles(void)
  console[CONSOLE_SYSTEM].h_lines = 8;
  console[CONSOLE_SYSTEM].h_pixels = console[CONSOLE_SYSTEM].h_lines * CONSOLE_LINE_HEIGHT;
  console[CONSOLE_SYSTEM].w_letters = SYSTEM_CONSOLE_WIDTH_LETTERS;
- console[CONSOLE_SYSTEM].w_pixels = console[CONSOLE_SYSTEM].w_letters * 7 + 32; // ???
+ console[CONSOLE_SYSTEM].w_pixels = scaleUI_x(FONT_SQUARE, (console[CONSOLE_SYSTEM].w_letters * 7 + 32)); // ???
  console[CONSOLE_SYSTEM].x = 40;
  console[CONSOLE_SYSTEM].y = 40;
 

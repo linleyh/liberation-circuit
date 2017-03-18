@@ -18,7 +18,7 @@
 
 
 extern ALLEGRO_DISPLAY *display;
-
+extern struct fontstruct font [FONTS];
 
 const int base_col_value [BASIC_COLS] [6] =
 {

@@ -8,23 +8,23 @@
 #define CLINES 48
 
 //#define LINE_HEIGHT 15
-#define CONSOLE_LINE_HEIGHT 18
+#define CONSOLE_LINE_HEIGHT scaleUI_y(FONT_SQUARE,18)
 
 
 
 
 
-#define PBOX_HEADER_HEIGHT 15
-#define PBOX_W 320
-#define PBOX_LINE 12
-
+#define PBOX_HEADER_HEIGHT scaleUI_y(FONT_SQUARE,15)
+#define PBOX_W scaleUI_x(FONT_SQUARE,320)
+#define PBOX_LINE scaleUI_y(FONT_SQUARE,12)
+/*
 struct proc_boxstruct
 {
  int x1, y1, x2, y2;
  int button_highlight;
  int maximised;
  int button_x1, button_y1, button_x2, button_y2;
-};
+};*/
 
 
 struct consolelinestruct

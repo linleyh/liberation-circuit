@@ -1,4 +1,6 @@
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+
 
 #include <stdio.h>
 
@@ -19,6 +21,7 @@
 #include "m_input.h"
 #include "i_console.h"
 #include "i_background.h"
+#include "i_header.h"
 
 #include "x_sound.h"
 
@@ -35,7 +38,7 @@ extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 extern struct game_struct game;
 extern struct notional_proc_struct notional_member [GROUP_MAX_MEMBERS]; // in g_proc_new.c
 extern struct consolestruct console [CONSOLES];
-
+extern struct fontstruct font [FONTS];
 
 struct command_struct command;
 

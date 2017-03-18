@@ -46,12 +46,12 @@ UNDO_TYPE_DELETE_ENTER
 };
 
 // EBAR_HEIGHT is the height of menu/tab bars in pixels
-#define EBAR_HEIGHT 12
+#define EBAR_HEIGHT scaleUI_y(FONT_BASIC,12)
 // EMENUS_Y is the y location of the menu bar (file etc); _X is the base x location. WIDTH is the width of each menu name
-#define EMENU_BAR_Y 15
+#define EMENU_BAR_Y scaleUI_y(FONT_SQUARE,15)
 #define EMENU_BAR_X 5
-#define EMENU_BAR_NAME_WIDTH 45
-#define EMENU_BAR_H 15
+#define EMENU_BAR_NAME_WIDTH scaleUI_x(FONT_BASIC,45)
+#define EMENU_BAR_H scaleUI_y(FONT_BASIC,15)
 
 enum
 {
@@ -68,13 +68,14 @@ SUBMENUS
 #define SUBMENU_NAME_LENGTH 20
 #define SUBMENU_SHORTCUT_LENGTH 12
 
-#define SUBMENU_WIDTH 150
-#define SUBMENU_LINE_HEIGHT 15
+#define SUBMENU_WIDTH scaleUI_x(FONT_BASIC,150)
+#define SUBMENU_LINE_HEIGHT scaleUI_y(FONT_BASIC, 15)
 
+/*
 #define SOURCE_TAB_X 5
 #define SOURCE_TAB_Y (EMENU_BAR_Y+EMENU_BAR_H)
 #define SOURCE_TAB_W 75
-#define SOURCE_TAB_H 15
+#define SOURCE_TAB_H 15*/
 
 struct submenu_linestruct
 {
@@ -291,17 +292,17 @@ SCHAR_ERROR
 
 };
 
-#define EDIT_WINDOW_X 25
-#define EDIT_WINDOW_Y 50
-#define EDIT_LINE_H 12
+#define EDIT_WINDOW_X scaleUI_x(FONT_BASIC,25)
+#define EDIT_WINDOW_Y scaleUI_y(FONT_BASIC,50)
+#define EDIT_LINE_H font[FONT_BASIC].height
 #define EDIT_LINE_OFFSET 2
-#define LOG_WINDOW_H 120
+#define LOG_WINDOW_H scaleUI_y(FONT_BASIC,120)
 
 #define LOG_LINE_LENGTH 80
 #define LOG_LINES 40
 
-#define LOG_LINE_HEIGHT 15
-#define LOG_LETTER_WIDTH 6
+#define LOG_LINE_HEIGHT (font[FONT_BASIC].height + 3)
+#define LOG_LETTER_WIDTH font[FONT_BASIC].width
 
 struct loglinestruct
 {
@@ -333,7 +334,7 @@ struct log_struct
 
 };
 
-#define SOURCE_WINDOW_MARGIN 3
+#define SOURCE_WINDOW_MARGIN scaleUI_y(FONT_BASIC, 3)
 
 // types of output when the various commands in the build submenu are used:
 enum

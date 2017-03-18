@@ -197,14 +197,14 @@ void reset_mode_buttons(void)
 		|| panel[PANEL_TEMPLATE].open
 		|| game.phase == GAME_PHASE_MENU)
 	{
-		inter.mode_buttons_x1 = inter.display_w - 21;
+		inter.mode_buttons_x1 = inter.display_w - scaleUI_x(FONT_SQUARE,21);
 		inter.mode_buttons_y1 = MODE_BUTTON_Y;
 	}
 	 else
 		{
 //			inter.mode_buttons_x1 = inter.display_w - 166;
-			inter.mode_buttons_x1 = inter.display_w - 156;
-			inter.mode_buttons_y1 = 88;
+			inter.mode_buttons_x1 = inter.display_w - scaleUI_x(FONT_SQUARE,156);
+			inter.mode_buttons_y1 = scaleUI_y(FONT_SQUARE,70) + 15;
 		}
 
 /*
@@ -276,7 +276,7 @@ void run_panels(void)
 	}
 
 #define PANEL_MINIMUM_W 400
-#define PANEL_MAXIMUM_W 800
+#define PANEL_MAXIMUM_W scaleUI_x(FONT_BASIC, 900)
 
  if (control.mouse_drag == MOUSE_DRAG_PANEL_RESIZE)
 	{

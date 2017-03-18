@@ -19,6 +19,10 @@
 #      If you are using multiple monitors, it may be useful to set 
 #      capture_mouse as well (see below).
 #
+#  double_fonts
+#      Uses double-sized fonts.
+#      For screens with very high resolution only! (with anything less
+#      than about 1920x1080 parts of the interface will be hard to use)
 #
 # Example:
 #
@@ -27,6 +31,7 @@
 # vol_music 50
 # vol_effect 80
 # fullscreen
+# double_fonts
 
 
 # display_w 1600
@@ -34,7 +39,6 @@
 fullscreen
 vol_music 60
 vol_effect 80
-
 
 
 # Some more special options are:

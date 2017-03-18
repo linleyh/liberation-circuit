@@ -2518,7 +2518,7 @@ width = 6;
   			w.core[pr->core_index].bubble_list = bubble_list_index;
 					bubble_list_index = pr->core_index;
 		 		w.core[pr->core_index].bubble_x = x;
-				 w.core[pr->core_index].bubble_y = y - 120 * view.zoom;
+				 w.core[pr->core_index].bubble_y = y - 120 * view.zoom;//;// - scaleUI_y(FONT_SQUARE,120) * view.zoom;
 			}
 			if (w.core[pr->core_index].selected != -1)
 			{
@@ -4853,7 +4853,7 @@ break;
   		 	w.core[cl->data [0]].bubble_list = bubble_list_index;
 				 	bubble_list_index = cl->data [0];
 		 	 	w.core[cl->data [0]].bubble_x = x;
-				  w.core[cl->data [0]].bubble_y = y - 120 * view.zoom;
+				  w.core[cl->data [0]].bubble_y = y - 120 * view.zoom;//scaleUI_y(FONT_SQUARE,120) * view.zoom;
 			 }
 			 break;
 
@@ -6267,15 +6267,21 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 		}
 //#endif
 
+int scaled_box_w = scaleUI_x(FONT_SQUARE,250);
+int scaled_box_line_h = scaleUI_y(FONT_SQUARE,15);
+int scaled_box_header_h = scaleUI_y(FONT_SQUARE,25);
 
-#define BOX_W 250
-#define BOX_LINE_H 15
-#define BOX_HEADER_H 25
+#define BOX_W scaled_box_w
+#define BOX_LINE_H scaled_box_line_h
+#define BOX_HEADER_H scaled_box_header_h
+
+int scaled_power_box_w = scaleUI_x(FONT_SQUARE,200);
+int scaled_power_box_h = scaleUI_y(FONT_SQUARE,80);
 
 // stress/power graph
-#define POWER_BOX_W 200
+#define POWER_BOX_W scaled_power_box_w
 //#define STRESS_BOX_H 60
-#define POWER_BOX_H 80
+#define POWER_BOX_H scaled_power_box_h
 
 
 	float box_x = view.window_x_unzoomed - BOX_W - 10;
@@ -6328,7 +6334,10 @@ if (inter.block_mode_button_area_scrolling)
 #endif
 	{
 
-		box_y = box_y + box_h + 28;
+		box_y = box_y + box_h + 3;//scaleUI_y(FONT_SQUARE,28);
+
+		if (box_y < inter.mode_buttons_y1 + MODE_BUTTON_SIZE + 3)
+			box_y = inter.mode_buttons_y1 + MODE_BUTTON_SIZE + 3;
 
 		process_box_y = box_y; // this may be used later if the component box needs to be moved out of the way of the map
 
@@ -6617,7 +6626,9 @@ if (inter.block_mode_button_area_scrolling)
   text_y += BOX_LINE_H;
   text_y += BOX_LINE_H;
 
-#define CONSTRUCT_BOX_Y 50
+  float scaled_construct_box_y = scaleUI_y(FONT_SQUARE,50);
+
+#define CONSTRUCT_BOX_Y scaled_construct_box_y
    float power_box_y;// = text_y + CONSTRUCT_BOX_Y;//_BOX_H;// + 2;
 
   if (core->construction_complete_timestamp > w.world_time)
@@ -6625,12 +6636,12 @@ if (inter.block_mode_button_area_scrolling)
 
    power_box_y = text_y + CONSTRUCT_BOX_Y;//_BOX_H;// + 2;
 
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_MAX] [TRANS_THICK], text_x + 20, text_y + (CONSTRUCT_BOX_Y) - 25, ALLEGRO_ALIGN_LEFT, "Constructing...");
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_THICK], text_x + 70, text_y + (CONSTRUCT_BOX_Y), ALLEGRO_ALIGN_LEFT, "Ready in %i", (core->construction_complete_timestamp - w.world_time) / EXECUTION_COUNT);
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_MAX] [TRANS_THICK], text_x + scaleUI_x(FONT_SQUARE,20), text_y + (CONSTRUCT_BOX_Y) - scaleUI_y(FONT_SQUARE,25), ALLEGRO_ALIGN_LEFT, "Constructing...");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_THICK], text_x + scaleUI_x(FONT_SQUARE,70), text_y + (CONSTRUCT_BOX_Y), ALLEGRO_ALIGN_LEFT, "Ready in %i", (core->construction_complete_timestamp - w.world_time) / EXECUTION_COUNT);
    int line_pos = (core->construction_complete_timestamp - w.world_time) % 20;
 
-   add_orthogonal_rect(2, text_x + 10, text_y + CONSTRUCT_BOX_Y - 35, text_x + 210, text_y + CONSTRUCT_BOX_Y + 20, colours.base_trans [COL_ORANGE] [SHADE_MED] [TRANS_FAINT]);
-   add_orthogonal_rect(2, text_x + 10 + line_pos * 10, text_y + CONSTRUCT_BOX_Y - 35, text_x + 20 + line_pos * 10, text_y + CONSTRUCT_BOX_Y + 20, colours.base_trans [COL_ORANGE] [SHADE_MAX] [TRANS_MED]);
+   add_orthogonal_rect(2, text_x + scaleUI_x(FONT_SQUARE,10), text_y + CONSTRUCT_BOX_Y - scaleUI_y(FONT_SQUARE,35), text_x + scaleUI_x(FONT_SQUARE,210), text_y + CONSTRUCT_BOX_Y + scaleUI_y(FONT_SQUARE,20), colours.base_trans [COL_ORANGE] [SHADE_MED] [TRANS_FAINT]);
+   add_orthogonal_rect(2, text_x + scaleUI_x(FONT_SQUARE,10) + line_pos * scaleUI_x(FONT_SQUARE,10), text_y + CONSTRUCT_BOX_Y - scaleUI_y(FONT_SQUARE,35), text_x + scaleUI_x(FONT_SQUARE,20) + line_pos * scaleUI_x(FONT_SQUARE,10), text_y + CONSTRUCT_BOX_Y + scaleUI_y(FONT_SQUARE,20), colours.base_trans [COL_ORANGE] [SHADE_MAX] [TRANS_MED]);
 
 
 		}
@@ -6642,37 +6653,18 @@ if (inter.block_mode_button_area_scrolling)
    add_orthogonal_rect(2, text_x, text_y, text_x + POWER_BOX_W, text_y + POWER_BOX_H, colours.base_trans [COL_BLUE] [SHADE_LOW] [TRANS_MED]);
 // this draws a line:
    add_orthogonal_rect(2, text_x, text_y + (POWER_BOX_H/2), text_x + POWER_BOX_W, text_y + (POWER_BOX_H/2) + 1, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_FAINT]);
-//   add_orthogonal_rect(text_x, text_y + (POWER_BOX_H/3), text_x + POWER_BOX_W, text_y + (POWER_BOX_H/3) + 1, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_FAINT]);
-//   add_orthogonal_rect(text_x, text_y + (POWER_BOX_H*0.6667), text_x + POWER_BOX_W, text_y + (POWER_BOX_H*0.6667) + 1, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_FAINT]);
 
    al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], text_x + 2, text_y + (POWER_BOX_H) - 9, ALLEGRO_ALIGN_LEFT, "power");
 
-//   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_RED] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity * 3);
    al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_PURPLE] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity * 2);
    al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + (POWER_BOX_H/2) + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity);
    al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + (POWER_BOX_H) - 3, ALLEGRO_ALIGN_LEFT, "0");
-/*
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_AQUA] [SHADE_HIGH] [TRANS_THICK], text_x + 2, text_y + (STRESS_BOX_H) + (POWER_BOX_H) - 7, ALLEGRO_ALIGN_LEFT, "power");
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_MED], text_x + STRESS_BOX_W + 4, text_y + (STRESS_BOX_H) + (POWER_BOX_H / 2) - 5, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_RED] [SHADE_HIGH] [TRANS_MED], text_x + STRESS_BOX_W + 4, text_y + (STRESS_BOX_H) + (POWER_BOX_H) - 5, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity * 2);
-
-   add_orthogonal_rect(text_x, power_box_y, text_x + STRESS_BOX_W, power_box_y + POWER_BOX_H, colours.base_trans [COL_AQUA] [SHADE_LOW] [TRANS_MED]);
-   add_orthogonal_rect(text_x, power_box_y + (POWER_BOX_H / 2), text_x + STRESS_BOX_W, power_box_y + (POWER_BOX_H / 2) + 1, colours.base_trans [COL_AQUA] [SHADE_HIGH] [TRANS_FAINT]);
-*/
    j = command.power_use_pos;
-/*
-   static int stress_level_col [STRESS_LEVELS] =
-   {
-//   	COL_BLUE, // STRESS_LOW
-//   	COL_PURPLE, // STRESS_MODERATE
-   	COL_YELLOW, // STRESS_LOW
-   	COL_ORANGE, // STRESS_MODERATE
-   	COL_RED, // STRESS_HIGH
-   	COL_RED, // STRESS_EXTREME
-// assumes stress should never exceed core->power_capacity / (STRESS_LEVELS-1)
-   };
-*/
+
+   float scaled_power_bar_width = scaleUI_x(FONT_SQUARE,4);
+
+
    for (i = 0; i < POWER_DATA_RECORDS; i ++)
 			{
 
@@ -6695,9 +6687,9 @@ if (inter.block_mode_button_area_scrolling)
 				{
 					int power_record_level = (command.power_use_record [j] * (POWER_BOX_H/2)) / core->power_capacity;
 
-     add_orthogonal_rect(2, text_x + POWER_BOX_W - i * 4 - 3,
+     add_orthogonal_rect(2, text_x + POWER_BOX_W - i * scaled_power_bar_width - (scaled_power_bar_width - 1),
 																									power_box_y - power_record_level,
-																									text_x + POWER_BOX_W - i * 4,
+																									text_x + POWER_BOX_W - i * scaled_power_bar_width,
 																									power_box_y,
 																									colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK]);
 
@@ -15816,9 +15808,9 @@ static void draw_map(void)
 // al_draw_rectangle(map_base_x, map_base_y, map_base_x + MAP_W, map_base_y + MAP_H, colours.base [COL_BLUE] [SHADE_HIGH], 1);
 
  if (w.world_seconds > 3599)
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], map_base_x + MAP_W, map_base_y - 12, ALLEGRO_ALIGN_RIGHT, "%i:%.2i:%.2i", w.world_seconds / 3600, (int) (w.world_seconds / 60) % 60, w.world_seconds % 60);
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], map_base_x + MAP_W, map_base_y - scaleUI_y(FONT_BASIC,12), ALLEGRO_ALIGN_RIGHT, "%i:%.2i:%.2i", w.world_seconds / 3600, (int) (w.world_seconds / 60) % 60, w.world_seconds % 60);
    else
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], map_base_x + MAP_W, map_base_y - 12, ALLEGRO_ALIGN_RIGHT, "%i:%.2i", (int) (w.world_seconds / 60) % 60, w.world_seconds % 60);
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], map_base_x + MAP_W, map_base_y - scaleUI_y(FONT_BASIC,12), ALLEGRO_ALIGN_RIGHT, "%i:%.2i", (int) (w.world_seconds / 60) % 60, w.world_seconds % 60);
 
   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], map_base_x + MAP_W, map_base_y + MAP_H + 5, ALLEGRO_ALIGN_RIGHT, "fps %i", view.fps);
 
@@ -16723,20 +16715,20 @@ static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, in
 
 
  add_menu_button(adjusted_bubble_x - (10 - bubble_size_reduce),
-																	bubble_y - (10 - bubble_size_reduce),
-																	adjusted_bubble_x + (10) + bubble_text_length * 7,
-																	bubble_y + (20 - bubble_size_reduce),
+																	bubble_y - scaleUI_y(FONT_SQUARE,(10 - bubble_size_reduce)),
+																	adjusted_bubble_x + (10) + bubble_text_length * font[FONT_SQUARE].width,
+																	bubble_y + scaleUI_y(FONT_SQUARE,(20 - bubble_size_reduce)),
 //																	colours.packet [pr->player_index] [bubble_shade],
 																	colours.packet [bubble_col] [bubble_shade],
 																	3, 8);
 if (draw_triangle)
 	add_triangle(4,
 														adjusted_bubble_x,
-														bubble_y + 22,
+														bubble_y + scaleUI_y(FONT_SQUARE,22),
 														adjusted_bubble_x + 19,
-														bubble_y + 22,
+														bubble_y + scaleUI_y(FONT_SQUARE,22),
 														adjusted_bubble_x + 19,
-														bubble_y + 52,
+														bubble_y + 52,// / view.zoom,//scaleUI_y(FONT_SQUARE,52),
 														colours.packet [bubble_col] [bubble_shade]);
 
 				int text_shade = bubble_shade * 2;

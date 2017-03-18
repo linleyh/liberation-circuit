@@ -118,14 +118,14 @@ void draw_template_panel(void)
 
 							if (templ [tstate.template_player_tab] [i].locked)
 							{
-								add_menu_rectangle(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 240,
+								add_menu_rectangle(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + scaleUI_x(FONT_SQUARE, 240),
 																			     			panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1,
-																						     panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 255,
+																						     panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + scaleUI_x(FONT_SQUARE, 255),
 																						     panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y2,
 																						     colours.base [COL_BLUE] [SHADE_HIGH]);
-								add_menu_rectangle(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 270,
+								add_menu_rectangle(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + scaleUI_x(FONT_SQUARE, 270),
 																			     			panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1,
-																						     panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 285,
+																						     panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + scaleUI_x(FONT_SQUARE, 285),
 																						     panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y2,
 																						     colours.base [COL_BLUE] [SHADE_HIGH]);
 							}
@@ -166,90 +166,35 @@ void draw_template_panel(void)
 
 		if (draw_templ->active)
 		{
-		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], button_x + 8, button_y + 12, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
-		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], button_x + 88, button_y + 12, ALLEGRO_ALIGN_LEFT, "%s", draw_templ->name);
+		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], button_x + 8, button_y + 8, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
+		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], button_x + scaleUI_x(FONT_SQUARE,88), button_y + 8, ALLEGRO_ALIGN_LEFT, "%s", draw_templ->name);
 //		 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 28, button_y + 30, ALLEGRO_ALIGN_LEFT, "Data cost %i", draw_templ->data_cost); this isn't really all that useful
-  	int file_name_shade = SHADE_MED;
+//  	int file_name_shade = SHADE_HIGH;
+  	int file_name_col = COL_BLUE;
   	if (!draw_templ->source_edit->saved)
 			{
-    file_name_shade = SHADE_HIGH;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [file_name_shade], button_x + 26, button_y + 34, ALLEGRO_ALIGN_RIGHT, "*");
+    file_name_col = COL_PURPLE;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [file_name_col] [SHADE_MAX], button_x + 26, button_y + scaleUI_y(FONT_SQUARE,24), ALLEGRO_ALIGN_RIGHT, "*");
 			}
-   snprintf(file_path_string, TEMPLATE_FILE_PATH_LENGTH, draw_templ->source_edit->src_file_path);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [file_name_shade], button_x + 28, button_y + 34, ALLEGRO_ALIGN_LEFT, "%s", file_path_string);
+   snprintf(file_path_string, TEMPLATE_FILE_PATH_LENGTH, "%s", draw_templ->source_edit->src_file_path);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [file_name_col] [SHADE_MAX], button_x + 28, button_y + scaleUI_y(FONT_SQUARE,24), ALLEGRO_ALIGN_LEFT, "%s", file_path_string);
 
 		 if (draw_templ->locked)
 			{
- 		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], button_x + 295, button_y + 30, ALLEGRO_ALIGN_RIGHT, "Locked");
+ 		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], button_x + scaleUI_x(FONT_SQUARE, 295), button_y + 30, ALLEGRO_ALIGN_RIGHT, "Locked");
 			}
 //			 else
 //  		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 295, button_y + 30, ALLEGRO_ALIGN_RIGHT, "not locked");
 		}
 		  else
 				{
-		   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], button_x + 8, button_y + 12, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
-  		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MED], button_x + 88, button_y + 12, ALLEGRO_ALIGN_LEFT, "Empty");
+		   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MED], button_x + 8, button_y + 8, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
+  		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MED], button_x + scaleUI_x(FONT_SQUARE,88), button_y + 8, ALLEGRO_ALIGN_LEFT, "Empty");
 				}
 
-/*
-		if (draw_templ->active)
-		{
-		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], button_x + 8, button_y + 12, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
-		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], button_x + 88, button_y + 12, ALLEGRO_ALIGN_LEFT, "%s", draw_templ->name);
-		 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 28, button_y + 30, ALLEGRO_ALIGN_LEFT, "Data cost %i", draw_templ->data_cost);
-  	if (!draw_templ->source_edit->saved)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 26, button_y + 44, ALLEGRO_ALIGN_RIGHT, "*");
-   snprintf(file_path_string, TEMPLATE_FILE_PATH_LENGTH, draw_templ->source_edit->src_file_path);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 28, button_y + 44, ALLEGRO_ALIGN_LEFT, "%s", file_path_string);
-
-		 if (draw_templ->locked)
-			{
- 		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], button_x + 295, button_y + 53, ALLEGRO_ALIGN_RIGHT, "Locked");
-			}
-			 else
-  		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_HIGH], button_x + 295, button_y + 53, ALLEGRO_ALIGN_RIGHT, "not locked");
-		}
-		  else
-				{
-		   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MED], button_x + 8, button_y + 12, ALLEGRO_ALIGN_LEFT, "Template %i", template_index);
-  		 al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MED], button_x + 88, button_y + 12, ALLEGRO_ALIGN_LEFT, "Empty");
-				}
-*/
 
 	}
-/*
-						case BUTTON_STYLE_TEMPLATE:
-					 	add_menu_button(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1,
-																							panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1,
-																							panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x2,
-																							panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y2,
-																							colours.base [COL_BLUE] [SHADE_LOW + (panel[pan].element[el].last_highlight >= game.total_time - 1)],
-																							6, 12);
-						add_menu_string(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 10,
-																						panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1 + 10,
-																						&colours.base [COL_GREY] [SHADE_MAX],
-																						ALLEGRO_ALIGN_LEFT,
-																						FONT_SQUARE,
-																						templ[panel[pan].element[el].value[0]][panel[pan].element[el].value[1]].menu_button_title);
-						if (templ[panel[pan].element[el].value[0]][panel[pan].element[el].value[1]].name [0] != 0)
-						{
-						 add_menu_string(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 50,
-																						panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1 + 35,
-																						&colours.base [COL_BLUE] [SHADE_MAX],
-																						ALLEGRO_ALIGN_LEFT,
-																						FONT_SQUARE,
-																						templ[tstate.template_player_tab][panel[pan].element[el].value[1]].name);
-						}*/
-/*
-							add_menu_string(panel[pan].x1 + panel[pan].subpanel[panel[pan].element[el].subpanel].x1 + panel[pan].element[el].x1 + 5,
-																							panel[pan].y1 + panel[pan].subpanel[panel[pan].element[el].subpanel].y1 + panel[pan].element[el].y1 + 10,
-																							&colours.base [COL_BLUE] [SHADE_MAX],
-																							ALLEGRO_ALIGN_LEFT,
-																							FONT_SQUARE,
-																							panel[pan].element[el].name);
-* don't
-																							*/
-//							break;
+
 
 
 }

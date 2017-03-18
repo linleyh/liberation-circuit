@@ -22,6 +22,7 @@ struct view_struct view;
 
 extern ALLEGRO_DISPLAY* display; // in i_display.c
 extern ALLEGRO_BITMAP* display_window; // in i_display.c
+extern struct fontstruct font [FONTS];
 
 void reset_view_values(int window_w, int window_h);
 

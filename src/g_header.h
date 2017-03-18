@@ -1550,8 +1550,8 @@ struct view_struct
  int map_x, map_y;
  int map_w, map_h;
 
-#define BUILD_BUTTON_H 30
-#define BUILD_BUTTON_W 140
+#define BUILD_BUTTON_H scaleUI_y(FONT_SQUARE,25)
+#define BUILD_BUTTON_W scaleUI_x(FONT_SQUARE,140)
  int build_buttons_x1;
  int build_buttons_y1;
  int build_buttons_x2;
@@ -1883,12 +1883,12 @@ BASIC_TRANS
 
 // settingsstruct stuff
 
-#define MODE_BUTTON_SIZE 20
-#define MODE_BUTTON_SPACING 3
+#define MODE_BUTTON_SIZE scaleUI_x(FONT_SQUARE,20)
+#define MODE_BUTTON_SPACING scaleUI_x(FONT_SQUARE,3)
 #define MODE_BUTTON_Y 3
 
-#define MODE_BUTTON_SCROLL_BLOCK_W 190
-#define MODE_BUTTON_SCROLL_BLOCK_H 70
+#define MODE_BUTTON_SCROLL_BLOCK_W scaleUI_x(FONT_SQUARE,190)
+#define MODE_BUTTON_SCROLL_BLOCK_H scaleUI_y(FONT_SQUARE,70)
 
 enum
 {
@@ -1903,6 +1903,7 @@ OPTION_VOL_MUSIC,
 OPTION_VOL_EFFECT,
 OPTION_SPECIAL_CURSOR, // draws a special mouse cursor instead of the system one. Included because of a report that the mouse cursor was not displaying correctly.
 OPTION_CAPTURE_MOUSE,
+OPTION_DOUBLE_FONTS,
 OPTION_DEBUG, // can be used to set certain debug values without recompiling.
 OPTIONS
 };

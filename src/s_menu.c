@@ -1393,7 +1393,7 @@ void display_menu_2(void)
           if (menu_element[i].highlight)
           {
     	      add_menu_string(menu_element[i].x2 + 20, y1 + 17, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_1]);
-    	      add_menu_string(menu_element[i].x2 + 20, y1 + 30, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_2]);
+    	      add_menu_string(menu_element[i].x2 + 20, y1 + 17 + scaleUI_y(FONT_SQUARE, 13), &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, setup_menu_string [SMS_ADVANCED_2]);
           }
 										break;
          case EL_MAIN_START_GAME_ADVANCED_HARD:
@@ -2480,15 +2480,15 @@ void run_intro_screen(void)
 
   al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, START_BOX_Y - 4, ALLEGRO_ALIGN_CENTRE, ">>   START   <<");
 
-  y_line = 100;
+  y_line = scaleUI_y(FONT_SQUARE,100);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "version 1.0");
-  y_line -= 25;
+  y_line -= scaleUI_y(FONT_SQUARE,25);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Copyright 2017 Linley Henzell");
-  y_line -= 15;
+  y_line -= scaleUI_y(FONT_SQUARE,15);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Free software (GPL v3 or later)");
-  y_line -= 15;
+  y_line -= scaleUI_y(FONT_SQUARE,15);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Built with Allegro 5");
-  y_line -= 15;
+  y_line -= scaleUI_y(FONT_SQUARE,15);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Procedural music based on Otomata by Batuhan Bozkurt");
 
   if (key_test)
@@ -2518,9 +2518,9 @@ static void print_key_codes(void)
   float text_y = 400;
 
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], 400, text_y, ALLEGRO_ALIGN_RIGHT, "Key code test mode");
-  text_y += 15;
+  text_y += scaleUI_y(FONT_SQUARE,15);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], 400, text_y, ALLEGRO_ALIGN_RIGHT, "(see init.txt for more information)");
-  text_y += 15;
+  text_y += scaleUI_y(FONT_SQUARE,15);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], 400, text_y, ALLEGRO_ALIGN_RIGHT, "Press a key:");
 
   int keys_pressed = 0;
@@ -2531,7 +2531,7 @@ static void print_key_codes(void)
 			{
 				keys_pressed ++;
     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], 405, text_y, ALLEGRO_ALIGN_LEFT, "%i", i);
-    text_y += 15;
+    text_y += scaleUI_y(FONT_SQUARE,15);
     if (i == ALLEGRO_KEY_ESCAPE)
 					error_call();
 			}

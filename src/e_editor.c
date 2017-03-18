@@ -1565,7 +1565,11 @@ static void get_cursor_position_from_mouse(struct source_edit_struct* se, int x,
  if (*mouse_cursor_line < 0)
   *mouse_cursor_line = 0;
 
- *mouse_cursor_pos = se->window_pos - 1 + ((x + SOURCE_WINDOW_MARGIN) / editor.text_width);
+ *mouse_cursor_pos = se->window_pos + ((x - SOURCE_WINDOW_MARGIN) / editor.text_width);
+// *mouse_cursor_pos = se->window_pos - 1 + ((x + 8) / editor.text_width);
+
+ if (*mouse_cursor_pos < 0)
+		*mouse_cursor_pos = 0;
 
  if (*mouse_cursor_pos > strlen(se->text [se->line_index [*mouse_cursor_line]]))
   *mouse_cursor_pos = strlen(se->text [se->line_index [*mouse_cursor_line]]);

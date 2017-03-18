@@ -62,9 +62,9 @@ struct design_window_struct
 extern struct design_window_struct dwindow;
 
 
-#define DESIGN_WINDOW_W 800
+#define DESIGN_WINDOW_W scaleUI_x(FONT_BASIC,1000)
 #define DESIGN_WINDOW_CENTRE_X (DESIGN_WINDOW_W/2)
-#define DESIGN_WINDOW_H 600
+#define DESIGN_WINDOW_H scaleUI_y(FONT_BASIC,800)
 #define DESIGN_WINDOW_CENTRE_Y (DESIGN_WINDOW_H/2)
 
 #endif

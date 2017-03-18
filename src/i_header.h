@@ -19,6 +19,8 @@ MAP_MASKS
 
 };
 
+// can probably use font size to work out how to scale the map:
+//#define MAP_DISPLAY_SIZE scaleUI_x(FONT_BASIC,190)
 #define MAP_DISPLAY_SIZE 190
 
 
@@ -107,7 +109,12 @@ struct fontstruct
 	ALLEGRO_FONT* fnt;
 	int width; // fixed width fonts only
 	int height; // specified height may be ignored
+	float font_scale_x;
+	float font_scale_y;
 };
+
+#define scaleUI_x(font_type,value) (value * font[font_type].font_scale_x)
+#define scaleUI_y(font_type,value) (value * font[font_type].font_scale_y)
 
 enum
 {

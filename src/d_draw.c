@@ -48,6 +48,7 @@ extern struct fontstruct font [FONTS];
 extern struct game_struct game;
 extern struct identifierstruct identifier [IDENTIFIERS]; // used to display some information about e.g. core name
 extern struct design_sub_button_struct design_sub_button [DSB_STRUCT_SIZE];
+extern struct fontstruct font [FONTS];
 
 void draw_template_members(void);
 static void draw_select_box(float xa, float ya, float box_size, float line_length, float line_width, timestamp select_time, ALLEGRO_COLOR col);
@@ -126,9 +127,11 @@ void draw_design_window(void)
  if (dwindow.templ->active)
 	{
 
-#define POWER_GRAPH_X (base_x1 + 55)
-#define POWER_GRAPH_Y (base_y2 - 30)
-#define POWER_GRAPH_H 8
+#define POWER_GRAPH_X (base_x1 + scaleUI_x(FONT_BASIC, 55))
+#define POWER_GRAPH_H font[FONT_BASIC].height
+#define POWER_GRAPH_Y (base_y2 - POWER_GRAPH_H * 4)
+//#define POWER_GRAPH_Y (base_y2 - scaleUI_y(FONT_BASIC, 30))
+//scaleUI_y(FONT_BASIC, 8)
 #define POWER_GRAPH_Y0 (POWER_GRAPH_Y - POWER_GRAPH_H - 2)
 #define POWER_GRAPH_Y2 (POWER_GRAPH_Y + POWER_GRAPH_H + 2)
 #define POWER_GRAPH_Y3 (POWER_GRAPH_Y2 + POWER_GRAPH_H + 2)
@@ -1232,14 +1235,14 @@ void draw_design_data(void)
    break;
 	}
 
-	base_x += 130;
+	base_x += scaleUI_x(FONT_BASIC, 130);
 
 // al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 5, base_y, ALLEGRO_ALIGN_LEFT, "design data");
 // al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 145, base_y+2, ALLEGRO_ALIGN_LEFT, "data cost %i", dwindow.templ->data_cost);
 // al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 255, base_y+2, ALLEGRO_ALIGN_LEFT, "inertia %i", dwindow.templ->total_mass);
 // al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 145, base_y+2, ALLEGRO_ALIGN_LEFT, "Template %i (%s) data cost %i inertia %i", dwindow.templ->template_index, dwindow.templ->name, dwindow.templ->data_cost, dwindow.templ->total_mass);
 // al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], panel[PANEL_DESIGN].x1 + 140, panel[PANEL_DESIGN].y1+3, ALLEGRO_ALIGN_LEFT, "Player %i Template %i (%s)  data cost %i  inertia %i", dwindow.templ->player_index, dwindow.templ->template_index, dwindow.templ->name, dwindow.templ->data_cost, dwindow.templ->total_mass);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], panel[PANEL_DESIGN].x1 + 140, panel[PANEL_DESIGN].y1+3, ALLEGRO_ALIGN_LEFT, "Player %i Template %i (%s)", dwindow.templ->player_index, dwindow.templ->template_index, dwindow.templ->name);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], panel[PANEL_DESIGN].x1 + scaleUI_x(FONT_SQUARE,140), panel[PANEL_DESIGN].y1+3, ALLEGRO_ALIGN_LEFT, "Player %i Template %i (%s)", dwindow.templ->player_index, dwindow.templ->template_index, dwindow.templ->name);
 // if (dwindow.templ->active)
 //  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], panel[PANEL_DESIGN].x1 + 140, panel[PANEL_DESIGN].y1+15, ALLEGRO_ALIGN_LEFT, "Power: capacity %i  use: peak %i average %i base %i", nshape[dwindow.templ->member[0].shape].power_capacity, dwindow.templ->power_use_peak, dwindow.templ->power_use_smoothed, dwindow.templ->power_use_base);
 
@@ -1356,6 +1359,7 @@ static void draw_design_help_strings_for_help_more_button(int base_x, int base_y
 static void design_help_highlight(int base_x, int base_y)
 {
 
+ float line_h = scaleUI_y(FONT_BASIC, 12);
 
 //	if (control.panel_element_highlighted >= FPE_DESIGN_SUB_BUTTON_0
 //		&& control.panel_element_highlighted <= FPE_DESIGN_SUB_BUTTON_14)
@@ -1383,54 +1387,55 @@ static void design_help_highlight(int base_x, int base_y)
 						help_shape = dwindow.templ->member[dwindow.selected_member].shape;
 				}
 
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 255, base_y + 2, ALLEGRO_ALIGN_LEFT, "%s", identifier[nshape[help_shape].keyword_index].name);
-			int line_y = base_y + 20;
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), base_y + 2, ALLEGRO_ALIGN_LEFT, "%s", identifier[nshape[help_shape].keyword_index].name);
+			int line_y = base_y + scaleUI_y(FONT_SQUARE, 20);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "total cost");
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].data_cost);
-   line_y += 12;
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "angle");
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].connection_angle_offset_angle);
-   line_y += 12;
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "total cost");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].data_cost);
+   line_y += line_h;
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "angle");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].connection_angle_offset_angle);
+   line_y += line_h;
 /*   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "gao");
    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "     %i", fixed_angle_to_int(dwindow.templ->member[dwindow.selected_member].group_angle_offset) & ANGLE_MASK);
    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y + 12, ALLEGRO_ALIGN_LEFT, "     %i", ANGLE_1 - (fixed_angle_to_int(dwindow.templ->member[dwindow.selected_member].group_angle_offset) & ANGLE_MASK));
 */
 
-   draw_proc_shape(base_x + 320, base_y + 90,
+   draw_proc_shape(base_x + scaleUI_x(FONT_BASIC, 320),
+																			line_y + line_h + 40,
 																			0, // angle
 																	  help_shape, // this should be the shape index
 																	  0,
 																	  1, // zoom
 																	  colours.plan_col [help_shape_col]);
 
-			line_y = base_y + 150;
+			line_y = base_y + 116 + scaleUI_y(FONT_SQUARE, 20) + scaleUI_y(FONT_BASIC, 24);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "base cost");
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].data_cost);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "base cost");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].data_cost);
 //   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 340, line_y, ALLEGRO_ALIGN_RIGHT, "%i (%i)", nshape[panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [2]].data_cost, panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [2]);
-   line_y += 12;
+   line_y += line_h;
    if (panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_CORE].open == 1)
 			{
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "integrity");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].base_hp_max);
-    line_y += 12;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "core power");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].power_capacity);
-    line_y += 12;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "component power");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "+%i", nshape[help_shape].component_power_capacity);
-    line_y += 12;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "instructions");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].instructions_per_cycle);
-    line_y += 12;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "integrity");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].base_hp_max);
+    line_y += line_h;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "core power");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].power_capacity);
+    line_y += line_h;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "component power");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "+%i", nshape[help_shape].component_power_capacity);
+    line_y += line_h;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "instructions");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].instructions_per_cycle);
+    line_y += line_h;
     if (help_shape < FIRST_MOBILE_NSHAPE)
 				{
-     line_y += 5;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + 255, line_y, ALLEGRO_ALIGN_LEFT, "this is a static core");
-     line_y += 12;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + 255, line_y, ALLEGRO_ALIGN_LEFT, "and does not move");
-     line_y += 12;
+     line_y += scaleUI_y(FONT_BASIC, 5);
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), line_y, ALLEGRO_ALIGN_LEFT, "this is a static core");
+     line_y += line_h;
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), line_y, ALLEGRO_ALIGN_LEFT, "and does not move");
+     line_y += line_h;
 				}
 /*    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_RIGHT, "build recycle");
     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 340, line_y, ALLEGRO_ALIGN_RIGHT, "%i", nshape[help_shape].build_or_restore_time);*/
@@ -1469,11 +1474,11 @@ static void design_help_highlight(int base_x, int base_y)
 //			display_object.type = design_sub_button[panel[PANEL_DESIGN].element[control.panel_element_highlighted].value[0]].value; //panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [2];
 			display_object.base_angle_offset = 0;
 
-			add_menu_button(base_x + 260, object_detail_base_y + 36,
-																				base_x + 340, object_detail_base_y + 93,
+			add_menu_button(base_x + scaleUI_x(FONT_BASIC, 260), object_detail_base_y + 36,
+																				base_x + scaleUI_x(FONT_BASIC, 340), object_detail_base_y + 93,
 																				colours.base [COL_BLUE] [SHADE_LOW], 6, 3);
 
-			      draw_object(base_x + 250, object_detail_base_y + 65,
+			      draw_object(base_x + scaleUI_x(FONT_BASIC, 250), object_detail_base_y + 65,
 																					0, // angle
 																					NSHAPE_CORE_STATIC_QUAD,
 																					&display_object, // uses same code as drawing objects for the main display
@@ -1484,48 +1489,52 @@ static void design_help_highlight(int base_x, int base_y)
 																					colours.plan_col [display_object_col],
 																			  1.5); // last number is zoom
 
-    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 255, object_detail_base_y + 2, ALLEGRO_ALIGN_LEFT, "%s", otype[display_object.type].name);
+				float text_x_265 = base_x + scaleUI_x(FONT_BASIC, 265);
+				float text_x_305 = base_x + scaleUI_x(FONT_BASIC, 305);
+				float text_x_315 = base_x + scaleUI_x(FONT_BASIC, 315);
+
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), object_detail_base_y + 2, ALLEGRO_ALIGN_LEFT, "%s", otype[display_object.type].name);
 		 	int line_y = object_detail_base_y + 20;
     if (!otype[display_object.type].object_details.only_zero_angle_offset)
 				{
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "angle");
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].base_angle_offset_angle);
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "angle");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].base_angle_offset_angle);
 //     line_y += 12;
 				}
     line_y = object_detail_base_y + 100;
 
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "cost");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].data_cost);
-    line_y += 12;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "peak power");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].power_use_peak);
-    line_y += 12;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "cost");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].data_cost);
+    line_y += line_h;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "peak power");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].power_use_peak);
+    line_y += line_h;
 //    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "average power");
 //    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].power_use_smoothed);
 //    line_y += 12;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "base power");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].power_use_base);
-    line_y += 12;
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "base power");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].power_use_base);
+    line_y += line_h;
     if (otype[display_object.type].object_base_type == OBJECT_BASE_TYPE_ATTACK)
 				{
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "damage");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "damage");
      switch(display_object.type)
      {
      	case OBJECT_TYPE_STREAM:
      	case OBJECT_TYPE_STREAM_DIR:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * STREAM_FIRING_TIME, otype[display_object.type].object_details.damage * STREAM_FIRING_TIME * 2);
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * STREAM_FIRING_TIME, otype[display_object.type].object_details.damage * STREAM_FIRING_TIME * 2);
        break;
      	case OBJECT_TYPE_SLICE:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * SLICE_FIRING_TIME, otype[display_object.type].object_details.damage * SLICE_FIRING_TIME * 2);
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage * SLICE_FIRING_TIME, otype[display_object.type].object_details.damage * SLICE_FIRING_TIME * 2);
        break;
       case OBJECT_TYPE_SPIKE:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage, SPIKE_MAX_DAMAGE);
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i - %i", otype[display_object.type].object_details.damage, SPIKE_MAX_DAMAGE);
        break;
       default:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.damage);
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.damage);
        break;
      }
-     line_y += 12;
+     line_y += line_h;
 #ifdef DEBUG_MODE
      int dpc = 1;
      switch(display_object.type)
@@ -1558,34 +1567,34 @@ static void design_help_highlight(int base_x, int base_y)
      line_y += 12;
 
 #endif
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "recycle time");
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.recycle_time / EXECUTION_COUNT);
-     line_y += 12;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "API type");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "recycle time");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "%i", otype[display_object.type].object_details.recycle_time / EXECUTION_COUNT);
+     line_y += line_h;
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_305, line_y, ALLEGRO_ALIGN_RIGHT, "API type");
      switch(otype[display_object.type].object_details.attack_type)
      {
      	case ATTACK_TYPE_PULSE:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "pulse"); break;
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "pulse"); break;
      	case ATTACK_TYPE_BURST:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "burst"); break;
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "burst"); break;
      	case ATTACK_TYPE_SPIKE:
-       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "spike"); break;
+       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_315, line_y, ALLEGRO_ALIGN_LEFT, "spike"); break;
      }
-     line_y += 12;
+     line_y += line_h;
 				}
-    line_y += 8;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "%s", object_description[display_object.type][0]);
+    line_y += scaleUI_y(FONT_BASIC, 8);
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "%s", object_description[display_object.type][0]);
     if (object_description[display_object.type][1][0] != 0)
 				{
-     line_y += 14;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "%s", object_description[display_object.type][1]);
+     line_y += scaleUI_y(FONT_BASIC, 14);
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "%s", object_description[display_object.type][1]);
      if (object_description[display_object.type][2][0] != 0)
 				 {
-      line_y += 14;
-      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "%s", object_description[display_object.type][2]);
+      line_y += scaleUI_y(FONT_BASIC, 14);
+      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "%s", object_description[display_object.type][2]);
 				 }
 				}
-    line_y += 28;
+    line_y += scaleUI_y(FONT_BASIC, 28);
 				switch(dwindow.templ->member[dwindow.selected_member].object[dwindow.selected_link].template_error)
 				{
 //					case TEMPLATE_OBJECT_ERROR_INTERFACE_CORE:
@@ -1593,13 +1602,13 @@ static void design_help_highlight(int base_x, int base_y)
 //					case TEMPLATE_OBJECT_ERROR_MOVE_INTERFACE:
 //      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: interface and move on same component"); break;
 					case TEMPLATE_OBJECT_ERROR_STATIC_MOVE:
-      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: move on static process"); break;
+      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "Error: move on static process"); break;
 					case TEMPLATE_OBJECT_ERROR_MOVE_OBSTRUCTED:
-      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: move obstructed by component"); break;
+      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "Error: move obstructed by component"); break;
 					case TEMPLATE_OBJECT_ERROR_MOBILE_ALLOCATE:
-      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: allocate on non-static process"); break;
+      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "Error: allocate on non-static process"); break;
 					case TEMPLATE_OBJECT_ERROR_STORY_LOCK:
-      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], base_x + 265, line_y, ALLEGRO_ALIGN_LEFT, "Error: object needs to be unlocked"); break;
+      al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MED], text_x_265, line_y, ALLEGRO_ALIGN_LEFT, "Error: object needs to be unlocked"); break;
 				}
 		 return;
 		}
@@ -1607,7 +1616,7 @@ static void design_help_highlight(int base_x, int base_y)
 
  if (panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_AUTOCODE].open == 1)
 	{
-		 int ac_base_x = base_x + 120;
+		 int ac_base_x = base_x + scaleUI_x(FONT_BASIC, 120);
 
 
   	if (control.panel_element_highlighted_time == inter.running_time
@@ -1820,10 +1829,10 @@ static void design_help_highlight(int base_x, int base_y)
 static void draw_design_help_strings(int base_x, int base_y, char* help_heading, char* help_line1, char* help_line2, char* help_line3)
 {
 
- al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x - 20, base_y + 40, ALLEGRO_ALIGN_LEFT, "%s", help_heading);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y + 60, ALLEGRO_ALIGN_LEFT, "%s", help_line1);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y + 75, ALLEGRO_ALIGN_LEFT, "%s", help_line2);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y + 90, ALLEGRO_ALIGN_LEFT, "%s", help_line3);
+ al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x - 20, base_y + scaleUI_y(FONT_SQUARE, 40), ALLEGRO_ALIGN_LEFT, "%s", help_heading);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y + scaleUI_y(FONT_BASIC, 60), ALLEGRO_ALIGN_LEFT, "%s", help_line1);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y + scaleUI_y(FONT_BASIC, 75), ALLEGRO_ALIGN_LEFT, "%s", help_line2);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y + scaleUI_y(FONT_BASIC, 90), ALLEGRO_ALIGN_LEFT, "%s", help_line3);
 
 
 
@@ -1833,39 +1842,39 @@ static void draw_design_help_strings(int base_x, int base_y, char* help_heading,
 static void draw_design_help_strings_autocode(int base_x, int base_y, char* help_heading, char* help_line1, char* help_line2, char* help_line3, char* help_line4, int autocode_available)
 {
 
- al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x - 20, base_y += 40, ALLEGRO_ALIGN_LEFT, "%s", help_heading);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += 20, ALLEGRO_ALIGN_LEFT, "%s", help_line1);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += 15, ALLEGRO_ALIGN_LEFT, "%s", help_line2);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += 15, ALLEGRO_ALIGN_LEFT, "%s", help_line3);
- al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += 15, ALLEGRO_ALIGN_LEFT, "%s", help_line4);
+ al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x - 20, base_y += scaleUI_y(FONT_SQUARE, 40), ALLEGRO_ALIGN_LEFT, "%s", help_heading);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 20), ALLEGRO_ALIGN_LEFT, "%s", help_line1);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 15), ALLEGRO_ALIGN_LEFT, "%s", help_line2);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 15), ALLEGRO_ALIGN_LEFT, "%s", help_line3);
+ al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 15), ALLEGRO_ALIGN_LEFT, "%s", help_line4);
 
  switch(autocode_available)
  {
    case AUTOCODE_AVAILABLE_MAYBE_SPIKE:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: process has spike objects, which this");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 15, ALLEGRO_ALIGN_LEFT, "         attack type does not make good use of");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: process has spike objects, which this");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 15), ALLEGRO_ALIGN_LEFT, "         attack type does not make good use of");
     break;
    case AUTOCODE_AVAILABLE_MAYBE_NO_FWD_ATT:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: design has no forward attack");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: design has no forward attack");
     break;
    case AUTOCODE_AVAILABLE_MAYBE_NO_FWD_OR_R_ATT:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: design has no forward or right directional attack");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: design has no forward or right directional attack");
     break;
    case AUTOCODE_AVAILABLE_MAYBE_NO_FWD_OR_L_ATT:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: design has no forward or left directional attack");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: design has no forward or left directional attack");
     break;
    case AUTOCODE_AVAILABLE_MAYBE_POOR_MAIN:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: process has fixed forward attacks, which this");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 15, ALLEGRO_ALIGN_LEFT, "         attack type does not make good use of");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: process has fixed forward attacks, which this");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 15), ALLEGRO_ALIGN_LEFT, "         attack type does not make good use of");
     break;
    case AUTOCODE_AVAILABLE_MAYBE_NO_SPIKE:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: design has no long-range attack");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: design has no long-range attack");
     break;
    case AUTOCODE_AVAILABLE_MAYBE_NO_MOVE:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Warning: design has no move objects");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Warning: design has no move objects");
     break;
    case AUTOCODE_AVAILABLE_NO_STATIC:
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_HIGH], base_x, base_y += 25, ALLEGRO_ALIGN_LEFT, "Unavailable: design is static");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_HIGH], base_x, base_y += scaleUI_y(FONT_BASIC, 25), ALLEGRO_ALIGN_LEFT, "Unavailable: design is static");
     break;
 
  }
@@ -1897,15 +1906,15 @@ static void draw_design_help_strings_for_help_button(int base_x, int base_y)
 {
 
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x - 20, base_y, ALLEGRO_ALIGN_LEFT, "Process design - help");
- float line_y = base_y + 20;
+ float line_y = base_y + scaleUI_y(FONT_SQUARE, 20);
 
  int i;
 
  for (i = 0; i < DESIGN_HELP_STRINGS; i ++)
 	{
 
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, design_help_strings [i]);
-  line_y += 15;
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, "%s", design_help_strings [i]);
+  line_y += scaleUI_y(FONT_BASIC, 15);
 
 	}
 
@@ -1938,15 +1947,15 @@ static void draw_design_help_strings_for_help_more_button(int base_x, int base_y
 {
 
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x - 20, base_y, ALLEGRO_ALIGN_LEFT, "Process design - more help");
- float line_y = base_y + 20;
+ float line_y = base_y + scaleUI_y(FONT_SQUARE, 20);
 
  int i;
 
  for (i = 0; i < DESIGN_HELP_MORE_STRINGS; i ++)
 	{
 
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, design_help_strings2 [i]);
-  line_y += 15;
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x, line_y, ALLEGRO_ALIGN_LEFT, "%s", design_help_strings2 [i]);
+  line_y += scaleUI_y(FONT_BASIC, 15);
 
 	}
 

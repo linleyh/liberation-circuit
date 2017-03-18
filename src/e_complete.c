@@ -390,7 +390,7 @@ void draw_code_completion_box(void)
  for (i = 0; i < completion.box_lines; i ++)
 	{
 		if (completion.select_line == i + completion.window_pos)
-   al_draw_filled_rectangle(x + 1.5, y + i * COMPLETION_BOX_LINE_H + 2, completion.box_x2 - 0.5, y + i * COMPLETION_BOX_LINE_H + 14, colours.base [COL_BLUE] [SHADE_MED]);
+   al_draw_filled_rectangle(x + 1.5, y + i * COMPLETION_BOX_LINE_H + 2, completion.box_x2 - 0.5, y + i * COMPLETION_BOX_LINE_H + scaleUI_y(FONT_BASIC,14), colours.base [COL_BLUE] [SHADE_MED]);
 
   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], x + 3, y + i * COMPLETION_BOX_LINE_H + COMPLETION_BOX_LINE_Y_OFFSET, ALLEGRO_ALIGN_LEFT, "%s", completion_table [completion.list_entry_index [i + completion.window_pos]]);
 
