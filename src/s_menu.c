@@ -861,8 +861,8 @@ EL_TUTORIAL_BACK,
 
 // MAX_ELEMENTS is the max number of elements in one menu
 #define MAX_ELEMENTS 30
-#define MENU_H 50
-#define MENU_W 300
+#define MENU_H (40 + scaleUI_y(FONT_SQUARE_LARGE,10))
+#define MENU_W scaleUI_x(FONT_SQUARE_LARGE,300)
 
 struct menu_elementstruct menu_element [MAX_ELEMENTS];
 
@@ -1223,10 +1223,10 @@ const char *setup_menu_string [SMS_STRINGS] =
 "2", // SMS_PLAYERS_2,
 "3", // SMS_PLAYERS_3,
 "4", // SMS_PLAYERS_4,
-"few", // SMS_CORES_FEW,
-"some", // SMS_CORES_SOME,
-"many", // SMS_CORES_MANY,
-"heaps", // SMS_CORES_HEAPS,
+"16", // SMS_CORES_FEW,
+"32", // SMS_CORES_SOME,
+"64", // SMS_CORES_MANY,
+"128", // SMS_CORES_HEAPS,
 "small", // SMS_SIZE_SMALL,
 "medium", // SMS_SIZE_MEDIUM,
 "large", // SMS_SIZE_LARGE,
@@ -1267,10 +1267,10 @@ void display_menu_2(void)
       continue;
     }
 
-#define SELECT_BUTTON_W 60
+#define SELECT_BUTTON_W scaleUI_x(FONT_SQUARE,60)
 #define SELECT_BUTTON_MIDDLE (SELECT_BUTTON_W/2)
 #define SELECT_BUTTON_GAP 5
-#define SELECT_BUTTON_H 15
+#define SELECT_BUTTON_H scaleUI_y(FONT_SQUARE,15)
     if (menu_element[i].type == EL_TYPE_SELECT)
     {
      add_menu_string(menu_element[i].x1 + 15, y1 + 8, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE_LARGE, menu_list[menu_element[i].list_index].name);
@@ -1370,8 +1370,8 @@ void display_menu_2(void)
            add_menu_button(menu_element[i].x1 + 1, y1 + 1, menu_element[i].x2 - 1, y2 - 1, colours.base_trans [COL_BLUE] [SHADE_LOW] [TRANS_MED], 9, 4);
            continue;
 										}
-    	     add_menu_string(menu_element[i].x1 + 145, y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, w_init.player_name [menu_element[i].list_index - EL_SETUP_PLAYER_NAME_0]);
-    	     add_menu_string(menu_element[i].x1 + 134, y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[             ]");
+    	     add_menu_string(menu_element[i].x1 + scaleUI_x(FONT_SQUARE,145), y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, w_init.player_name [menu_element[i].list_index - EL_SETUP_PLAYER_NAME_0]);
+    	     add_menu_string(menu_element[i].x1 + scaleUI_x(FONT_SQUARE,134), y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[             ]");
           if (menu_element[i].highlight)
            add_menu_button(menu_element[i].x1 + 1, y1 + 1, menu_element[i].x2 - 1, y2 - 1, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], 9, 4);
             else
@@ -1379,8 +1379,8 @@ void display_menu_2(void)
           add_menu_string(menu_element[i].x1 + 15, y1 + 22, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, menu_list[menu_element[i].list_index].name);
           continue;
          case EL_SETUP_CODE:
-    	     add_menu_string(menu_element[i].x1 + 145, y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, mstate.map_code_string);
-    	     add_menu_string(menu_element[i].x1 + 134, y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[        ]");
+    	     add_menu_string(menu_element[i].x1 + scaleUI_x(FONT_SQUARE,145), y1 + 22, &colours.base [COL_BLUE] [SHADE_MAX], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, mstate.map_code_string);
+    	     add_menu_string(menu_element[i].x1 + scaleUI_x(FONT_SQUARE,134), y1 + 21, &colours.base [COL_GREY] [SHADE_HIGH], ALLEGRO_ALIGN_LEFT, FONT_SQUARE, "[        ]");
          	break;
          case EL_MAIN_START_GAME_HARD:
           if (menu_element[i].highlight)
@@ -1457,13 +1457,13 @@ void display_menu_2(void)
  	case MENU_TEXT_PLAYER_3_NAME:
    {
 #define NAME_BOX_X (MENU_X - 20)
-#define NAME_BOX_W 250
+#define NAME_BOX_W scaleUI_x(FONT_SQUARE,250)
 #define NAME_BOX_Y 245
-#define NAME_BOX_H 55
+#define NAME_BOX_H scaleUI_y(FONT_SQUARE,55)
 #define NAME_TEXT_BOX_X 50
-#define NAME_TEXT_BOX_W 90
+#define NAME_TEXT_BOX_W scaleUI_x(FONT_SQUARE,90)
 #define NAME_TEXT_BOX_Y 25
-#define NAME_TEXT_BOX_H 15
+#define NAME_TEXT_BOX_H scaleUI_y(FONT_SQUARE,15)
      int naming_player = mstate.menu_text_box - MENU_TEXT_PLAYER_0_NAME;
 #ifdef SANITY_CHECK
     if (naming_player < 0
@@ -1485,7 +1485,7 @@ void display_menu_2(void)
 // TO DO: cursor flash
      int cursor_x = NAME_BOX_X + NAME_TEXT_BOX_X + 3 + (strlen(naming_player_name) * font[FONT_SQUARE].width);
      int cursor_y = NAME_BOX_Y + NAME_TEXT_BOX_Y + 1;
-     al_draw_filled_rectangle(cursor_x, cursor_y, cursor_x + 2, cursor_y + 12, colours.base [COL_GREY] [SHADE_MAX]);
+     al_draw_filled_rectangle(cursor_x, cursor_y, cursor_x + scaleUI_x(FONT_SQUARE,2), cursor_y + scaleUI_y(FONT_SQUARE,12), colours.base [COL_GREY] [SHADE_MAX]);
   }
   break; // end player naming
   case MENU_TEXT_MAP_CODE:
@@ -1501,7 +1501,7 @@ void display_menu_2(void)
 // TO DO: cursor flash
      int cursor_x = NAME_BOX_X + NAME_TEXT_BOX_X + 3 + (strlen(mstate.map_code_string_temp) * font[FONT_SQUARE].width);
      int cursor_y = NAME_BOX_Y + NAME_TEXT_BOX_Y + 1;
-     al_draw_filled_rectangle(cursor_x, cursor_y, cursor_x + 2, cursor_y + 12, colours.base [COL_GREY] [SHADE_MAX]);
+     al_draw_filled_rectangle(cursor_x, cursor_y, cursor_x + scaleUI_x(FONT_SQUARE,2), cursor_y + scaleUI_y(FONT_SQUARE,12), colours.base [COL_GREY] [SHADE_MAX]);
   }
   break;
  }
@@ -2080,7 +2080,7 @@ void run_menu_input(void)
 					&& ex_control.mouse_y_pixels <= menu_element[i].y1 + 25 + SELECT_BUTTON_H)
 				{
 					int x_offset = ex_control.mouse_x_pixels - (menu_element[i].x1 + 30);
-					if (x_offset % (SELECT_BUTTON_W+SELECT_BUTTON_GAP) < SELECT_BUTTON_W)
+					if (x_offset % (int) (SELECT_BUTTON_W+SELECT_BUTTON_GAP) < SELECT_BUTTON_W)
 					{
 					 int select_button = x_offset / (SELECT_BUTTON_W+SELECT_BUTTON_GAP);
 				  switch(menu_element[i].list_index)
@@ -2422,8 +2422,8 @@ void run_intro_screen(void)
  int key_test = 0;
 
 #define START_BOX_Y (settings.option [OPTION_WINDOW_H] / 2)
-#define START_BOX_W 150
-#define START_BOX_H 20
+#define START_BOX_W scaleUI_x(FONT_SQUARE_LARGE,150)
+#define START_BOX_H scaleUI_y(FONT_SQUARE_LARGE,20)
 
  do
  {
@@ -2481,7 +2481,7 @@ void run_intro_screen(void)
   al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], settings.option [OPTION_WINDOW_W] / 2, START_BOX_Y - 4, ALLEGRO_ALIGN_CENTRE, ">>   START   <<");
 
   y_line = scaleUI_y(FONT_SQUARE,100);
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "version 1.0");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "version 1.1");
   y_line -= scaleUI_y(FONT_SQUARE,25);
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], settings.option [OPTION_WINDOW_W] - 50, settings.option [OPTION_WINDOW_H] - y_line, ALLEGRO_ALIGN_RIGHT, "Copyright 2017 Linley Henzell");
   y_line -= scaleUI_y(FONT_SQUARE,15);

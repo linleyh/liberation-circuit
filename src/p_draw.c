@@ -181,10 +181,10 @@ void draw_panels(void)
 // MODE_BUTTON_CLOSE:
 
 				if (any_panel_open)
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 10, inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "X");
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + scaleUI_x(FONT_SQUARE,10), inter.mode_buttons_y1 + scaleUI_y(FONT_SQUARE,5), ALLEGRO_ALIGN_CENTER, "X");
       else
-       al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + 10,
-																					inter.mode_buttons_y1 + 5, ALLEGRO_ALIGN_CENTER, "<<");
+       al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], inter.mode_buttons_x1 + scaleUI_x(FONT_SQUARE,10),
+																					inter.mode_buttons_y1 + scaleUI_y(FONT_SQUARE,5), ALLEGRO_ALIGN_CENTER, "<<");
 
 
 

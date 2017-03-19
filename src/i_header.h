@@ -123,6 +123,8 @@ FONT_BASIC,
 FONT_SQUARE,
 //FONT_SQUARE_BOLD,
 FONT_SQUARE_LARGE,
+
+FONT_BASIC_UNSCALED, // used for a few interface details that aren't scaled
 FONTS
 };
 

@@ -6287,7 +6287,7 @@ int scaled_power_box_h = scaleUI_y(FONT_SQUARE,80);
 	float box_x = view.window_x_unzoomed - BOX_W - 10;
 	float box_x2 = box_x + BOX_W;
  float text_x = box_x + 11;
- float text_x2 = box_x2 - 9;
+ float text_x2 = box_x2 - scaleUI_x(FONT_SQUARE,9);
 	float box_y = 5;
 	float process_box_y;
 	int box_lines;
@@ -6348,7 +6348,7 @@ if (inter.block_mode_button_area_scrolling)
 		if (!view.data_box_open)
 		{
 			 add_menu_button(box_x, box_y, box_x2, box_y + BOX_HEADER_H + 3, colours.base_trans [COL_TURQUOISE] [SHADE_MED] [TRANS_MED], 8, 3);
-    add_menu_button(box_x + 3, box_y + 3, box_x2 - 3 - 30, box_y + BOX_HEADER_H, colours.base_trans [COL_TURQUOISE] [SHADE_MAX] [TRANS_MED], 8, 3);
+    add_menu_button(box_x + 3, box_y + 3, box_x2 - 3 - scaleUI_x(FONT_SQUARE,30), box_y + BOX_HEADER_H, colours.base_trans [COL_TURQUOISE] [SHADE_MAX] [TRANS_MED], 8, 3);
 
    button_shade = SHADE_HIGH;
 
@@ -6365,9 +6365,9 @@ if (inter.block_mode_button_area_scrolling)
     draw_vbuf();
 
     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, box_y + 10, ALLEGRO_ALIGN_LEFT, "process %i", core->index);
-    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2 - 32, box_y + 10, ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2 - scaleUI_x(FONT_SQUARE,32), box_y + 10, ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
 
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], view.data_box_close_button_x1 + 13, box_y + 10, ALLEGRO_ALIGN_CENTRE, "+");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], view.data_box_close_button_x1 + scaleUI_x(FONT_BASIC,13), box_y + scaleUI_x(FONT_BASIC,10), ALLEGRO_ALIGN_CENTRE, "+");
 		 }
 		  else
 				{
@@ -6382,7 +6382,7 @@ if (inter.block_mode_button_area_scrolling)
 		box_h = BOX_HEADER_H + BOX_LINE_H * box_lines + 8 + POWER_BOX_H + 10;
 
   add_menu_button(box_x, box_y, box_x2, box_y + box_h, colours.base_trans [COL_TURQUOISE] [SHADE_MED] [TRANS_MED], 8, 3);
-  add_menu_button(box_x + 3, box_y + 3, box_x2 - 3 - 30, box_y + BOX_HEADER_H, colours.base_trans [COL_TURQUOISE] [SHADE_MAX] [TRANS_MED], 8, 3);
+  add_menu_button(box_x + 3, box_y + 3, box_x2 - 3 - scaleUI_x(FONT_SQUARE,30), box_y + BOX_HEADER_H, colours.base_trans [COL_TURQUOISE] [SHADE_MAX] [TRANS_MED], 8, 3);
 
   button_shade = SHADE_HIGH;
 
@@ -6400,9 +6400,9 @@ if (inter.block_mode_button_area_scrolling)
   draw_vbuf();
 
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, box_y + 10, ALLEGRO_ALIGN_LEFT, "process %i", core->index);
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2 - 32, box_y + 10, ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2 - scaleUI_x(FONT_SQUARE,32), box_y + 10, ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
 
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], view.data_box_close_button_x1 + 13, box_y + 11, ALLEGRO_ALIGN_CENTRE, "X");
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], view.data_box_close_button_x1 + scaleUI_x(FONT_BASIC,13), box_y + scaleUI_y(FONT_BASIC,11), ALLEGRO_ALIGN_CENTRE, "X");
 
 
   text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
@@ -6654,7 +6654,7 @@ if (inter.block_mode_button_area_scrolling)
 // this draws a line:
    add_orthogonal_rect(2, text_x, text_y + (POWER_BOX_H/2), text_x + POWER_BOX_W, text_y + (POWER_BOX_H/2) + 1, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_FAINT]);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], text_x + 2, text_y + (POWER_BOX_H) - 9, ALLEGRO_ALIGN_LEFT, "power");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], text_x + 2, text_y + (POWER_BOX_H) - scaleUI_y(FONT_BASIC,9), ALLEGRO_ALIGN_LEFT, "power");
 
    al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_PURPLE] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity * 2);
    al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + (POWER_BOX_H/2) + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity);

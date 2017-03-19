@@ -140,11 +140,16 @@ void reset_view_values(int window_w, int window_h)
    view.map_y = window_h - view.map_h - 40;
 
 // horrible magic numbers that end up putting the close button in the right position:
-   view.data_box_close_button_x1 = window_w - 40;
-   view.data_box_close_button_y1 = 114;
-   view.data_box_close_button_x2 = window_w - 13;
-   view.data_box_close_button_y2 = 136;
+   view.data_box_close_button_x1 = window_w - 10 - scaleUI_x(FONT_SQUARE,30);
+//   view.data_box_close_button_y1 = scaleUI_y(FONT_BASIC,114);
+   view.data_box_close_button_y1 = scaleUI_y(FONT_SQUARE,70) + 16 + 3;
 
+ 		if (view.data_box_close_button_y1 < inter.mode_buttons_y1 + MODE_BUTTON_SIZE + 6)
+	 		view.data_box_close_button_y1 = inter.mode_buttons_y1 + MODE_BUTTON_SIZE + 6;
+
+
+   view.data_box_close_button_x2 = window_w - 10 - scaleUI_x(FONT_SQUARE,3);
+   view.data_box_close_button_y2 = view.data_box_close_button_y1 + scaleUI_x(FONT_SQUARE,22) - 6;//scaleUI_y(FONT_BASIC,136);
 
 }
 

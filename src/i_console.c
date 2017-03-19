@@ -61,7 +61,7 @@ void init_consoles(void)
  console[CONSOLE_GENERAL].h_lines = 6;
  console[CONSOLE_GENERAL].h_pixels = console[CONSOLE_GENERAL].h_lines * CONSOLE_LINE_HEIGHT;
  console[CONSOLE_GENERAL].w_letters = 66;
- console[CONSOLE_GENERAL].w_pixels = scaleUI_x(FONT_SQUARE, (console[CONSOLE_GENERAL].w_letters * 7 + 32)); // +25 is to leave space for the source index on the left
+ console[CONSOLE_GENERAL].w_pixels = scaleUI_x(FONT_SQUARE, (console[CONSOLE_GENERAL].w_letters * 7 + 3)) + scaleUI_x(FONT_BASIC, 29); // +25 is to leave space for the source index on the left
 /* fpr("\n base %i scaled %i factor %f test %f",
 					console[CONSOLE_GENERAL].w_letters * 7 + 32,
 					console[CONSOLE_GENERAL].w_pixels,
@@ -74,7 +74,7 @@ void init_consoles(void)
  console[CONSOLE_SYSTEM].h_lines = 8;
  console[CONSOLE_SYSTEM].h_pixels = console[CONSOLE_SYSTEM].h_lines * CONSOLE_LINE_HEIGHT;
  console[CONSOLE_SYSTEM].w_letters = SYSTEM_CONSOLE_WIDTH_LETTERS;
- console[CONSOLE_SYSTEM].w_pixels = scaleUI_x(FONT_SQUARE, (console[CONSOLE_SYSTEM].w_letters * 7 + 32)); // ???
+ console[CONSOLE_SYSTEM].w_pixels = scaleUI_x(FONT_SQUARE, (console[CONSOLE_SYSTEM].w_letters * 7 + 3)) + scaleUI_x(FONT_BASIC, 29); // ???
  console[CONSOLE_SYSTEM].x = 40;
  console[CONSOLE_SYSTEM].y = 40;
 
@@ -198,8 +198,8 @@ void display_consoles_and_buttons(void)
 		{
 			sancheck(line_index, 0, CLINES, "display_consoles_and_buttons: line_index B");
 			if (console[c].cline[line_index].source_index != -1)
- 			al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], console[c].x + 22, console[c].y + console[c].h_pixels - ((i+1)*CONSOLE_LINE_HEIGHT) + 5, ALLEGRO_ALIGN_RIGHT, "%i", console[c].cline[line_index].source_index);
-			al_draw_textf(font[FONT_SQUARE].fnt, colours.print [console[c].cline[line_index].colour], console[c].x + 29, console[c].y + console[c].h_pixels - ((i+1)*CONSOLE_LINE_HEIGHT) + 4, ALLEGRO_ALIGN_LEFT, "%s", console[c].cline[line_index].text);
+ 			al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], console[c].x + scaleUI_x(FONT_BASIC,22), console[c].y + console[c].h_pixels - ((i+1)*CONSOLE_LINE_HEIGHT) + 5, ALLEGRO_ALIGN_RIGHT, "%i", console[c].cline[line_index].source_index);
+			al_draw_textf(font[FONT_SQUARE].fnt, colours.print [console[c].cline[line_index].colour], console[c].x + scaleUI_x(FONT_BASIC,29), console[c].y + console[c].h_pixels - ((i+1)*CONSOLE_LINE_HEIGHT) + 4, ALLEGRO_ALIGN_LEFT, "%s", console[c].cline[line_index].text);
 
 			line_index --;
 			if (line_index < 0)
@@ -623,16 +623,16 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
  	 int shade = SHADE_MED;
 
  	 if (control.mouse_panel == PANEL_MAIN
-				&&	control.mouse_x_screen_pixels > view.window_x_unzoomed / 2 - 180
-			 && control.mouse_x_screen_pixels < view.window_x_unzoomed / 2 + 180
-			 && control.mouse_y_screen_pixels > view.window_y_unzoomed / 2 - 60
-			 && control.mouse_y_screen_pixels < view.window_y_unzoomed / 2 + 30)
+				&&	control.mouse_x_screen_pixels > view.window_x_unzoomed / 2 - scaleUI_x(FONT_SQUARE_LARGE, 180)
+			 && control.mouse_x_screen_pixels < view.window_x_unzoomed / 2 + scaleUI_x(FONT_SQUARE_LARGE, 180)
+			 && control.mouse_y_screen_pixels > view.window_y_unzoomed / 2 - scaleUI_y(FONT_SQUARE_LARGE, 60)
+			 && control.mouse_y_screen_pixels < view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE_LARGE, 30))
 					shade = SHADE_MAX;
 
-	  add_menu_button(view.window_x_unzoomed / 2 - 180,
-																			view.window_y_unzoomed / 2 - 60,
-																			view.window_x_unzoomed / 2 + 180,
-																			view.window_y_unzoomed / 2 + 30,
+	  add_menu_button(view.window_x_unzoomed / 2 - scaleUI_x(FONT_SQUARE_LARGE, 180),
+																			view.window_y_unzoomed / 2 - scaleUI_y(FONT_SQUARE_LARGE, 60),
+																			view.window_x_unzoomed / 2 + scaleUI_x(FONT_SQUARE_LARGE, 180),
+																			view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE_LARGE, 30),
 			 															colours.base_trans [COL_AQUA] [shade] [TRANS_MED], 12, 7);
 // button dimensions also dealt with in run_pregame() in g_game.c
 
@@ -643,24 +643,24 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
    if (game.spawn_fail != -1)
 			{
 
- 	  add_menu_button(view.window_x_unzoomed / 2 - 195,
-																			 view.window_y_unzoomed / 2 + 55,
-																			 view.window_x_unzoomed / 2 + 195,
-																			 view.window_y_unzoomed / 2 + 125,
+ 	  add_menu_button(view.window_x_unzoomed / 2 - scaleUI_x(FONT_SQUARE, 195),
+																			 view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE, 55),
+																			 view.window_x_unzoomed / 2 + scaleUI_x(FONT_SQUARE, 195),
+																			 view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE, 125),
 			 															 colours.base_trans [COL_RED] [SHADE_LOW] [TRANS_FAINT], 12, 7);
 // button dimensions also dealt with in run_pregame() in g_game.c
 
    draw_vbuf();
 
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 65, ALLEGRO_ALIGN_CENTRE, "Player %i spawn failure", game.spawn_fail);
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE, 65), ALLEGRO_ALIGN_CENTRE, "Player %i spawn failure", game.spawn_fail);
    switch(game.spawn_fail_reason)
    {
    	case SPAWN_FAIL_LOCK:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 85, ALLEGRO_ALIGN_CENTRE, "Template 0 could not be locked.");
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 105, ALLEGRO_ALIGN_CENTRE, "Check the template and make sure it's loaded properly.");
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE, 85), ALLEGRO_ALIGN_CENTRE, "Template 0 could not be locked.");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE, 105), ALLEGRO_ALIGN_CENTRE, "Check the template and make sure it's loaded properly.");
      break;
    	case SPAWN_FAIL_DATA:
-     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + 90, ALLEGRO_ALIGN_CENTRE, "Template 0 data cost too high (maximum %i).", w.player[game.spawn_fail].data);
+     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_RED] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE, 90), ALLEGRO_ALIGN_CENTRE, "Template 0 data cost too high (maximum %i).", w.player[game.spawn_fail].data);
      break;
    }
 
@@ -675,16 +675,16 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
    	 int shade = SHADE_MED;
 
  	   if (control.mouse_panel == PANEL_MAIN
-				  &&	control.mouse_x_screen_pixels > view.window_x_unzoomed / 2 - 180
-			   && control.mouse_x_screen_pixels < view.window_x_unzoomed / 2 + 180
-			   && control.mouse_y_screen_pixels > view.window_y_unzoomed / 2 - 60
-			   && control.mouse_y_screen_pixels < view.window_y_unzoomed / 2 + 30)
+				  &&	control.mouse_x_screen_pixels > view.window_x_unzoomed / 2 - scaleUI_x(FONT_SQUARE_LARGE, 180)
+			   && control.mouse_x_screen_pixels < view.window_x_unzoomed / 2 + scaleUI_x(FONT_SQUARE_LARGE, 180)
+			   && control.mouse_y_screen_pixels > view.window_y_unzoomed / 2 - scaleUI_y(FONT_SQUARE_LARGE, 60)
+			   && control.mouse_y_screen_pixels < view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE_LARGE, 30))
 					  shade = SHADE_MAX;
 
-	    add_menu_button(view.window_x_unzoomed / 2 - 180,
-																			  view.window_y_unzoomed / 2 - 60,
-																			  view.window_x_unzoomed / 2 + 180,
-																			  view.window_y_unzoomed / 2 + 30,
+	    add_menu_button(view.window_x_unzoomed / 2 - scaleUI_x(FONT_SQUARE_LARGE, 180),
+																			  view.window_y_unzoomed / 2 - scaleUI_y(FONT_SQUARE_LARGE, 60),
+																			  view.window_x_unzoomed / 2 + scaleUI_x(FONT_SQUARE_LARGE, 180),
+																			  view.window_y_unzoomed / 2 + scaleUI_y(FONT_SQUARE_LARGE, 30),
 			 															  colours.base_trans [COL_YELLOW] [shade] [TRANS_MED], 12, 7);
 // button dimensions also dealt with in run_pregame() in g_game.c
 

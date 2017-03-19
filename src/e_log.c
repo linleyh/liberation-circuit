@@ -180,6 +180,8 @@ void write_number_to_log(int num) //, int source, int source_line)
   start_log_line(source, source_line);
  }*/
 
+//fpr("\n num %i", num);
+
  int current_length = strlen(mlog.log_line[mlog.lpos].text);
 
  int space_left = mlog.w_letters - current_length;

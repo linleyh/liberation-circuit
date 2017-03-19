@@ -1178,7 +1178,7 @@ void draw_design_data(void)
 #define LOWER_HELP_LINE lower_help_line
 
 // float lower_help_line = panel[PANEL_DESIGN].y1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_MAIN].y2 - 42;
- float lower_help_line = panel[PANEL_LOG].y1 - 28;
+ float lower_help_line = panel[PANEL_LOG].y1 - scaleUI_y(FONT_SQUARE,14);
 
 	switch(dwindow.tools_open)
 	{
@@ -1191,7 +1191,7 @@ void draw_design_data(void)
 //    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x + 150, base_y+3, ALLEGRO_ALIGN_LEFT, "Component data cost %i", dwindow.templ->member[dwindow.selected_member].data_cost);
 //			}
    if (dwindow.templ->locked)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE+14, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
 /*			  else
 					{
       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "Click and drag the core while holding shift to rotate it.");
@@ -1207,7 +1207,7 @@ void draw_design_data(void)
 //    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x + 150, base_y+3, ALLEGRO_ALIGN_LEFT, "Component data cost %i", dwindow.templ->member[dwindow.selected_member].data_cost);
 //			}
    if (dwindow.templ->locked)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE+14, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
 /*			  else
 					{
       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "Click and drag the component while holding shift to rotate it.");
@@ -1219,7 +1219,7 @@ void draw_design_data(void)
 		case FSP_DESIGN_TOOLS_ACTIVE_LINK:
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, base_y+2, ALLEGRO_ALIGN_LEFT, "Object selected");
    if (dwindow.templ->locked)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE+14, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
 /*			  else
 					{
       al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "Click and drag the object while holding shift to rotate it (some objects can't be rotated).");
@@ -1231,7 +1231,7 @@ void draw_design_data(void)
 		case FSP_DESIGN_TOOLS_AUTOCODE:
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, base_y+2, ALLEGRO_ALIGN_LEFT, "Choose process attack routine");
    if (dwindow.templ->locked)
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE+14, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MAX], base_x - 10, LOWER_HELP_LINE, ALLEGRO_ALIGN_LEFT, "This template is locked and can't be modified.");
    break;
 	}
 
@@ -1304,9 +1304,9 @@ const char* object_description [OBJECT_TYPES] [3] =
  {"Allows the process to build other processes.",
   "Multiple build objects speed recovery time after building.",
   ""}, //	OBJECT_TYPE_BUILD,
- {"Generates an interface to protect this component.",
-  "Requires at least one interface_depth object.",
-  "Can't be placed on the core, or the same component as a move object."}, //	OBJECT_TYPE_INTERFACE,
+ {"Generates an interface to protect the process.",
+  "However, the interface does not protect any component",
+  "with either an interface object or a move object."}, //	OBJECT_TYPE_INTERFACE,
 // {"Provides an interface buffer for use by interface objects.",
 //  "Multiple depth objects increase the size and recovery", //	OBJECT_TYPE_INTERFACE_DEPTH,
   //"speed of the buffer."}, //	OBJECT_TYPE_INTERFACE_DEPTH,
@@ -1327,7 +1327,7 @@ const char* object_description [OBJECT_TYPES] [3] =
  {"Fires a powerful stream of malicious data. Does",
   "double damage against components not protected by",
   "an interface. Can rotate to track its target."}, //	OBJECT_TYPE_STREAM_DIR,
- {"Long-range attacking object. Does maximum damage only near",
+ {"Long-range attacking object. Does full damage only near",
   "maximum range.",
   ""}, //	OBJECT_TYPE_SPIKE,
  {"Repairs damage to components of this process, and restores",

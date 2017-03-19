@@ -470,7 +470,7 @@ void setup_design_panel(void)
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w = 250;
 //#define DESIGN_WINDOW_HEIGHT_ADJUST 400
 //	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h = settings.option [OPTION_WINDOW_H] - 400;//scaleUI_y(FONT_BASIC, DESIGN_WINDOW_HEIGHT_ADJUST);//settings.option [OPTION_WINDOW_H] - DESIGN_WINDOW_HEIGHT_ADJUST; // scaleUI_y(FONT_BASIC, 400); // not sure about this...
-	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h = settings.option [OPTION_WINDOW_H] - panel[PANEL_LOG].h - scaleUI_y(FONT_BASIC,290);
+	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h = settings.option [OPTION_WINDOW_H] - panel[PANEL_LOG].h - scaleUI_y(FONT_BASIC,290);// - scaleUI_y(FONT_SQUARE, 30);
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w;
 	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].y1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].h;
 //	panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x2 = panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].x1 + panel[PANEL_DESIGN].subpanel[FSP_DESIGN_WINDOW].w;

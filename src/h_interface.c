@@ -53,6 +53,9 @@ draws map etc and receives input.
 
 #include "x_sound.h"
 
+extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
+
+
 enum
 {
 STORY_REGION_COL_BLUE,
@@ -439,6 +442,13 @@ void story_input(void)
        run_game_from_menu();
 
        reset_log();
+
+       for (i = 0; i < TEMPLATES_PER_PLAYER; i ++)
+							{
+								templ[0][i].locked = 0;
+							}
+
+
        open_template(0, 0); // prevents a situation where the user has a player 1 template open then goes back to the story select screen
 
        game.phase = GAME_PHASE_MENU;

@@ -104,7 +104,7 @@ EXPOINT_TYPE_LOOP, // break jumps to false point; continue jumps to true point
 EXPOINT_TYPE_SWITCH // break jumps to false point; can't be used with continue
 };
 
-#define EXPOINTS 300
+#define EXPOINTS 600
 
 struct expointstruct
 {

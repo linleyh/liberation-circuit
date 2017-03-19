@@ -394,7 +394,7 @@ void init_at_startup(void)
 
    fprintf(stdout, "Liberation Circuit");
    fprintf(stdout, "\nCopyright 2017 Linley Henzell");
-   fprintf(stdout, "\nVersion 1.0");
+   fprintf(stdout, "\nVersion 1.1");
 
    fprintf(stdout, "\n\nThis is free software and comes with no warranty; see licence.txt.");
 
@@ -527,19 +527,22 @@ if (settings.option [OPTION_WINDOW_W] == 1024 && settings.option [OPTION_WINDOW_
 
    al_init_font_addon(); // initialize the font addon
 
+			load_font(FONT_BASIC_UNSCALED, "data/images/fwss_font.bmp", 12, 1.0, 1.0);
+
    if (settings.option [OPTION_DOUBLE_FONTS])
 			{
     load_font(FONT_BASIC, "data/images/fwss_font_L.bmp", 20, 1.9, 1.6);
     load_font(FONT_SQUARE, "data/images/fwt_font_L.bmp", 20, 1.9, 1.6);
+    load_font(FONT_SQUARE_LARGE, "data/images/large_font_L.bmp", 20, 1.9, 1.9);
 			}
 			 else
 				{
-     load_font(FONT_BASIC, "data/images/fwss_font.bmp", 12, 1.0, 1.0);
+					load_font(FONT_BASIC, "data/images/fwss_font.bmp", 12, 1.0, 1.0);
      load_font(FONT_SQUARE, "data/images/fwt_font.bmp", 16, 1.0, 1.0);
-				}
+     load_font(FONT_SQUARE_LARGE, "data/images/large_font.bmp", 20, 1.0, 1.0);
+ 			}
 
 
-   load_font(FONT_SQUARE_LARGE, "data/images/large_font.bmp", 20, 1.0, 1.0);
 
 fpr("\n fonts");
 

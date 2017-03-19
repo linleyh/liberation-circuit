@@ -1,6 +1,6 @@
-# liberation-circuit
+﻿# liberation-circuit
 
-version: 1.0
+version: 1.1
 
 This the release version of Liberation Circuit, an RTS/programming game.
 
@@ -82,7 +82,7 @@ $ libcirc
 
 ```
 
-Text is pretty small on a Retina screen. But it looks and plays perfectly on a 11" or 13" MacBook Air (which are all non-retina).
+If you are using a Retina screen, you may want to set the double_fonts option to make the text larger (edit init.txt to do this).
 
 
 ---------------------------------------------------

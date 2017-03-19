@@ -280,13 +280,13 @@ void draw_scrollbar(int s)
   if (highlight == POINTER_BUTTON_LESS)
    al_draw_filled_rectangle(x1 + 1, y1 + 1, x2 - 1, y1 + SLIDER_BUTTON_SIZE, colours.base [sl->colour] [SHADE_LOW]);
   al_draw_rectangle(x1 + 1, y1 + 1, x2 - 1, y1 + SLIDER_BUTTON_SIZE, colours.base [sl->colour] [SHADE_MED], 1);
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [sl->colour] [SHADE_MED], x1 + 9, y1 + 8, ALLEGRO_ALIGN_CENTRE, "^");
+  al_draw_textf(font[FONT_BASIC_UNSCALED].fnt, colours.base [sl->colour] [SHADE_MED], x1 + 9, y1 + 8, ALLEGRO_ALIGN_CENTRE, "^");
 //  al_draw_line(x1 + 9, y1 + 7, x1 + 6, y1 + 12, colours.base [sl->colour] [SHADE_MED], 1);
 //  al_draw_line(x1 + 9, y1 + 7, x1 + 12, y1 + 12, colours.base [sl->colour] [SHADE_MED], 1);
 //  al_draw_triangle(x1 + 5, y1 + SLIDER_BUTTON_SIZE - 6, x1 + (SLIDER_BUTTON_SIZE/2) - 1, y1 + 5, x2 - 7, y1 + SLIDER_BUTTON_SIZE - 6, colours.base [sl->colour] [SHADE_MED], 1);
   if (highlight == POINTER_BUTTON_MORE)
    al_draw_filled_rectangle(x1 + 1, y2 - SLIDER_BUTTON_SIZE, x2 - 1, y2 - 1, colours.base [sl->colour] [SHADE_LOW]);
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [sl->colour] [SHADE_MED], x1 + 9, y2 - SLIDER_BUTTON_SIZE + 2, ALLEGRO_ALIGN_CENTRE, "%s", down_arrow);
+  al_draw_textf(font[FONT_BASIC_UNSCALED].fnt, colours.base [sl->colour] [SHADE_MED], x1 + 9, y2 - SLIDER_BUTTON_SIZE + 2, ALLEGRO_ALIGN_CENTRE, "%s", down_arrow);
   al_draw_rectangle(x1 + 1, y2 - SLIDER_BUTTON_SIZE, x2 - 1, y2 - 1, colours.base [sl->colour] [SHADE_MED], 1);
 
 // draw slider:
@@ -301,12 +301,12 @@ void draw_scrollbar(int s)
 // draw a button at each end:
    if (highlight == POINTER_BUTTON_LESS)
     al_draw_filled_rectangle(x1 + 1, y1 + 1, x1 + SLIDER_BUTTON_SIZE, y2 - 1, colours.base [sl->colour] [SHADE_LOW]);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [sl->colour] [SHADE_MED], x1 + 10, y1 + 5, ALLEGRO_ALIGN_CENTRE, "<");
+   al_draw_textf(font[FONT_BASIC_UNSCALED].fnt, colours.base [sl->colour] [SHADE_MED], x1 + 10, y1 + 5, ALLEGRO_ALIGN_CENTRE, "<");
    al_draw_rectangle(x1 + 1, y1 + 1, x1 + SLIDER_BUTTON_SIZE, y2 - 1, colours.base [sl->colour] [SHADE_MED], 1);
 
    if (highlight == POINTER_BUTTON_MORE)
     al_draw_filled_rectangle(x2 - SLIDER_BUTTON_SIZE, y1 + 1, x2 - 1, y2 - 1, colours.base [sl->colour] [SHADE_LOW]);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [sl->colour] [SHADE_MED], x2 - 8, y1 + 5, ALLEGRO_ALIGN_CENTRE, ">");
+   al_draw_textf(font[FONT_BASIC_UNSCALED].fnt, colours.base [sl->colour] [SHADE_MED], x2 - 8, y1 + 5, ALLEGRO_ALIGN_CENTRE, ">");
    al_draw_rectangle(x2 - SLIDER_BUTTON_SIZE, y1 + 1, x2 - 1, y2 - 1, colours.base [sl->colour] [SHADE_MED], 1);
 
 //   al_draw_rectangle(x1 + 1, y1 + 1, x1 + SLIDER_BUTTON_SIZE, y2 - 1, colours.base [sl->colour] [SHADE_MED], 1);
