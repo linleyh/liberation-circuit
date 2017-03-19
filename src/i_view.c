@@ -149,7 +149,7 @@ void reset_view_values(int window_w, int window_h)
 
 
    view.data_box_close_button_x2 = window_w - 10 - scaleUI_x(FONT_SQUARE,3);
-   view.data_box_close_button_y2 = view.data_box_close_button_y1 + scaleUI_x(FONT_SQUARE,22) - 6;//scaleUI_y(FONT_BASIC,136);
+   view.data_box_close_button_y2 = view.data_box_close_button_y1 + scaleUI_x(FONT_SQUARE,16) + 6;// - 6;//scaleUI_y(FONT_BASIC,136);
 
 }
 

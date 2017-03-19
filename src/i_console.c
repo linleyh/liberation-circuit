@@ -276,7 +276,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 						if (command.build_mode != BUILD_MODE_NONE
 							&& command.build_template_index == i)
 						{
-    	   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x2 + 6, button_y + (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_LEFT, "Place static process >>");
+    	   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x2 + 6, button_y + (i * BUILD_BUTTON_H) + scaleUI_y(FONT_SQUARE,7), ALLEGRO_ALIGN_LEFT, "Place static process >>");
   					 button_shade = SHADE_HIGH;
 						}
 
@@ -301,25 +301,27 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 
    draw_vbuf();
 
-	  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 3, button_y - BUILD_BUTTON_H + 10, ALLEGRO_ALIGN_LEFT, "Build");
+	  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 3, button_y - BUILD_BUTTON_H + scaleUI_y(FONT_SQUARE,7), ALLEGRO_ALIGN_LEFT, "Build");
 
 
    template_index = 0;
 
    for (i = 0; i < TEMPLATES_PER_PLAYER; i ++)
 		 {
-		  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], view.build_buttons_x1 + 6, button_y + (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_LEFT, "%i", template_index);
+		 	float text_y = button_y + (i * BUILD_BUTTON_H) + scaleUI_y(FONT_SQUARE,7);
+
+		  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], view.build_buttons_x1 + 6, text_y, ALLEGRO_ALIGN_LEFT, "%i", template_index);
  			if (templ[game.user_player_index][template_index].active)
 			 {
-			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 22, button_y + (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_LEFT, "%s", templ[game.user_player_index][template_index].name);
-			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x2 - 8, button_y + (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_RIGHT, "%i", templ[game.user_player_index][template_index].data_cost);
+			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + scaleUI_x(FONT_SQUARE,22), text_y, ALLEGRO_ALIGN_LEFT, "%s", templ[game.user_player_index][template_index].name);
+			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x2 - 8, text_y, ALLEGRO_ALIGN_RIGHT, "%i", templ[game.user_player_index][template_index].data_cost);
 //			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x2 - 8, button_y + (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_RIGHT, "%i", templ[game.user_player_index][template_index].data_cost);
 
 //				 core->build_cooldown_time = w.world_time + ((templ[core->player_index][build_template].build_cooldown_time / core->number_of_build_objects + 1) * EXECUTION_COUNT); // number_of_build_objects has been confirmed to be non-zero above
 
 			 }
 			  else
- 			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], view.build_buttons_x1 + 22, button_y + (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_LEFT, "empty");
+ 			  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], view.build_buttons_x1 + 22, text_y, ALLEGRO_ALIGN_LEFT, "empty");
  			template_index++;
 // 			template_index %= TEMPLATES_PER_PLAYER;
 		 }
@@ -582,7 +584,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
   	  al_draw_textf(font[FONT_BASIC].fnt,
 																			colours.base_trans [COL_YELLOW] [SHADE_MAX] [TRANS_MED],
 																			view.build_buttons_x2 - 26,
-																			button_y - (queue_button_highlight_mouseover * BUILD_BUTTON_H) + 11,
+																			button_y - (queue_button_highlight_mouseover * BUILD_BUTTON_H) + scaleUI_y(FONT_BASIC,8),
 																			ALLEGRO_ALIGN_CENTRE,
 																			"X");
 
@@ -593,10 +595,10 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 
 			template_index = w.player[game.user_player_index].build_queue[i].template_index;
 			sancheck(template_index, 0, TEMPLATES_PER_PLAYER, "console template_index");
-	  al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 10, button_y - (i * BUILD_BUTTON_H) + 12, ALLEGRO_ALIGN_LEFT, "%i", w.player[game.user_player_index].build_queue[i].core_index);
-	  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 32, button_y - (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_LEFT, "%s", templ[game.user_player_index][template_index].name);
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 10, button_y - (i * BUILD_BUTTON_H) + scaleUI_y(FONT_BASIC,9), ALLEGRO_ALIGN_LEFT, "%i", w.player[game.user_player_index].build_queue[i].core_index);
+	  al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 32, button_y - (i * BUILD_BUTTON_H) + scaleUI_y(FONT_SQUARE,7), ALLEGRO_ALIGN_LEFT, "%s", templ[game.user_player_index][template_index].name);
    if (w.player[game.user_player_index].build_queue[i].repeat)
-	   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_TURQUOISE] [SHADE_MAX] [TRANS_THICK], view.build_buttons_x2 - 8, button_y - (i * BUILD_BUTTON_H) + 10, ALLEGRO_ALIGN_RIGHT, "+");
+	   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_TURQUOISE] [SHADE_MAX] [TRANS_THICK], view.build_buttons_x2 - 8, button_y - (i * BUILD_BUTTON_H) + scaleUI_y(FONT_SQUARE,7), ALLEGRO_ALIGN_RIGHT, "+");
 
 		}
 
@@ -608,7 +610,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 
 
 
-	   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 5, button_y + BUILD_BUTTON_H + 10, ALLEGRO_ALIGN_LEFT, "%s", queue_header_text);
+	   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_THICK], view.build_buttons_x1 + 5, button_y + BUILD_BUTTON_H + scaleUI_y(FONT_SQUARE,7), ALLEGRO_ALIGN_LEFT, "%s", queue_header_text);
 			}
 
 

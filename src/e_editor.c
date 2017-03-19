@@ -1147,8 +1147,8 @@ void open_overwindow(int ow_type)
 //#ifdef USING_OVERWINDOW
 
  editor.overwindow_type = ow_type;
- editor.overwindow_w = 200;
- editor.overwindow_h = 100;
+ editor.overwindow_w = scaleUI_x(FONT_BASIC,200);
+ editor.overwindow_h = scaleUI_y(FONT_BASIC,100);
  editor.overwindow_x = (panel[PANEL_EDITOR].w / 2) - (editor.overwindow_w / 2);
  editor.overwindow_y = (panel[PANEL_EDITOR].h / 2) - (editor.overwindow_h / 2);
 

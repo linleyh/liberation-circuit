@@ -381,7 +381,7 @@ int get_ctoken_one_or_two_char(struct ctokenstruct* ctoken, char read_char)
    {
     case '=': ctoken->type = CTOKEN_TYPE_OPERATOR_COMPARISON;
      ctoken->subtype = CTOKEN_SUBTYPE_GREQ; return 1;
-    case '<': ctoken->subtype = CTOKEN_SUBTYPE_BITSHIFT_R; return 1;
+    case '>': ctoken->subtype = CTOKEN_SUBTYPE_BITSHIFT_R; return 1;
    }
    ctoken->type = CTOKEN_TYPE_OPERATOR_COMPARISON;
    ctoken->subtype = CTOKEN_SUBTYPE_GR;
@@ -626,15 +626,17 @@ int get_ctoken_number_zero(struct ctokenstruct* ctoken)
   }
 
 // need to convert unsigned hex number to s16b:
-  if (ctoken_value > 0x7FFF)
-			ctoken_value *= -1; // will this work? I hope so!
+//  if (ctoken_value > 0x7FFF)
+//			ctoken_value *= -1; // will this work? I hope so!
 
-  if (ctoken_value > BCODE_VALUE_MAXIMUM
-   || ctoken_value < BCODE_VALUE_MINIMUM)
-    return comp_error(CERR_PARSER_NUMBER_TOO_LARGE, ctoken);
+  s16b ctoken_value_16b = ctoken_value;
+
+//  if (ctoken_value > BCODE_VALUE_MAXIMUM
+//   || ctoken_value < BCODE_VALUE_MINIMUM)
+//    return comp_error(CERR_PARSER_NUMBER_TOO_LARGE, ctoken);
 
   ctoken->type = CTOKEN_TYPE_NUMBER;
-  ctoken->number_value = ctoken_value;
+  ctoken->number_value = ctoken_value_16b;//ctoken_value;
 
   return 1;
  } // end hex

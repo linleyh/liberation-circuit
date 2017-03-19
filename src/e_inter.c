@@ -538,9 +538,9 @@ void update_editor_display(void)
    case OVERWINDOW_TYPE_FIND:
     al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_OVERWINDOW_TEXT], editor_panel_x + editor.overwindow_x + (editor.overwindow_w / 2), editor.overwindow_y + 20, ALLEGRO_ALIGN_CENTRE, "Find");
 #define SEARCH_BOX_X 10
-#define SEARCH_BOX_W 120
+#define SEARCH_BOX_W scaleUI_x(FONT_BASIC,120)
 #define SEARCH_BOX_Y 35
-#define SEARCH_BOX_H 15
+#define SEARCH_BOX_H scaleUI_y(FONT_BASIC,15)
     al_draw_filled_rectangle(editor_panel_x + editor.overwindow_x + SEARCH_BOX_X, editor.overwindow_y + SEARCH_BOX_Y, editor_panel_x + editor.overwindow_x + editor.overwindow_w - SEARCH_BOX_X, editor.overwindow_y + SEARCH_BOX_Y + SEARCH_BOX_H, edit_col [EDIT_COL_SEARCH_BOX]);
 //    al_draw_rectangle(editor_panel_x + editor.overwindow_x + SEARCH_BOX_X, editor.overwindow_y + SEARCH_BOX_Y, editor_panel_x + editor.overwindow_x + editor.overwindow_w - SEARCH_BOX_X, editor.overwindow_y + SEARCH_BOX_Y + SEARCH_BOX_H, edit_col [EDIT_COL_OVERWINDOW_BORDER], 1);
     al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_OVERWINDOW_TEXT], editor_panel_x + editor.overwindow_x + SEARCH_BOX_X + 3, editor.overwindow_y + SEARCH_BOX_Y + 3, ALLEGRO_ALIGN_LEFT, "%s", editor.search_string);
