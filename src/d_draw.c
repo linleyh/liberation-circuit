@@ -140,9 +140,9 @@ void draw_design_window(void)
   int i;
 
 //	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], POWER_GRAPH_X - 2, POWER_GRAPH_Y - 12, ALLEGRO_ALIGN_RIGHT, "power");
-	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, POWER_GRAPH_Y, ALLEGRO_ALIGN_RIGHT, "power");
-	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, POWER_GRAPH_Y2, ALLEGRO_ALIGN_RIGHT, "demand");
-	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, POWER_GRAPH_Y3, ALLEGRO_ALIGN_RIGHT, "data");
+	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], (int) POWER_GRAPH_X - 2, (int) POWER_GRAPH_Y, ALLEGRO_ALIGN_RIGHT, "power");
+	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], (int) POWER_GRAPH_X - 2, (int) POWER_GRAPH_Y2, ALLEGRO_ALIGN_RIGHT, "demand");
+	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], (int) POWER_GRAPH_X - 2, (int) POWER_GRAPH_Y3, ALLEGRO_ALIGN_RIGHT, "data");
 
 
  add_design_bquad(POWER_GRAPH_X,
@@ -176,7 +176,7 @@ void draw_design_window(void)
 
 	}
 
-	float right_text_x;
+	int right_text_x;
 
 	right_text_x = component_power_x + (component_power_w * template_components) + 12;
 
@@ -185,8 +185,8 @@ void draw_design_window(void)
 	  else
   	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_YELLOW] [SHADE_LOW], right_text_x, POWER_GRAPH_Y, ALLEGRO_ALIGN_LEFT, "core %i total %i", nshape[dwindow.templ->member[0].shape].power_capacity, nshape[dwindow.templ->member[0].shape].power_capacity + nshape[dwindow.templ->member[0].shape].component_power_capacity * template_components);
 
-																	 float power_use_base_x = POWER_GRAPH_X + dwindow.templ->power_use_base * POWER_GRAPH_SCALE;
-																	 float power_use_peak_x = POWER_GRAPH_X + dwindow.templ->power_use_peak * POWER_GRAPH_SCALE;
+																	 int power_use_base_x = POWER_GRAPH_X + dwindow.templ->power_use_base * POWER_GRAPH_SCALE;
+																	 int power_use_peak_x = POWER_GRAPH_X + dwindow.templ->power_use_peak * POWER_GRAPH_SCALE;
 
 
 if (dwindow.templ->power_use_peak > 0)
@@ -212,9 +212,9 @@ add_design_bquad(POWER_GRAPH_X,
 																	 colours.base_trans [COL_ORANGE] [SHADE_MAX] [TRANS_MED]);
 }
 
-	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_LOW], power_use_peak_x + 12, POWER_GRAPH_Y2, ALLEGRO_ALIGN_LEFT, "base %i peak %i", dwindow.templ->power_use_base, dwindow.templ->power_use_peak);
+	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_LOW], (int) power_use_peak_x + 12, (int) POWER_GRAPH_Y2, ALLEGRO_ALIGN_LEFT, "base %i peak %i", dwindow.templ->power_use_base, dwindow.templ->power_use_peak);
 
-  float data_cost_x = POWER_GRAPH_X + dwindow.templ->data_cost * POWER_GRAPH_SCALE;
+  int data_cost_x = POWER_GRAPH_X + dwindow.templ->data_cost * POWER_GRAPH_SCALE;
 
 
 if (dwindow.templ->data_cost > 0)
@@ -228,16 +228,16 @@ add_design_bquad(POWER_GRAPH_X,
 																	 colours.base_trans [COL_BLUE] [SHADE_MAX] [TRANS_MED]);
 }
 
-	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MED], data_cost_x + 12, POWER_GRAPH_Y3, ALLEGRO_ALIGN_LEFT, "cost %i", dwindow.templ->data_cost);
+	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_MED], (int) data_cost_x + 12, (int) POWER_GRAPH_Y3, ALLEGRO_ALIGN_LEFT, "cost %i", dwindow.templ->data_cost);
 
 
-  float possible_graph_y = POWER_GRAPH_Y0;
+  int possible_graph_y = POWER_GRAPH_Y0;
 
 
 //  if (dwindow.templ->number_of_interface_objects > 0)
 		{
 // the word "interface" is only displayed if the template actually has an interface
-	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, possible_graph_y, ALLEGRO_ALIGN_RIGHT, "%%power");
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], (int) POWER_GRAPH_X - 2, (int) possible_graph_y, ALLEGRO_ALIGN_RIGHT, "%%power");
 
 	  int power_ratio = 100;
 	  if (dwindow.templ->power_use_peak != 0)
@@ -245,7 +245,7 @@ add_design_bquad(POWER_GRAPH_X,
 	  float power_ratio_x = POWER_GRAPH_X + power_ratio;// * 0.1;
 	  float power_ratio_x_100 = POWER_GRAPH_X + 100;
 
-	  float power_ratio_text_x = power_ratio_x + 12;
+	  int power_ratio_text_x = power_ratio_x + 12;
 	  if (power_ratio < 100)
 				power_ratio_text_x = POWER_GRAPH_X + 112;
 
@@ -321,7 +321,7 @@ add_design_bquad(POWER_GRAPH_X,
   if (dwindow.templ->number_of_interface_objects > 0)
 		{
 // the word "interface" is only displayed if the template actually has an interface
-	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, possible_graph_y, ALLEGRO_ALIGN_RIGHT, "interface");
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], (int) POWER_GRAPH_X - 2, (int) possible_graph_y, ALLEGRO_ALIGN_RIGHT, "interface");
 
 	  int interface_strength = dwindow.templ->number_of_interface_objects * nshape[dwindow.templ->member[0].shape].base_hp_max;
 	  float interface_strength_x = POWER_GRAPH_X + interface_strength * 0.1;
@@ -334,7 +334,7 @@ add_design_bquad(POWER_GRAPH_X,
 																	   2,
 																	   colours.base_trans [COL_PURPLE] [SHADE_MAX] [TRANS_MED]);
 
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_PURPLE] [SHADE_HIGH], interface_strength_x + 12, possible_graph_y, ALLEGRO_ALIGN_LEFT, "interface %i charge +%i", interface_strength, dwindow.templ->number_of_interface_objects * nshape[dwindow.templ->member[0].shape].interface_charge_rate);
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_PURPLE] [SHADE_HIGH], (int) (interface_strength_x + 12), (int) possible_graph_y, ALLEGRO_ALIGN_LEFT, "interface %i charge +%i", interface_strength, dwindow.templ->number_of_interface_objects * nshape[dwindow.templ->member[0].shape].interface_charge_rate);
 
    possible_graph_y -= (POWER_GRAPH_H + 2);
 
@@ -344,10 +344,10 @@ add_design_bquad(POWER_GRAPH_X,
   if (dwindow.templ->number_of_storage_objects > 0)
 		{
 // only displayed if the template actually has storage
-	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], POWER_GRAPH_X - 2, possible_graph_y, ALLEGRO_ALIGN_RIGHT, "storage");
+	  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], (int) (POWER_GRAPH_X - 2), (int) possible_graph_y, ALLEGRO_ALIGN_RIGHT, "storage");
 
 	  int data_storage = dwindow.templ->number_of_storage_objects * 64;
-	  float data_storage_x = POWER_GRAPH_X + data_storage * 0.3;
+	  int data_storage_x = POWER_GRAPH_X + data_storage * 0.3;
 
    add_design_bquad(POWER_GRAPH_X,
 																	   possible_graph_y,
@@ -357,7 +357,7 @@ add_design_bquad(POWER_GRAPH_X,
 																	   2,
 																	   colours.base_trans [COL_ORANGE] [SHADE_MAX] [TRANS_MED]);
 
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], data_storage_x + 12, possible_graph_y, ALLEGRO_ALIGN_LEFT, "data storage %i", data_storage);
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_ORANGE] [SHADE_HIGH], (int) (data_storage_x + 12), (int) possible_graph_y, ALLEGRO_ALIGN_LEFT, "data storage %i", data_storage);
 
    possible_graph_y -= (POWER_GRAPH_H + 2);
 
@@ -1387,14 +1387,14 @@ static void design_help_highlight(int base_x, int base_y)
 						help_shape = dwindow.templ->member[dwindow.selected_member].shape;
 				}
 
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), base_y + 2, ALLEGRO_ALIGN_LEFT, "%s", identifier[nshape[help_shape].keyword_index].name);
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 255)), (int) (base_y + 2), ALLEGRO_ALIGN_LEFT, "%s", identifier[nshape[help_shape].keyword_index].name);
 			int line_y = base_y + scaleUI_y(FONT_SQUARE, 20);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "total cost");
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].data_cost);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "total cost");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].data_cost);
    line_y += line_h;
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "angle");
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].connection_angle_offset_angle);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "angle");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "%i", dwindow.templ->member[dwindow.selected_member].connection_angle_offset_angle);
    line_y += line_h;
 /*   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 305, line_y, ALLEGRO_ALIGN_RIGHT, "gao");
    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_LEFT, "     %i", fixed_angle_to_int(dwindow.templ->member[dwindow.selected_member].group_angle_offset) & ANGLE_MASK);
@@ -1411,30 +1411,30 @@ static void design_help_highlight(int base_x, int base_y)
 
 			line_y = base_y + 116 + scaleUI_y(FONT_SQUARE, 20) + scaleUI_y(FONT_BASIC, 24);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "base cost");
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].data_cost);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "base cost");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].data_cost);
 //   al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 340, line_y, ALLEGRO_ALIGN_RIGHT, "%i (%i)", nshape[panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [2]].data_cost, panel[PANEL_DESIGN].element[control.panel_element_highlighted].value [2]);
    line_y += line_h;
    if (panel[PANEL_DESIGN].subpanel[FSP_DESIGN_TOOLS_CORE].open == 1)
 			{
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "integrity");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].base_hp_max);
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "integrity");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].base_hp_max);
     line_y += line_h;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "core power");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].power_capacity);
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "core power");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].power_capacity);
     line_y += line_h;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "component power");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "+%i", nshape[help_shape].component_power_capacity);
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "component power");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "+%i", nshape[help_shape].component_power_capacity);
     line_y += line_h;
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 305), line_y, ALLEGRO_ALIGN_RIGHT, "instructions");
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 315), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].instructions_per_cycle);
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 305)), line_y, ALLEGRO_ALIGN_RIGHT, "instructions");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 315)), line_y, ALLEGRO_ALIGN_LEFT, "%i", nshape[help_shape].instructions_per_cycle);
     line_y += line_h;
     if (help_shape < FIRST_MOBILE_NSHAPE)
 				{
      line_y += scaleUI_y(FONT_BASIC, 5);
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), line_y, ALLEGRO_ALIGN_LEFT, "this is a static core");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 255)), line_y, ALLEGRO_ALIGN_LEFT, "this is a static core");
      line_y += line_h;
-     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), line_y, ALLEGRO_ALIGN_LEFT, "and does not move");
+     al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_BLUE] [SHADE_HIGH], (int) (base_x + scaleUI_x(FONT_BASIC, 255)), line_y, ALLEGRO_ALIGN_LEFT, "and does not move");
      line_y += line_h;
 				}
 /*    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + 315, line_y, ALLEGRO_ALIGN_RIGHT, "build recycle");
@@ -1489,9 +1489,9 @@ static void design_help_highlight(int base_x, int base_y)
 																					colours.plan_col [display_object_col],
 																			  1.5); // last number is zoom
 
-				float text_x_265 = base_x + scaleUI_x(FONT_BASIC, 265);
-				float text_x_305 = base_x + scaleUI_x(FONT_BASIC, 305);
-				float text_x_315 = base_x + scaleUI_x(FONT_BASIC, 315);
+				int text_x_265 = base_x + scaleUI_x(FONT_BASIC, 265);
+				int text_x_305 = base_x + scaleUI_x(FONT_BASIC, 305);
+				int text_x_315 = base_x + scaleUI_x(FONT_BASIC, 315);
 
     al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_HIGH], base_x + scaleUI_x(FONT_BASIC, 255), object_detail_base_y + 2, ALLEGRO_ALIGN_LEFT, "%s", otype[display_object.type].name);
 		 	int line_y = object_detail_base_y + 20;

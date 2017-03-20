@@ -6286,13 +6286,13 @@ int scaled_power_box_h = scaleUI_y(FONT_SQUARE,80);
 
 	float box_x = view.window_x_unzoomed - BOX_W - 10;
 	float box_x2 = box_x + BOX_W;
- float text_x = box_x + 11;
- float text_x2 = box_x2 - scaleUI_x(FONT_SQUARE,9);
+ int text_x = box_x + 11;
+ int text_x2 = box_x2 - scaleUI_x(FONT_SQUARE,9);
 	float box_y = 5;
 	float process_box_y;
 	int box_lines;
 	float	box_h = BOX_HEADER_H + BOX_LINE_H * 3 + 8;
- float text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
+ int text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
 
 #ifndef RECORDING_VIDEO_2
 
@@ -6314,7 +6314,7 @@ if (inter.block_mode_button_area_scrolling)
 
  draw_vbuf();
 
- al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, box_y + 10, ALLEGRO_ALIGN_LEFT, "%s", w.player[game.user_player_index].name);
+ al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, (int) (box_y + 10), ALLEGRO_ALIGN_LEFT, "%s", w.player[game.user_player_index].name);
  text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], text_x, text_y, ALLEGRO_ALIGN_LEFT, "data");
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_BLUE] [SHADE_MAX], text_x2, text_y, ALLEGRO_ALIGN_RIGHT, "%i", w.player[game.user_player_index].data);
@@ -6364,10 +6364,10 @@ if (inter.block_mode_button_area_scrolling)
 
     draw_vbuf();
 
-    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, box_y + 10, ALLEGRO_ALIGN_LEFT, "process %i", core->index);
-    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2 - scaleUI_x(FONT_SQUARE,32), box_y + 10, ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, (int) (box_y + 10), ALLEGRO_ALIGN_LEFT, "process %i", core->index);
+    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], (int) (text_x2 - scaleUI_x(FONT_SQUARE,32)), (int) (box_y + 10), ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
 
-    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], view.data_box_close_button_x1 + scaleUI_x(FONT_BASIC,13), box_y + scaleUI_x(FONT_BASIC,10), ALLEGRO_ALIGN_CENTRE, "+");
+    al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], (int) (view.data_box_close_button_x1 + scaleUI_x(FONT_BASIC,13)), (int) (box_y + scaleUI_x(FONT_BASIC,10)), ALLEGRO_ALIGN_CENTRE, "+");
 		 }
 		  else
 				{
@@ -6399,10 +6399,10 @@ if (inter.block_mode_button_area_scrolling)
 
   draw_vbuf();
 
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, box_y + 10, ALLEGRO_ALIGN_LEFT, "process %i", core->index);
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2 - scaleUI_x(FONT_SQUARE,32), box_y + 10, ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], (int) (text_x), (int) (box_y + 10), ALLEGRO_ALIGN_LEFT, "process %i", core->index);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], (int) (text_x2 - scaleUI_x(FONT_SQUARE,32)), (int) (box_y + 10), ALLEGRO_ALIGN_RIGHT, "%s", templ[core->player_index][core->template_index].name);
 
-  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], view.data_box_close_button_x1 + scaleUI_x(FONT_BASIC,13), box_y + scaleUI_y(FONT_BASIC,11), ALLEGRO_ALIGN_CENTRE, "X");
+  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_TURQUOISE] [SHADE_MAX], (int) (view.data_box_close_button_x1 + scaleUI_x(FONT_BASIC,13)), (int) (box_y + scaleUI_y(FONT_BASIC,11)), ALLEGRO_ALIGN_CENTRE, "X");
 
 
   text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
@@ -6636,8 +6636,8 @@ if (inter.block_mode_button_area_scrolling)
 
    power_box_y = text_y + CONSTRUCT_BOX_Y;//_BOX_H;// + 2;
 
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_MAX] [TRANS_THICK], text_x + scaleUI_x(FONT_SQUARE,20), text_y + (CONSTRUCT_BOX_Y) - scaleUI_y(FONT_SQUARE,25), ALLEGRO_ALIGN_LEFT, "Constructing...");
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_THICK], text_x + scaleUI_x(FONT_SQUARE,70), text_y + (CONSTRUCT_BOX_Y), ALLEGRO_ALIGN_LEFT, "Ready in %i", (core->construction_complete_timestamp - w.world_time) / EXECUTION_COUNT);
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_MAX] [TRANS_THICK], (int) (text_x + scaleUI_x(FONT_SQUARE,20)), (int) (text_y + (CONSTRUCT_BOX_Y) - scaleUI_y(FONT_SQUARE,25)), ALLEGRO_ALIGN_LEFT, "Constructing...");
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base_trans [COL_YELLOW] [SHADE_HIGH] [TRANS_THICK], (int) (text_x + scaleUI_x(FONT_SQUARE,70)), (int) (text_y + (CONSTRUCT_BOX_Y)), ALLEGRO_ALIGN_LEFT, "Ready in %i", (core->construction_complete_timestamp - w.world_time) / EXECUTION_COUNT);
    int line_pos = (core->construction_complete_timestamp - w.world_time) % 20;
 
    add_orthogonal_rect(2, text_x + scaleUI_x(FONT_SQUARE,10), text_y + CONSTRUCT_BOX_Y - scaleUI_y(FONT_SQUARE,35), text_x + scaleUI_x(FONT_SQUARE,210), text_y + CONSTRUCT_BOX_Y + scaleUI_y(FONT_SQUARE,20), colours.base_trans [COL_ORANGE] [SHADE_MED] [TRANS_FAINT]);
@@ -6654,11 +6654,11 @@ if (inter.block_mode_button_area_scrolling)
 // this draws a line:
    add_orthogonal_rect(2, text_x, text_y + (POWER_BOX_H/2), text_x + POWER_BOX_W, text_y + (POWER_BOX_H/2) + 1, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_FAINT]);
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], text_x + 2, text_y + (POWER_BOX_H) - scaleUI_y(FONT_BASIC,9), ALLEGRO_ALIGN_LEFT, "power");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_THICK], text_x + 2, (int) (text_y + (POWER_BOX_H) - scaleUI_y(FONT_BASIC,9)), ALLEGRO_ALIGN_LEFT, "power");
 
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_PURPLE] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity * 2);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + (POWER_BOX_H/2) + 2, ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity);
-   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], text_x + POWER_BOX_W + 4, text_y + (POWER_BOX_H) - 3, ALLEGRO_ALIGN_LEFT, "0");
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_PURPLE] [SHADE_HIGH] [TRANS_MED], (int) (text_x + POWER_BOX_W + 4), (int) (text_y + 2), ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity * 2);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_BLUE] [SHADE_HIGH] [TRANS_MED], (int) (text_x + POWER_BOX_W + 4), (int) (text_y + (POWER_BOX_H/2) + 2), ALLEGRO_ALIGN_LEFT, "%i", core->power_capacity);
+   al_draw_textf(font[FONT_BASIC].fnt, colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_MED], (int) (text_x + POWER_BOX_W + 4), (int) (text_y + (POWER_BOX_H) - 3), ALLEGRO_ALIGN_LEFT, "0");
 
    j = command.power_use_pos;
 
@@ -6745,7 +6745,7 @@ if (inter.block_mode_button_area_scrolling)
 
    text_y = box_y + BOX_HEADER_H + 7;// + BOX_LINE_H;
 
-   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, box_y + 10, ALLEGRO_ALIGN_LEFT, "component %i", command.selected_member);
+   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, (int) (box_y + 10), ALLEGRO_ALIGN_LEFT, "component %i", command.selected_member);
 //   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x2, box_y + 9, ALLEGRO_ALIGN_RIGHT, "%i", command.selected_member);
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_AQUA] [SHADE_MAX], text_x, text_y, ALLEGRO_ALIGN_LEFT, "integrity");
    al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_AQUA] [SHADE_MAX], text_x2, text_y, ALLEGRO_ALIGN_RIGHT, "%i (%i)", selected_proc->hp, selected_proc->hp_max);
@@ -6906,22 +6906,22 @@ if (inter.block_mode_button_area_scrolling)
 
   al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], text_x, text_y + 10, ALLEGRO_ALIGN_LEFT, "data well");
 
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_LEFT, "data");
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_RIGHT, "%i (%i)", w.data_well[command.selected_data_well].data, w.data_well[command.selected_data_well].data_max);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_LEFT, "data");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_RIGHT, "%i (%i)", w.data_well[command.selected_data_well].data, w.data_well[command.selected_data_well].data_max);
   text_y += BOX_LINE_H;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_LEFT, "replenish");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_LEFT, "replenish");
   int replenish_rate = 0;
   if (w.data_well[command.selected_data_well].reserve_data [0] > 0)
 			replenish_rate += w.data_well[command.selected_data_well].reserve_squares * DATA_WELL_REPLENISH_RATE;
   if (w.data_well[command.selected_data_well].reserve_data [1] > 0)
 			replenish_rate += w.data_well[command.selected_data_well].reserve_squares * DATA_WELL_REPLENISH_RATE;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_RIGHT, "%i", replenish_rate);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_RIGHT, "%i", replenish_rate);
   text_y += BOX_LINE_H;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_LEFT, "reserve A");
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_RIGHT, "%i", w.data_well[command.selected_data_well].reserve_data [0]);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_LEFT, "reserve A");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_RIGHT, "%i", w.data_well[command.selected_data_well].reserve_data [0]);
   text_y += BOX_LINE_H;
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_LEFT, "reserve B");
-  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, text_y + BOX_HEADER_H + 7, ALLEGRO_ALIGN_RIGHT, "%i", w.data_well[command.selected_data_well].reserve_data [1]);
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_LEFT, "reserve B");
+  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_ORANGE] [SHADE_MAX], text_x2, (int) (text_y + BOX_HEADER_H + 7), ALLEGRO_ALIGN_RIGHT, "%i", w.data_well[command.selected_data_well].reserve_data [1]);
 	}
 
  draw_vbuf(); // sends poly_buffer and line_buffer to the screen - do it here to make sure any selection graphics are drawn before the map
@@ -16733,10 +16733,10 @@ if (draw_triangle)
 
 				int text_shade = bubble_shade * 2;
 				if (text_shade > 31)
- 				al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], adjusted_bubble_x, bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
+ 				al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], (int) adjusted_bubble_x, (int) bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
 //					text_shade = 31;
  else
-				al_draw_textf(font[FONT_SQUARE].fnt, colours.packet [bubble_col] [text_shade], adjusted_bubble_x, bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
+				al_draw_textf(font[FONT_SQUARE].fnt, colours.packet [bubble_col] [text_shade], (int) adjusted_bubble_x, (int) bubble_y, ALLEGRO_ALIGN_LEFT, "%s", bubble_text);
 
 
 }

@@ -972,7 +972,8 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 					if (stack_parameters [7])
 						control_pressed = 1;
 
-     return add_command(core, stack_parameters [1],
+     return add_command(transmit_target_core,
+																								stack_parameters [1],
 																        stack_parameters [2],
 																        stack_parameters [3],
 																        command_target,

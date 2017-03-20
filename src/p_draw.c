@@ -435,8 +435,8 @@ void display_standard_panel(int pan)
 
 }
 
-float smh_text_y;
-float smh_text_x;
+int smh_text_y;
+int smh_text_x;
 
 static void print_sysmenu_line(const char* left_string, const char* right_string, int extra_space);
 

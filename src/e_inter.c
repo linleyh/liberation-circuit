@@ -311,8 +311,8 @@ void update_editor_display(void)
   && editor.source_edit [editor.current_source_edit_index].active)
  {
  	if (!editor.source_edit [editor.current_source_edit_index].saved)
-   al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + scaleUI_x(FONT_SQUARE,103), editor_panel_y + 3, ALLEGRO_ALIGN_RIGHT, "*");
-  al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + scaleUI_x(FONT_SQUARE,105), editor_panel_y + 3, ALLEGRO_ALIGN_LEFT, "%s", editor.source_edit [editor.current_source_edit_index].src_file_path);
+   al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], (int) (editor_panel_x + scaleUI_x(FONT_SQUARE,103)), (int) (editor_panel_y + 3), ALLEGRO_ALIGN_RIGHT, "*");
+  al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], (int) (editor_panel_x + scaleUI_x(FONT_SQUARE,105)), (int) (editor_panel_y + 3), ALLEGRO_ALIGN_LEFT, "%s", editor.source_edit [editor.current_source_edit_index].src_file_path);
 //  al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_BOX_TEXT], editor_panel_x + 105, editor_panel_y + 3, ALLEGRO_ALIGN_LEFT, "%s", editor.source_edit [editor.current_source_edit_index].src_file_path);
 		draw_scrollbar(SLIDER_EDITOR_SCROLLBAR_H);
 		draw_scrollbar(SLIDER_EDITOR_SCROLLBAR_V);
@@ -331,7 +331,7 @@ void update_editor_display(void)
  {
     x = editor_panel_x + EDIT_WINDOW_X + editor.edit_window_w / 2;
     y = editor.edit_window_h / 2;
-    al_draw_textf(font[FONT_SQUARE].fnt, edit_col [EDIT_COL_TITLE], x, y, ALLEGRO_ALIGN_CENTRE, "No file loaded");
+    al_draw_textf(font[FONT_SQUARE].fnt, edit_col [EDIT_COL_TITLE], (int) x, (int) y, ALLEGRO_ALIGN_CENTRE, "No file loaded");
  }
   else
   {
@@ -387,7 +387,7 @@ void update_editor_display(void)
       al_draw_textf(font[FONT_SQUARE].fnt, edit_col [EDIT_COL_TITLE], x, y, ALLEGRO_ALIGN_CENTRE, "This file is in bcode format (length: %i).", se->bcode.static_length);
        else
         al_draw_textf(font[FONT_SQUARE].fnt, edit_col [EDIT_COL_TITLE], x, y, ALLEGRO_ALIGN_CENTRE, "This file is in bcode format (length unknown).");*/
-     al_draw_textf(font[FONT_SQUARE].fnt, edit_col [EDIT_COL_TITLE], x, y+20, ALLEGRO_ALIGN_CENTRE, "Use \"convert bcode\" in build menu to get a text version.");
+     al_draw_textf(font[FONT_SQUARE].fnt, edit_col [EDIT_COL_TITLE], (int) x, (int) (y+20), ALLEGRO_ALIGN_CENTRE, "Use \"convert bcode\" in build menu to get a text version.");
      break;
    }
   } // end else block that draws source or binary window
@@ -436,13 +436,13 @@ void update_editor_display(void)
   switch(i)
   {
    case SUBMENU_FILE:
-    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], x, y, ALLEGRO_ALIGN_LEFT, "File"); break;
+    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], (int) x, (int) y, ALLEGRO_ALIGN_LEFT, "File"); break;
    case SUBMENU_EDIT:
-    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], x, y, ALLEGRO_ALIGN_LEFT, "Edit"); break;
+    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], (int) x, (int) y, ALLEGRO_ALIGN_LEFT, "Edit"); break;
    case SUBMENU_SEARCH:
-    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], x, y, ALLEGRO_ALIGN_LEFT, "Find"); break;
+    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], (int) x, (int) y, ALLEGRO_ALIGN_LEFT, "Find"); break;
    case SUBMENU_COMPILE:
-    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], x, y, ALLEGRO_ALIGN_LEFT, "Compile"); break;
+    al_draw_textf(font[FONT_BASIC].fnt, edit_col [EDIT_COL_MENU_TITLE], (int) x, (int) y, ALLEGRO_ALIGN_LEFT, "Compile"); break;
 //    al_draw_textf(font, base_col [COL_GREY] [SHADE_HIGH], x, y, ALLEGRO_ALIGN_LEFT, "Compile %i %i", editor.undo_buffer_pos, editor.undo_buffer_base_pos); break;
   }
  }

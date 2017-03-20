@@ -437,6 +437,7 @@ fpr("\nInitialising:");
    settings.option [OPTION_SPECIAL_CURSOR] = 0;
    settings.option [OPTION_CAPTURE_MOUSE] = 0;
    settings.option [OPTION_DOUBLE_FONTS] = 0;
+   settings.option [OPTION_LARGE_FONTS] = 0;
 
    init_key_maps(); // must be before read_initfile() as keys may be remapped
 
@@ -538,9 +539,18 @@ if (settings.option [OPTION_WINDOW_W] == 1024 && settings.option [OPTION_WINDOW_
 			}
 			 else
 				{
-					load_font(FONT_BASIC, "data/images/fwss_font.bmp", 12, 1.0, 1.0);
-     load_font(FONT_SQUARE, "data/images/fwt_font.bmp", 16, 1.0, 1.0);
-     load_font(FONT_SQUARE_LARGE, "data/images/large_font.bmp", 20, 1.0, 1.0);
+     if (settings.option [OPTION_LARGE_FONTS])
+			  {
+      load_font(FONT_BASIC, "data/images/fwss_font_M.bmp", 14, 1.3, 1.2);
+      load_font(FONT_SQUARE, "data/images/fwt_font_M.bmp", 18, 1.5, 1.4);
+      load_font(FONT_SQUARE_LARGE, "data/images/large_font_M.bmp", 20, 1.5, 1.5);
+			  }
+			   else
+						{
+					  load_font(FONT_BASIC, "data/images/fwss_font.bmp", 12, 1.0, 1.0);
+       load_font(FONT_SQUARE, "data/images/fwt_font.bmp", 16, 1.0, 1.0);
+       load_font(FONT_SQUARE_LARGE, "data/images/large_font.bmp", 20, 1.0, 1.0);
+						}
  			}
 
 
@@ -858,6 +868,12 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
  if (strcmp(initfile_word, "double_fonts") == 0)
  {
   settings.option [OPTION_DOUBLE_FONTS] = 1;
+  return bpos;
+ }
+
+ if (strcmp(initfile_word, "large_fonts") == 0)
+ {
+  settings.option [OPTION_LARGE_FONTS] = 1;
   return bpos;
  }
 
