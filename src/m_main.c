@@ -412,6 +412,7 @@ void init_at_startup(void)
    fprintf(stdout, "\nTo configure screen resolution etc, edit init.txt.");
    fprintf(stdout, "\n\nHave fun!\n");
 
+
 fpr("\nInitialising:");
 
 //   fpr("\n al_ftofix(0.41) = %i", al_ftofix(0.41));  = 26870
