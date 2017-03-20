@@ -1027,7 +1027,7 @@ s16b call_std_method(struct core_struct* core, int call_value, int variable_para
 // repeat dealt with below
 
 			return add_to_build_queue(core->player_index,
-																						       core->index,
+																						       transmit_target_core->index,
 																						       stack_parameters [1], // template
 																						       stack_parameters [2], // x
 																						       stack_parameters [3], // y
