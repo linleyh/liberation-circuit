@@ -19,12 +19,5 @@ endif ()
 
 # Base library
 find_package (Allegro REQUIRED)
-
-if (ALLEGRO_FOUND)
-
-    include_directories (${ALLEGRO_INCLUDE_DIR})
-    target_link_libraries (liberation-circuit ${ALLEGRO_LIBRARY})
-
-else ()
-    message (FATAL_ERROR "Could not find Allegro")
-endif ()
+include_directories (${ALLEGRO_INCLUDE_DIR})
+target_link_libraries (liberation-circuit ${ALLEGRO_LIBRARY})
