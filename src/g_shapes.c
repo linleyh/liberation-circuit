@@ -2745,6 +2745,7 @@ int poly_index;
 	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
+ add_mirror_axis(ANGLE_2, 0);
 
  nshape[NSHAPE_COMPONENT_LONG5].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_LONG5].mirrored_object_noncentre [1] = 2;
@@ -2879,6 +2880,7 @@ int poly_index;
 	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
+ add_mirror_axis(ANGLE_2, 0);
 
  nshape[NSHAPE_COMPONENT_SNUB].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_SNUB].mirrored_object_noncentre [1] = 2;
@@ -2999,8 +3001,8 @@ int poly_index;
 	add_poly_fill_source(-15, 19);
 	fix_display_triangles_fan();
 
- add_mirror_axis(0, 0);
- add_mirror_axis(ANGLE_2, 0);
+ add_mirror_axis(0, -1);
+ add_mirror_axis(ANGLE_2, -1);
 
  nshape[NSHAPE_COMPONENT_CAP].mirrored_object_noncentre [0] = 3;
  nshape[NSHAPE_COMPONENT_CAP].mirrored_object_noncentre [1] = 2;
@@ -3089,7 +3091,6 @@ int poly_index;
 	add_poly_fill_source(14, 8);
 	fix_display_triangles_fan();
 
- add_mirror_axis(0, 0);
  add_mirror_axis(ANGLE_2, 0);
 
  nshape[NSHAPE_COMPONENT_TRI].mirrored_object_noncentre [0] = 0;
@@ -3297,6 +3298,7 @@ int poly_index;
  nshape[NSHAPE_COMPONENT_FORK].mirrored_object_noncentre [2] = 1;
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
+ add_mirror_axis(ANGLE_2, 0);
 
 	finish_shape();
 
@@ -3424,6 +3426,7 @@ int poly_index;
 	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
+ add_mirror_axis(0, 0);
 
  nshape[NSHAPE_COMPONENT_BOWL].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_BOWL].mirrored_object_noncentre [1] = 2;
@@ -3562,6 +3565,7 @@ int poly_index;
 	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
+ add_mirror_axis(0, 0);
 
  nshape[NSHAPE_COMPONENT_PEAK].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_PEAK].mirrored_object_noncentre [1] = 2;
