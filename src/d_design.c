@@ -1546,12 +1546,14 @@ void design_panel_button(int button_element)
 					 template_locked_design_message();
 			break;
 		case FPE_DESIGN_TOOLS_MAIN_LOCK:
-   reset_log();
+// This now calls Write Header first:
    if (dwindow.templ->locked)
 			{
    	write_line_to_log("Template already locked.", MLOG_COL_ERROR);
    	break;
 			}
+			reset_log();
+			write_design_structure_to_source_edit(0); // 0 means the source_edit hasn't been verified as empty
 			lock_template(dwindow.templ);
 			break;
 		case FPE_DESIGN_TOOLS_MAIN_UNLOCK:

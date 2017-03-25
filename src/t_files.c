@@ -638,7 +638,7 @@ static int choose_template_file(int filechooser_mode)
 
  if (file_type != FILE_TYPE_TEMPLATE)
  {
-  write_line_to_log("Must be a .tf template file.", MLOG_COL_ERROR);
+  write_line_to_log("Must be a template file with the .tf extension.", MLOG_COL_ERROR);
  }
 
  strcpy(tfile.template_file_path, file_path_ptr);

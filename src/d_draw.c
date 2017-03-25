@@ -1757,8 +1757,8 @@ static void design_help_highlight(int base_x, int base_y)
 					break;
 				case FPE_DESIGN_TOOLS_MAIN_LOCK:
      draw_design_help_strings(base_x, base_y, "Lock template",
-																														                "Tries to build this process from source code, and",
-																														                "locks the template.", "");
+																														                "Writes the header, then tries to build this process from",
+																														                "source code. If successful, locks the template.", "");
 					break;
 				case FPE_DESIGN_TOOLS_MAIN_UNLOCK:
      draw_design_help_strings(base_x, base_y, "Unlock template",
