@@ -1084,8 +1084,8 @@ static void clear_power_record(void)
 static void open_build_buttons(int core_index)
 {
 
- if (w.command_mode != COMMAND_MODE_COMMAND)
-		return;
+// if (w.command_mode != COMMAND_MODE_COMMAND)
+//		return;
 
  command.builder_core_index = core_index;
  set_build_buttons_if_open();
