@@ -1906,7 +1906,17 @@ OPTION_CAPTURE_MOUSE,
 OPTION_DOUBLE_FONTS,
 OPTION_LARGE_FONTS,
 OPTION_DEBUG, // can be used to set certain debug values without recompiling.
+OPTION_STANDARD_PATHS, // 0, 1 or 2 - affects whether Allegro's standard path functions are used to locate various files.
 OPTIONS
+};
+
+
+enum
+{
+STANDARD_PATHS_NONE, // doesn't use any of Allegro's standard path functions. Assumes the directory structure is the same as in the /bin subdirectory of the releases.
+STANDARD_PATHS_EXECUTABLE, // uses ALLEGRO_EXENAME_PATH to find the executable; assumes the rest of the directory structure is the same as in /bin
+STANDARD_PATHS_VARIOUS // uses a variety of different directories; assumes that any installation process has put all files in the right place.
+// STANDARD_PATHS_EXECUTABLE is probably the safest to use but as I haven't been able to test it on a range of systems, I've left the default at STANDARD_PATHS_NONE for now.
 };
 
 enum
@@ -2084,6 +2094,8 @@ struct settingsstruct
  char default_template_path [PLAYERS] [TEMPLATES_PER_PLAYER] [FILE_PATH_LENGTH]; // will be length 0 if no default template
 
  int saved_story_mission_defeated [STORY_TYPES] [MISSIONS]; // 0 not defeated, 1 defeated. This should match the state of the msn.dat file.
+
+ char path_to_executable [FILE_PATH_LENGTH]; // set in g_misc
 
 };
 

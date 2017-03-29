@@ -125,8 +125,8 @@ char* button_name [] =
 	"Player 1", // BUTTON_NAME_TAB_P1
 	"Player 2", // BUTTON_NAME_TAB_P2
 	"Player 3", // BUTTON_NAME_TAB_P3
-	"Load template file", // BUTTON_NAME_FILE_LOAD
-	"Save template file", // BUTTON_NAME_FILE_SAVE
+	"Load multi-binary", // BUTTON_NAME_FILE_LOAD
+	"Save multi-binary", // BUTTON_NAME_FILE_SAVE
 	"templates", // BUTTON_NAME_TEMPLATES
 	"unknown", // BUTTON_NAME_UNKNOWN
 	"File", // BUTTON_NAME_FILE

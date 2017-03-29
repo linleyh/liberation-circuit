@@ -51,7 +51,8 @@ extern struct game_struct game;
 extern struct view_struct view;
 extern struct editorstruct editor;
 
-int load_source_file_into_template(char* filename, int player_index, int player_template);
+int load_source_file_into_template(char* filename, int player_index, int template_index);
+//int load_source_file_into_template(char* filename, int player_index, int player_template);
 
 //static void init_vision_block(int x, int y);
 //static void prepare_world_for_game(void);
@@ -763,7 +764,7 @@ struct source_struct
 // Loads one of the pre-set source files into a template and compiles it.
 void load_mission_source(char* filename, int player_index, int template_index)
 {
-	int loaded = load_source_file_into_template(filename, player_index, template_index);
+	int loaded = load_source_file_into_template(filename, player_index, template_index);//, PATH_TYPE_STORY);
 
 	if (loaded != 1)
 	{
@@ -828,7 +829,7 @@ int load_source_file_into_template(char* filename, int player_index, int templat
 }
 
 // open_the_template should be 1 if the template is already open and doesn't need to be reset (currently used for editor reload function)
-int load_source_file_into_template_without_compiling(char* filename, int player_index, int template_index, int open_the_template)
+int load_source_file_into_template_without_compiling(char* filename, int player_index, int template_index, int open_the_template)//, int path_type)
 {
 
  int target_esource = (player_index * TEMPLATES_PER_PLAYER) + template_index;

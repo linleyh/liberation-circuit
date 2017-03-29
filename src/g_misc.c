@@ -12,7 +12,7 @@ extern ALLEGRO_EVENT_QUEUE* event_queue;
 extern ALLEGRO_DISPLAY* display;
 extern ALLEGRO_TIMER* timer;
 extern ALLEGRO_TIMER* timer_1_second;
-
+extern struct settingsstruct settings;
 
 //void error_call(void);
 //void wait_for_space(void);
@@ -174,6 +174,133 @@ void print_binary32(int num)
 }
 
 
+/*
+
+FILE* open_file_from_standard_path(const char* basic_file_name, const char* mode, int path_type)
+{
+
+#define TEMP_PATH_LENGTH 300
+
+ char temp_path [TEMP_PATH_LENGTH] = "";
+
+ switch(path_type)
+ {
+ 	case PATH_TYPE_DATA:
+ 		if (settings.option [OPTION_STANDARD_PATHS] == STANDARD_PATHS_EXECUTABLE)
+				strcpy(temp_path, settings.path_to_executable);
+   strncat(temp_path, DIR_DATA, TEMP_PATH_LENGTH - 100);
+   break;
+  case PATH_TYPE_MAIN_DIRECTORY:
+			strcpy(temp_path, settings.path_to_executable);
+			break;
+ 	case PATH_TYPE_USER:
+ 		if (settings.option [OPTION_STANDARD_PATHS] == STANDARD_PATHS_EXECUTABLE)
+				strcpy(temp_path, settings.path_to_executable);
+   strncat(temp_path, DIR_USER, TEMP_PATH_LENGTH - 100);
+   break;
+  case PATH_TYPE_STORY:
+ 		if (settings.option [OPTION_STANDARD_PATHS] == STANDARD_PATHS_EXECUTABLE)
+				strcpy(temp_path, settings.path_to_executable);
+   strncat(temp_path, DIR_STORY, TEMP_PATH_LENGTH - 100);
+   break;
+  default: // PATH_TYPE_COMPLETE
+			break; // shouldn't need to change anything
+ }
+
+ strcat(temp_path, basic_file_name);
+
+	return fopen(temp_path, mode);
+
+}
+*/
+
+
+// standard paths not yet implemented
+void init_standard_paths(void)
+{
+
+
+	settings.path_to_executable [0] = 0;
+
+ if (settings.option [OPTION_STANDARD_PATHS] == STANDARD_PATHS_EXECUTABLE)
+	{
+// Unfortunately there does not seem to be any simple way to find the execution directory.
+// We can only get the full path of the executable, including the file name.
+// So we need to remove the file name from the end of the path:
+
+  ALLEGRO_PATH* executable_path;
+  executable_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+
+  if (executable_path == NULL)
+		{
+// may still be okay...
+			fpr("\nFailed to get executable path. Attempting to run using relative paths...");
+			return;
+		}
+
+  char filename [100]; // 100 should be plenty of room
+  strncpy(filename, al_get_path_filename(executable_path), 95); // 95 should too
+  int filename_length = strlen(filename);
+
+//  const char* temp_path = al_path_cstr(executable_path, ALLEGRO_NATIVE_PATH_SEP); // this pointer should be valid until the path is modified
+//  int temp_path_length = strlen(temp_path);
+  char file_path [FILE_PATH_LENGTH];
+  strncpy(file_path, al_path_cstr(executable_path, ALLEGRO_NATIVE_PATH_SEP), FILE_PATH_LENGTH - 5);
+  int file_path_length = strlen(file_path);
+  if (file_path_length >= FILE_PATH_LENGTH - 10)
+  {
+	  fpr("\nSorry, your file path (%s) is too long (%i characters; the maximum is %i).", file_path, file_path_length, FILE_PATH_LENGTH - 10);
+			fpr("\nAttempting to run using relative paths...");
+			return;
+  }
+  file_path [file_path_length - filename_length] = 0;
+
+		strcpy(settings.path_to_executable, file_path);
+
+  al_destroy_path(executable_path);
+
+		return;
+	}
+
+ if (settings.option [OPTION_STANDARD_PATHS] == STANDARD_PATHS_VARIOUS)
+	{
 
 
 
+/*
+  ALLEGRO_PATH* standard_path;
+
+// PATH_TYPE_RESOURCES:
+  standard_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+
+  if (standard_path == NULL)
+// may still be okay...
+			fpr("\nFailed to get resources path. Attempting to run using relative path...");
+			 else
+				{
+					  char temp_path [FILE_PATH_LENGTH];
+       strncpy(temp_path, al_path_cstr(standard_path, ALLEGRO_NATIVE_PATH_SEP), FILE_PATH_LENGTH - 10);
+       int temp_path_length = strlen(temp_path);
+       if (temp_path_length >= FILE_PATH_LENGTH - 20)
+							{
+									  fpr("\nSorry, your resources path (%s) is too long (maximum %i).", temp_path, FILE_PATH_LENGTH - 20);
+			        fpr("\nAttempting to run using relative path...");
+							}
+							 else
+								{
+									strcpy(settings.standard_path [PATH_TYPE_RESOURCES], temp_path;
+								}
+      al_destroy_path(standard_path);
+				}
+*/
+	}
+
+
+
+
+// settings.option [OPTION_STANDARD_PATHS] is probably STANDARD_PATHS_NONE
+
+
+		return;
+
+}

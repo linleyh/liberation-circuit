@@ -374,9 +374,11 @@ add_design_bquad(POWER_GRAPH_X,
 //  al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_HIGH], panel[PANEL_DESIGN].x1 + 140, panel[PANEL_DESIGN].y1+15, ALLEGRO_ALIGN_LEFT, "Power: capacity %i  use: peak %i average %i base %i", nshape[dwindow.templ->member[0].shape].power_capacity, dwindow.templ->power_use_peak, dwindow.templ->power_use_smoothed, dwindow.templ->power_use_base);
   if (dwindow.templ->modified)
 		{
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + 3, ALLEGRO_ALIGN_RIGHT, "This template has been modified.");
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + 16, ALLEGRO_ALIGN_RIGHT, "Use <Write Header> or <Autocode>");
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + 29, ALLEGRO_ALIGN_RIGHT, "to keep changes.");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 3), ALLEGRO_ALIGN_RIGHT, "This template has been modified.");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 16), ALLEGRO_ALIGN_RIGHT, "Use <Write Header> or <Autocode>");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 29), ALLEGRO_ALIGN_RIGHT, "to keep changes.");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 42), ALLEGRO_ALIGN_RIGHT, "(Then save changes to disk using the");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 55), ALLEGRO_ALIGN_RIGHT, "File menu in the Editor [Ed] panel)");
 
 /*
  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x1 + 4, base_y2 - 39, ALLEGRO_ALIGN_LEFT, "This template has been modified.");

@@ -25,6 +25,9 @@
 //#define RECORDING_VIDEO_2
 
 
+
+
+
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
@@ -118,6 +121,35 @@ Some sources claim that fno-strict-overflow is more reliable, so I've used that 
 #ifdef __GNUC__
 #define USE_GCC_EXPECT
 // Uses GCC's __builtin_expect() for optimising a few things (I haven't tested to make sure this achieves anything)
+#endif
+
+
+// Directory management (not currently implemented):
+
+enum
+{
+PATH_TYPE_COMPLETE, // the game makes no changes (used for saving/loading files where the correct path should be available from the filechooser or other sources)
+PATH_TYPE_MAIN_DIRECTORY, // where the game looks for init.txt
+PATH_TYPE_DATA, // the data/ subdirectory
+PATH_TYPE_USER, // where the game saves msn.dat
+PATH_TYPE_STORY, // the story/ subdirectory
+
+STANDARD_PATH_TYPES
+
+};
+
+
+
+#ifndef DIR_DATA
+#define DIR_DATA "data/"
+#endif
+
+#ifndef DIR_USER
+#define DIR_USER ""
+#endif
+
+#ifndef DIR_STORY
+#define DIR_STORY "story/"
 #endif
 
 

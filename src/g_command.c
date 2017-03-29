@@ -64,9 +64,10 @@ static void build_queue_button_pressed(int button);
 static void clear_power_record(void);
 static int find_first_selected_core(void);
 static void build_mobile_process_command(void);
-static void set_control_group(int control_group_index);
+static void set_control_group(int control_group_index, int exclusive);
 static void add_to_control_group(int control_group_index);
 static void select_control_group(int control_group_index);
+static void remove_selection_from_control_group(void);
 static int is_core_in_control_group(int core_index, int control_group_index);
 
 
@@ -139,6 +140,7 @@ void run_commands(void)
 	}*/
 
  int mouse_on_map = 0;
+ int prevent_edge_scroll = 0;
 
  if (control.mouse_x_screen_pixels >= view.map_x
 		&& control.mouse_x_screen_pixels <= view.map_x + view.map_w
@@ -205,7 +207,12 @@ void run_commands(void)
 			if (ex_control.special_key_press [SPECIAL_KEY_CONTROL_GROUP_0 + i] == BUTTON_JUST_PRESSED)
 			{
 				if (ex_control.special_key_press [SPECIAL_KEY_CTRL])
-					set_control_group(i);
+				{
+					if (ex_control.special_key_press [SPECIAL_KEY_SHIFT])
+					 set_control_group(i, 1); // adding shift makes it an exclusive set
+					  else
+  					 set_control_group(i, 0);
+				}
 				  else
 						{
 							if (ex_control.special_key_press [SPECIAL_KEY_SHIFT])
@@ -262,7 +269,8 @@ void run_commands(void)
 							view.camera_y = w.core[console[CONSOLE_GENERAL].cline[cline_clicked].source_index].core_position.y;
 						}
 					}
-     goto skip_main_mouse_input;
+					prevent_edge_scroll = 1;
+//     goto skip_main_mouse_input;
 		}
 
   if (command.select_mode == SELECT_MODE_SINGLE_CORE
@@ -594,7 +602,8 @@ void run_commands(void)
  int mouse_scroll_y = 0;
 
  if (control.mouse_panel == PANEL_MAIN
-		&& control.mouse_status != MOUSE_STATUS_OUTSIDE)
+		&& control.mouse_status != MOUSE_STATUS_OUTSIDE
+		&& !prevent_edge_scroll)
 	{
 
 // keyboard scroll (just use mouse_scroll values because I'm lazy)
@@ -2038,8 +2047,12 @@ static int find_first_selected_core(void)
 
 // when control-# is pressed this assigns the current selection to a control group
 // assumes that control_group_index is 0 to (CONTROL_GROUPS-1) (currently there are 7 control groups)
-static void set_control_group(int control_group_index)
+static void set_control_group(int control_group_index, int exclusive)
 {
+
+ if (exclusive)
+		remove_selection_from_control_group();
+
 	int i = 0;
 	int select_index = 0;
 
@@ -2063,7 +2076,7 @@ static void set_control_group(int control_group_index)
 
 	command.control_group_core [control_group_index] [i] = SELECT_TERMINATE;
 
-	char temp_str [50];
+	char temp_str [60];
 
 	if (i == 0)
 	{
@@ -2073,7 +2086,10 @@ static void set_control_group(int control_group_index)
 	}
   else
 			{
-	   sprintf(temp_str, "\nControl group %i set.", control_group_index);
+				if (exclusive)
+	    sprintf(temp_str, "\nControl group %i set (exclusive).", control_group_index);
+	     else
+  	    sprintf(temp_str, "\nControl group %i set.", control_group_index);
     play_interface_sound(SAMPLE_BLIP1, TONE_2G);
 			}
 
@@ -2178,6 +2194,40 @@ static void add_to_control_group(int control_group_index)
        return;
 						}
 			}
+
+}
+
+
+// when control-# is pressed this assigns the current selection to a control group
+// assumes that control_group_index is 0 to (CONTROL_GROUPS-1) (currently there are 7 control groups)
+static void remove_selection_from_control_group(void)
+{
+//	int i = 0;
+	int j, k;
+	int select_index = 0;
+
+ while(command.selected_core [select_index] != SELECT_TERMINATE)
+	{
+		if (command.selected_core [select_index] != SELECT_EMPTY
+			&& w.core[command.selected_core [select_index]].player_index == game.user_player_index)
+		{
+   for (j = 0; j < CONTROL_GROUPS; j ++)
+			{
+ 			k = 0;
+				while (command.control_group_core [j] [k] != SELECT_TERMINATE)
+				{
+					if (command.control_group_core [j] [k] == command.selected_core [select_index]
+						&& command.control_group_core_timestamp [j] [k] == w.core[command.selected_core [select_index]].created_timestamp)
+					{
+						command.control_group_core [j] [k] = SELECT_EMPTY;
+						break;
+					}
+					k++;
+				}; // end while
+			} // end for j
+		}
+		select_index ++;
+	}
 
 }
 

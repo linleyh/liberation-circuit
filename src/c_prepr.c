@@ -32,7 +32,8 @@ int prepr_error(const char* error_str);
 
 
 int load_source_file(const char* file_path, struct source_struct* target_source);
-int load_binary_file(const char* file_path, struct bcode_struct* bcode, int src_file_index, int preprocessing);
+//int load_source_file(const char* file_path, struct source_struct* target_source);
+//int load_binary_file(const char* file_path, struct bcode_struct* bcode, int src_file_index, int preprocessing);
 
 extern struct cstatestruct cstate;
 
@@ -298,7 +299,6 @@ int load_source_file(const char* file_path, struct source_struct* target_source)
 
 // open the file:
  file = fopen(file_path, "rt");
-
 
  if (file)
  {

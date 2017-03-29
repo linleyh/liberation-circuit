@@ -374,6 +374,16 @@ fpr("\nInitialised.\n");
 fpr("Debug mode active.");
 #endif
 
+
+
+/*
+al_drop_path_tail(test_path);
+fpr("\npath2A [%s]", al_path_cstr(test_path, '/'));
+test_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+fpr("\npath3 [%s]", al_path_cstr(test_path, '/'));
+al_drop_path_tail(test_path);
+fpr("\npath4 [%s]", al_path_cstr(test_path, '/'));
+*/
  start_menus(); // game loop is called from here
 
  return 0;
@@ -940,6 +950,31 @@ int read_initfile_line(char* buffer, int buffer_length, int bpos)
 
   return bpos;
  }
+
+ if (strcmp(initfile_word, "standard_paths") == 0)
+ {
+  bpos = read_initfile_number(&read_number, buffer, buffer_length, bpos);
+  if (bpos == -1)
+   return -1;
+		switch(read_number)
+		{
+			case 0:
+				settings.option [OPTION_STANDARD_PATHS] = STANDARD_PATHS_NONE;
+				break;
+			case 1:
+				settings.option [OPTION_STANDARD_PATHS] = STANDARD_PATHS_EXECUTABLE;
+				break;
+			case 2:
+				settings.option [OPTION_STANDARD_PATHS] = STANDARD_PATHS_VARIOUS;
+				break;
+			default: fprintf(stdout, "\nInvalid standard_paths setting (%i) - should be 0, 1 or 2.", read_number);
+
+		}
+
+  return bpos;
+ }
+
+
 
 
 
