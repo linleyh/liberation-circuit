@@ -1154,6 +1154,8 @@ static void close_window_box(void)
  al_set_clipping_rectangle(0, 0, settings.option [OPTION_WINDOW_W], settings.option [OPTION_WINDOW_H]);
  reset_i_buttons();
 
+ pause_music();
+
 
  while(TRUE)
  {
@@ -1305,6 +1307,7 @@ static void close_window_box(void)
 
  flush_game_event_queues();
  al_hide_mouse_cursor(display); // this can be reset by a few other functions (e.g. when native file dialog or exit game screen is up)
+ unpause_music();
 
 }
 

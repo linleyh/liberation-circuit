@@ -211,6 +211,8 @@ void *thread_check_sound_queue(ALLEGRO_THREAD *thread, void *arg)
  ALLEGRO_EVENT received_sound_event;
  int event_received;
 
+ int camstate_paused = 0;
+
 // sthread_init_mustate(0);
 
 // return NULL;
@@ -239,12 +241,22 @@ void *thread_check_sound_queue(ALLEGRO_THREAD *thread, void *arg)
 				continue;
 			}
 
+			if (received_sound_event.user.data1 == -3)
+			{
+				camstate_paused = 1;
+				continue;
+			}
 
-
+			if (received_sound_event.user.data1 == -4)
+			{
+				camstate_paused = 0;
+				continue;
+			}
 
   if (received_sound_event.type == ALLEGRO_EVENT_TIMER)
   {
-   sthread_run_camstate();
+  	if (!camstate_paused)
+    sthread_run_camstate();
 //   if (sthread_play_current_piece() == 0)
 //    sthread_init_mustate(0);
    continue;
@@ -295,5 +307,25 @@ void turn_music_off(void)
 
 }
 
+
+// call this (from anywhere in the main game thread) to turn off the music
+void pause_music(void)
+{
+
+   sound_event.user.data1 = -3; // tells code in x_music to pause music
+
+   al_emit_user_event(&sound_event_source, &sound_event, NULL);
+
+}
+
+// call this (from anywhere in the main game thread) to turn off the music
+void unpause_music(void)
+{
+
+   sound_event.user.data1 = -4; // tells code in x_music to unpause music
+
+   al_emit_user_event(&sound_event_source, &sound_event, NULL);
+
+}
 
 

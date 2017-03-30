@@ -240,7 +240,9 @@ static void select_arrows(int number, float centre_x, float centre_y, float sele
 static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, int bubble_col, int bubble_text_length, char* bubble_text, int draw_triangle);
 static void draw_data_well(int i, int j, struct backblock_struct* backbl,
 																				float top_left_corner_x [BACKBLOCK_LAYERS],
-                    float top_left_corner_y [BACKBLOCK_LAYERS]);
+                    float top_left_corner_y [BACKBLOCK_LAYERS],
+                    int data_well_type,
+                    float overlay_alpha);
 
 struct ribbon_state_struct
 {
@@ -1323,7 +1325,8 @@ if (!settings.option[OPTION_NO_BACKGROUND])
        draw_data_well(deferred_data_well_draw_i [i],
 																						deferred_data_well_draw_j [i],
 																						deferred_data_well_draw_backbl [i],
-																						top_left_corner_x, top_left_corner_y);
+																						top_left_corner_x, top_left_corner_y,
+																						w.story_area, 0);
 
 
 			i++;
@@ -1336,7 +1339,9 @@ if (!settings.option[OPTION_NO_BACKGROUND])
 	{
 // in no_background mode, only data wells are drawn:
 
-int test = 0;
+//int test = 0;
+
+  deferred_data_wells = 0;
 
 
   for (i = 0; i < w.data_wells; i ++)
@@ -1349,8 +1354,16 @@ int test = 0;
        draw_data_well(w.data_well[i].block_position.x,
 																						w.data_well[i].block_position.y,
 																						&w.backblock[w.data_well[i].block_position.x][w.data_well[i].block_position.y],
-																						top_left_corner_x, top_left_corner_y);
-test ++;
+																						top_left_corner_x, top_left_corner_y,
+																						w.story_area, 0);
+
+      	deferred_data_well_draw_i [deferred_data_wells] = w.data_well[i].block_position.x;
+	      deferred_data_well_draw_j [deferred_data_wells] = w.data_well[i].block_position.y;
+	      deferred_data_well_draw_backbl [deferred_data_wells] = &w.backblock[w.data_well[i].block_position.x][w.data_well[i].block_position.y];
+       deferred_data_wells ++;
+
+
+//test ++;
 			}
 		}
 
@@ -5802,12 +5815,51 @@ far_dist = 12 + (shade);//*= 0.1;
 
  al_set_target_bitmap(vision_mask);
 
+ if (game.vision_mask)
+	{
+  i = 0;
+
+  while (i < deferred_data_wells)
+		{
+
+			if (w.vision_block[deferred_data_well_draw_i [i]][deferred_data_well_draw_j [i]].clear_time == w.world_time)
+			 continue;
+
+			float alpha_ch;
+
+							if (w.vision_block[deferred_data_well_draw_i [i]][deferred_data_well_draw_j [i]].proximity_time == w.world_time
+								&& w.vision_block[deferred_data_well_draw_i [i]][deferred_data_well_draw_j [i]].clear_time != w.world_time)
+       {
+        alpha_ch = w.vision_block[deferred_data_well_draw_i [i]][deferred_data_well_draw_j [i]].proximity;// * 0.1;
+        if (alpha_ch > 255)
+	        alpha_ch = 255;
+       }
+        else
+									alpha_ch = 255;
+
+//	alpha_ch = 255 - alpha_ch;
+
+       draw_data_well(deferred_data_well_draw_i [i],
+																						deferred_data_well_draw_j [i],
+																						deferred_data_well_draw_backbl [i],
+																						top_left_corner_x,
+																						top_left_corner_y,
+																						-1,
+																						alpha_ch);
+
+
+
+			i++;
+		};
+
+ draw_vbuf();
+
+	}
 
 
  al_set_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
  al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA,
    ALLEGRO_DEST_MINUS_SRC, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
-
 
 
   for (i = min_block_x; i < max_block_x; i ++)
@@ -5907,6 +5959,14 @@ add_stretched_hexagon(bx2 + x_offset, by2 + BLOCK_SIZE_PIXELS * 0.5 * view.zoom,
 
    }
   }
+
+
+
+ //al_set_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA);
+//al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+
+
  draw_vbuf();
 
  al_set_target_bitmap(al_get_backbuffer(display));
@@ -17351,7 +17411,9 @@ static void vision_check_for_display(void)
 
 static void draw_data_well(int i, int j, struct backblock_struct* backbl,
 																				float top_left_corner_x [BACKBLOCK_LAYERS],
-                    float top_left_corner_y [BACKBLOCK_LAYERS])
+                    float top_left_corner_y [BACKBLOCK_LAYERS],
+                    int data_well_type,
+                    float overlay_alpha)
 {
 
 
@@ -17394,8 +17456,24 @@ static void draw_data_well(int i, int j, struct backblock_struct* backbl,
        seed_drand(special_i+special_j);
 
 
-       switch(w.story_area)
+       switch(data_well_type)
        {
+
+							 case -1: // this is drawn on top of the vision mask
+								 add_orthogonal_hexagon(4,
+																																top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [0]) * (special_i) + (BLOCK_SIZE_PIXELS/2) * view.zoom * w.backblock_parallax [0],
+																																top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [0]) * (special_j) + (BLOCK_SIZE_PIXELS/2) * view.zoom * w.backblock_parallax [0],
+																																								24,// - overlay_alpha * 0.02,
+																																								al_map_rgb(overlay_alpha * 0.5, overlay_alpha * 0.35, overlay_alpha * 0.15));
+																																								//al_map_rgba(200, 160, 100, overlay_alpha));
+
+								 add_orthogonal_hexagon(4,
+																																top_left_corner_x [0] + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [0]) * (special_i) + (BLOCK_SIZE_PIXELS/2) * view.zoom * w.backblock_parallax [0],
+																																top_left_corner_y [0] + (BLOCK_SIZE_PIXELS * view.zoom * w.backblock_parallax [0]) * (special_j) + (BLOCK_SIZE_PIXELS/2) * view.zoom * w.backblock_parallax [0],
+																																								20,// - overlay_alpha * 0.02,
+																																								colours.black);
+
+								 break;
 
 
 							 case AREA_BLUE:

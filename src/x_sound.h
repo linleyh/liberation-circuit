@@ -19,6 +19,8 @@ void play_sound_list(void);
 void clear_sound_list(void);
 void reset_music(int area_index, int region_index, unsigned int rand_seed);
 void turn_music_off(void);
+void pause_music(void);
+void unpause_music(void);
 
 void check_sound_queue(void);
 void *thread_check_sound_queue(ALLEGRO_THREAD *thread, void *arg);
