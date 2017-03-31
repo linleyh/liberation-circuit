@@ -484,14 +484,15 @@ static void print_sysmenu_help(float base_x, float base_y)
  print_sysmenu_line("PAUSE", "P to pause/unpause", 1);
  print_sysmenu_line("PAUSE ADVANCE", "[ to advance 1 frame", 1);
  print_sysmenu_line("FOLLOW", "f to follow selected process", 1);
+ print_sysmenu_line("GO TO ALERT", "space to cycle through <under attack> alerts", 1);
  print_sysmenu_line("DEBUG MODE", "F1 to toggle debug mode", 1);
  print_sysmenu_line("FAST FORWARD", "F2, F3 and F4 to toggle different speeds", 1);
 // print_sysmenu_line("FF (SKIP)", "F3 to toggle extra fast forward (skips frames).");
 // print_sysmenu_line("FF (ND)", "F4 to toggle super fast forward (no display).");
- print_sysmenu_line("CHANGE PLAYER", "F5 to change player (custom game only)", 1);
  print_sysmenu_line("PANELS", "F6, F7 and F8 to open/close Te/De/Ed panels", 1);
  print_sysmenu_line("ZOOM", "Use mousewheel to zoom in/out", 1);
  print_sysmenu_line("QUIT", "Escape to quit program entirely", 1);
+ print_sysmenu_line("CHANGE PLAYER", "F5 to change player (custom game only)", 1);
 
 
 }

@@ -377,7 +377,7 @@ add_design_bquad(POWER_GRAPH_X,
  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 3), ALLEGRO_ALIGN_RIGHT, "This template has been modified.");
  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 16), ALLEGRO_ALIGN_RIGHT, "Use <Write Header> or <Autocode>");
  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 29), ALLEGRO_ALIGN_RIGHT, "to keep changes.");
- 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 42), ALLEGRO_ALIGN_RIGHT, "(Then save changes to disk using the");
+ 	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 42), ALLEGRO_ALIGN_RIGHT, "(Save changes to disk using the");
  	 al_draw_textf(font[FONT_BASIC].fnt, colours.base [COL_GREY] [SHADE_MED], base_x2 - 4, base_y1 + scaleUI_y(FONT_BASIC, 55), ALLEGRO_ALIGN_RIGHT, "File menu in the Editor [Ed] panel)");
 
 /*
@@ -1307,7 +1307,7 @@ const char* object_description [OBJECT_TYPES] [3] =
   "Multiple build objects speed recovery time after building.",
   ""}, //	OBJECT_TYPE_BUILD,
  {"Generates an interface to protect the process.",
-  "However, the interface does not protect any component",
+  "The interface protects all components, except components",
   "with either an interface object or a move object."}, //	OBJECT_TYPE_INTERFACE,
 // {"Provides an interface buffer for use by interface objects.",
 //  "Multiple depth objects increase the size and recovery", //	OBJECT_TYPE_INTERFACE_DEPTH,
@@ -1331,7 +1331,7 @@ const char* object_description [OBJECT_TYPES] [3] =
   "an interface. Can rotate to track its target."}, //	OBJECT_TYPE_STREAM_DIR,
  {"Long-range attacking object. Does full damage only near",
   "maximum range.",
-  ""}, //	OBJECT_TYPE_SPIKE,
+  "* The autocoder doesn't support spikes on static processes."}, //	OBJECT_TYPE_SPIKE,
  {"Repairs damage to components of this process, and restores",
   "destroyed components. Multiple repair objects speed up",
   "repair, and reduce recovery time after restoring."}, //	OBJECT_TYPE_REPAIR,

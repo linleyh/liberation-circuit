@@ -139,7 +139,10 @@ void save_template_file(int player_index)
      return;
  }
 
- write_line_to_log("Template file saved.", MLOG_COL_TEMPLATE);
+ write_line_to_log("Multi-binary file saved.", MLOG_COL_TEMPLATE);
+ write_line_to_log("* Note: multi-binaries are for multiplayer games.", MLOG_COL_WARNING);
+ write_line_to_log("        To save individual processes, use the file", MLOG_COL_WARNING);
+ write_line_to_log("        menu in the editor panel.", MLOG_COL_WARNING);
 
 // success!
 
@@ -457,7 +460,7 @@ void load_template_file(int player_index)
 	    templ[player_index][i].modified = 0; // this was probably done in one of the functions above but can't hurt to do it again
      templ[player_index][i].source_edit->active = 1;
      templ[player_index][i].source_edit->saved = 1;
-     strcpy(templ[player_index][i].source_edit->text [0], "// this file was loaded from a template file, ");
+     strcpy(templ[player_index][i].source_edit->text [0], "// this file was loaded from a multi-binary file, ");
      strcpy(templ[player_index][i].source_edit->text [1], "//  and does not have source code. ");
       // clear_source_edit_struct() call above reset the line index, so text[0] is the first line
 
@@ -465,8 +468,10 @@ void load_template_file(int player_index)
 				}
 
 
- write_line_to_log("Template file loaded.", MLOG_COL_TEMPLATE);
-
+ write_line_to_log("Multi-binary file loaded.", MLOG_COL_TEMPLATE);
+ write_line_to_log("* Note: multi-binaries are for multiplayer games.", MLOG_COL_WARNING);
+ write_line_to_log("        To load individual processes, load their .c files", MLOG_COL_WARNING);
+ write_line_to_log("        using the file menu in the editor panel.", MLOG_COL_WARNING);
 // success!
 
 }
@@ -638,7 +643,7 @@ static int choose_template_file(int filechooser_mode)
 
  if (file_type != FILE_TYPE_TEMPLATE)
  {
-  write_line_to_log("Must be a template file with the .tf extension.", MLOG_COL_ERROR);
+  write_line_to_log("Must be a multi-binary template file with the .tf extension.", MLOG_COL_ERROR);
  }
 
  strcpy(tfile.template_file_path, file_path_ptr);

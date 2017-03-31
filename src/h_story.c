@@ -2817,7 +2817,7 @@ void load_story_status_file(void)
  FILE *missionfile;
  char buffer [MISSIONFILE_SIZE];
 
- missionfile = fopen("msn.dat", "rb");
+ missionfile = fopen(settings.path_to_msn_dat_file, "rb");
 
  if (!missionfile)
  {
@@ -2830,7 +2830,7 @@ void load_story_status_file(void)
  if (ferror(missionfile)
   || read_in == 0)
  {
-  fprintf(stdout, "\nFailed to read mission status from msn.dat. Starting with default mission status.");
+  fprintf(stdout, "\nFailed to read mission status from [%s]. Starting with default mission status.", settings.path_to_msn_dat_file);
   fclose(missionfile);
   return;
  }
@@ -2869,11 +2869,11 @@ void save_story_status_file(void)
  FILE *file;
 
 // open the file:
- file = fopen("msn.dat", "wb");
+ file = fopen(settings.path_to_msn_dat_file, "wb");
 
  if (!file)
  {
-  fprintf(stdout, "\nFailed to save mission status to msn.dat: couldn't open file.");
+  fprintf(stdout, "\nFailed to save mission status to [%s]: couldn't open file.", settings.path_to_msn_dat_file);
   return;
  }
 
@@ -2893,7 +2893,7 @@ void save_story_status_file(void)
 
  if (written != buffer_pos)
  {
-  fprintf(stdout, "\nFailed to save mission status to msn.dat: couldn't write data (tried to write %i; wrote %i).", buffer_pos, written);
+  fprintf(stdout, "\nFailed to save mission status to [%s]: couldn't write data (tried to write %i; wrote %i).", settings.path_to_msn_dat_file, buffer_pos, written);
   fclose(file);
   return;
  }

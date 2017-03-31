@@ -1,15 +1,15 @@
 ﻿# liberation-circuit
 
-version: 1.1
+version: 1.2
 
-This the release version of Liberation Circuit, an RTS/programming game.
+This is Liberation Circuit, an RTS/programming game.
 
-To play the prebuilt binaries on Windows, [download the latest release](https://github.com/linleyh/liberation-circuit/releases) and run `LibCirc.exe`.
+To play the prebuilt binaries on Windows, [download the latest release](https://github.com/linleyh/liberation-circuit/releases) and run `LibCirc.exe`. You can change the game settings by editing init.txt.
 
 
 It should compile on any OS supported by Allegro 5 - to build, compile the c files in the source directory and link with Allegro 5. More detailed instructions are below. More detail about the source file structure is at the start of m_main.c.
 
-The executable should go in the "bin" subdirectory (the same directory as the "init.txt" file). The game requires write access to this directory to save mission progress. If this isn't okay, you can specify a path in the fopen calls at about lines 2808 and 2860 of h_story.c.
+The executable should go in the "bin" subdirectory (the same directory as the "init.txt" file). By default the game will write mission progress to a file called "msn.dat" in the bin directory. If this isn't okay (e.g. if the bin directory is write-protected), you can specify a different path and filename in init.txt.
 
 Don't try to compile the .c files in the /proc or /story subdirectories! They are code used by the game itself.
 

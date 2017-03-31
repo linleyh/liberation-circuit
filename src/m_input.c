@@ -24,6 +24,7 @@
 #include "m_maths.h"
 
 #include "m_input.h"
+#include "x_sound.h"
 
 extern struct editorstruct editor;
 extern struct view_struct view;

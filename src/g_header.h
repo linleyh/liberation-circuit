@@ -2095,7 +2095,9 @@ struct settingsstruct
 
  int saved_story_mission_defeated [STORY_TYPES] [MISSIONS]; // 0 not defeated, 1 defeated. This should match the state of the msn.dat file.
 
- char path_to_executable [FILE_PATH_LENGTH]; // set in g_misc
+ char path_to_msn_dat_file [FILE_PATH_LENGTH];
+
+ char path_to_executable [FILE_PATH_LENGTH]; // set in g_misc (not currently implemented)
 
 };
 

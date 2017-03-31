@@ -178,7 +178,9 @@ void init_panels(void)
 
 	panel[PANEL_EDITOR].w = scaleUI_x(FONT_BASIC,400);
 	panel[PANEL_TEMPLATE].w = scaleUI_x(FONT_SQUARE,340);
-	panel[PANEL_DESIGN].w = scaleUI_x(FONT_SQUARE,540);
+	panel[PANEL_DESIGN].w = scaleUI_x(FONT_SQUARE,800);
+	if (panel[PANEL_DESIGN].w > 1000)
+		panel[PANEL_DESIGN].w = 1000;
 
 	panel[0].open = 1;
 	panel[0].w = inter.display_w;

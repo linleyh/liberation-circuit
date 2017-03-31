@@ -404,7 +404,7 @@ void init_at_startup(void)
 
    fprintf(stdout, "Liberation Circuit");
    fprintf(stdout, "\nCopyright 2017 Linley Henzell");
-   fprintf(stdout, "\nVersion 1.1");
+   fprintf(stdout, "\nVersion 1.2");
 
    fprintf(stdout, "\n\nThis is free software and comes with no warranty; see licence.txt.");
 
@@ -428,13 +428,9 @@ fpr("\nInitialising:");
 //   fpr("\n al_ftofix(0.41) = %i", al_ftofix(0.41));  = 26870
 //   fpr("\n al_ftofix(0.94124) = %i", al_ftofix(0.94124));  = 61685
 
-
-//  al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-//  al_set_new_display_option(ALLEGRO_SAMPLES, 2, ALLEGRO_SUGGEST);
-//  These might be nice, but cause strange behaviour and segfaults on my development computer.
-
 //   al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 
+// most of these can be overridden by options in init.txt
    settings.option [OPTION_WINDOW_W] = 1024;
    settings.option [OPTION_WINDOW_H] = 768;
    settings.option [OPTION_FULLSCREEN] = 0;
@@ -448,6 +444,7 @@ fpr("\nInitialising:");
    settings.option [OPTION_CAPTURE_MOUSE] = 0;
    settings.option [OPTION_DOUBLE_FONTS] = 0;
    settings.option [OPTION_LARGE_FONTS] = 0;
+   strcpy(settings.path_to_msn_dat_file, "msn.dat");
 
    init_key_maps(); // must be before read_initfile() as keys may be remapped
 
@@ -1004,6 +1001,20 @@ static int default_templates_loaded [PLAYERS] = {0,0,0,0};
 		}
 		 else
 				fpr("\nFailed to read default template path for player %i: too many templates.\n(path [%s])", player_index, read_default_template_path);
+// the file will actually be loaded at a later stage of initialisation.
+  return bpos;
+ }
+
+
+ if (strcmp(initfile_word, "savefile") == 0)
+ {
+// read file name:
+  char read_savefile_path [INITFILE_WORD_LENGTH]; // currently INITFILE_WORD_LENGTH should be FILE_PATH_LENGTH
+  bpos = read_initfile_word(read_savefile_path, buffer, buffer_length, bpos);
+  if (bpos == -1)
+			return -1;
+		strncpy(settings.path_to_msn_dat_file, read_savefile_path, FILE_PATH_LENGTH - 5);
+		fpr("\nSave file set to [%s].", settings.path_to_msn_dat_file);
 // the file will actually be loaded at a later stage of initialisation.
   return bpos;
  }

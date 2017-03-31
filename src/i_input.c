@@ -24,12 +24,15 @@
 
 void initialise_control(void);
 void run_mouse_drag(void);
+void	go_to_under_attack_marker(void);
 
 extern struct game_struct game;
 extern struct view_struct view;
 extern struct command_struct command;
 
 struct control_struct control;
+
+
 
 // this array indicates which allegro_key enum corresponds to each KEY_? enum. Used for allowing system/clob programs to access keyboard
 int corresponding_allegro_key [KEYS] =
@@ -568,6 +571,11 @@ mouse_unavailable:
 	}
 
 
+ if (ex_control.unichar_input == ' ')
+	{
+		go_to_under_attack_marker();
+	}
+
  if (ex_control.unichar_input == 'p') // fix!
 	{
 		if (game.pause_soft == 0)
@@ -642,6 +650,61 @@ fpr("\n resetting music - area %i seed %i", game.area_index, mrand_seed);
 
 }
 
+void go_to_under_attack_marker(void)
+{
+
+ if (view.under_attack_marker_last_time < w.world_time - UNDER_ATTACK_MARKER_DURATION)
+		return; // no current markers
+
+	int i;
+
+ int current_marker = -1;
+ al_fixed closest_distance = view.centre_x_zoomed;
+ int distance_from_camera;
+
+ for (i = 0; i < UNDER_ATTACK_MARKERS; i ++)
+	{
+		if (view.under_attack_marker [i].time_placed_world >= w.world_time - UNDER_ATTACK_MARKER_DURATION)
+		{
+			distance_from_camera = abs(view.camera_x - view.under_attack_marker[i].position.x) + abs(view.camera_y - view.under_attack_marker[i].position.y);
+			if (distance_from_camera < closest_distance)
+			{
+				closest_distance = distance_from_camera;
+				current_marker = i;
+			}
+		}
+	}
+
+// current_marker may be -1 at this point
+
+	i = current_marker + 1;
+
+	while(i < UNDER_ATTACK_MARKERS - 1)
+	{
+		if (view.under_attack_marker [i].time_placed_world >= w.world_time - UNDER_ATTACK_MARKER_DURATION)
+		{
+			view.camera_x = view.under_attack_marker[i].position.x;
+			view.camera_y = view.under_attack_marker[i].position.y;
+			return;
+		}
+		i++;
+	}
+
+	i = 0;
+
+	while(i < current_marker)
+	{
+		if (view.under_attack_marker [i].time_placed_world >= w.world_time - UNDER_ATTACK_MARKER_DURATION)
+		{
+			view.camera_x = view.under_attack_marker[i].position.x;
+			view.camera_y = view.under_attack_marker[i].position.y;
+			return;
+		}
+		i++;
+	}
+
+
+}
 
 // called if mouse_drag != MOUSE_DRAG_NONE
 void run_mouse_drag(void)

@@ -451,6 +451,13 @@ static int auto_classify_objects(struct template_struct* templ)
      break;
 			 case OBJECT_TYPE_SPIKE:
     	object_angle = get_object_group_angle(templ, i, j); // this is & ANGLE_MASK
+    	if (!dcode_state.mobile)
+					{
+ 					 write_line_to_log("Warning: the autocoder does not currently support", MLOG_COL_WARNING);
+ 					 write_line_to_log("spike objects on static processes.", MLOG_COL_WARNING);
+ 			 	 add_auto_class_to_object(templ, i, j, AUTO_CLASS_SPIKE_FRONT); // just assign it to the class anyway.
+ 			 	 break;
+					}
     	if (object_angle < ANGLE_4
 						||	object_angle > ANGLE_2 + ANGLE_4) // could adjust a little bit more?
  			 	 add_auto_class_to_object(templ, i, j, AUTO_CLASS_SPIKE_FRONT);
