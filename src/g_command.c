@@ -142,6 +142,9 @@ void run_commands(void)
  int mouse_on_map = 0;
  int prevent_edge_scroll = 0;
 
+ if (control.mouse_drag == MOUSE_DRAG_PANEL_RESIZE)
+		prevent_edge_scroll = 1; // shouldn't scroll the map while resizing the panel
+
  if (control.mouse_x_screen_pixels >= view.map_x
 		&& control.mouse_x_screen_pixels <= view.map_x + view.map_w
 		&& control.mouse_y_screen_pixels >= view.map_y

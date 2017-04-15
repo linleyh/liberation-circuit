@@ -354,7 +354,8 @@ void draw_bcode_panel(void)
 	int mouse_x = control.mouse_x_screen_pixels - panel[PANEL_BCODE].x1;
 	int mouse_y = control.mouse_y_screen_pixels;// - panel[PANEL_BCODE].y1;
 
-
+	int clip_right_x;
+	int clip_width;
 
 
  al_clear_to_color(panel[PANEL_BCODE].background_colour);
@@ -363,12 +364,20 @@ void draw_bcode_panel(void)
 
  al_draw_textf(font[FONT_SQUARE].fnt, colours.base [COL_GREY] [SHADE_MAX], panel[PANEL_BCODE].x1 + 2, panel[PANEL_BCODE].y1 + 2, ALLEGRO_ALIGN_LEFT, "Bytecode");
 
+	if (panel[PANEL_BCODE].element[FPE_BCODE_PANEL_RESIZE].last_highlight == inter.running_time)
+	{
+  al_draw_filled_rectangle(panel[PANEL_BCODE].x1, 0, panel[PANEL_BCODE].x1 + 5, settings.option [OPTION_WINDOW_H], colours.base [COL_BLUE] [SHADE_MED]);
+	}
+	 else
+   al_draw_filled_rectangle(panel[PANEL_BCODE].x1, 0, panel[PANEL_BCODE].x1 + 2, settings.option [OPTION_WINDOW_H], colours.base [COL_BLUE] [SHADE_LOW]);
+
 
 
 if (bcp_state.bcp_mode == BCP_MODE_EMPTY)
 	goto finished_drawing;
 
-	if (game.phase == GAME_PHASE_WORLD)
+	if (game.phase == GAME_PHASE_WORLD
+		&& control.mouse_panel == PANEL_BCODE)
 	{
 
 	  if (mouse_x >= panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1
@@ -453,7 +462,20 @@ if (bcp_state.bcp_mode == BCP_MODE_EMPTY)
 // bcode subpanel:
 
 	//al_set_clipping_rectangle(0, 0, 1600, 900);//panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].w, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h);
-	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1, panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].y1, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].w, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h);
+
+	clip_width = panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].w;
+
+	clip_right_x = panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].w;
+
+	if (clip_right_x > panel[PANEL_BCODE].x2)
+	{
+		clip_right_x = panel[PANEL_BCODE].x2;
+		clip_width = clip_right_x - (panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1);
+		if (clip_width <= 0)
+			goto finished_drawing;
+	}
+
+	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1, panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].y1, clip_width, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h);
 // al_draw_rectangle(panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].y1, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].w, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h, colours.base [COL_GREY] [SHADE_MAX], 1);
  al_clear_to_color(colours.base [BCODE_PANEL_COL_BACKGROUND] [SHADE_LOW]);
 
@@ -793,7 +815,20 @@ finished_drawing_line:
 
 // memory subpanel:
 
-	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].x1, panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].y1, panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].w, panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].h);
+
+	clip_width = panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].w;
+
+	clip_right_x = panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].w;
+
+	if (clip_right_x > panel[PANEL_BCODE].x2)
+	{
+		clip_right_x = panel[PANEL_BCODE].x2;
+		clip_width = clip_right_x - (panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].x1);
+		if (clip_width <= 0)
+			goto finished_drawing;
+	}
+
+	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].x1, panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].y1, clip_width, panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].h);
  al_clear_to_color(colours.base [BCODE_PANEL_COL_BACKGROUND] [SHADE_LOW]);
 
 
@@ -863,9 +898,23 @@ finished_drawing_line:
 
 // stack subpanel:
 
+
+	clip_width = panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].w;
+
+	clip_right_x = panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].w;
+
+	if (clip_right_x > panel[PANEL_BCODE].x2)
+	{
+		clip_right_x = panel[PANEL_BCODE].x2;
+		clip_width = clip_right_x - (panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x1);
+		if (clip_width <= 0)
+			goto finished_drawing;
+	}
+
+
 	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x1,
 																											panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].y1,
-																											panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].w,
+																											clip_width,
 																											panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].h);
  al_clear_to_color(colours.base [BCODE_PANEL_COL_BACKGROUND] [SHADE_LOW]);
 
@@ -947,9 +996,22 @@ finished_drawing_line:
 
 // Messages...
 
+
+	clip_width = panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].w;
+
+	clip_right_x = panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].w;
+
+	if (clip_right_x > panel[PANEL_BCODE].x2)
+	{
+		clip_right_x = panel[PANEL_BCODE].x2;
+		clip_width = clip_right_x - (panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].x1);
+		if (clip_width <= 0)
+			goto finished_drawing;
+	}
+
 	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].x1,
 																											panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].y1,
-																											panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].w,
+																											clip_width,
 																											panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].h);
  al_clear_to_color(colours.base [BCODE_PANEL_COL_BACKGROUND] [SHADE_LOW]);
 
@@ -1139,9 +1201,21 @@ finished_drawing_line:
 // target memory:
 
 
+	clip_width = panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].w;
+
+	clip_right_x = panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].w;
+
+	if (clip_right_x > panel[PANEL_BCODE].x2)
+	{
+		clip_right_x = panel[PANEL_BCODE].x2;
+		clip_width = clip_right_x - (panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].x1);
+		if (clip_width <= 0)
+			goto finished_drawing;
+	}
+
 	al_set_clipping_rectangle(panel[PANEL_BCODE].x1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].x1,
 																											panel[PANEL_BCODE].y1 + panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].y1,
-																											panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].w,
+																											clip_width,
 																											panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].h);
  al_clear_to_color(colours.base [BCODE_PANEL_COL_BACKGROUND] [SHADE_LOW]);
 

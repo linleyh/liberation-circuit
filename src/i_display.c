@@ -16882,7 +16882,7 @@ static void vision_check_for_display(void)
 	int block_min_y = (al_fixtoi(view.camera_y) - (view.window_y_unzoomed / (view.zoom * 2))) / BLOCK_SIZE_PIXELS - 2;
 	if (block_min_y < 1)
 		block_min_y = 1;
-	int block_max_x = block_min_x + ((view.window_x_unzoomed / BLOCK_SIZE_PIXELS) / view.zoom) + 6;
+	int block_max_x = block_min_x + ((view.window_x_unzoomed / BLOCK_SIZE_PIXELS) / view.zoom) + 7;
 	if (block_max_x >= w.blocks.x - 1)
 		block_max_x = w.blocks.x - 1;
 	int block_max_y = block_min_y + ((view.window_y_unzoomed / BLOCK_SIZE_PIXELS) / view.zoom) + 6;
