@@ -1,6 +1,6 @@
 ﻿# liberation-circuit
 
-version: 1.2
+version: 1.3
 
 This is Liberation Circuit, an RTS/programming game.
 
