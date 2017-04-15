@@ -136,7 +136,10 @@ void play_game_sound(int s, int pitch, int vol, int priority, al_fixed x, al_fix
 	sound_list [i].exists = 1;
 	sound_list [i].sample_index = s;
 	sound_list [i].pitch = pitch;
-	sound_list [i].pan = (al_fixtoi(x - view.camera_x) * 100) / al_fixtoi(view.centre_x_zoomed); // pan (-100 to 100)
+	if (view.centre_x_zoomed == 0)
+	 sound_list [i].pan = 0; // pan (-100 to 100)
+	  else
+  	 sound_list [i].pan = (al_fixtoi(x - view.camera_x) * 100) / al_fixtoi(view.centre_x_zoomed); // pan (-100 to 100)
 	sound_list [i].vol = vol;
 	sound_list [i].priority = priority;
 

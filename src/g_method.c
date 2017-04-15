@@ -113,39 +113,39 @@ static int call_known_object_or_class(struct core_struct* core, struct proc_stru
 struct call_type_struct call_type [CALL_TYPES] =
 {
 // {int parameters},
-	{2}, // *CALL_MOVE_TO (x, y)
-	{2}, // *CALL_TURN_TO_XY (x, y)
-	{1}, // *CALL_TURN_TO_ANGLE (angle)
-	{2}, // *CALL_TURN_TO_TARGET (<process> target, component)
-	{3}, // *CALL_TRACK_TARGET (<process> target, component, class index)
-	{3}, // *CALL_APPROACH_XY (x, y, distance)
-	{3}, // *CALL_APPROACH_TARGET (<process> target, component, distance)
-	{4}, // *CALL_APPROACH_TRACK (<process> target, component, class index, distance)
-	{3}, // *CALL_REPOSITION (x, y, angle)
-	{1}, // *CALL_SET_POWER (power)
-	{1}, // *CALL_FIRE (firing delay 0-15)
-	{1}, // *CALL_ROTATE (target_angle_offset)
+	{2, KEYWORD_OMETHOD_MOVE_TO}, // *CALL_MOVE_TO (x, y)
+	{2, KEYWORD_OMETHOD_TURN_TO_XY}, // *CALL_TURN_TO_XY (x, y)
+	{1, KEYWORD_OMETHOD_TURN_TO_ANGLE}, // *CALL_TURN_TO_ANGLE (angle)
+	{2, KEYWORD_OMETHOD_TURN_TO_TARGET}, // *CALL_TURN_TO_TARGET (<process> target, component)
+	{3, KEYWORD_OMETHOD_TRACK_TARGET}, // *CALL_TRACK_TARGET (<process> target, component, class index)
+	{3, KEYWORD_OMETHOD_APPROACH_XY}, // *CALL_APPROACH_XY (x, y, distance)
+	{3, KEYWORD_OMETHOD_APPROACH_TARGET}, // *CALL_APPROACH_TARGET (<process> target, component, distance)
+	{4, KEYWORD_OMETHOD_APPROACH_TRACK}, // *CALL_APPROACH_TRACK (<process> target, component, class index, distance)
+	{3, KEYWORD_OMETHOD_REPOSITION}, // *CALL_REPOSITION (x, y, angle)
+	{1, KEYWORD_OMETHOD_SET_POWER}, // *CALL_SET_POWER (power)
+	{1, KEYWORD_OMETHOD_FIRE}, // *CALL_FIRE (firing delay 0-15)
+	{1, KEYWORD_OMETHOD_ROTATE}, // *CALL_ROTATE (target_angle_offset)
 
- {0}, // *CALL_NO_TARGET
-	{2}, // *CALL_AIM_AT (<process> target, component)
-	{2}, // *CALL_FIRE_AT (<process> target, component)
+ {0, KEYWORD_OMETHOD_NO_TARGET}, // *CALL_NO_TARGET
+	{2, KEYWORD_OMETHOD_AIM_AT}, // *CALL_AIM_AT (<process> target, component)
+	{2, KEYWORD_OMETHOD_FIRE_AT}, // *CALL_FIRE_AT (<process> target, component)
 
-	{3}, // *CALL_INTERCEPT (<process> target, component, class index)
- {0}, // *CALL_GATHER_DATA
- {2}, // *CALL_GIVE_DATA (<process> target, data given)
- {2}, // *CALL_TAKE_DATA (<process> target, data given)
- {1}, // *CALL_ALLOCATE_DATA
- {1}, // *CALL_FIRE_SPIKE (angle_offset)
- {2}, // *CALL_FIRE_SPIKE_AT (<process> target, component)
- {2}, // *CALL_FIRE_SPIKE_XY (x, y)
+	{3, KEYWORD_OMETHOD_INTERCEPT}, // *CALL_INTERCEPT (<process> target, component, class index)
+ {0, KEYWORD_OMETHOD_GATHER_DATA}, // *CALL_GATHER_DATA
+ {2, KEYWORD_OMETHOD_GIVE_DATA}, // *CALL_GIVE_DATA (<process> target, data given)
+ {2, KEYWORD_OMETHOD_TAKE_DATA}, // *CALL_TAKE_DATA (<process> target, data given)
+ {1, KEYWORD_OMETHOD_ALLOCATE_DATA}, // *CALL_ALLOCATE_DATA
+ {1, KEYWORD_OMETHOD_FIRE_SPIKE}, // *CALL_FIRE_SPIKE (angle_offset)
+ {2, KEYWORD_OMETHOD_FIRE_SPIKE_AT}, // *CALL_FIRE_SPIKE_AT (<process> target, component)
+ {2, KEYWORD_OMETHOD_FIRE_SPIKE_XY}, // *CALL_FIRE_SPIKE_XY (x, y)
 
 // spike needs some special methods because of the way it is targetted
 // {1}, // *CALL_SET_INTERFACE (on/off)
- {3}, // *CALL_ATTACK_SCAN (angle_offset, scan_distance, <process> target)
- {3}, // *CALL_ATTACK_SCAN_AIM (angle_offset, scan_distance, <process> target)
+ {3, KEYWORD_OMETHOD_ATTACK_SCAN}, // *CALL_ATTACK_SCAN (angle_offset, scan_distance, <process> target)
+ {3, KEYWORD_OMETHOD_ATTACK_SCAN_AIM}, // *CALL_ATTACK_SCAN_AIM (angle_offset, scan_distance, <process> target)
 // remember that parameter numbers do not include member_index and object_index, or class_index.
 
- {1}, // *CALL_SET_STABILITY (on/off)
+ {1, KEYWORD_OMETHOD_SET_STABILITY}, // *CALL_SET_STABILITY (on/off)
 
 };
 
@@ -344,7 +344,7 @@ int call_object_method(struct core_struct* core, int call_value)
 
 // fpr("\ncall_object %i", call_value);
 
-	s16b stack_parameters [CALL_PARAMETERS+2]; // +2 is for process, object index
+	s16b stack_parameters [CALL_PARAMETERS+2]; // +2 is for component, object index
 
 	if (call_value < 0
 		|| call_value >= CALL_TYPES)
@@ -413,7 +413,7 @@ int pull_values_from_stack(s16b* stack_parameters, int params)
 
 	for (i = params - 1; i >= 0; i --)
 	{
-		stack_parameters [i] = vmstate.vm_stack [--vmstate.stack_pos]; // or should it be --vmstate.stack_pos??
+		stack_parameters [i] = vmstate.vm_stack [--vmstate.stack_pos];
 	}
 
 	return 1;

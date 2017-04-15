@@ -25,6 +25,7 @@ struct umethod_call_type_struct
 {
 	int parameters; // this is the number of parameters that will be pulled off the stack (in addition to the object/class index)
 // parameters shouldn't be greater than CMETHOD_CALL_PARAMETERS
+ int keyword_index;
 };
 
 

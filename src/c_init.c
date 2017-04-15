@@ -60,6 +60,7 @@ int init_compiler(struct template_struct* templ, int compiler_mode)
 
 	for (i = USER_IDENTIFIERS; i < IDENTIFIERS; i ++)
 	{
+		identifier[i].type = CTOKEN_TYPE_NONE;
 		identifier[i].address = -1;
 		identifier[i].value = 0;
 	}

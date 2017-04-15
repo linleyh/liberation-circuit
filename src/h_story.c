@@ -2874,6 +2874,8 @@ void save_story_status_file(void)
  if (!file)
  {
   fprintf(stdout, "\nFailed to save mission status to [%s]: couldn't open file.", settings.path_to_msn_dat_file);
+  fprintf(stdout, "\nIf you are playing in a write-protected directory, you can specify a path for the");
+  fprintf(stdout, "\nmission status file by editing init.txt.");
   return;
  }
 

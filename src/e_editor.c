@@ -213,8 +213,8 @@ struct submenustruct submenu [SUBMENUS] =
  {
   SUBMENU_COMPILE_END,
   {
-   {"Test Compile", "Shift-F9"},
-   {"Compile", "F9"},
+   {"Test Compile", "Shift-F10"},
+   {"Compile", "F10"},
    {"Compile+lock", ""},
 //   {"Build asm", "", HELP_SUBMENU_BUILD_ASM},
 //   {"Crunched asm", "", HELP_SUBMENU_CRUNCH_ASM},
@@ -2779,7 +2779,7 @@ static void cursor_etc_key(int key_press)
 //  case SPECIAL_KEY_F8:
 //  	 submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_TEST);
 //    break;
-  case SPECIAL_KEY_F9:
+  case SPECIAL_KEY_F10:
   	 if (ex_control.special_key_press [SPECIAL_KEY_SHIFT])
   	  submenu_operation(SUBMENU_COMPILE, SUBMENU_COMPILE_TEST);
   	   else

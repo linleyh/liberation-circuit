@@ -37,6 +37,7 @@
 #include "p_panels.h"
 #include "d_draw.h"
 #include "d_design.h"
+#include "v_draw_panel.h"
 
 
 //#include "s_setup.h"
@@ -76,6 +77,7 @@ char mode_button_text [MODE_BUTTONS] [3] =
 	"Ed",
 	"De",
 	"Te",
+	"BC",
 //	">>"
 };
 
@@ -119,6 +121,9 @@ void draw_panels(void)
 				draw_template_panel();
 //    al_clear_to_color(panel[i].background_colour);
 //				display_standard_panel(PANEL_TEMPLATE);
+				break;
+			case PANEL_BCODE:
+    draw_bcode_panel();
 				break;
 
   }
@@ -489,7 +494,7 @@ static void print_sysmenu_help(float base_x, float base_y)
  print_sysmenu_line("FAST FORWARD", "F2, F3 and F4 to toggle different speeds", 1);
 // print_sysmenu_line("FF (SKIP)", "F3 to toggle extra fast forward (skips frames).");
 // print_sysmenu_line("FF (ND)", "F4 to toggle super fast forward (no display).");
- print_sysmenu_line("PANELS", "F6, F7 and F8 to open/close Te/De/Ed panels", 1);
+ print_sysmenu_line("PANELS", "F6, F7, F8, F9 to open/close BC/Te/De/Ed panels", 1);
  print_sysmenu_line("ZOOM", "Use mousewheel to zoom in/out", 1);
  print_sysmenu_line("QUIT", "Escape to quit program entirely", 1);
  print_sysmenu_line("CHANGE PLAYER", "F5 to change player (custom game only)", 1);

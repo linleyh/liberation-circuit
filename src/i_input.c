@@ -413,13 +413,22 @@ mouse_unavailable:
 
  	if (ex_control.special_key_press [SPECIAL_KEY_F6] == BUTTON_JUST_PRESSED)
  	{
+		 if (panel[PANEL_BCODE].open)
+ 			close_panel(PANEL_BCODE, 0);
+			  else
+ 					open_panel(PANEL_BCODE);
+ 	}
+
+
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F7] == BUTTON_JUST_PRESSED)
+ 	{
 		 if (panel[PANEL_TEMPLATE].open)
  			close_panel(PANEL_TEMPLATE, 0);
 			  else
  					open_panel(PANEL_TEMPLATE);
  	}
 
- 	if (ex_control.special_key_press [SPECIAL_KEY_F7] == BUTTON_JUST_PRESSED)
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F8] == BUTTON_JUST_PRESSED)
  	{
 		 if (panel[PANEL_DESIGN].open)
  			close_panel(PANEL_DESIGN, 0);
@@ -427,9 +436,9 @@ mouse_unavailable:
  					open_panel(PANEL_DESIGN);
  	}
 
- 	if (ex_control.special_key_press [SPECIAL_KEY_F8] == BUTTON_JUST_PRESSED)
+ 	if (ex_control.special_key_press [SPECIAL_KEY_F9] == BUTTON_JUST_PRESSED)
  	{
- 		fpr("\nA[%i]", panel[PANEL_EDITOR].open);
+// 		fpr("\nA[%i]", panel[PANEL_EDITOR].open);
 		 if (panel[PANEL_EDITOR].open)
  			close_panel(PANEL_EDITOR, 0);
 			  else

@@ -25,6 +25,7 @@
 #include "c_prepr.h"
 #include "t_template.h"
 #include "t_files.h"
+#include "v_init_panel.h"
 
 
 
@@ -350,7 +351,7 @@ void load_template_file(int player_index)
 		if (templ[player_index][i].active
 			&& templ[player_index][i].locked)
 		{
-   write_line_to_log("Can't load template file while any templates are locked.", MLOG_COL_ERROR);
+   write_line_to_log("Can't load multi-binary file while any templates are locked.", MLOG_COL_ERROR);
    return;
 		}
 	}
@@ -383,7 +384,7 @@ void load_template_file(int player_index)
     if (ferror(file) || tfile.load_buffer_length == 0)
     {
      fclose(file);
-     write_line_to_log("Error: Couldn't read template file.", MLOG_COL_ERROR);
+     write_line_to_log("Error: Couldn't read multi-binary file.", MLOG_COL_ERROR);
      return;
     }
 
@@ -464,7 +465,7 @@ void load_template_file(int player_index)
      strcpy(templ[player_index][i].source_edit->text [1], "//  and does not have source code. ");
       // clear_source_edit_struct() call above reset the line index, so text[0] is the first line
 
-
+     prepare_template_debug(player_index, i, 0); // sets up the BC panel information. ,0 means no identifier (variable and label name) information will be included.
 				}
 
 
@@ -627,7 +628,7 @@ static int choose_template_file(int filechooser_mode)
 
  if (files_to_open > 1)
  {
-  write_line_to_log("Can only open one file at a time, sorry.", MLOG_COL_ERROR);
+  write_line_to_log("Error: Can only open one file at a time, sorry.", MLOG_COL_ERROR);
  	goto choose_fail;
  }
 
@@ -635,7 +636,7 @@ static int choose_template_file(int filechooser_mode)
 
  if (strlen(file_path_ptr) >= FILE_PATH_LENGTH) // not sure this is needed
  {
-  write_line_to_log("File path too long, sorry.", MLOG_COL_ERROR);
+  write_line_to_log("Error: File path too long, sorry.", MLOG_COL_ERROR);
  	goto choose_fail;
  }
 
@@ -643,7 +644,8 @@ static int choose_template_file(int filechooser_mode)
 
  if (file_type != FILE_TYPE_TEMPLATE)
  {
-  write_line_to_log("Must be a multi-binary template file with the .tf extension.", MLOG_COL_ERROR);
+  write_line_to_log("Error: Must be a multi-binary template file with the .tf extension.", MLOG_COL_ERROR);
+  return 0;
  }
 
  strcpy(tfile.template_file_path, file_path_ptr);

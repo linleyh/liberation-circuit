@@ -404,7 +404,7 @@ void init_at_startup(void)
 
    fprintf(stdout, "Liberation Circuit");
    fprintf(stdout, "\nCopyright 2017 Linley Henzell");
-   fprintf(stdout, "\nVersion 1.2");
+   fprintf(stdout, "\nVersion 1.3");
 
    fprintf(stdout, "\n\nThis is free software and comes with no warranty; see licence.txt.");
 
@@ -1234,7 +1234,7 @@ void init_inter(void)
 
 	int i;
 
-	for (i = 0; i < PANEL_TEMPLATE+1; i ++)
+	for (i = 0; i < PANEL_BCODE+1; i ++)
 	{
 		inter.panel_restore [i] = 0; // PANEL_LOG value is just ignored
 	}

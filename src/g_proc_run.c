@@ -18,27 +18,36 @@
 #include "g_method_std.h"
 
 #include "v_interp.h"
+#include "v_draw_panel.h"
 #include "x_sound.h"
 
 extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 extern struct game_struct game;
 extern struct view_struct view;
+extern struct bcode_panel_state_struct bcp_state;
 
 static void	place_under_attack_marker(al_fixed marker_x, al_fixed marker_y);
 
-void run_cores_and_procs(void)
+// resume_loop_after_watch_with_core should be -1 if we're not resuming after watching
+void run_cores_and_procs(int resume_loop_after_watch_with_core)
 {
 
-// fpr("\ncore 0 memory %i,%i,%i,%i,%i", w.core[0].memory[0], w.core[0].memory[1], w.core[0].memory[2], w.core[0].memory[3], w.core[0].memory[4]);
+ int first_core;
 
- run_motion();
+ if (resume_loop_after_watch_with_core == -1)
+	{
+  run_motion();
+  first_core = 0;
+	}
+	 else
+			first_core = resume_loop_after_watch_with_core;
+
+//fpr("\n %i: %i", resume_loop_after_watch_with_core, first_core);
 
  int c;
  struct core_struct* core;
-// struct proc_struct* proc;
-// int instructions;
 
- for (c = 0; c < w.max_cores; c ++)
+ for (c = first_core; c < w.max_cores; c ++)
 	{
 
   if (w.core[c].exists == 0)
@@ -48,31 +57,43 @@ void run_cores_and_procs(void)
 
 // run code:
 
-//  core->execution_count --;
-
   w.debug_mode = w.debug_mode_general; // 0 or 1
 
   if (core->next_execution_timestamp == w.world_time)
   {
 
-   if (core->player_index == game.user_player_index
-				&& core->damage_this_cycle > 0)
+  	if (c != resume_loop_after_watch_with_core)
 			{
-				place_under_attack_marker(core->core_position.x, core->core_position.y);
-			}
+// none of the following code needs to run if we're resuming after pausing to watch a process execute:
+//  (however, some of the later code does need to run)
+    if (core->player_index == game.user_player_index
+			 	&& core->damage_this_cycle > 0)
+			 {
+			 	place_under_attack_marker(core->core_position.x, core->core_position.y);
+			 }
 
-//			core->power_used_old = core->power_used;
-			core->power_left = core->power_capacity;
-			core->power_use_excess = 0;
-//			core->interface_charged_this_cycle = 0;
+			 core->power_left = core->power_capacity;
+			 core->power_use_excess = 0;
 
-   run_objects_before_execution(core);
+    run_objects_before_execution(core);
 
-   core->last_execution_timestamp = w.world_time;
-   core->next_execution_timestamp = w.world_time + EXECUTION_COUNT;
-   core->cycles_executed ++;
+    core->last_execution_timestamp = w.world_time;
+    core->next_execution_timestamp = w.world_time + EXECUTION_COUNT;
+    core->cycles_executed ++;
 
-   execute_bcode(core, &templ[core->player_index][core->template_index].bcode, core->memory);
+    if (game.watching == WATCH_ON
+				 && bcp_state.watch_core_index == c
+				 && bcp_state.watch_core_timestamp == core->created_timestamp)
+			 {
+ 				game.watching = WATCH_PAUSED_TO_WATCH;
+// 				game.pause_watch = 1;
+     init_bcode_execution_for_watch(core, &templ[core->player_index][core->template_index].bcode, core->memory);
+     return;
+			 }
+ 			 else
+      execute_bcode(core, &templ[core->player_index][core->template_index].bcode, core->memory);
+			} // end if (c != first_core)
+
 
    if (core->self_destruct)
 			{

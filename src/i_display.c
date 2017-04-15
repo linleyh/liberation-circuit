@@ -33,6 +33,7 @@
 #include "g_command.h"
 #include "g_method.h"
 #include "v_interp.h"
+#include "v_draw_panel.h"
 
 /*
 
@@ -56,7 +57,7 @@ struct vbuf_struct vbuf;
 extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 extern struct object_type_struct otype [OBJECT_TYPES];
 extern struct mission_state_struct mission_state;
-
+extern struct bcode_panel_state_struct bcp_state;
 
 
 static void draw_map(void);
@@ -6301,6 +6302,61 @@ add_orthogonal_hexagon(kx, ky, block_size, al_map_rgba(0,0,0, alpha_ch)); //colo
 	}
 */
 
+ if (panel[PANEL_BCODE].open
+		&& bcp_state.bcp_mode == BCP_MODE_PROCESS)
+	{
+
+    x = al_fixtof(w.core[bcp_state.watch_core_index].core_position.x - view.camera_x) * view.zoom;
+    y = al_fixtof(w.core[bcp_state.watch_core_index].core_position.y - view.camera_y) * view.zoom;
+
+    x += view.window_x_unzoomed / 2;
+    y += view.window_y_unzoomed / 2;
+
+    if (x > -200 && x < view.window_x_unzoomed + 200
+     && y > -200 && y < view.window_y_unzoomed + 200)
+    {
+
+    select_arrows(5,
+																		x,
+																		y,
+				  												game.total_time * 0.02 + PI/5,
+																		(81.5) * view.zoom, // radius
+																  12,
+																  PI/5,
+																  18,
+																  colours.base [COL_ORANGE] [SHADE_MAX]);
+    }
+
+    if (bcp_state.mouseover_time == inter.running_time - 1
+				 &&	bcp_state.mouseover_type == BCP_MOUSEOVER_CORE_INDEX
+				 && bcp_state.mouseover_value >= 0 && bcp_state.mouseover_value < w.max_cores)
+				{
+
+
+     x = al_fixtof(w.core[bcp_state.mouseover_value].core_position.x - view.camera_x) * view.zoom;
+     y = al_fixtof(w.core[bcp_state.mouseover_value].core_position.y - view.camera_y) * view.zoom;
+
+     x += view.window_x_unzoomed / 2;
+     y += view.window_y_unzoomed / 2;
+
+     if (x > -200 && x < view.window_x_unzoomed + 200
+      && y > -200 && y < view.window_y_unzoomed + 200)
+     {
+
+     select_arrows(3,
+																		 x,
+																		 y,
+				  												 game.total_time * 0.02 + PI/5,
+																		 (83.5) * view.zoom, // radius
+																   16,
+																   PI/3,
+																   19,
+																   colours.base [COL_CYAN] [SHADE_MAX]);
+     }
+
+				}
+	}
+
 //#ifndef RECORDING_VIDEO
 // if only one core is selected, and it's the first in the select array, show its targets:
 // * actually do this just if one core is selected
@@ -7123,6 +7179,8 @@ if (inter.block_mode_button_area_scrolling)
 #ifndef RECORDING_VIDEO_2
    if (game.pause_soft)
     al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y, ALLEGRO_ALIGN_CENTRE, "PAUSED");
+   if (game.watching == WATCH_PAUSED_TO_WATCH)
+    al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 45, ALLEGRO_ALIGN_CENTRE, "EXECUTING WATCHED PROCESS");
    if (view.following)
     al_draw_textf(font[FONT_SQUARE_LARGE].fnt, colours.base [COL_GREY] [SHADE_MAX], view.window_x_unzoomed / 2, view.window_y_unzoomed / 2 + LINE_1_Y + 90, ALLEGRO_ALIGN_CENTRE, "FOLLOWING");
 #endif

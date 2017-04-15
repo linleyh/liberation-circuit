@@ -39,6 +39,8 @@
 
 #include "p_panels.h"
 #include "p_init.h"
+#include "v_draw_panel.h"
+#include "v_interp.h"
 
 ALLEGRO_EVENT_QUEUE* event_queue; // these queues are initialised in main.c
 ALLEGRO_EVENT_QUEUE* fps_queue;
@@ -49,6 +51,7 @@ extern struct template_struct templ [PLAYERS] [TEMPLATES_PER_PLAYER];
 struct game_struct game;
 extern struct command_struct command;
 extern struct fontstruct font [FONTS];
+extern struct bcode_panel_state_struct bcp_state;
 
 void run_game(void);
 void init_main_loop(void);
@@ -78,6 +81,8 @@ void start_game(void)
 
  game.total_time = 255; // total time spent playing, *including* any time spent paused (w.world_time is actual in-game time). Will overflow after a bit more than 2 years of constant uptime without a restart, which is unlikely to occur in practice.
  game.pause_soft = 0;
+// game.pause_watch = 0;
+ game.watching = WATCH_OFF;
 // game.pause_hard = 0;
  game.fast_forward = FAST_FORWARD_OFF;
  game.fast_forward_type = FAST_FORWARD_TYPE_SMOOTH;
@@ -157,6 +162,10 @@ void run_game(void)
 
 // ends when game over (or user quit)
 
+ game.watching = WATCH_OFF;
+// bcp_state.bcp_mode = BCP_MODE_EMPTY;
+ init_bcode_panel();
+
  if (game.type == GAME_TYPE_MISSION)
 	{
 		w.players = 1; // this affects the template panel (prevents opening the old player 1 templates in the mission select screen)
@@ -230,37 +239,74 @@ void main_game_loop(void)
    if (game.phase == GAME_PHASE_WORLD
 				|| game.phase == GAME_PHASE_OVER) // game continues to run while over.
 			{
-				if (game.pause_soft == 0)
+				if (!game.pause_soft)
+				{
+				if (game.watching != WATCH_PAUSED_TO_WATCH)
     {
+
 //    if (run_turns()) // returns 0 if game has left world phase (e.g. because time has run out), 1 if still in world phase
      {
-      run_world(); // runs the world and also the mission, if this is a mission. Can end the game.
+     	if (game.watching == WATCH_FINISHED_AND_STOP_WATCHING
+						 || game.watching == WATCH_FINISHED_BUT_STILL_WATCHING
+						 || game.watching == WATCH_FINISHED_JUST_STOP_PAUSING)
+						{
+        w.core[bcp_state.watch_core_index].next_execution_timestamp = w.world_time;
+        run_cores_and_procs(bcp_state.watch_core_index);
+        w.core[bcp_state.watch_core_index].next_execution_timestamp = w.world_time + EXECUTION_COUNT;
+        switch(game.watching)
+        {
+        	case WATCH_FINISHED_AND_STOP_WATCHING:
+ 									game.watching = WATCH_OFF;
+									 bcp_state.watch_core_index = -1;
+									 bcp_state.bcp_mode = BCP_MODE_EMPTY;
+									 break;
+        	case WATCH_FINISHED_BUT_STILL_WATCHING:
+  								game.watching = WATCH_ON;
+  								break;
+        	case WATCH_FINISHED_JUST_STOP_PAUSING:
+  								game.watching = WATCH_OFF;
+  								break;
+        }
+						}
+						 else
+							{
+        run_world(); // runs the world and also the mission, if this is a mission. Can end the game.
 // should run_world be after the next three function calls? Maybe.
 
 //      run_clouds(); clouds don't need to be run
-      run_fragments();
-      run_cores_and_procs();
-      run_packets();
+        run_fragments();
+        run_cores_and_procs(-1);
+							}
 
-      cps ++;
-      w.world_time ++;
-      w.world_seconds = (w.world_time - BASE_WORLD_TIME) / 60;
-
-      update_vision_area(); // update fog of war after w.world_time is incremented so that the vision_time timestamps are up to date
-
-      if (game.phase != GAME_PHASE_OVER)
+						if (game.watching != WATCH_PAUSED_TO_WATCH) // this may have been set in either of the run_cores_and_procs() calls above
 						{
-       if (game.type == GAME_TYPE_BASIC)
-							 run_custom_game();
-						   else
-									 run_mission(); // for now ignore return values
+
+       run_packets();
+
+       cps ++;
+       w.world_time ++;
+       w.world_seconds = (w.world_time - BASE_WORLD_TIME) / 60;
+
+       update_vision_area(); // update fog of war after w.world_time is incremented so that the vision_time timestamps are up to date
+
+       if (game.phase != GAME_PHASE_OVER)
+						 {
+        if (game.type == GAME_TYPE_BASIC)
+						 	 run_custom_game();
+						    else
+						 			 run_mission(); // for now ignore return values
+						 }
+
+       play_sound_list();
+
 						}
 
-      play_sound_list();
-
      }
-    }
-   }
+    } // end if (!game.pause_watch)
+     else
+						run_bcode_watch();
+				} // end if (!game.pause_soft)
+   } // end game phase test
 
    if (game.phase == GAME_PHASE_OVER)
 			{
@@ -327,7 +373,8 @@ void main_game_loop(void)
 // check for fast-forward (skip). Ignore FF if not in world, or if paused
   if (game.fast_forward > 0
    && game.phase == GAME_PHASE_WORLD // let's not allow ff in GAME_PHASE_OVER
-   && game.pause_soft == 0)
+   && game.pause_soft == 0
+   && game.watching != WATCH_PAUSED_TO_WATCH)
 //   && game.pause_hard == 0)
    {
     switch (game.fast_forward_type)
@@ -387,7 +434,8 @@ void main_game_loop(void)
 // wait for the timer so we can go to the next tick (unless we're fast-forwarding or the timer has already expired)
   if (!skip_frame
    && (game.fast_forward == FAST_FORWARD_OFF
-				|| game.pause_soft)) // don't skip frames if paused, even if fast-forwarding
+				|| game.pause_soft
+				|| game.watching == WATCH_PAUSED_TO_WATCH)) // don't skip frames if paused, even if fast-forwarding
   {
    al_wait_for_event(event_queue, &ev);
 //   al_flush_event_queue(event_queue);
@@ -1149,6 +1197,8 @@ static void set_game_over(void)
 
 	 game.fast_forward = 0;
   game.pause_soft = 0;
+//  game.pause_watch = 0;
+//  game.watching = WATCH_OFF; - actually I'm not sure this is right - may still want to watch
 //  game.pause_hard = 0;
 
   game.game_over_time = 0;

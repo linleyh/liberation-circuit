@@ -431,9 +431,27 @@ void run_commands(void)
 			 }
  			 else
 				 {
+
+
 				 	if (!shift_pressed
-							&& !check_clicked_on_data_well(mouse_x_fixed, mouse_y_fixed)) // won't treat click as a data well click if pressing shift
+							&& !check_clicked_on_data_well(mouse_x_fixed, mouse_y_fixed) // won't treat click as a data well click if pressing shift
+							&& inter.mode_button_highlight_time < inter.running_time) // don't deselect if user clicked a mode button
+//							&& (control.mouse_x_screen_pixels < inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS
+//								|| control.mouse_y_screen_pixels > inter.mode_buttons_y1 + (MODE_BUTTON_SIZE + 3)
+//								|| control.mouse_y_screen_pixels < inter.mode_buttons_y1 - 5
+//								|| control.mouse_x_screen_pixels > inter.mode_buttons_x1))
  					 clear_selection();
+
+
+
+ //if (control.mouse_y_screen_pixels < inter.mode_buttons_y1 + (MODE_BUTTON_SIZE + 3)
+		//&&	control.mouse_y_screen_pixels > inter.mode_buttons_y1 - 5
+		//&& control.mouse_x_screen_pixels >= inter.mode_buttons_x1 - (MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS) //inter.display_w - ((MODE_BUTTON_SIZE + MODE_BUTTON_SPACING) * MODE_BUTTONS))
+//	{
+//		mode_button_input();
+//	}
+
+
 				 }
 			 command.select_box = 1;
 			 command.mouse_drag_world_x = mouse_x_fixed;
@@ -732,6 +750,17 @@ void run_commands(void)
 
 	} // end if mouse on main panel
 
+ } // end else (mouse on map)
+	} // end if (mouse on game display)
+	 else
+		{
+			command.select_box = 0;
+//			command.
+// anything to cancel here if mouse not on display?
+		}
+
+ skip_main_mouse_input: // this is the target of some gotos above that skip most mouse input because the mouse is on the map or console etc
+
 	if (view.following
 		&& (command.select_mode == SELECT_MODE_SINGLE_CORE
    || command.select_mode == SELECT_MODE_MULTI_CORE))
@@ -745,7 +774,8 @@ void run_commands(void)
 	}
 
 	if (view.screen_shake_time > w.world_time
-		&& game.pause_soft	== 0)
+		&& !game.pause_soft
+		&& game.watching != WATCH_PAUSED_TO_WATCH)
 	{
 		int screen_shake_amount = view.screen_shake_time - w.world_time;
 		view.camera_x += al_itofix(grand(screen_shake_amount) - grand(screen_shake_amount));
@@ -762,17 +792,6 @@ void run_commands(void)
  if (view.camera_y > view.camera_y_max)
   view.camera_y = view.camera_y_max;
 
-
- } // end else (mouse on map)
-	} // end if (mouse on game display)
-	 else
-		{
-			command.select_box = 0;
-//			command.
-// anything to cancel here if mouse not on display?
-		}
-
- skip_main_mouse_input: // this is the target of some gotos above that skip most mouse input because the mouse is on the map or console etc
 
 
 // make sure anything selected is still visible:
@@ -806,7 +825,8 @@ void run_commands(void)
 
 // if a single core is selected, maintain the stress/power record:
  if (command.select_mode == SELECT_MODE_SINGLE_CORE
-		&& game.pause_soft == 0
+		&& !game.pause_soft
+		&& game.watching != WATCH_PAUSED_TO_WATCH
 	 && w.core[command.selected_core [0]].last_execution_timestamp == w.world_time - 15)
 	{
   sancheck(command.selected_core [0], 0, w.max_cores, "command.selected_core [0]");

@@ -136,6 +136,7 @@ int intercode_to_bcode(void)
 				}
 				 else
 						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode); // address known
+				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_used = 1;
 				break;
 			case IC_IFTRUE_JUMP_TO_EXIT_POINT:
     write_bcode(OP_iftrue_jump);
@@ -147,6 +148,7 @@ int intercode_to_bcode(void)
 				}
 				 else
 						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode); // address known
+				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_used = 1;
 				break;
 			case IC_JUMP_EXIT_POINT_TRUE:
     write_bcode(OP_jump_num);
@@ -158,6 +160,7 @@ int intercode_to_bcode(void)
 				}
 				 else
 						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode); // address known
+				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_used = 1;
 				break;
 			case IC_JUMP_EXIT_POINT_FALSE:
     write_bcode(OP_jump_num);
@@ -169,6 +172,7 @@ int intercode_to_bcode(void)
 				}
 				 else
 						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_bcode); // address known
+				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].false_point_used = 1;
 				break;
 			case IC_NUMBER:
     write_bcode(cstate.intercode[cstate.ic_pos].value [0]);
@@ -179,6 +183,7 @@ int intercode_to_bcode(void)
 					return 0;
     write_bcode(cstate.intercode[cstate.ic_pos].value [1]);
     write_bcode(cstate.intercode[cstate.ic_pos].value [2]);
+				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_used = 1;
     break;
    case IC_JUMP_TABLE:
 // this just writes a number (to be used by switch code), no instruction.
@@ -192,6 +197,7 @@ int intercode_to_bcode(void)
 				}
 				 else
 						write_bcode(cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_bcode); // address known
+				cstate.expoint[cstate.intercode[cstate.ic_pos].value [0]].true_point_used = 1;
     break;
 
 			default:
