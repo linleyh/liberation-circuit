@@ -55,6 +55,7 @@ CALL_TYPES
 struct call_type_struct
 {
 	int parameters; // this is the number of parameters that will be pulled off the stack (in addition to the object/class index)
+	int keyword_index;
 // parameters shouldn't be greater than CALL_PARAMETERS
 };
 

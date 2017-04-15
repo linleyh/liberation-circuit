@@ -34,6 +34,7 @@
 #include "t_template.h"
 
 #include "v_interp.h"
+#include "v_init_panel.h"
 
 extern struct call_type_struct call_type [CALL_TYPES];
 extern struct cmethod_call_type_struct cmethod_call_type [CMETHOD_CALL_TYPES];
@@ -100,7 +101,7 @@ struct instruction_set_struct instruction_set [INSTRUCTIONS] =
 
  {"return_sub", 0}, // OP_return_sub,
 
- {"switchA", 3, {OPERAND_TYPE_NUMBER, OPERAND_TYPE_NUMBER, OPERAND_TYPE_NUMBER}}, // OP_switchA,
+ {"switchA", 3, {OPERAND_TYPE_BCODE_ADDRESS, OPERAND_TYPE_NUMBER, OPERAND_TYPE_NUMBER}}, // OP_switchA,
 
 // process comparisons: (not sure these are used)
  {"pcomp_eq", 0}, // OP_pcomp_eq
@@ -272,6 +273,7 @@ int compile(struct template_struct* templ, struct source_edit_struct* source_edi
 			if (check_template_objects(templ, 1)) // returns 1 on error
 				completed = 0;
  	 calculate_template_cost_and_power(templ);
+   prepare_template_debug(templ->player_index, templ->template_index, 1); // ,1 means that the debug template will include identifier information
  	 break;
  	case COMPILE_MODE_LOCK:
  		copy_template(templ, &compiled_template, (templ->locked == 0));
@@ -288,6 +290,7 @@ int compile(struct template_struct* templ, struct source_edit_struct* source_edi
 			if (check_template_objects(templ, 1)) // returns 1 on error
 				success = 0;
  	 calculate_template_cost_and_power(templ);
+   prepare_template_debug(templ->player_index, templ->template_index, 1); // ,1 means that the debug template will include identifier information
 			break;
  }
 

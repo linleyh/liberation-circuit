@@ -98,11 +98,12 @@ void close_panel(int pan, int set_panel_restore) // set_panel_restore will be ze
 			if (!panel[PANEL_SYSMENU].open
 			 && !panel[PANEL_EDITOR].open
 			 && !panel[PANEL_DESIGN].open
-			 && !panel[PANEL_TEMPLATE].open)
+			 && !panel[PANEL_TEMPLATE].open
+			 && !panel[PANEL_BCODE].open)
 		 {
 // closed all panels. Set panel_restore to just the panel that was just closed:
     int i;
-    for (i = 1; i < PANEL_TEMPLATE+1; i ++)
+    for (i = 1; i < PANEL_BCODE+1; i ++)
 			 {
  				inter.panel_restore [i] = 0;
 			 }
@@ -195,6 +196,7 @@ void reset_mode_buttons(void)
 		|| panel[PANEL_EDITOR].open
 		|| panel[PANEL_SYSMENU].open
 		|| panel[PANEL_TEMPLATE].open
+		|| panel[PANEL_BCODE].open
 		|| game.phase == GAME_PHASE_MENU)
 	{
 		inter.mode_buttons_x1 = inter.display_w - scaleUI_x(FONT_SQUARE,21);
@@ -203,7 +205,8 @@ void reset_mode_buttons(void)
 	 else
 		{
 //			inter.mode_buttons_x1 = inter.display_w - 166;
-			inter.mode_buttons_x1 = inter.display_w - scaleUI_x(FONT_SQUARE,156);
+//			inter.mode_buttons_x1 = inter.display_w - scaleUI_x(FONT_SQUARE,156);
+			inter.mode_buttons_x1 = inter.display_w - scaleUI_x(FONT_SQUARE,141);
 			inter.mode_buttons_y1 = scaleUI_y(FONT_SQUARE,70) + 15;
 		}
 
@@ -426,6 +429,8 @@ void subpanel_input(int pan, int subpan)
 							case PANEL_SYSMENU:
 								system_panel_button(el);
 								break;
+							case PANEL_BCODE:
+								break;
 //							case PANEL_EDITOR:
 //								editor_panel_button(el);
 //								break;
@@ -623,11 +628,24 @@ void mode_button(int mode_pressed)
 						open_panel(PANEL_TEMPLATE);
 					}
 			break;
+	 case MODE_BUTTON_BCODE:
+	 	if (panel[PANEL_BCODE].open)
+			{
+    play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
+				close_panel(PANEL_BCODE, 1);
+			}
+			  else
+					{
+      play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_OPEN);
+						open_panel(PANEL_BCODE);
+					}
+			break;
 	 case MODE_BUTTON_CLOSE:
 //	 	if (inter.mode_buttons_maximised)
    if (panel[PANEL_DESIGN].open
 				|| panel[PANEL_EDITOR].open
 				|| panel[PANEL_TEMPLATE].open
+				|| panel[PANEL_BCODE].open
 				|| panel[PANEL_SYSMENU].open)
 			{
     play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_CLOSE);
@@ -638,7 +656,7 @@ void mode_button(int mode_pressed)
       play_interface_sound(MODE_BUTTON_SAMPLE, MODE_BUTTON_TONE_OPEN);
       int opened_any = 0;
       int i;
-      for (i = 1; i < PANEL_TEMPLATE+1; i ++) // note i starts at 1
+      for (i = 1; i < PANEL_BCODE+1; i ++) // note i starts at 1
 						{
 							if (inter.panel_restore [i])
 							{
@@ -666,7 +684,7 @@ void close_all_panels(void)
 
    int i;
 
-	 	for (i = 1; i < PANEL_TEMPLATE+1; i ++) // note i = 1
+	 	for (i = 1; i < PANEL_BCODE+1; i ++) // note i = 1
 			{
 				if (panel[i].open)
 				{

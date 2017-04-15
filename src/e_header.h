@@ -298,7 +298,7 @@ SCHAR_ERROR
 #define EDIT_LINE_OFFSET 2
 #define LOG_WINDOW_H scaleUI_y(FONT_BASIC,120)
 
-#define LOG_LINE_LENGTH 80
+#define LOG_LINE_LENGTH 120
 #define LOG_LINES 40
 
 #define LOG_LINE_HEIGHT (font[FONT_BASIC].height + 3)

@@ -1951,6 +1951,7 @@ PANEL_SYSMENU, // in-game system menu
 PANEL_EDITOR,
 PANEL_DESIGN,
 PANEL_TEMPLATE,
+PANEL_BCODE,
 // any panels not arranged left-to-right should go below here:
 PANEL_LOG,
 PANELS
@@ -1964,6 +1965,7 @@ MODE_BUTTON_SYSTEM,
 MODE_BUTTON_EDITOR,
 MODE_BUTTON_DESIGN,
 MODE_BUTTON_TEMPLATES,
+MODE_BUTTON_BCODE,
 //MODE_BUTTON_MIN_MAX, // minimise/maximise panel buttons
 
 #define LEFT_MODE_BUTTON MODE_BUTTON_TEMPLATES
@@ -2169,6 +2171,17 @@ SPAWN_FAIL_DATA, // template 0 too expensive
 
 };
 
+enum
+{
+WATCH_OFF, // not watching at all
+WATCH_ON, // watch is on, but the watched process isn't currently executing
+WATCH_PAUSED_TO_WATCH, // currently paused (game.pause_watch == 1) while watched process executes
+WATCH_FINISHED_BUT_STILL_WATCHING, // just finished watching a process; will watch it again next cycle
+WATCH_FINISHED_AND_STOP_WATCHING, // just finished watching a process; stop watching now
+WATCH_FINISHED_JUST_STOP_PAUSING // just finished watching a process; keep watching it but stop pausing to watch
+
+};
+
 
 // game_struct game is initialised in g_game.c
 struct game_struct
@@ -2199,6 +2212,9 @@ struct game_struct
 // int current_turn_time_left; // how much time is left in current turn (in ticks)
 
  int pause_soft; // if 1, game is in soft pause. observer, operator and system programs still run but no others do and nothing else happens
+ int watching; // see WATCH_* enums
+// int pause_watch; // if 1, game is paused to watch a process execute in the bcode window.
+
 // int pause_hard; // if 1, game is in hard pause. no programs run and ex_control input is not converted to control input.
  int fast_forward; // uses FAST_FORWARD_? enums
  int fast_forward_type; // uses FAST_FORWARD_TYPE_? enums

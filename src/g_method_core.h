@@ -38,6 +38,7 @@ struct cmethod_call_type_struct
 {
 	int parameters; // this is the number of parameters that will be pulled off the stack (in addition to the object/class index)
 // parameters shouldn't be greater than CMETHOD_CALL_PARAMETERS
+ int keyword_index;
 };
 
 
@@ -58,6 +59,7 @@ struct mmethod_call_type_struct
 {
 	int parameters; // this is the number of parameters that will be pulled off the stack (in addition to the object/class index)
 // parameters shouldn't be greater than MMETHOD_CALL_PARAMETERS
+ int keyword_index;
 };
 
 s16b call_self_core_method(struct core_struct* calling_core, int call_value);

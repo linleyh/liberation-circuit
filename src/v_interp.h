@@ -33,5 +33,8 @@ struct vmstate_struct
 
 
 void execute_bcode(struct core_struct* core, struct bcode_struct* bc, s16b* memory);
+void run_bcode_watch(void);
+void init_bcode_execution_for_watch(struct core_struct* core, struct bcode_struct* bc, s16b* memory);
+void finish_executing_bcode_in_watch(void);
 
 #endif

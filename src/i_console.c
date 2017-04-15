@@ -369,7 +369,7 @@ c = CONSOLE_SYSTEM; // system console gets special minimalist treatment:
 				if (fail_message)
 				{
 					draw_menu_buttons();
-					draw_menu_strings();
+//					draw_menu_strings();
 				}
 
 			}

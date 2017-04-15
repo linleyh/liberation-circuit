@@ -521,6 +521,13 @@ void print_keyword_help(int keyword_index)
 
 #endif
 
+ print_help_string(keyword_help [keyword_index]);
+
+}
+
+
+void print_help_string(const char* help_str)
+{
 
 // Need to go through and break down the help_string strings into printable bits:
 
@@ -543,8 +550,8 @@ void print_keyword_help(int keyword_index)
 		while(TRUE)
 		{
 
-		 print_word [k] = keyword_help [keyword_index] [i];
-			if (keyword_help [keyword_index] [i] == ' ')
+		 print_word [k] = help_str [i];
+			if (help_str [i] == ' ')
 			{
 				if (k + j >= PRINT_STR_LENGTH - 1)
 				{
@@ -563,8 +570,8 @@ void print_keyword_help(int keyword_index)
 					}
 			}
 
-			if (keyword_help [keyword_index] [i] == '\n'
-				|| keyword_help [keyword_index] [i] == '\0')
+			if (help_str [i] == '\n'
+				|| help_str [i] == '\0')
 			{
 				if (k + j >= PRINT_STR_LENGTH - 1)
 				{
@@ -587,7 +594,7 @@ void print_keyword_help(int keyword_index)
 						k = -1;
 					}
 			}
-			if (keyword_help [keyword_index] [i] == '\0')
+			if (help_str [i] == '\0')
 			{
 				if (strlen(print_str) != 0)
 					write_line_to_log(print_str, MLOG_COL_HELP);

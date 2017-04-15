@@ -94,5 +94,6 @@ HELP_STRINGS // must be last
 */
 //void print_help(int help_type);
 void editor_help_click(struct source_edit_struct* se, int source_line, int source_pos);
+void print_help_string(const char* help_str);
 
 #endif

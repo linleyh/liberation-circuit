@@ -36,6 +36,8 @@
 #include "p_panels.h"
 
 #include "d_draw.h"
+#include "v_draw_panel.h"
+#include "v_interp.h"
 
 #define STANDARD_PANEL_TOP 30
 #define PANEL_RESIZE_W 10
@@ -65,6 +67,7 @@ void setup_sysmenu_panel(void);
 void setup_design_panel(void);
 void setup_template_panel(void);
 void setup_editor_panel(void);
+void setup_bcode_panel(void);
 
 void add_resize_subpanel(int pan, int subpan, int el);
 
@@ -181,6 +184,9 @@ void init_panels(void)
 	panel[PANEL_DESIGN].w = scaleUI_x(FONT_SQUARE,800);
 	if (panel[PANEL_DESIGN].w > 1000)
 		panel[PANEL_DESIGN].w = 1000;
+	panel[PANEL_BCODE].w = scaleUI_x(FONT_BASIC,900);
+	if (panel[PANEL_BCODE].w > settings.option [OPTION_WINDOW_W])
+		panel[PANEL_BCODE].w = settings.option [OPTION_WINDOW_W];
 
 	panel[0].open = 1;
 	panel[0].w = inter.display_w;
@@ -203,6 +209,7 @@ void init_panels(void)
  panel[PANEL_EDITOR].background_colour = al_map_rgb(25, 15, 60);
  panel[PANEL_DESIGN].background_colour = al_map_rgb(25, 15, 60);
  panel[PANEL_TEMPLATE].background_colour = al_map_rgb(25, 15, 60);
+ panel[PANEL_BCODE].background_colour = al_map_rgb(10, 35, 50);
  panel[PANEL_LOG].background_colour = al_map_rgb(20, 20, 60);
  panel[PANEL_MAIN].background_colour = colours.black; // not used
 
@@ -213,6 +220,7 @@ void init_panels(void)
  setup_design_panel();
  setup_template_panel();
  setup_editor_panel();
+ setup_bcode_panel();
 
 
 }
@@ -456,6 +464,280 @@ char design_button_name [] [16] =
 
 };
 
+
+
+extern struct bcode_panel_state_struct bcp_state;
+
+void setup_bcode_panel(void)
+{
+
+
+
+	add_resize_subpanel(PANEL_BCODE, FSP_BCODE_PANEL_RESIZE, FPE_BCODE_PANEL_RESIZE);
+
+	int bcode_subpanel_height = settings.option [OPTION_WINDOW_H] - panel[PANEL_LOG].h - font[FONT_BASIC].height * 16;//scaleUI_y(FONT_BASIC,180);
+
+ init_basic_subpanel(PANEL_BCODE, FSP_BCODE_BCODE, SP_TYPE_WINDOW, 7, 30, font[FONT_BASIC].width * 60, bcode_subpanel_height);
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].exists = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].open = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].panel = PANEL_BCODE;
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].subpanel = FSP_BCODE_BCODE;
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].type = PE_TYPE_NONE;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].location = ELEMENT_LOCATION_LEFT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].offset_x = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].offset_y = 0;//STANDARD_PANEL_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].fit = ELEMENT_FIT_FILL;
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].w = panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].w;
+ panel[PANEL_BCODE].element[FPE_BCODE_BCODE_MAIN].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h;
+
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].exists = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].open = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].panel = PANEL_BCODE;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].subpanel = FSP_BCODE_BCODE;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].location = ELEMENT_LOCATION_RIGHT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].offset_x = -SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].offset_y = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].fit = ELEMENT_FIT_SUBPANEL_H;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].type = PE_TYPE_SCROLLBAR_EL_V_CHAR;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].w = SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h;
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].first_element = -1; // no elements
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].clip = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].last_highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].value [0] = FPE_BCODE_BCODE_MAIN; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].value [1] = SLIDER_BCODE_BCODE_SCROLLBAR_V; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].ptr_value = &bcp_state.subpanel_bcode_line; // element affected by this scrollbar
+
+ init_slider(panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].value [1],
+													PANEL_BCODE,
+													FSP_BCODE_BCODE,
+													FPE_BCODE_BCODE_SCROLLBAR,
+													panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].ptr_value,
+													SLIDEDIR_VERTICAL,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h / font[FONT_BASIC].height,//mlog.h_lines,
+													DEBUGGER_LINES, //LOG_LINES, // - mlog.h_lines,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h,
+													1,
+													DEBUGGER_LINES - 1,
+													DEBUGGER_LINES,
+													SLIDER_BUTTON_SIZE,
+													COL_BLUE,
+													0);
+
+ set_element_positions(PANEL_BCODE, FSP_BCODE_BCODE);
+
+
+ init_basic_subpanel(PANEL_BCODE, FSP_BCODE_MEMORY, SP_TYPE_WINDOW, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x2 + 5, 30, font[FONT_BASIC].width * 32, bcode_subpanel_height);
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].exists = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].open = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].panel = PANEL_BCODE;
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].subpanel = FSP_BCODE_MEMORY;
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].type = PE_TYPE_NONE;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].location = ELEMENT_LOCATION_LEFT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].offset_x = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].offset_y = 0;//STANDARD_PANEL_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].fit = ELEMENT_FIT_FILL;
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].w = panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].w;
+ panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_MAIN].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].h;
+
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].exists = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].open = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].panel = PANEL_BCODE;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].subpanel = FSP_BCODE_MEMORY;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].location = ELEMENT_LOCATION_RIGHT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].offset_x = -SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].offset_y = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].fit = ELEMENT_FIT_SUBPANEL_H;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].type = PE_TYPE_SCROLLBAR_EL_V_CHAR;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].w = SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].h;
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].first_element = -1; // no elements
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].clip = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].last_highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].value [0] = FPE_BCODE_STACK_MAIN; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].value [1] = SLIDER_BCODE_MEMORY_SCROLLBAR_V; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].ptr_value = &bcp_state.subpanel_variable_line; // element affected by this scrollbar
+
+ init_slider(panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].value [1],
+													PANEL_BCODE,
+													FSP_BCODE_MEMORY,
+													FPE_BCODE_MEMORY_SCROLLBAR,
+													panel[PANEL_BCODE].element[FPE_BCODE_MEMORY_SCROLLBAR].ptr_value,
+													SLIDEDIR_VERTICAL,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].h / font[FONT_BASIC].height,//mlog.h_lines,
+													MEMORY_SIZE, //LOG_LINES, // - mlog.h_lines,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].h,
+													1,
+													MEMORY_SIZE - 1,
+													MEMORY_SIZE,
+													SLIDER_BUTTON_SIZE,
+													COL_BLUE,
+													0);
+
+ set_element_positions(PANEL_BCODE, FSP_BCODE_MEMORY);
+
+
+
+ init_basic_subpanel(PANEL_BCODE, FSP_BCODE_STACK, SP_TYPE_WINDOW, panel[PANEL_BCODE].subpanel[FSP_BCODE_MEMORY].x2 + 5, 30, font[FONT_BASIC].width * 16, bcode_subpanel_height);
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].exists = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].open = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].panel = PANEL_BCODE;
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].subpanel = FSP_BCODE_STACK;
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].type = PE_TYPE_NONE;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].location = ELEMENT_LOCATION_LEFT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].offset_x = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].offset_y = 0;//STANDARD_PANEL_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].fit = ELEMENT_FIT_FILL;
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].w = panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].w;
+ panel[PANEL_BCODE].element[FPE_BCODE_STACK_MAIN].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].h;
+
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].exists = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].open = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].panel = PANEL_BCODE;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].subpanel = FSP_BCODE_STACK;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].location = ELEMENT_LOCATION_RIGHT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].offset_x = -SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].offset_y = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].fit = ELEMENT_FIT_SUBPANEL_H;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].type = PE_TYPE_SCROLLBAR_EL_V_CHAR;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].w = SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].h;
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].first_element = -1; // no elements
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].clip = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].last_highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].value [0] = FPE_BCODE_STACK_MAIN; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].value [1] = SLIDER_BCODE_STACK_SCROLLBAR_V; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].ptr_value = &bcp_state.subpanel_stack_line; // element affected by this scrollbar
+
+ init_slider(panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].value [1],
+													PANEL_BCODE,
+													FSP_BCODE_STACK,
+													FPE_BCODE_STACK_SCROLLBAR,
+													panel[PANEL_BCODE].element[FPE_BCODE_STACK_SCROLLBAR].ptr_value,
+													SLIDEDIR_VERTICAL,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].h / font[FONT_BASIC].height,//mlog.h_lines,
+													VM_STACK_SIZE, //LOG_LINES, // - mlog.h_lines,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].h,
+													1,
+													VM_STACK_SIZE - 1,
+													VM_STACK_SIZE,
+													SLIDER_BUTTON_SIZE,
+													COL_BLUE,
+													0);
+
+ set_element_positions(PANEL_BCODE, FSP_BCODE_STACK);
+
+
+
+
+ init_basic_subpanel(PANEL_BCODE, FSP_BCODE_MESSAGES, SP_TYPE_WINDOW,
+																					panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x2 + 5,
+																					30,
+																					font[FONT_BASIC].width * 36,
+																					font[FONT_BASIC].height * 27 + 2);
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].exists = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].open = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].panel = PANEL_BCODE;
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].subpanel = FSP_BCODE_MESSAGES;
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].type = PE_TYPE_NONE;
+	panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].location = ELEMENT_LOCATION_LEFT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].offset_x = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].offset_y = 0;//STANDARD_PANEL_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].fit = ELEMENT_FIT_FILL;
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].w = panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].w;
+ panel[PANEL_BCODE].element[FPE_BCODE_MESSAGES_MAIN].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].h;
+
+ set_element_positions(PANEL_BCODE, FSP_BCODE_MESSAGES);
+
+
+
+
+ init_basic_subpanel(PANEL_BCODE, FSP_BCODE_TARGET_MEMORY, SP_TYPE_WINDOW,
+																					panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x2 + 5,
+																					panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].y2 + 3,
+																					font[FONT_BASIC].width * 36,
+																					bcode_subpanel_height - panel[PANEL_BCODE].subpanel[FSP_BCODE_MESSAGES].h - 3);
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].exists = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].open = 1;
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].panel = PANEL_BCODE;
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].subpanel = FSP_BCODE_TARGET_MEMORY;
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].type = PE_TYPE_NONE;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].location = ELEMENT_LOCATION_LEFT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].offset_x = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].offset_y = 0;//STANDARD_PANEL_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].fit = ELEMENT_FIT_FILL;
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].w = panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].w;
+ panel[PANEL_BCODE].element[FPE_BCODE_TARGET_MAIN].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].h;
+
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].exists = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].open = 1;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].panel = PANEL_BCODE;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].subpanel = FSP_BCODE_TARGET_MEMORY;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].location = ELEMENT_LOCATION_RIGHT_TOP;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].offset_x = -SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].offset_y = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].fit = ELEMENT_FIT_SUBPANEL_H;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].type = PE_TYPE_SCROLLBAR_EL_V_CHAR;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].w = SLIDER_BUTTON_SIZE;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].h;
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].first_element = -1; // no elements
+//	panel[PANEL_LOG].element[FPE_LOG_SCROLLBAR].clip = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].last_highlight = 0;
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].value [0] = FPE_BCODE_TARGET_MAIN; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].value [1] = SLIDER_BCODE_TARGET_SCROLLBAR_V; // element affected by this scrollbar
+	panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].ptr_value = &bcp_state.subpanel_target_line; // element affected by this scrollbar
+
+ init_slider(panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].value [1],
+													PANEL_BCODE,
+													FSP_BCODE_TARGET_MEMORY,
+													FPE_BCODE_TARGET_SCROLLBAR,
+													panel[PANEL_BCODE].element[FPE_BCODE_TARGET_SCROLLBAR].ptr_value,
+													SLIDEDIR_VERTICAL,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].h / font[FONT_BASIC].height,//mlog.h_lines,
+													PROCESS_MEMORY_SIZE, //LOG_LINES, // - mlog.h_lines,
+													panel[PANEL_BCODE].subpanel[FSP_BCODE_TARGET_MEMORY].h,
+													1,
+													PROCESS_MEMORY_SIZE - 1,
+													PROCESS_MEMORY_SIZE,
+													SLIDER_BUTTON_SIZE,
+													COL_BLUE,
+													0);
+
+ set_element_positions(PANEL_BCODE, FSP_BCODE_TARGET_MEMORY);
+
+
+
+/*
+ attach_scrollbar_to_element(PANEL_BCODE,
+																													FSP_BCODE_BCODE,
+																													FPE_BCODE_BCODE_MAIN,
+																													FPE_BCODE_BCODE_SCROLLBAR,
+																													SLIDEDIR_VERTICAL,
+																													DEBUGGER_LINES,
+																													100, // this should be updated later
+																													SLIDER_BCODE_BCODE_SCROLLBAR_V,
+																													&bcp_state.subpanel_bcode_line);
+
+	panel[PANEL_BCODE].element[FPE_BCODE_BCODE_SCROLLBAR].h = panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].h;
+
+ set_element_positions(PANEL_BCODE, FSP_BCODE_BCODE);
+*/
+// init_basic_subpanel(PANEL_BCODE, FSP_BCODE_STACK, SP_TYPE_WINDOW, panel[PANEL_BCODE].subpanel[FSP_BCODE_BCODE].x2 + 3, 3, font[FONT_BASIC].width * 80, bcode_subpanel_height);
+// init_basic_subpanel(PANEL_BCODE, FSP_BCODE_MEMORY, SP_TYPE_WINDOW, panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x2 + 3, 3, font[FONT_BASIC].width * 80, bcode_subpanel_height);
+
+
+// init_basic_subpanel(PANEL_BCODE, FSP_BCODE_TARGET_MEMORY, SP_TYPE_WINDOW, panel[PANEL_BCODE].subpanel[FSP_BCODE_STACK].x2 + 3, 3, font[FONT_BASIC].width * 80, bcode_subpanel_height);
+
+// init_basic_subpanel(PANEL_BCODE, FSP_BCODE_CONTROL, SP_TYPE_WINDOW, 3, bcode_subpanel_height + 6, scaleUI_x(FONT_BASIC,400), 100);
+
+ init_bcode_panel();
+
+
+}
 
 
 void setup_design_panel(void)
@@ -1326,6 +1608,9 @@ void set_subpanel_positions(int pan)
   set_element_positions(PANEL_EDITOR, FSP_EDITOR_SUBMENU_FILE);
   set_element_positions(PANEL_EDITOR, FSP_EDITOR_SUBMENU_SEARCH);
   set_element_positions(PANEL_EDITOR, FSP_EDITOR_TABS);*/
+		break;
+	case PANEL_BCODE:
+  set_element_positions(PANEL_BCODE, FSP_BCODE_PANEL_RESIZE);
 		break;
 
  }

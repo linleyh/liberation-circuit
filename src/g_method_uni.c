@@ -24,6 +24,7 @@ Functions for calls to built-in (core) methods (i.e. ones that don't require an 
 #include "g_method.h"
 #include "g_method_uni.h"
 #include "g_method_misc.h"
+#include "c_keywords.h"
 
 extern struct game_struct game;
 extern struct vmstate_struct vmstate; // defined in v_interp.c
@@ -35,17 +36,17 @@ extern struct vmstate_struct vmstate; // defined in v_interp.c
 struct umethod_call_type_struct umethod_call_type [UMETHOD_CALL_TYPES] =
 {
 // {int parameters},
-	{2}, // *UMETHOD_CALL_SIN (angle, length)
-	{2}, // *UMETHOD_CALL_COS (angle, length)
-	{2}, // *UMETHOD_CALL_ATAN2 (y, x)
-	{2}, // *UMETHOD_CALL_HYPOT (y, x)
+	{2, KEYWORD_UMETHOD_SIN}, // *UMETHOD_CALL_SIN (angle, length)
+	{2, KEYWORD_UMETHOD_COS}, // *UMETHOD_CALL_COS (angle, length)
+	{2, KEYWORD_UMETHOD_ATAN2}, // *UMETHOD_CALL_ATAN2 (y, x)
+	{2, KEYWORD_UMETHOD_HYPOT}, // *UMETHOD_CALL_HYPOT (y, x)
 //	{3}, // UMETHOD_CALL_HYPOT_LESS (y, x, compare_value)
 //	{3}, // UMETHOD_CALL_HYPOT_MORE (y, x, compare_value)
-	{0}, // *UMETHOD_CALL_WORLD_X ()
-	{0}, // *UMETHOD_CALL_WORLD_Y ()
-	{1}, // *UMETHOD_CALL_ABS (value)
-	{2}, // *UMETHOD_CALL_ANGLE_DIFFERENCE (angle1, 2)
-	{2}, // *UMETHOD_CALL_ARC_LENGTH (angle1, 2)
+	{0, KEYWORD_UMETHOD_WORLD_X}, // *UMETHOD_CALL_WORLD_X ()
+	{0, KEYWORD_UMETHOD_WORLD_Y}, // *UMETHOD_CALL_WORLD_Y ()
+	{1, KEYWORD_UMETHOD_ABS}, // *UMETHOD_CALL_ABS (value)
+	{2, KEYWORD_UMETHOD_ANGLE_DIFFERENCE}, // *UMETHOD_CALL_ANGLE_DIFFERENCE (angle1, 2)
+	{2, KEYWORD_UMETHOD_ARC_LENGTH}, // *UMETHOD_CALL_ARC_LENGTH (angle1, 2)
 
 
 };

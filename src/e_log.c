@@ -73,7 +73,8 @@ void init_log(void) // int w_pixels, int h_pixels)
  mlog_col [MLOG_COL_FILE] = al_map_rgb(100, 200, 150);
  mlog_col [MLOG_COL_ERROR] = al_map_rgb(200, 120, 120);
  mlog_col [MLOG_COL_WARNING] = al_map_rgb(180, 130, 130);
- mlog_col [MLOG_COL_HELP] = al_map_rgb(170, 185, 200);
+ mlog_col [MLOG_COL_HELP] = al_map_rgb(100, 135, 180);
+// mlog_col [MLOG_COL_HELP] = al_map_rgb(170, 185, 200);
 
 
 
