@@ -55,7 +55,7 @@ struct notional_proc_struct notional_member [GROUP_MAX_MEMBERS];
  // core->group_member array also uses these indices.
 
 // Call this function to create a new core and group from a template.
-// Assumes that everything prior to creation (cost etc) has been handled.
+// Assumes that everything prior to creation (cost etc) has been handled. (although it re-checks cost in case locking the template changes the cost)
 // Assumes that template is valid? Not sure. Should probably check this when loading.
 // Returns BUILD_FAIL enum on failure, or core index on success (this means a 0 return is a success, even though it's also the BUILD_FAIL code for no build objects)
 int create_new_from_template(struct template_struct* build_templ, int player_index, cart core_position, al_fixed group_angle, struct core_struct** collided_core)
@@ -72,6 +72,10 @@ int create_new_from_template(struct template_struct* build_templ, int player_ind
 		if (!lock_template(build_templ))
 			return BUILD_FAIL_TEMPLATE_NOT_LOCKED;
 	}
+
+// Although cost should have been checked previously, locking the template may have changed the cost:
+ if (w.player[player_index].data < build_templ->data_cost)
+ 	return BUILD_FAIL_DATA; // not enough data
 
  int i, c;
  struct core_struct* core;
