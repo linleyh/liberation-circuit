@@ -8093,6 +8093,17 @@ static void start_ribbon(int layer, float vertex1_x, float vertex1_y, float vert
 	ribstate.current_vertex_y [1] = vertex2_y;
 	ribstate.current_vertex_col [1] = fill_col;
 	ribstate.next_vertex_pos = 2;
+
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex1_x;
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex1_y;
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
+	++vbuf.vertex_pos_triangle;
+
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex2_x;
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex2_y;
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
+	++vbuf.vertex_pos_triangle;
+
 };
 
 /*
@@ -8108,23 +8119,14 @@ static void add_ribbon_vertex(float x, float y, ALLEGRO_COLOR vertex_col)
  ribstate.current_vertex_y [ribstate.next_vertex_pos] = y;
  ribstate.current_vertex_col [ribstate.next_vertex_pos] = vertex_col;
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = ribstate.current_vertex_x [0];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = ribstate.current_vertex_y [0];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = ribstate.current_vertex_col [0];
-    vbuf.index_triangle [ribstate.layer] [vbuf.index_pos_triangle [ribstate.layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = ribstate.current_vertex_x [ribstate.next_vertex_pos];
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = ribstate.current_vertex_y [ribstate.next_vertex_pos];
+	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = ribstate.current_vertex_col [ribstate.next_vertex_pos];
+	++vbuf.vertex_pos_triangle;
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = ribstate.current_vertex_x [1];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = ribstate.current_vertex_y [1];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = ribstate.current_vertex_col [1];
-    vbuf.index_triangle [ribstate.layer] [vbuf.index_pos_triangle [ribstate.layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = ribstate.current_vertex_x [2];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = ribstate.current_vertex_y [2];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = ribstate.current_vertex_col [2];
-    vbuf.index_triangle [ribstate.layer] [vbuf.index_pos_triangle [ribstate.layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+    vbuf.index_triangle [ribstate.layer] [vbuf.index_pos_triangle [ribstate.layer]++] = vbuf.vertex_pos_triangle - 3;
+    vbuf.index_triangle [ribstate.layer] [vbuf.index_pos_triangle [ribstate.layer]++] = vbuf.vertex_pos_triangle - 2;
+    vbuf.index_triangle [ribstate.layer] [vbuf.index_pos_triangle [ribstate.layer]++] = vbuf.vertex_pos_triangle - 1;
 
   ribstate.next_vertex_pos ++;
 
@@ -11191,80 +11193,72 @@ void draw_proc_outline(float x, float y, al_fixed angle, int shape, float scale,
 
  f_angle = fixed_to_radians(angle);
 
- float vertex_list_x [OUTLINE_VERTICES + 1]; // extra entry at the end is for 0
- float vertex_list_y [OUTLINE_VERTICES + 1];
+ float vertex_list_x [OUTLINE_VERTICES];
+ float vertex_list_y [OUTLINE_VERTICES];
 
 	int layer = 4;
 //	float vertex_jagginess;
 
- for (i = 0; i < dsh->outline_vertices; i ++)
+	for (i = 0; i < dsh->outline_vertices; i ++)
 	{
 		vertex_list_x [i] = x + fxpart(f_angle + dsh->outline_vertex_angle [i], dsh->outline_vertex_dist [i]) * zoom * scale;
 		vertex_list_y [i] = y + fypart(f_angle + dsh->outline_vertex_angle [i], dsh->outline_vertex_dist [i]) * zoom * scale;
 	}
 
-	vertex_list_x [dsh->outline_vertices] = vertex_list_x [0];
-	vertex_list_y [dsh->outline_vertices] = vertex_list_y [0];
+	int m = vbuf.vertex_pos_line, n = vbuf.index_pos_line[layer];
+	for (i = 0; i < dsh->outline_vertices; ++i)
+	{
+		vbuf.buffer_line[m+i].x = vertex_list_x [i];
+		vbuf.buffer_line[m+i].y = vertex_list_y [i];
+		vbuf.buffer_line[m+i].color = edge_col;
 
+		vbuf.index_line[layer][n++] = m+i;
+		vbuf.index_line[layer][n++] = m+i+1;
+	}
 
-  for (i = 0; i < dsh->outline_vertices; i ++)
-		{
+	vbuf.index_line[layer][n-1] = m;
 
-	  vbuf.buffer_line[vbuf.vertex_pos_line].x = vertex_list_x [i];
-	  vbuf.buffer_line[vbuf.vertex_pos_line].y = vertex_list_y [i];
-   vbuf.buffer_line[vbuf.vertex_pos_line].color = edge_col;
-   vbuf.index_line [layer] [vbuf.index_pos_line [layer]++] = vbuf.vertex_pos_line;
-   vbuf.vertex_pos_line++;
-
-	  vbuf.buffer_line[vbuf.vertex_pos_line].x = vertex_list_x [i + 1];
-	  vbuf.buffer_line[vbuf.vertex_pos_line].y = vertex_list_y [i + 1];
-   vbuf.buffer_line[vbuf.vertex_pos_line].color = edge_col;
-   vbuf.index_line [layer] [vbuf.index_pos_line [layer]++] = vbuf.vertex_pos_line;
-   vbuf.vertex_pos_line++;
-
-		}
+	vbuf.vertex_pos_line += dsh->outline_vertices;
+	vbuf.index_pos_line[layer] += 2*dsh->outline_vertices;
 
 		if (lines_only)
 			return;
 
 
-  int vertex_list_index = dsh->outline_base_vertex + 1;
+	int vertex_list_index = dsh->outline_base_vertex + 1;
 
-  if (vertex_list_index >= dsh->outline_vertices)
-			vertex_list_index = 0;
+	if (vertex_list_index >= dsh->outline_vertices)
+		vertex_list_index = 0;
 
-  for (i = 0; i < dsh->outline_vertices; i ++)
+	m = vbuf.vertex_pos_triangle;
+	n = vbuf.index_pos_triangle[layer];
+
+	for (i = 0; i < dsh->outline_vertices; ++i)
+	{
+		vbuf.buffer_triangle[m+i].x = vertex_list_x[i];
+		vbuf.buffer_triangle[m+i].y = vertex_list_y[i];
+		vbuf.buffer_triangle[m+i].color = fill_col;
+	}
+
+	for (i = 1; i < dsh->outline_vertices - 1; ++i)
+	{
+		for (j = 0; j < 3; ++j)
 		{
-   for (j = 0; j < 3; j ++)
-		 {
+			vbuf.index_triangle [layer] [n++] = m + dsh->outline_base_vertex;
+			vbuf.index_triangle [layer] [n++] = m + vertex_list_index;
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [dsh->outline_base_vertex];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [dsh->outline_base_vertex];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [vertex_list_index];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [vertex_list_index];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-    vertex_list_index ++;
-    if (vertex_list_index >= dsh->outline_vertices)
-  			vertex_list_index = 0;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [vertex_list_index];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [vertex_list_index];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-
-		 }
+			if (vertex_list_index >= dsh->outline_vertices - 1)
+				vbuf.index_triangle [layer] [n++] = m + 0;
+			else
+				vbuf.index_triangle [layer] [n++] = m + vertex_list_index + 1;
 		}
+		vertex_list_index ++;
+		if (vertex_list_index >= dsh->outline_vertices)
+			vertex_list_index = 0;
+	}
 
-
+	vbuf.vertex_pos_triangle += dsh->outline_vertices;
+	vbuf.index_pos_triangle[layer] = n;
 
   check_vbuf();
 
@@ -11326,37 +11320,34 @@ static void draw_jaggy_proc_outline(int layer, float x, float y, al_fixed angle,
   if (vertex_list_index >= dsh->outline_vertices)
 			vertex_list_index = 0;
 
-  for (i = 0; i < dsh->outline_vertices; i ++)
+	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
+
+	for (i = 0; i < dsh->outline_vertices; ++i)
+	{
+		vbuf.buffer_triangle[m+i].x = vertex_list_x[i];
+		vbuf.buffer_triangle[m+i].y = vertex_list_y[i];
+		vbuf.buffer_triangle[m+i].color = fill_col;
+	}
+
+	for (i = 1; i < dsh->outline_vertices - 1; ++i)
+	{
+		for (j = 0; j < 3; ++j)
 		{
-   for (j = 0; j < 3; j ++)
-		 {
+			vbuf.index_triangle [layer] [n++] = m + dsh->outline_base_vertex;
+			vbuf.index_triangle [layer] [n++] = m + vertex_list_index;
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [dsh->outline_base_vertex];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [dsh->outline_base_vertex];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [vertex_list_index];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [vertex_list_index];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-    vertex_list_index ++;
-    if (vertex_list_index >= dsh->outline_vertices)
-  			vertex_list_index = 0;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [vertex_list_index];
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [vertex_list_index];
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-
-		 }
+			if (vertex_list_index >= dsh->outline_vertices - 1)
+				vbuf.index_triangle [layer] [n++] = m + 0;
+			else
+				vbuf.index_triangle [layer] [n++] = m + vertex_list_index + 1;
 		}
+		vertex_list_index ++;
+		if (vertex_list_index >= dsh->outline_vertices)
+			vertex_list_index = 0;
+	}
 
+	vbuf.vertex_pos_triangle += dsh->outline_vertices;
+	vbuf.index_pos_triangle[layer] = n;
 
 
   check_vbuf();
@@ -14470,8 +14461,8 @@ static void draw_object_base_shape(float proc_x,
 
 	int layer = 1;
 
- float vertex_list_x [5];
- float vertex_list_y [5];
+ float vertex_list_x [4];
+ float vertex_list_y [4];
 
 
  vertex_list_x [0] = proc_x + (cos(angle_float + dshape[proc_shape].link_point_angle [proc_link_index] [0]) * dshape[proc_shape].link_point_dist [proc_link_index] [0]) * zoom;
@@ -14484,42 +14475,25 @@ static void draw_object_base_shape(float proc_x,
  vertex_list_x [3] = proc_x + (cos(angle_float + dshape[proc_shape].link_point_angle [proc_link_index] [3]) * (dshape[proc_shape].link_point_dist [proc_link_index] [3])) * zoom;
  vertex_list_y [3] = proc_y + (sin(angle_float + dshape[proc_shape].link_point_angle [proc_link_index] [3]) * (dshape[proc_shape].link_point_dist [proc_link_index] [3])) * zoom;
 
- vertex_list_x [4] = vertex_list_x [0];
- vertex_list_y [4] = vertex_list_y [0];
 
+	int i, m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
 
+	for (i = 0; i < 4; ++i)
+	{
+		vbuf.buffer_triangle[m+i].x = vertex_list_x [i];
+		vbuf.buffer_triangle[m+i].y = vertex_list_y [i];
+		vbuf.buffer_triangle[m+i].color = proc_col;
+	}
 
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [0];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [0];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col;
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [1];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [1];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col;
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [2];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [2];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col;
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
+	vbuf.index_triangle[layer][n++] = m+0;
+	vbuf.index_triangle[layer][n++] = m+1;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+3;
+	vbuf.index_triangle[layer][n++] = m+0;
 
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [0];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [0];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col;
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [3];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [3];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col;
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [2];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [2];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col;
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
+	vbuf.vertex_pos_triangle += 4;
+	vbuf.index_pos_triangle[layer] += 6;
 
 }
 
@@ -14582,71 +14556,30 @@ void draw_link_shape(float child_x, float child_y,
 
 	}
 */
+	int i, m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
 
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [0];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [0];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [1];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [1];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [2];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [2];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
+	for (i = 0; i < 6; ++i)
+	{
+		vbuf.buffer_triangle[m+i].x = vertex_list_x [i];
+		vbuf.buffer_triangle[m+i].y = vertex_list_y [i];
+		vbuf.buffer_triangle[m+i].color = proc_col [PROC_COL_LINK];
+	}
 
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [0];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [0];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [3];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [3];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [2];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [2];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
+	vbuf.index_triangle[layer][n++] = m+0;
+	vbuf.index_triangle[layer][n++] = m+1;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+0;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+3;
+	vbuf.index_triangle[layer][n++] = m+0;
+	vbuf.index_triangle[layer][n++] = m+3;
+	vbuf.index_triangle[layer][n++] = m+5;
+	vbuf.index_triangle[layer][n++] = m+3;
+	vbuf.index_triangle[layer][n++] = m+4;
+	vbuf.index_triangle[layer][n++] = m+5;
 
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [0];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [0];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [5];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [5];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [3];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [3];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [3];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [3];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [4];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [4];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vertex_list_x [5];
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vertex_list_y [5];
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = proc_col [PROC_COL_LINK];
- vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
+	vbuf.vertex_pos_triangle += 6;
+	vbuf.index_pos_triangle[layer] += 12;
 
 }
 
@@ -14729,53 +14662,32 @@ static void bloom_circle(int layer, float x, float y, ALLEGRO_COLOR col_centre, 
 // col_centre = al_map_rgba(200, 220, 250, 80);
 // col_edge = al_map_rgba(10, 10, 250, 0);
 
- float old_x = x + circle_size_zoomed;
- float old_y = y;
+	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
 
+	vbuf.buffer_triangle[m].x = x;
+	vbuf.buffer_triangle[m].y = y;
+	vbuf.buffer_triangle[m].color = col_centre;
 
- for (i = 0; i < vertices; i ++)
- {
+	for (i = 0; i < vertices; ++i)
+	{
+		vbuf.buffer_triangle[m+i+1].x = x + cos(i * angle_inc) * circle_size_zoomed;
+		vbuf.buffer_triangle[m+i+1].y = y + sin(i * angle_inc) * circle_size_zoomed;
+		vbuf.buffer_triangle[m+i+1].color = col_edge;
+	}
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = x;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = y;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col_centre;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	for (i = 1; i < vertices; ++i)
+	{
+		vbuf.index_triangle[layer][n++] = m;
+		vbuf.index_triangle[layer][n++] = m+i;
+		vbuf.index_triangle[layer][n++] = m+i+1;
+	}
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = old_x;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = old_y;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col_edge;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	vbuf.index_triangle[layer][n++] = m;
+	vbuf.index_triangle[layer][n++] = m+vertices;
+	vbuf.index_triangle[layer][n++] = m+1;
 
-    old_x = x + cos(i * angle_inc) * circle_size_zoomed;
-    old_y = y + sin(i * angle_inc) * circle_size_zoomed;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = old_x;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = old_y;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col_edge;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
- }
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = x;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = y;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col_centre;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = old_x;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = old_y;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col_edge;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = x + circle_size_zoomed;;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = y;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col_edge;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	vbuf.vertex_pos_triangle += vertices + 1;
+	vbuf.index_pos_triangle[layer] += 3*vertices;
 
 
 }
@@ -15338,37 +15250,30 @@ void add_outline_diamond_layer(int layer, float vx1, float vy1, float vx2, float
 	add_line(layer, vx3, vy3, vx4, vy4, edge_col);
 	add_line(layer, vx4, vy4, vx1, vy1, edge_col);
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx1;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy1;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx2;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy2;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx3;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy3;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx1;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy1;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx3;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy3;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx4;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy4;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	vbuf.buffer_triangle[m].x = vx1;
+	vbuf.buffer_triangle[m].y = vy1;
+	vbuf.buffer_triangle[m].color = fill_col;
+	vbuf.buffer_triangle[m+1].x = vx2;
+	vbuf.buffer_triangle[m+1].y = vy2;
+	vbuf.buffer_triangle[m+1].color = fill_col;
+	vbuf.buffer_triangle[m+2].x = vx3;
+	vbuf.buffer_triangle[m+2].y = vy3;
+	vbuf.buffer_triangle[m+2].color = fill_col;
+	vbuf.buffer_triangle[m+3].x = vx4;
+	vbuf.buffer_triangle[m+3].y = vy4;
+	vbuf.buffer_triangle[m+3].color = fill_col;
+
+	vbuf.index_triangle[layer][n++] = m+0;
+	vbuf.index_triangle[layer][n++] = m+1;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+3;
+	vbuf.index_triangle[layer][n++] = m+0;
+
+	vbuf.vertex_pos_triangle += 4;
+	vbuf.index_pos_triangle[layer] += 6;
 
 }
 
@@ -15376,38 +15281,30 @@ void add_outline_diamond_layer(int layer, float vx1, float vy1, float vx2, float
 static void add_diamond_layer(int layer, float vx1, float vy1, float vx2, float vy2, float vx3, float vy3, float vx4, float vy4, ALLEGRO_COLOR fill_col)
 {
 
+	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx1;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy1;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx2;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy2;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx3;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy3;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	vbuf.buffer_triangle[m].x = vx1;
+	vbuf.buffer_triangle[m].y = vy1;
+	vbuf.buffer_triangle[m].color = fill_col;
+	vbuf.buffer_triangle[m+1].x = vx2;
+	vbuf.buffer_triangle[m+1].y = vy2;
+	vbuf.buffer_triangle[m+1].color = fill_col;
+	vbuf.buffer_triangle[m+2].x = vx3;
+	vbuf.buffer_triangle[m+2].y = vy3;
+	vbuf.buffer_triangle[m+2].color = fill_col;
+	vbuf.buffer_triangle[m+3].x = vx4;
+	vbuf.buffer_triangle[m+3].y = vy4;
+	vbuf.buffer_triangle[m+3].color = fill_col;
 
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx1;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy1;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx3;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy3;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
-				vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = vx4;
-   	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = vy4;
-    vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = fill_col;
-    vbuf.index_triangle [layer] [vbuf.index_pos_triangle [layer]++] = vbuf.vertex_pos_triangle;
-    vbuf.vertex_pos_triangle++;
+	vbuf.index_triangle[layer][n++] = m+0;
+	vbuf.index_triangle[layer][n++] = m+1;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+2;
+	vbuf.index_triangle[layer][n++] = m+3;
+	vbuf.index_triangle[layer][n++] = m+0;
+
+	vbuf.vertex_pos_triangle += 4;
+	vbuf.index_pos_triangle[layer] += 6;
 
 }
 

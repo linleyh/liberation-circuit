@@ -231,7 +231,6 @@ static void finish_region_line(int line_index);
 																																float line_length1,
 																																int join_dir);*/
 static void set_region_line(int starting_region, float along_edge, int segments, float line_width);
-void add_region_line_triangle(float v1x, float v1y, float v2x, float v2y, float v3x, float v3y, ALLEGRO_COLOR col);
 
 // called once, at start of game
 //  (actually currently called each time story mode is entered - fix?)
@@ -2337,8 +2336,20 @@ static void set_region_line(int starting_region, float along_edge, int segments,
 	float line_x;// = line_start_x;
 	float line_y;// = line_start_y;
 
+#define REGION_LINE_LAYER 0
+
+	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[REGION_LINE_LAYER];
+
+	vbuf.buffer_triangle[m].x = old_left_vertex_x;
+	vbuf.buffer_triangle[m].y = old_left_vertex_y;
+	vbuf.buffer_triangle[m].color = line_col;
+	vbuf.buffer_triangle[m+1].x = old_right_vertex_x;
+	vbuf.buffer_triangle[m+1].y = old_right_vertex_y;
+	vbuf.buffer_triangle[m+1].color = line_col;
+
 	for (i = 0; i < segments; i++)
 	{
+
 /*
 		switch(region_line_segment[i].direction)
 		{
@@ -2500,24 +2511,22 @@ static void set_region_line(int starting_region, float along_edge, int segments,
 //fpr("\n R %i %f,%f to %f,%f", i, old_left_vertex_x, old_left_vertex_y, left_vertex_x, left_vertex_y);
 //fpr("\n LV %f,%f to %f,%f", line_start_x, line_start_y, line_x, line_y);
 
-   add_region_line_triangle(old_left_vertex_x,
-																												old_left_vertex_y,
-																												old_right_vertex_x,
-																												old_right_vertex_y,
-																												left_vertex_x,
-																												left_vertex_y,
-																												line_col);
+		vbuf.buffer_triangle[m+2*i+2].x = left_vertex_x;
+		vbuf.buffer_triangle[m+2*i+2].y = left_vertex_y;
+		vbuf.buffer_triangle[m+2*i+2].color = line_col;
+		vbuf.buffer_triangle[m+2*i+3].x = right_vertex_x;
+		vbuf.buffer_triangle[m+2*i+3].y = right_vertex_y;
+		vbuf.buffer_triangle[m+2*i+3].color = line_col;
 //																												colours.base [COL_GREY] [SHADE_LOW]);
 //																												colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_FAINT]);
-   add_region_line_triangle(left_vertex_x,
-																												left_vertex_y,
-																												old_right_vertex_x,
-																												old_right_vertex_y,
-																												right_vertex_x,
-																												right_vertex_y,
-																												line_col);
-//																												colours.base [COL_GREY] [SHADE_LOW]);
-//																												colours.base_trans [COL_GREY] [SHADE_HIGH] [TRANS_FAINT]);
+
+
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i;
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+1;
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+2;
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+2;
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+3;
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+0;
 
 
   line_start_x = line_x;
@@ -2529,35 +2538,8 @@ static void set_region_line(int starting_region, float along_edge, int segments,
 
 	}
 
-
-
-}
-
-
-void add_region_line_triangle(float v1x, float v1y, float v2x, float v2y, float v3x, float v3y, ALLEGRO_COLOR col)
-{
-
-#define REGION_LINE_LAYER 0
-
-//fpr("\n ARLT %f,%f %f,%f %f,%f", v1x, v1y, v2x, v2y, v3x, v3y);
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = v1x;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = v1y;
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col;
- vbuf.index_triangle [REGION_LINE_LAYER] [vbuf.index_pos_triangle [REGION_LINE_LAYER]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = v2x;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = v2y;
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col;
- vbuf.index_triangle [REGION_LINE_LAYER] [vbuf.index_pos_triangle [REGION_LINE_LAYER]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = v3x;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = v3y;
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col;
- vbuf.index_triangle [REGION_LINE_LAYER] [vbuf.index_pos_triangle [REGION_LINE_LAYER]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
+	vbuf.vertex_pos_triangle += 2*segments + 2;
+	vbuf.index_pos_triangle[REGION_LINE_LAYER] = n;
 
 }
 
