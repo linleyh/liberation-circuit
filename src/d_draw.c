@@ -548,7 +548,7 @@ void draw_template_members(void)
 																			   dwindow.templ->member[mem->connection[0].template_member_index].group_angle_offset,// - AFX_ANGLE_4,
 																			   dwindow.templ->member[mem->connection[0].template_member_index].shape,
 																	     mem->connection[0].reverse_link_index,
-																	     colours.plan_col [design_colour [((mem->collision | mem->move_obstruction | mem->story_lock_failure) != 0)]],
+																	     colours.plan_col [design_colour [((mem->collision | mem->move_obstruction | mem->story_lock_failure) != 0)]] [PROC_COL_LINK],
 //																			   proc_col [(mem->collision | mem->move_obstruction | mem->object[i].template_error) != 0] [1] [0],
 //																			   proc_col [(mem->collision | mem->move_obstruction | mem->object[i].template_error) != 0] [1] [1],
 																			   1); // last number is zoom
@@ -975,30 +975,15 @@ static void add_design_quad(float xa, float ya, float xb, float yb, float xc, fl
 
 #define DESIGN_QUAD_LAYER 4
 
-	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[DESIGN_QUAD_LAYER];
+	int m = vbuf.vertex_pos_triangle;
 
-	vbuf.buffer_triangle[m].x = xa;
-	vbuf.buffer_triangle[m].y = ya;
-	vbuf.buffer_triangle[m].color = col;
-	vbuf.buffer_triangle[m+1].x = xb;
-	vbuf.buffer_triangle[m+1].y = yb;
-	vbuf.buffer_triangle[m+1].color = col;
-	vbuf.buffer_triangle[m+2].x = xc;
-	vbuf.buffer_triangle[m+2].y = yc;
-	vbuf.buffer_triangle[m+2].color = col;
-	vbuf.buffer_triangle[m+3].x = xd;
-	vbuf.buffer_triangle[m+3].y = yd;
-	vbuf.buffer_triangle[m+3].color = col;
+	add_tri_vertex(xa, ya, col);
+	add_tri_vertex(xb, yb, col);
+	add_tri_vertex(xc, yc, col);
+	add_tri_vertex(xd, yd, col);
 
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+0;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+1;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+2;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+2;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+3;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+0;
-
-	vbuf.vertex_pos_triangle += 4;
-	vbuf.index_pos_triangle[DESIGN_QUAD_LAYER] += 6;
+	construct_triangle(DESIGN_QUAD_LAYER, m, m+1, m+2);
+	construct_triangle(DESIGN_QUAD_LAYER, m+2, m+3, m);
 
 }
 
@@ -1008,86 +993,39 @@ static void add_design_bquad(float xa, float ya, float xb, float yb, float corne
 
 #define DESIGN_QUAD_LAYER 4
 
-	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[DESIGN_QUAD_LAYER];
+	int m = vbuf.vertex_pos_triangle;
 
-	vbuf.buffer_triangle[m].x = xa;
-	vbuf.buffer_triangle[m].y = ya + corner1;
-	vbuf.buffer_triangle[m].color = col;
-	vbuf.buffer_triangle[m+1].x = xa + corner1;
-	vbuf.buffer_triangle[m+1].y = ya;
-	vbuf.buffer_triangle[m+1].color = col;
-	vbuf.buffer_triangle[m+2].x = xb - corner2;
-	vbuf.buffer_triangle[m+2].y = ya;
-	vbuf.buffer_triangle[m+2].color = col;
-	vbuf.buffer_triangle[m+3].x = xb;
-	vbuf.buffer_triangle[m+3].y = ya + corner2;
-	vbuf.buffer_triangle[m+3].color = col;
-	vbuf.buffer_triangle[m+4].x = xb;
-	vbuf.buffer_triangle[m+4].y = yb - corner1;
-	vbuf.buffer_triangle[m+4].color = col;
-	vbuf.buffer_triangle[m+5].x = xb - corner1;
-	vbuf.buffer_triangle[m+5].y = yb;
-	vbuf.buffer_triangle[m+5].color = col;
-	vbuf.buffer_triangle[m+6].x = xa + corner2;
-	vbuf.buffer_triangle[m+6].y = yb;
-	vbuf.buffer_triangle[m+6].color = col;
-	vbuf.buffer_triangle[m+7].x = xa;
-	vbuf.buffer_triangle[m+7].y = yb - corner2;
-	vbuf.buffer_triangle[m+7].color = col;
+	add_tri_vertex(xa, ya + corner1, col);
+	add_tri_vertex(xa + corner1, ya, col);
+	add_tri_vertex(xb - corner2, ya, col);
+	add_tri_vertex(xb, ya + corner2, col);
+	add_tri_vertex(xb, yb - corner1, col);
+	add_tri_vertex(xb - corner1, yb, col);
+	add_tri_vertex(xa + corner2, yb, col);
+	add_tri_vertex(xa, yb - corner2, col);
 
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+0;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+1;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+7;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+1;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+2;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+7;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+2;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+6;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+7;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+2;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+3;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+6;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+3;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+5;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+6;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+3;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+4;
-	vbuf.index_triangle[DESIGN_QUAD_LAYER][n++] = m+5;
-
-	vbuf.vertex_pos_triangle += 8;
-	vbuf.index_pos_triangle[DESIGN_QUAD_LAYER] += 18;
+	construct_triangle(DESIGN_QUAD_LAYER, m, m+1, m+7);
+	construct_triangle(DESIGN_QUAD_LAYER, m+1, m+2, m+7);
+	construct_triangle(DESIGN_QUAD_LAYER, m+2, m+6, m+7);
+	construct_triangle(DESIGN_QUAD_LAYER, m+2, m+3, m+6);
+	construct_triangle(DESIGN_QUAD_LAYER, m+3, m+5, m+6);
+	construct_triangle(DESIGN_QUAD_LAYER, m+3, m+4, m+5);
 
 }
 
 static void draw_collision_box(float xa, float ya, float box_size, ALLEGRO_COLOR col)
 {
 
-	add_line(0,
-										xa - box_size,
-										ya - box_size,
-										xa + box_size,
-										ya - box_size,
-										col);
-	add_line(0,
-										xa + box_size,
-										ya - box_size,
-										xa + box_size,
-										ya + box_size,
-										col);
-		add_line(0,
-										xa + box_size,
-										ya + box_size,
-										xa - box_size,
-										ya + box_size,
-										col);
-	add_line(0,
-										xa - box_size,
-										ya + box_size,
-										xa - box_size,
-										ya - box_size,
-										col);
+	int m = vbuf.vertex_pos_line;
+	add_line_vertex(xa - box_size, ya - box_size, col);
+	add_line_vertex(xa + box_size, ya - box_size, col);
+	add_line_vertex(xa + box_size, ya + box_size, col);
+	add_line_vertex(xa - box_size, ya + box_size, col);
 
-
+	construct_line(0, m, m+1);
+	construct_line(0, m+1, m+2);
+	construct_line(0, m+2, m+3);
+	construct_line(0, m+3, m);
 
 }
 

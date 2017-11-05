@@ -45,9 +45,6 @@ extern struct fontstruct font [FONTS];
 //extern ALLEGRO_VERTEX poly_buffer [POLY_BUFFER]; // POLY_BUFFER #defined in i_header.h
 //extern int poly_pos;
 
-
-static void add_button_triangle(float xa, float ya, float xb, float yb, float xc, float yc, ALLEGRO_COLOR col);
-
 static void check_button_buffer(void);
 void draw_button_buffer(void);
 
@@ -105,54 +102,23 @@ void draw_menu_strings(void)
 void add_menu_button(float xa, float ya, float xb, float yb, ALLEGRO_COLOR col, int button_notch_1, int button_notch_2)
 {
 
-	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[0];
+	int m = vbuf.vertex_pos_triangle;
 
-	vbuf.buffer_triangle[m].x = xa;
-	vbuf.buffer_triangle[m].y = ya + button_notch_1;
-	vbuf.buffer_triangle[m].color = col;
-	vbuf.buffer_triangle[m+1].x = xa + button_notch_1;
-	vbuf.buffer_triangle[m+1].y = ya;
-	vbuf.buffer_triangle[m+1].color = col;
-	vbuf.buffer_triangle[m+2].x = xb - button_notch_2;
-	vbuf.buffer_triangle[m+2].y = ya;
-	vbuf.buffer_triangle[m+2].color = col;
-	vbuf.buffer_triangle[m+3].x = xb;
-	vbuf.buffer_triangle[m+3].y = ya + button_notch_2;
-	vbuf.buffer_triangle[m+3].color = col;
-	vbuf.buffer_triangle[m+4].x = xb;
-	vbuf.buffer_triangle[m+4].y = yb - button_notch_1;
-	vbuf.buffer_triangle[m+4].color = col;
-	vbuf.buffer_triangle[m+5].x = xb - button_notch_1;
-	vbuf.buffer_triangle[m+5].y = yb;
-	vbuf.buffer_triangle[m+5].color = col;
-	vbuf.buffer_triangle[m+6].x = xa + button_notch_2;
-	vbuf.buffer_triangle[m+6].y = yb;
-	vbuf.buffer_triangle[m+6].color = col;
-	vbuf.buffer_triangle[m+7].x = xa;
-	vbuf.buffer_triangle[m+7].y = yb - button_notch_2;
-	vbuf.buffer_triangle[m+7].color = col;
+	add_tri_vertex(xa, ya + button_notch_1, col);
+	add_tri_vertex(xa + button_notch_1, ya, col);
+	add_tri_vertex(xb - button_notch_2, ya, col);
+	add_tri_vertex(xb, ya + button_notch_2, col);
+	add_tri_vertex(xb, yb - button_notch_1, col);
+	add_tri_vertex(xb - button_notch_1, yb, col);
+	add_tri_vertex(xa + button_notch_2, yb, col);
+	add_tri_vertex(xa, yb - button_notch_2, col);
 
-	vbuf.index_triangle[0][n++] = m+0;
-	vbuf.index_triangle[0][n++] = m+1;
-	vbuf.index_triangle[0][n++] = m+7;
-	vbuf.index_triangle[0][n++] = m+1;
-	vbuf.index_triangle[0][n++] = m+2;
-	vbuf.index_triangle[0][n++] = m+7;
-	vbuf.index_triangle[0][n++] = m+2;
-	vbuf.index_triangle[0][n++] = m+6;
-	vbuf.index_triangle[0][n++] = m+7;
-	vbuf.index_triangle[0][n++] = m+2;
-	vbuf.index_triangle[0][n++] = m+3;
-	vbuf.index_triangle[0][n++] = m+6;
-	vbuf.index_triangle[0][n++] = m+3;
-	vbuf.index_triangle[0][n++] = m+5;
-	vbuf.index_triangle[0][n++] = m+6;
-	vbuf.index_triangle[0][n++] = m+3;
-	vbuf.index_triangle[0][n++] = m+4;
-	vbuf.index_triangle[0][n++] = m+5;
-
-	vbuf.vertex_pos_triangle += 8;
-	vbuf.index_pos_triangle[0] += 18;
+	construct_triangle(0, m, m+1, m+7);
+	construct_triangle(0, m+1, m+2, m+7);
+	construct_triangle(0, m+2, m+6, m+7);
+	construct_triangle(0, m+2, m+3, m+6);
+	construct_triangle(0, m+3, m+5, m+6);
+	construct_triangle(0, m+3, m+4, m+5);
 
  check_button_buffer();
 
@@ -168,30 +134,15 @@ void add_menu_rectangle(float xa, float ya, float xb, float yb, ALLEGRO_COLOR co
 void add_menu_quad(float xa, float ya, float xb, float yb, float xc, float yc, float xd, float yd, ALLEGRO_COLOR col)
 {
 
-	int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[0];
+	int m = vbuf.vertex_pos_triangle;
 
-	vbuf.buffer_triangle[m].x = xa;
-	vbuf.buffer_triangle[m].y = ya;
-	vbuf.buffer_triangle[m].color = col;
-	vbuf.buffer_triangle[m+1].x = xb;
-	vbuf.buffer_triangle[m+1].y = yb;
-	vbuf.buffer_triangle[m+1].color = col;
-	vbuf.buffer_triangle[m+2].x = xc;
-	vbuf.buffer_triangle[m+2].y = yc;
-	vbuf.buffer_triangle[m+2].color = col;
-	vbuf.buffer_triangle[m+3].x = xd;
-	vbuf.buffer_triangle[m+3].y = yd;
-	vbuf.buffer_triangle[m+3].color = col;
+	add_tri_vertex(xa, ya, col);
+	add_tri_vertex(xb, yb, col);
+	add_tri_vertex(xc, yc, col);
+	add_tri_vertex(xd, yd, col);
 
-	vbuf.index_triangle[0][n++] = m+0;
-	vbuf.index_triangle[0][n++] = m+1;
-	vbuf.index_triangle[0][n++] = m+2;
-	vbuf.index_triangle[0][n++] = m+2;
-	vbuf.index_triangle[0][n++] = m+3;
-	vbuf.index_triangle[0][n++] = m+0;
-
-	vbuf.vertex_pos_triangle += 4;
-	vbuf.index_pos_triangle[0] += 6;
+	construct_triangle(0, m, m+1, m+2);
+	construct_triangle(0, m+2, m+3, m);
 
  check_button_buffer();
 
