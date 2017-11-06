@@ -2526,7 +2526,7 @@ static void set_region_line(int starting_region, float along_edge, int segments,
 		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+2;
 		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+2;
 		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+3;
-		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+0;
+		vbuf.index_triangle[REGION_LINE_LAYER][n++] = m+2*i+1;
 
 
   line_start_x = line_x;

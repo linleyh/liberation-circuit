@@ -10726,7 +10726,7 @@ void draw_proc_shape(float x, float y, al_fixed angle, int shape, int player_ind
  struct dshape_struct* dsh = &dshape [shape];
 
 
- int i, poly, layer, j;
+ int i, poly, layer;
 
  f_angle = fixed_to_radians(angle);
 
@@ -10751,7 +10751,7 @@ void draw_proc_shape(float x, float y, al_fixed angle, int shape, int player_ind
 		}*/
 		//edge_col = proc_col [dsh->poly_colour_level [poly]] [1];
 
-		int m = vbuf.vertex_pos_triangle, n = vbuf.index_pos_triangle[layer];
+		int m = vbuf.vertex_pos_triangle; //, n = vbuf.index_pos_triangle[layer];
 		float _x, _y;
 		for (i = 0; i < dsh->display_vertices [poly]; ++i)
 		{
@@ -15709,7 +15709,7 @@ static void draw_text_bubble(float bubble_x, float bubble_y, int bubble_time, in
 																	3, 8);
 if (draw_triangle)
 {
-	int _m = vbuf.vertex_pos_line;
+	int _m = vbuf.vertex_pos_triangle;
 	add_tri_vertex(adjusted_bubble_x, bubble_y + scaleUI_y(FONT_SQUARE,22), colours.packet [bubble_col] [bubble_shade]);
 	add_tri_vertex(adjusted_bubble_x + 19, bubble_y + scaleUI_y(FONT_SQUARE,22), colours.packet [bubble_col] [bubble_shade]);
 	add_tri_vertex(adjusted_bubble_x + 19, bubble_y + 52, colours.packet [bubble_col] [bubble_shade]);
