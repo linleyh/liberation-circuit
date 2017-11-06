@@ -16,6 +16,10 @@ ALLEGRO_COLOR map_rgb(int r, int g, int b); // bounds-checked wrapper for al_map
 ALLEGRO_COLOR map_rgba(int r, int g, int b, int a); // bounds-checked wrapper for al_map_rgba
 
 void add_line(int layer, float x, float y, float xa, float ya, ALLEGRO_COLOR col);
+void add_line_vertex(float x, float y, ALLEGRO_COLOR col);
+void construct_line(int layer, int v1, int v2);
+void add_tri_vertex(float x, float y, ALLEGRO_COLOR col);
+void construct_triangle(int layer, int v1, int v2, int v3);
 
 void check_vbuf(void);
 void draw_vbuf(void);
@@ -31,7 +35,7 @@ void draw_link_shape(float child_x, float child_y,
 																					al_fixed parent_angle,
 																					int parent_shape,
 																					int parent_link_index,
-																					ALLEGRO_COLOR* proc_col,
+																					ALLEGRO_COLOR proc_col,
 //																					ALLEGRO_COLOR edge_col,
 																					float zoom);
 /*

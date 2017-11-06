@@ -45,9 +45,6 @@ extern struct fontstruct font [FONTS];
 //extern ALLEGRO_VERTEX poly_buffer [POLY_BUFFER]; // POLY_BUFFER #defined in i_header.h
 //extern int poly_pos;
 
-
-static void add_button_triangle(float xa, float ya, float xb, float yb, float xc, float yc, ALLEGRO_COLOR col);
-
 static void check_button_buffer(void);
 void draw_button_buffer(void);
 
@@ -105,55 +102,23 @@ void draw_menu_strings(void)
 void add_menu_button(float xa, float ya, float xb, float yb, ALLEGRO_COLOR col, int button_notch_1, int button_notch_2)
 {
 
+	int m = vbuf.vertex_pos_triangle;
 
-     add_button_triangle(xa,
-																									ya + button_notch_1,
-																									xa + button_notch_1,
-																									ya,
-																									xa,
-																									yb - button_notch_2,
-																									col);
+	add_tri_vertex(xa, ya + button_notch_1, col);
+	add_tri_vertex(xa + button_notch_1, ya, col);
+	add_tri_vertex(xb - button_notch_2, ya, col);
+	add_tri_vertex(xb, ya + button_notch_2, col);
+	add_tri_vertex(xb, yb - button_notch_1, col);
+	add_tri_vertex(xb - button_notch_1, yb, col);
+	add_tri_vertex(xa + button_notch_2, yb, col);
+	add_tri_vertex(xa, yb - button_notch_2, col);
 
-     add_button_triangle(xa + button_notch_1,
-																									ya,
-																									xa,
-																									yb - button_notch_2,
-																									xa + button_notch_2,
-																									yb,
-																									col);
-
-     add_button_triangle(xa + button_notch_1,
-																									ya,
-																									xa + button_notch_2,
-																									yb,
-																									xb - button_notch_2,
-																									ya,
-																									col);
-
-     add_button_triangle(xa + button_notch_2,
-																									yb,
-																									xb - button_notch_2,
-																									ya,
-																									xb - button_notch_1,
-																									yb,
-																									col);
-
-     add_button_triangle(xb - button_notch_2,
-																									ya,
-																									xb - button_notch_1,
-																									yb,
-																									xb,
-																									ya + button_notch_2,
-																									col);
-
-     add_button_triangle(xb - button_notch_1,
-																									yb,
-																									xb,
-																									ya + button_notch_2,
-																									xb,
-																									yb - button_notch_1,
-																									col);
-
+	construct_triangle(0, m, m+1, m+7);
+	construct_triangle(0, m+1, m+2, m+7);
+	construct_triangle(0, m+2, m+6, m+7);
+	construct_triangle(0, m+2, m+3, m+6);
+	construct_triangle(0, m+3, m+5, m+6);
+	construct_triangle(0, m+3, m+4, m+5);
 
  check_button_buffer();
 
@@ -162,44 +127,22 @@ void add_menu_button(float xa, float ya, float xb, float yb, ALLEGRO_COLOR col, 
 void add_menu_rectangle(float xa, float ya, float xb, float yb, ALLEGRO_COLOR col)
 {
 
-	     add_button_triangle(xa,
-																									ya,
-																									xb,
-																									ya,
-																									xa,
-																									yb,
-																									col);
-
-	     add_button_triangle(xb,
-																									ya,
-																									xa,
-																									yb,
-																									xb,
-																									yb,
-																									col);
-
- check_button_buffer();
+	add_menu_quad(xa, ya, xb, ya, xb, yb, xa, yb, col);
 
 }
 
 void add_menu_quad(float xa, float ya, float xb, float yb, float xc, float yc, float xd, float yd, ALLEGRO_COLOR col)
 {
 
-	     add_button_triangle(xa,
-																									ya,
-																									xb,
-																									yb,
-																									xc,
-																									yc,
-																									col);
+	int m = vbuf.vertex_pos_triangle;
 
-	     add_button_triangle(xd,
-																									yd,
-																									xb,
-																									yb,
-																									xc,
-																									yc,
-																									col);
+	add_tri_vertex(xa, ya, col);
+	add_tri_vertex(xb, yb, col);
+	add_tri_vertex(xc, yc, col);
+	add_tri_vertex(xd, yd, col);
+
+	construct_triangle(0, m, m+1, m+2);
+	construct_triangle(0, m+2, m+3, m);
 
  check_button_buffer();
 
@@ -231,54 +174,6 @@ void draw_menu_buttons(void)
 	draw_button_buffer();
 	draw_menu_strings();
  reset_i_buttons();
-}
-
-static void add_button_triangle(float xa, float ya, float xb, float yb, float xc, float yc, ALLEGRO_COLOR col)
-{
-
-//fprintf(stdout, "\ntriangle %f,%f %f,%f %f,%f",
-//								xa,ya,xb,yb,xc,yc);
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = xa;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = ya;
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col;
- vbuf.index_triangle [0] [vbuf.index_pos_triangle [0]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = xb;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = yb;
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col;
- vbuf.index_triangle [0] [vbuf.index_pos_triangle [0]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].x = xc;
-	vbuf.buffer_triangle[vbuf.vertex_pos_triangle].y = yc;
- vbuf.buffer_triangle[vbuf.vertex_pos_triangle].color = col;
- vbuf.index_triangle [0] [vbuf.index_pos_triangle [0]++] = vbuf.vertex_pos_triangle;
- vbuf.vertex_pos_triangle++;
-
-
-/*
-  poly_buffer [poly_pos].x = xa;
-  poly_buffer [poly_pos].y = ya;
-  poly_buffer [poly_pos].z = 0;
-  poly_buffer [poly_pos].color = col;
-  poly_pos ++;
-
-  poly_buffer [poly_pos].x = xb;
-  poly_buffer [poly_pos].y = yb;
-  poly_buffer [poly_pos].z = 0;
-  poly_buffer [poly_pos].color = col;
-  poly_pos ++;
-
-  poly_buffer [poly_pos].x = xc;
-  poly_buffer [poly_pos].y = yc;
-  poly_buffer [poly_pos].z = 0;
-  poly_buffer [poly_pos].color = col;
-  poly_pos ++;
-*/
-// check_buffer_sizes();
-
 }
 
 
