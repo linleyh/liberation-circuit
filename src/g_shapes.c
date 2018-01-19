@@ -46,18 +46,20 @@ struct dshape_init_state_struct
 struct dshape_init_state_struct dshape_init;
 
 static void start_dshape(int ds, int keyword_index);
-static void start_dshape_poly(int poly, int layer, int poly_colour_level);
+static void start_dshape_poly(int poly, int layer, int poly_colour_level, int triangulation);
+void add_collision_vertices_fixed(int num_vtx, const al_fixed* coords);
+void add_vertices_fixed(int num_vtx, const al_fixed* coords);
+void add_collision_vertices(int num_vtx, const int* coords);
+void dshape_poly(int layer, int poly_colour_level, int triangulation, int num_vtx, const int* coords);
 static void add_vertex(int x, int y, int add_collision_vertex);
-static void add_display_triangle(int v1, int v2, int v3);
 static void add_vertex_vector(int angle, int dist, int add_collision_vertex);
 //static void add_triple_link_vertex(int x, int y, int link_index);
 //static void add_triple_link_vertex_vector(int angle, int dist, int previous_angle, int previous_angle_dist, int next_angle, int next_angle_dist, int link_index);
 static void add_poly_fill_source(int x, int y);
 //void add_link_vector(int angle, int dist);
-static void fix_display_triangles_walk(void);
-static void fix_display_triangles_fan(void);
 //static void add_link_at_last_vertex(int link_index, int link_extra_distance, int object_extra_distance);
 static void add_link_at_xy(int link_index, int link_x, int link_y, int left_x, int left_y, int right_x, int right_y, int far_x, int far_y, int link_point_x, int link_point_y, int object_x, int object_y);
+void add_links(int num_links, const int* coords);
 static void add_link_at_xy_fixed(int link_index, al_fixed link_x, al_fixed link_y, al_fixed left_x, al_fixed left_y, al_fixed right_x, al_fixed right_y, al_fixed far_x, al_fixed far_y, al_fixed link_point_x, al_fixed link_point_y, al_fixed object_x, al_fixed object_y);
 static void add_link_vector(int link_index, int link_angle, int link_dist, int left_angle, int left_dist, int right_angle, int right_dist, int link_extra_distance, int object_extra_distance, int far_point_distance);
 static void finish_shape(void);
@@ -260,108 +262,46 @@ int poly_index;
  start_dshape(NSHAPE_CORE_QUAD_A, KEYWORD_CORE_QUAD_A);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               22, 0, // centre
-	               32, -9, // left
-	               32, 9, // right
-	               38, 0, // far
-	               39, 0, // link
-	               37, 0); // object
+	// centre, left, right, far, link, object
+	const int quad_a_links[] = {
+		22, 0, 32, -9, 32, 9, 38, 0, 39, 0, 37, 0,
+		0, 14, 12, 21, -11, 21, 0, 26, 0, 30, 0, 26,
+		-32, 0, -41, 9, -41, -9, -49, 0, -49, 0, -47, 0,
+		0, -14, -12, -21, 11, -21, 0, -26, 0, -30, 0, -26
+	};
+	add_links(4, quad_a_links);
 
-	add_link_at_xy(1, // link_index
-	               0, 14, // centre
-	               12, 21, // left
-	               -11, 21, // right
-	               0, 26, // far
-	               0, 30, // link
-	               0, 26); // object
+	add_outline_vertex_at_xy(44, 0);
+	add_outline_vertex_at_xy(0, 29);
+	add_outline_vertex_at_xy(-54, 0);
+	add_outline_vertex_at_xy(0, -29);
 
-	add_link_at_xy(2, // link_index
-	               -32, 0, // centre
-	               -41, 9, // left
-	               -41, -9, // right
-	               -49, 0, // far
-	               -49, 0, // link
-	               -47, 0); // object
+	const int quad_a_collision[] = {38, 0, 0, 23, -48, 0, 0, -23, 16, -21, 16, 21, -29, 20, -29, -20};
+	add_collision_vertices(8, quad_a_collision);
 
-	add_link_at_xy(3, // link_index
-	               0, -14, // centre
-	               -12, -21, // left
-	               11, -21, // right
-	               0, -26, // far
-	               0, -30, // link
-	               0, -26); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
-
-	add_vertex(38, 0, 1);
-	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(0, 23, 1);
-	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-48, 0, 1);
-	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(0, -23, 1);
-	add_outline_vertex_at_last_poly_vertex(6);
+	const int quad_a_underlay[] = {38, 0, 0, 23, -48, 0, 0, -23};
+	dshape_poly(0, PROC_COL_UNDERLAY, TRI_FAN, 4, quad_a_underlay);
 	add_poly_fill_source(-2, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, -1, 0);
-	add_vertex(1, -8, 0);
-	add_vertex(1, -12, 0);
-	add_vertex(16, -21, 1);
-	add_vertex(32, -12, 0);
-	add_vertex(21, -1, 0);
+	const int quad_a_main0[] = {8, -1, 1, -8, 1, -12, 16, -21, 32, -12, 21, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, quad_a_main0);
 	add_poly_fill_source(13, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, 1, 0);
-	add_vertex(1, 8, 0);
-	add_vertex(1, 12, 0);
-	add_vertex(16, 21, 1);
-	add_vertex(31, 12, 0);
-	add_vertex(21, 1, 0);
+	const int quad_a_main1[] = {8, 1, 1, 8, 1, 12, 16, 21, 31, 12, 21, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, quad_a_main1);
 	add_poly_fill_source(13, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-8, 1, 0);
-	add_vertex(-1, 8, 0);
-	add_vertex(-1, 12, 0);
-	add_vertex(-18, 21, 0);
-	add_vertex(-29, 20, 1);
-	add_vertex(-35, 16, 0);
-	add_vertex(-41, 12, 0);
-	add_vertex(-31, 1, 0);
+	const int quad_a_main2[] = {-8, 1, -1, 8, -1, 12, -18, 21, -29, 20, -35, 16, -41, 12, -31, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 8, quad_a_main2);
 	add_poly_fill_source(-20, 11);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-8, -1, 0);
-	add_vertex(-1, -8, 0);
-	add_vertex(-1, -12, 0);
-	add_vertex(-18, -21, 0);
-	add_vertex(-29, -20, 1);
-	add_vertex(-35, -16, 0);
-	add_vertex(-41, -12, 0);
-	add_vertex(-31, -1, 0);
+	const int quad_a_main3[] = {-8, -1, -1, -8, -1, -12, -18, -21, -29, -20, -35, -16, -41, -12, -31, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 8, quad_a_main3);
 	add_poly_fill_source(-20, -11);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(0, 6, 0);
-	add_vertex(-6, 0, 0);
-	add_vertex(0, -6, 0);
-	add_vertex(6, 0, 0);
+	const int quad_a_core[] = {0, 6, -6, 0, 0, -6, 6, 0};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 4, quad_a_core);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
 
  add_mirror_axis_at_link(0, 2);
@@ -384,40 +324,19 @@ int poly_index;
  start_dshape(NSHAPE_CORE_QUAD_B, KEYWORD_CORE_QUAD_B);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               17, -13, // centre
-	               9, -23, // left
-	               27, -8, // right
-	               25, -21, // far
-	               26, -22, // link
-	               23, -19); // object
+	// centre, left, right, far, link, object
+	const int quad_b_links[] = {
+		17, -13, 9, -23, 27, -8, 25, -21, 26, -22, 23, -19,
+		17, 13, 27, 8, 9, 23, 25, 21, 26, 22, 23, 19,
+		-11, 16, -8, 24, -28, 14, -19, 24, -20, 26, -18, 23,
+		-11, -16, -28, -14, -8, -24, -19, -24, -20, -26, -18, -23
+	};
+	add_links(4, quad_b_links);
 
-	add_link_at_xy(1, // link_index
-	               17, 13, // centre
-	               27, 8, // left
-	               9, 23, // right
-	               25, 21, // far
-	               26, 22, // link
-	               23, 19); // object
+	const int quad_b_collision[] = {31, -4, 31, 3, -6, -26, 5, -26, -6, 26, 5, 26, -47, 7, -47, -7};
+	add_collision_vertices(8, quad_b_collision);
 
-	add_link_at_xy(2, // link_index
-	               -11, 16, // centre
-	               -8, 24, // left
-	               -28, 14, // right
-	               -19, 24, // far
-	               -20, 26, // link
-	               -18, 23); // object
-
-	add_link_at_xy(3, // link_index
-	               -11, -16, // centre
-	               -28, -14, // left
-	               -8, -24, // right
-	               -19, -24, // far
-	               -20, -26, // link
-	               -18, -23); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(27, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -434,62 +353,26 @@ int poly_index;
 	add_vertex(22, -18, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-5, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(31, -4, 1);
-	add_vertex(31, 3, 1);
-	add_vertex(18, 11, 0);
-	add_vertex(11, 5, 0);
-	add_vertex(11, -6, 0);
-	add_vertex(18, -11, 0);
+	const int quad_b_main0[] = {31, -4, 31, 3, 18, 11, 11, 5, 11, -6, 18, -11};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, quad_b_main0);
 	add_poly_fill_source(20, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-6, -26, 1);
-	add_vertex(-9, -16, 0);
-	add_vertex(-1, -7, 0);
-	add_vertex(9, -7, 0);
-	add_vertex(16, -12, 0);
-	add_vertex(5, -26, 1);
+	const int quad_b_main1[] = {-6, -26, -9, -16, -1, -7, 9, -7, 16, -12, 5, -26};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, quad_b_main1);
 	add_poly_fill_source(2, -15);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-6, 26, 1);
-	add_vertex(-9, 16, 0);
-	add_vertex(-1, 7, 0);
-	add_vertex(9, 7, 0);
-	add_vertex(16, 12, 0);
-	add_vertex(5, 26, 1);
+	const int quad_b_main2[] = {-6, 26, -9, 16, -1, 7, 9, 7, 16, 12, 5, 26};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, quad_b_main2);
 	add_poly_fill_source(2, 15);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-47, 7, 1);
-	add_vertex(-47, -7, 1);
-	add_vertex(-34, -12, 0);
-	add_vertex(-11, -14, 0);
-	add_vertex(-3, -5, 0);
-	add_vertex(-3, 5, 0);
-	add_vertex(-11, 14, 0);
-	add_vertex(-34, 12, 0);
+	const int quad_b_main3[] = {-47, 7, -47, -7, -34, -12, -11, -14, -3, -5, -3, 5, -11, 14, -34, 12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 8, quad_b_main3);
 	add_poly_fill_source(-23, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(9, -5, 0);
-	add_vertex(9, 5, 0);
-	add_vertex(-1, 5, 0);
-	add_vertex(-1, -5, 0);
+	const int quad_b_core[] = {9, -5, 9, 5, -1, 5, -1, -5};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 4, quad_b_core);
 	add_poly_fill_source(4, 0);
-	fix_display_triangles_fan();
 
  add_mirror_axis(0, -1);
  add_mirror_axis(ANGLE_2, -1);
@@ -504,58 +387,22 @@ int poly_index;
  start_dshape(NSHAPE_CORE_HEX_A, KEYWORD_CORE_HEX_A);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               35, 0, // centre
-	               44, -7, // left
-	               44, 7, // right
-	               51, 0, // far
-	               53, 0, // link
-	               49, 0); // object
-
-	add_link_at_xy(1, // link_index
-	               13, 18, // centre
-	               25, 22, // left
-	               7, 27, // right
-	               18, 27, // far
-	               20, 29, // link
-	               17, 25); // object
-
-	add_link_at_xy(2, // link_index
-	               -13, 19, // centre
-	               -8, 27, // left
-	               -29, 23, // right
-	               -21, 29, // far
-	               -23, 31, // link
-	               -21, 28); // object
-
-	add_link_at_xy(3, // link_index
-	               -38, 0, // centre
-	               -47, 8, // left
-	               -47, -8, // right
-	               -54, 0, // far
-	               -56, 0, // link
-	               -52, 0); // object
-
-	add_link_at_xy(4, // link_index
-	               -13, -19, // centre
-	               -29, -23, // left
-	               -8, -27, // right
-	               -21, -29, // far
-	               -23, -31, // link
-	               -21, -28); // object
+	// centre, left, right, far, link, object
+	const int hex_a_links[] = {
+		35, 0, 44, -7, 44, 7, 51, 0, 53, 0, 49, 0,
+		13, 18, 25, 22, 7, 27, 18, 27, 20, 29, 17, 25,
+		-13, 19, -8, 27, -29, 23, -21, 29, -23, 31, -21, 28,
+		-38, 0, -47, 8, -47, -8, -54, 0, -56, 0, -52, 0,
+		-13, -19, -29, -23, -8, -27, -21, -29, -23, -31, -21, -28,
+		13, -18, 7, -27, 25, -22, 18, -27, 20, -29, 17, -25
+	};
+	add_links(6, hex_a_links);
 
 
-	add_link_at_xy(5, // link_index
-	               13, -18, // centre
-	               7, -27, // left
-	               25, -22, // right
-	               18, -27, // far
-	               20, -29, // link
-	               17, -25); // object
+	const int hex_a_collision[] = {-38, -24, -52, -14, -38, 24, -52, 14, 3, -29, -5, -29, 3, 29, -5, 29, 46, -11, 46, 11};
+	add_collision_vertices(10, hex_a_collision);
 
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(48, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -570,84 +417,34 @@ int poly_index;
 	add_vertex(16, -24, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-1, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(9, 0, 0);
-	add_vertex(5, 5, 0);
-	add_vertex(-7, 5, 0);
-	add_vertex(-10, 0, 0);
-	add_vertex(-7, -5, 0);
-	add_vertex(5, -5, 0);
+	const int hex_a_core[] = {9, 0, 5, 5, -7, 5, -10, 0, -7, -5, 5, -5};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 6, hex_a_core);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-14, -17, 0);
-	add_vertex(-38, -24, 1);
-	add_vertex(-52, -14, 1);
-	add_vertex(-37, -1, 0);
-	add_vertex(-12, -1, 0);
-	add_vertex(-8, -7, 0);
+	const int hex_a_main0[] = {-14, -17, -38, -24, -52, -14, -37, -1, -12, -1, -8, -7};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_a_main0);
 	add_poly_fill_source(-26, -10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-14, 17, 0);
-	add_vertex(-38, 24, 1);
-	add_vertex(-52, 14, 1);
-	add_vertex(-37, 1, 0);
-	add_vertex(-12, 1, 0);
-	add_vertex(-8, 7, 0);
+	const int hex_a_main1[] = {-14, 17, -38, 24, -52, 14, -37, 1, -12, 1, -8, 7};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_a_main1);
 	add_poly_fill_source(-26, 10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-6, -7, 0);
-	add_vertex(4, -7, 0);
-	add_vertex(12, -17, 0);
-	add_vertex(3, -29, 1);
-	add_vertex(-5, -29, 1);
-	add_vertex(-12, -17, 0);
+	const int hex_a_main2[] = {-6, -7, 4, -7, 12, -17, 3, -29, -5, -29, -12, -17};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_a_main2);
 	add_poly_fill_source(0, -17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-6, 7, 0);
-	add_vertex(4, 7, 0);
-	add_vertex(12, 17, 0);
-	add_vertex(3, 29, 1);
-	add_vertex(-5, 29, 1);
-	add_vertex(-12, 17, 0);
+	const int hex_a_main3[] = {-6, 7, 4, 7, 12, 17, 3, 29, -5, 29, -12, 17};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_a_main3);
 	add_poly_fill_source(0, 17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(6, -7, 0);
-	add_vertex(11, -1, 0);
-	add_vertex(33, -1, 0);
-	add_vertex(46, -11, 1);
-	add_vertex(29, -21, 0);
-	add_vertex(13, -16, 0);
+	const int hex_a_main4[] = {6, -7, 11, -1, 33, -1, 46, -11, 29, -21, 13, -16};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_a_main4);
 	add_poly_fill_source(23, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(6, 7, 0);
-	add_vertex(11, 1, 0);
-	add_vertex(33, 1, 0);
-	add_vertex(46, 11, 1);
-	add_vertex(29, 21, 0);
-	add_vertex(13, 16, 0);
+	const int hex_a_main5[] = {6, 7, 11, 1, 33, 1, 46, 11, 29, 21, 13, 16};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_a_main5);
 	add_poly_fill_source(23, 9);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, 3);
 // add_mirror_axis_at_link(1, 4);
@@ -663,167 +460,67 @@ int poly_index;
  start_dshape(NSHAPE_CORE_HEX_B, KEYWORD_CORE_HEX_B);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               35, 0, // centre
-	               44, -7, // left
-	               44, 7, // right
-	               51, 0, // far
-	               53, 0, // link
-	               49, 0); // object
-
-	add_link_at_xy(1, // link_index
-	               12, 21, // centre
-	               25, 22, // left
-	               6, 28, // right
-	               18, 28, // far
-	               20, 31, // link
-	               18, 28); // object
-
-	add_link_at_xy(2, // link_index
-	               -12, 21, // centre
-	               -6, 28, // left
-	               -27, 24, // right
-	               -17, 31, // far
-	               -18, 34, // link
-	               -17, 30); // object
-
-	add_link_at_xy(3, // link_index
-	               -38, 0, // centre
-	               -47, 8, // left
-	               -47, -8, // right
-	               -54, 0, // far
-	               -56, 0, // link
-	               -52, 0); // object
-
-	add_link_at_xy(4, // link_index
-	               -12, -21, // centre
-	               -27, -24, // left
-	               -6, -28, // right
-	               -17, -31, // far
-	               -18, -34, // link
-	               -17, -30); // object
+	// centre, left, right, far, link, object
+	const int hex_b_links[] = {
+		35, 0, 44, -7, 44, 7, 51, 0, 53, 0, 49, 0,
+		12, 21, 25, 22, 6, 28, 18, 28, 20, 31, 18, 28,
+		-12, 21, -6, 28, -27, 24, -17, 31, -18, 34, -17, 30,
+		-38, 0, -47, 8, -47, -8, -54, 0, -56, 0, -52, 0,
+		-12, -21, -27, -24, -6, -28, -17, -31, -18, -34, -17, -30,
+		12, -21, 6, -28, 25, -22, 18, -28, 20, -31, 18, -28
+	};
+	add_links(6, hex_b_links);
 
 
-	add_link_at_xy(5, // link_index
-	               12, -21, // centre
-	               6, -28, // left
-	               25, -22, // right
-	               18, -28, // far
-	               20, -31, // link
-	               18, -28); // object
+	const int hex_b_collision[] = {48, 0, -51, 0, 3, -29, -3, -29, 3, 29, -3, 29, 46, -11, 29, -21, 46, 11, 29, 21};
+	add_collision_vertices(10, hex_b_collision);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
-
-	add_vertex(48, 0, 1);
+	add_vertex(48, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(16, 25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-20, 25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-51, 0, 1);
+	add_vertex(-51, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-20, -25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(16, -25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-1, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(8, 0, 0);
-	add_vertex(3, 5, 0);
-	add_vertex(-4, 5, 0);
-	add_vertex(-9, 0, 0);
-	add_vertex(-4, -5, 0);
-	add_vertex(3, -5, 0);
+	const int hex_b_core[] = {8, 0, 3, 5, -4, 5, -9, 0, -4, -5, 3, -5};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 6, hex_b_core);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-3, -7, 0);
-	add_vertex(3, -7, 0);
-	add_vertex(11, -19, 0);
-	add_vertex(3, -29, 1);
-	add_vertex(-3, -29, 1);
-	add_vertex(-11, -19, 0);
+	const int hex_b_main0[] = {-3, -7, 3, -7, 11, -19, 3, -29, -3, -29, -11, -19};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_b_main0);
 	add_poly_fill_source(0, -18);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-3, 7, 0);
-	add_vertex(3, 7, 0);
-	add_vertex(11, 19, 0);
-	add_vertex(3, 29, 1);
-	add_vertex(-3, 29, 1);
-	add_vertex(-11, 19, 0);
+	const int hex_b_main1[] = {-3, 7, 3, 7, 11, 19, 3, 29, -3, 29, -11, 19};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_b_main1);
 	add_poly_fill_source(0, 18);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(5, -6, 0);
-	add_vertex(10, -1, 0);
-	add_vertex(33, -1, 0);
-	add_vertex(46, -11, 1);
-	add_vertex(29, -21, 1);
-	add_vertex(13, -19, 0);
+	const int hex_b_main2[] = {5, -6, 10, -1, 33, -1, 46, -11, 29, -21, 13, -19};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_b_main2);
 	add_poly_fill_source(22, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(5, 6, 0);
-	add_vertex(10, 1, 0);
-	add_vertex(33, 1, 0);
-	add_vertex(46, 11, 1);
-	add_vertex(29, 21, 1);
-	add_vertex(13, 19, 0);
+	const int hex_b_main3[] = {5, 6, 10, 1, 33, 1, 46, 11, 29, 21, 13, 19};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_b_main3);
 	add_poly_fill_source(22, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(-15, -4, 0);
-	add_vertex(-11, 0, 0);
-	add_vertex(-15, 4, 0);
-	add_vertex(-18, 4, 0);
-	add_vertex(-22, 0, 0);
-	add_vertex(-18, -4, 0);
+	const int hex_b_ecore[] = {-15, -4, -11, 0, -15, 4, -18, 4, -22, 0, -18, -4};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 6, hex_b_ecore);
 	add_poly_fill_source(-16, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-13, -19, 0);
-	add_vertex(-5, -7, 0);
-	add_vertex(-10, -2, 0);
-	add_vertex(-15, -6, 0);
-	add_vertex(-18, -6, 0);
-	add_vertex(-24, -1, 0);
-	add_vertex(-37, -1, 0);
-	add_vertex(-48, -12, 0);
-	add_vertex(-33, -23, 0);
+	const int hex_b_main4[] = {-13, -19, -5, -7, -10, -2, -15, -6, -18, -6, -24, -1, -37, -1, -48, -12, -33, -23};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 9, hex_b_main4);
 	add_poly_fill_source(-22, -8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-13, 19, 0);
-	add_vertex(-5, 7, 0);
-	add_vertex(-10, 2, 0);
-	add_vertex(-15, 6, 0);
-	add_vertex(-18, 6, 0);
-	add_vertex(-24, 1, 0);
-	add_vertex(-37, 1, 0);
-	add_vertex(-48, 12, 0);
-	add_vertex(-33, 23, 0);
+	const int hex_b_main5[] = {-13, 19, -5, 7, -10, 2, -15, 6, -18, 6, -24, 1, -37, 1, -48, 12, -33, 23};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 9, hex_b_main5);
 	add_poly_fill_source(-22, 8);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, 3);
 // add_mirror_axis_at_link(1, 4);
@@ -840,57 +537,21 @@ int poly_index;
  start_dshape(NSHAPE_CORE_HEX_C, KEYWORD_CORE_HEX_C);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               42, 0, // centre
-	               49, -9, // left
-	               49, 9, // right
-	               55, 0, // far
-	               58, 0, // link
-	               55, 0); // object
+	// centre, left, right, far, link, object
+	const int hex_c_links[] = {
+		42, 0, 49, -9, 49, 9, 55, 0, 58, 0, 55, 0,
+		16, 22, 28, 23, 8, 32, 19, 31, 21, 34, 19, 31,
+		-14, 22, -8, 32, -27, 25, -19, 31, -21, 34, -19, 31,
+		-38, 0, -47, 8, -47, -8, -54, 0, -56, 0, -52, 0,
+		-14, -22, -27, -25, -8, -32, -19, -31, -21, -34, -19, -31,
+		16, -22, 8, -32, 28, -23, 19, -31, 21, -34, 19, -31,
+	};
+	add_links(6, hex_c_links);
 
-	add_link_at_xy(1, // link_index
-	               16, 22, // centre
-	               28, 23, // left
-	               8, 32, // right
-	               19, 31, // far
-	               21, 34, // link
-	               19, 31); // object
+	const int hex_c_collision[] = {4, -35, -4, -35, 4, 35, -4, 35, -51, -15, -38, -26, -51, 15, -38, 26, 51, -15, 51, 15};
+	add_collision_vertices(10, hex_c_collision);
 
-	add_link_at_xy(2, // link_index
-	               -14, 22, // centre
-	               -8, 32, // left
-	               -27, 25, // right
-	               -19, 31, // far
-	               -21, 34, // link
-	               -19, 31); // object
-
-	add_link_at_xy(3, // link_index
-	               -38, 0, // centre
-	               -47, 8, // left
-	               -47, -8, // right
-	               -54, 0, // far
-	               -56, 0, // link
-	               -52, 0); // object
-
-	add_link_at_xy(4, // link_index
-	               -14, -22, // centre
-	               -27, -25, // left
-	               -8, -32, // right
-	               -19, -31, // far
-	               -21, -34, // link
-	               -19, -31); // object
-
-	add_link_at_xy(5, // link_index
-	               16, -22, // centre
-	               8, -32, // left
-	               28, -23, // right
-	               19, -31, // far
-	               21, -34, // link
-	               19, -31); // object
-
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(53, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -905,118 +566,42 @@ int poly_index;
 	add_vertex(17, -28, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(9, 0, 0);
-	add_vertex(4, 5, 0);
-	add_vertex(-4, 5, 0);
-	add_vertex(-9, 0, 0);
-	add_vertex(-4, -5, 0);
-	add_vertex(4, -5, 0);
+	const int hex_c_core[] = {9, 0, 4, 5, -4, 5, -9, 0, -4, -5, 4, -5};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 6, hex_c_core);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-3, -7, 0);
-	add_vertex(3, -7, 0);
-	add_vertex(15, -20, 0);
-	add_vertex(4, -35, 1);
-	add_vertex(-4, -35, 1);
-	add_vertex(-13, -20, 0);
+	const int hex_c_main0[] = {-3, -7, 3, -7, 15, -20, 4, -35, -4, -35, -13, -20};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_c_main0);
 	add_poly_fill_source(0, -20);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-3, 7, 0);
-	add_vertex(3, 7, 0);
-	add_vertex(15, 20, 0);
-	add_vertex(4, 35, 1);
-	add_vertex(-4, 35, 1);
-	add_vertex(-13, 20, 0);
+	const int hex_c_main1[] = {-3, 7, 3, 7, 15, 20, 4, 35, -4, 35, -13, 20};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, hex_c_main1);
 	add_poly_fill_source(0, 20);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(-15, -4, 0);
-	add_vertex(-11, 0, 0);
-	add_vertex(-15, 4, 0);
-	add_vertex(-18, 4, 0);
-	add_vertex(-22, 0, 0);
-	add_vertex(-18, -4, 0);
+	const int hex_c_ecore0[] = {-15, -4, -11, 0, -15, 4, -18, 4, -22, 0, -18, -4};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 6, hex_c_ecore0);
 	add_poly_fill_source(-16, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-15, -20, 0);
-	add_vertex(-5, -7, 0);
-	add_vertex(-10, -2, 0);
-	add_vertex(-15, -6, 0);
-	add_vertex(-18, -6, 0);
-	add_vertex(-24, -1, 0);
-	add_vertex(-37, -1, 0);
-	add_vertex(-51, -15, 1);
-	add_vertex(-38, -26, 1);
+	const int hex_c_main2[] = {-15, -20, -5, -7, -10, -2, -15, -6, -18, -6, -24, -1, -37, -1, -51, -15, -38, -26};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 9, hex_c_main2);
 	add_poly_fill_source(-23, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-15, 20, 0);
-	add_vertex(-5, 7, 0);
-	add_vertex(-10, 2, 0);
-	add_vertex(-15, 6, 0);
-	add_vertex(-18, 6, 0);
-	add_vertex(-24, 1, 0);
-	add_vertex(-37, 1, 0);
-	add_vertex(-51, 15, 1);
-	add_vertex(-38, 26, 1);
+	const int hex_c_main3[] = {-15, 20, -5, 7, -10, 2, -15, 6, -18, 6, -24, 1, -37, 1, -51, 15, -38, 26};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 9, hex_c_main3);
 	add_poly_fill_source(-23, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(17, -20, 0);
-	add_vertex(5, -7, 0);
-	add_vertex(10, -2, 0);
-	add_vertex(15, -6, 0);
-	add_vertex(18, -6, 0);
-	add_vertex(24, -1, 0);
-	add_vertex(40, -1, 0);
-	add_vertex(51, -15, 1);
-	add_vertex(33, -22, 0);
+	const int hex_c_main4[] = {17, -20, 5, -7, 10, -2, 15, -6, 18, -6, 24, -1, 40, -1, 51, -15, 33, -22};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 9, hex_c_main4);
 	add_poly_fill_source(23, -8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(17, 20, 0);
-	add_vertex(5, 7, 0);
-	add_vertex(10, 2, 0);
-	add_vertex(15, 6, 0);
-	add_vertex(18, 6, 0);
-	add_vertex(24, 1, 0);
-	add_vertex(40, 1, 0);
-	add_vertex(51, 15, 1);
-	add_vertex(33, 22, 0);
+	const int hex_c_main5[] = {17, 20, 5, 7, 10, 2, 15, 6, 18, 6, 24, 1, 40, 1, 51, 15, 33, 22};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 9, hex_c_main5);
 	add_poly_fill_source(23, 8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(15, -4, 0);
-	add_vertex(11, 0, 0);
-	add_vertex(15, 4, 0);
-	add_vertex(18, 4, 0);
-	add_vertex(22, 0, 0);
-	add_vertex(18, -4, 0);
+	const int hex_c_ecore1[] = {15, -4, 11, 0, 15, 4, 18, 4, 22, 0, 18, -4};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 6, hex_c_ecore1);
 	add_poly_fill_source(16, 0);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, 3);
 // add_mirror_axis_at_link(1, 4);
@@ -1035,48 +620,20 @@ int poly_index;
 
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               33, 0, // centre
-	               41, -7, // left
-	               41, 7, // right
-	               45, 0, // far
-	               47, 0, // link
-	               45, 0); // object
+	// centre, left, right, far, link, object
+	const int pent_c_links[] = {
+		33, 0, 41, -7, 41, 7, 45, 0, 47, 0, 45, 0,
+		0, 19, 7, 26, -10, 24, -3, 30, -4, 33, -3, 29,
+		-22, 10, -23, 18, -35, 6, -33, 15, -37, 17, -33, 14,
+		-22, -10, -35, -6, -23, -18, -33, -15, -37, -17, -33, -14,
+		0, -19, -10, -24, 7, -26, -3, -30, -4, -33, -3, -29
+	};
+	add_links(5, pent_c_links);
 
-	add_link_at_xy(1, // link_index
-	               0, 19, // centre
-	               7, 26, // left
-	               -10, 24, // right
-	               -3, 30, // far
-	               -4, 33, // link
-	               -3, 29); // object
+	const int pent_c_collision[] = {10, -28, 42, -10, 10, 28, 42, 10, -19, -27, -19, 27, -42, 3, -42, -3};
+	add_collision_vertices(8, pent_c_collision);
 
-	add_link_at_xy(2, // link_index
-	               -22, 10, // centre
-	               -23, 18, // left
-	               -35, 6, // right
-	               -33, 15, // far
-	               -37, 17, // link
-	               -33, 14); // object
-
-	add_link_at_xy(3, // link_index
-	               -22, -10, // centre
-	               -35, -6, // left
-	               -23, -18, // right
-	               -33, -15, // far
-	               -37, -17, // link
-	               -33, -14); // object
-
-	add_link_at_xy(4, // link_index
-	               0, -19, // centre
-	               -10, -24, // left
-	               7, -26, // right
-	               -3, -30, // far
-	               -4, -33, // link
-	               -3, -29); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(44, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -1091,72 +648,30 @@ int poly_index;
 	add_vertex(-2, -25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-8, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, -1, 0);
-	add_vertex(1, -7, 0);
-	add_vertex(1, -18, 0);
-	add_vertex(10, -28, 1);
-	add_vertex(42, -10, 1);
-	add_vertex(32, -1, 0);
+	const int pent_c_main0[] = {8, -1, 1, -7, 1, -18, 10, -28, 42, -10, 32, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_c_main0);
 	add_poly_fill_source(15, -10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, 1, 0);
-	add_vertex(1, 7, 0);
-	add_vertex(1, 18, 0);
-	add_vertex(10, 28, 1);
-	add_vertex(42, 10, 1);
-	add_vertex(32, 1, 0);
+	const int pent_c_main1[] = {8, 1, 1, 7, 1, 18, 10, 28, 42, 10, 32, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_c_main1);
 	add_poly_fill_source(15, 10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, -7, 0);
-	add_vertex(-1, -18, 0);
-	add_vertex(-19, -27, 1);
-	add_vertex(-23, -24, 0);
-	add_vertex(-21, -10, 0);
-	add_vertex(-7, -4, 0);
+	const int pent_c_main2[] = {-1, -7, -1, -18, -19, -27, -23, -24, -21, -10, -7, -4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_c_main2);
 	add_poly_fill_source(-12, -15);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, 7, 0);
-	add_vertex(-1, 18, 0);
-	add_vertex(-19, 27, 1);
-	add_vertex(-23, 24, 0);
-	add_vertex(-21, 10, 0);
-	add_vertex(-7, 4, 0);
+	const int pent_c_main3[] = {-1, 7, -1, 18, -19, 27, -23, 24, -21, 10, -7, 4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_c_main3);
 	add_poly_fill_source(-12, 15);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-8, 3, 0);
-	add_vertex(-21, 9, 0);
-	add_vertex(-42, 3, 1);
-	add_vertex(-42, -3, 1);
-	add_vertex(-21, -9, 0);
-	add_vertex(-8, -3, 0);
+	const int pent_c_main4[] = {-8, 3, -21, 9, -42, 3, -42, -3, -21, -9, -8, -3};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_c_main4);
 	add_poly_fill_source(-23, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(0, 6, 0);
-	add_vertex(-6, 3, 0);
-	add_vertex(-6, -3, 0);
-	add_vertex(0, -6, 0);
-	add_vertex(6, 0, 0);
+	const int pent_c_core[] = {0, 6, -6, 3, -6, -3, 0, -6, 6, 0};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 5, pent_c_core);
 	add_poly_fill_source(-1, 0);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1);
  add_mirror_axis(ANGLE_2, 0);
@@ -1169,48 +684,20 @@ int poly_index;
 
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               26, 0, // centre
-	               31, -7, // left
-	               31, 7, // right
-	               38, 0, // far
-	               41, 0, // link
-	               37, 0); // object
+	// centre, left, right, far, link, object
+	const int pent_a_links[] = {
+		26, 0, 31, -7, 31, 7, 38, 0, 41, 0, 37, 0,
+		3, 21, 18, 17, -4, 27, 9, 28, 10, 30, 8, 27,
+		-21, 17, -16, 28, -35, 12, -26, 24, -28, 25, -26, 23,
+		-21, -17, -35, -12, -16, -28, -26, -24, -28, -25, -26, -23,
+		3, -21, -4, -27, 18, -17, 9, -28, 10, -30, 8, -27
+	};
+	add_links(5, pent_a_links);
 
-	add_link_at_xy(1, // link_index
-	               3, 21, // centre
-	               18, 17, // left
-	               -4, 27, // right
-	               9, 28, // far
-	               10, 30, // link
-	               8, 27); // object
+	const int pent_a_collision[] = {30, -9, 30, 9, -8, -28, -14, -28, -8, 28, -14, 28, -50, 5, -50, -5};
+	add_collision_vertices(8, pent_a_collision);
 
-	add_link_at_xy(2, // link_index
-	               -21, 17, // centre
-	               -16, 28, // left
-	               -35, 12, // right
-	               -26, 24, // far
-	               -28, 25, // link
-	               -26, 23); // object
-
-	add_link_at_xy(3, // link_index
-	               -21, -17, // centre
-	               -35, -12, // left
-	               -16, -28, // right
-	               -26, -24, // far
-	               -28, -25, // link
-	               -26, -23); // object
-
-	add_link_at_xy(4, // link_index
-	               3, -21, // centre
-	               -4, -27, // left
-	               18, -17, // right
-	               9, -28, // far
-	               10, -30, // link
-	               8, -27); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(34, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -1225,72 +712,30 @@ int poly_index;
 	add_vertex(5, -25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-7, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, -1, 0);
-	add_vertex(1, -8, 0);
-	add_vertex(4, -19, 0);
-	add_vertex(22, -14, 0);
-	add_vertex(30, -9, 1);
-	add_vertex(24, -1, 0);
+	const int pent_a_main0[] = {8, -1, 1, -8, 4, -19, 22, -14, 30, -9, 24, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_a_main0);
 	add_poly_fill_source(14, -8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, 1, 0);
-	add_vertex(1, 8, 0);
-	add_vertex(4, 19, 0);
-	add_vertex(22, 14, 0);
-	add_vertex(30, 9, 1);
-	add_vertex(24, 1, 0);
+	const int pent_a_main1[] = {8, 1, 1, 8, 4, 19, 22, 14, 30, 9, 24, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_a_main1);
 	add_poly_fill_source(14, 8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(0, -9, 0);
-	add_vertex(2, -19, 0);
-	add_vertex(-8, -28, 1);
-	add_vertex(-14, -28, 1);
-	add_vertex(-19, -16, 0);
-	add_vertex(-8, -4, 0);
+	const int pent_a_main2[] = {0, -9, 2, -19, -8, -28, -14, -28, -19, -16, -8, -4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_a_main2);
 	add_poly_fill_source(-7, -17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(0, 9, 0);
-	add_vertex(2, 19, 0);
-	add_vertex(-8, 28, 1);
-	add_vertex(-14, 28, 1);
-	add_vertex(-19, 16, 0);
-	add_vertex(-8, 4, 0);
+	const int pent_a_main3[] = {0, 9, 2, 19, -8, 28, -14, 28, -19, 16, -8, 4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_a_main3);
 	add_poly_fill_source(-7, 17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-9, 3, 0);
-	add_vertex(-21, 15, 0);
-	add_vertex(-50, 5, 1);
-	add_vertex(-50, -5, 1);
-	add_vertex(-21, -15, 0);
-	add_vertex(-9, -3, 0);
+	const int pent_a_main4[] = {-9, 3, -21, 15, -50, 5, -50, -5, -21, -15, -9, -3};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_a_main4);
 	add_poly_fill_source(-26, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(0, 7, 0);
-	add_vertex(-7, 3, 0);
-	add_vertex(-7, -3, 0);
-	add_vertex(0, -7, 0);
-	add_vertex(7, 0, 0);
+	const int pent_a_core[] = {0, 7, -7, 3, -7, -3, 0, -7, 7, 0};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 5, pent_a_core);
 	add_poly_fill_source(-1, 0);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1);
  add_mirror_axis(ANGLE_2, 0);
@@ -1303,48 +748,20 @@ int poly_index;
  start_dshape(NSHAPE_CORE_PENT_B, KEYWORD_CORE_PENT_B);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               27, 0, // centre
-	               33, -8, // left
-	               33, 8, // right
-	               38, 0, // far
-	               40, 0, // link
-	               36, 0); // object
+	// centre, left, right, far, link, object
+	const int pent_b_links[] = {
+		27, 0, 33, -8, 33, 8, 38, 0, 40, 0, 36, 0,
+		3, 20, 16, 20, -2, 31, 10, 32, 11, 33, 9, 29,
+		-18, 17, -15, 25, -34, 14, -29, 27, -30, 28, -27, 24,
+		-18, -17, -34, -14, -15, -25, -29, -27, -30, -28, -27, -24,
+		3, -20, -2, -31, 16, -20, 10, -32, 11, -33, 9, -29
+	};
+	add_links(5, pent_b_links);
 
-	add_link_at_xy(1, // link_index
-	               3, 20, // centre
-	               16, 20, // left
-	               -2, 31, // right
-	               10, 32, // far
-	               11, 33, // link
-	               9, 29); // object
+	const int pent_b_collision[] = {33, -10, 33, 10, -4, -32, -13, -27, -4, 32, -13, 27, -40, 11, -48, 0, -40, -11};
+	add_collision_vertices(9, pent_b_collision);
 
-	add_link_at_xy(2, // link_index
-	               -18, 17, // centre
-	               -15, 25, // left
-	               -34, 14, // right
-	               -29, 27, // far
-	               -30, 28, // link
-	               -27, 24); // object
-
-	add_link_at_xy(3, // link_index
-	               -18, -17, // centre
-	               -34, -14, // left
-	               -15, -25, // right
-	               -29, -27, // far
-	               -30, -28, // link
-	               -27, -24); // object
-
-	add_link_at_xy(4, // link_index
-	               3, -20, // centre
-	               -2, -31, // left
-	               16, -20, // right
-	               10, -32, // far
-	               11, -33, // link
-	               9, -29); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(33, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -1361,73 +778,30 @@ int poly_index;
 	add_vertex(6, -29, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-10, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(7, -1, 0);
-	add_vertex(-1, -7, 0);
-	add_vertex(5, -19, 0);
-	add_vertex(31, -18, 0);
-	add_vertex(33, -10, 1);
-	add_vertex(26, -1, 0);
+	const int pent_b_main0[] = {7, -1, -1, -7, 5, -19, 31, -18, 33, -10, 26, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_b_main0);
 	add_poly_fill_source(16, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(7, 1, 0);
-	add_vertex(-1, 7, 0);
-	add_vertex(5, 19, 0);
-	add_vertex(31, 18, 0);
-	add_vertex(33, 10, 1);
-	add_vertex(26, 1, 0);
+	const int pent_b_main1[] = {7, 1, -1, 7, 5, 19, 31, 18, 33, 10, 26, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_b_main1);
 	add_poly_fill_source(16, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-2, -8, 0);
-	add_vertex(2, -19, 0);
-	add_vertex(-4, -32, 1);
-	add_vertex(-13, -27, 1);
-	add_vertex(-16, -17, 0);
-	add_vertex(-8, -4, 0);
+	const int pent_b_main2[] = {-2, -8, 2, -19, -4, -32, -13, -27, -16, -17, -8, -4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_b_main2);
 	add_poly_fill_source(-6, -17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-2, 8, 0);
-	add_vertex(2, 19, 0);
-	add_vertex(-4, 32, 1);
-	add_vertex(-13, 27, 1);
-	add_vertex(-16, 17, 0);
-	add_vertex(-8, 4, 0);
+	const int pent_b_main3[] = {-2, 8, 2, 19, -4, 32, -13, 27, -16, 17, -8, 4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, pent_b_main3);
 	add_poly_fill_source(-6, 17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-9, 3, 0);
-	add_vertex(-18, 16, 0);
-	add_vertex(-40, 11, 1);
-	add_vertex(-48, 0, 1);
-	add_vertex(-40, -11, 1);
-	add_vertex(-18, -16, 0);
-	add_vertex(-9, -3, 0);
+	const int pent_b_main4[] = {-9, 3, -18, 16, -40, 11, -48, 0, -40, -11, -18, -16, -9, -3};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 7, pent_b_main4);
 	add_poly_fill_source(-26, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_CORE_MUTABLE);
-
-	add_vertex(-2, 6, 0);
-	add_vertex(-7, 3, 0);
-	add_vertex(-7, -3, 0);
-	add_vertex(-2, -6, 0);
-	add_vertex(6, 0, 0);
+	const int pent_b_core[] = {-2, 6, -7, 3, -7, -3, -2, -6, 6, 0};
+	dshape_poly(1, PROC_COL_CORE_MUTABLE, TRI_FAN, 5, pent_b_core);
 	add_poly_fill_source(-2, 0);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1);
  add_mirror_axis(ANGLE_2, 0);
@@ -1483,7 +857,7 @@ int poly_index;
 
 
  poly_index = POLY_0;
- start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE, TRI_WALK);
 
  add_vertex_vector(0 * ANGLE_4, STATIC_QUAD_BASE_SIZE + 16, 1);
  add_outline_vertex_at_last_poly_vertex(6);
@@ -1495,8 +869,6 @@ int poly_index;
  add_outline_vertex_at_last_poly_vertex(6);
 
  add_poly_fill_source(0, 0);
-
- fix_display_triangles_walk();
 /*
  nshape[NSHAPE_CORE_STATIC_QUAD].mirrored_object [0] [0] = 0;
  nshape[NSHAPE_CORE_STATIC_QUAD].mirrored_object [0] [1] = 1;
@@ -1506,19 +878,18 @@ int poly_index;
  dshape[dshape_init.current_dshape].outline_base_vertex = 0;
 
 // centre bit:
- start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE, TRI_WALK);
  add_vertex(6, 0, 0);
  add_vertex(0, 6, 0);
  add_vertex(-6, 0, 0);
  add_vertex(0, -6, 0);
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
 #define STATIC_QUAD_OUTER_SIZE 20
 #define STATIC_QUAD_EDGE_SIZE 8
 
 // down-right quadrant
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
  add_vertex(1, 8, 0);
  add_vertex(8, 1, 0);
  add_vertex(STATIC_QUAD_OUTER_SIZE, 1, 0);
@@ -1528,10 +899,9 @@ int poly_index;
 // add_vertex(STATIC_QUAD_EDGE_SIZE + 1, STATIC_QUAD_OUTER_SIZE + STATIC_QUAD_EDGE_SIZE, 1); // collision
  add_vertex(1, STATIC_QUAD_OUTER_SIZE, 0);
  add_poly_fill_source(8, 8);
- fix_display_triangles_walk();
 
 // down-left quadrant
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
  add_vertex(-1, 8, 0);
  add_vertex(-8, 1, 0);
  add_vertex(-STATIC_QUAD_OUTER_SIZE, 1, 0);
@@ -1541,10 +911,9 @@ int poly_index;
 // add_vertex(-STATIC_QUAD_EDGE_SIZE - 1, STATIC_QUAD_OUTER_SIZE + STATIC_QUAD_EDGE_SIZE, 1); // collision
  add_vertex(-1, STATIC_QUAD_OUTER_SIZE, 0);
  add_poly_fill_source(-8, 8);
- fix_display_triangles_walk();
 
 // up-left quadrant
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
  add_vertex(-1, -8, 0);
  add_vertex(-8, -1, 0);
  add_vertex(-STATIC_QUAD_OUTER_SIZE, -1, 0);
@@ -1555,10 +924,8 @@ int poly_index;
  add_vertex(-1, -STATIC_QUAD_OUTER_SIZE, 0);
  add_poly_fill_source(-8, -8);
 
- fix_display_triangles_walk();
-
 // up-right quadrant
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
  add_vertex(1, -8, 0);
  add_vertex(8, -1, 0);
  add_vertex(STATIC_QUAD_OUTER_SIZE, -1, 0);
@@ -1568,7 +935,6 @@ int poly_index;
 // add_vertex(STATIC_QUAD_EDGE_SIZE + 1, -STATIC_QUAD_OUTER_SIZE - STATIC_QUAD_EDGE_SIZE, 1); // collision
  add_vertex(1, -STATIC_QUAD_OUTER_SIZE, 0);
  add_poly_fill_source(8, -8);
- fix_display_triangles_walk();
 
  add_mirror_axis(ANGLE_8, -1); // -1 means that no vertex is opposite this axis
  add_mirror_axis((ANGLE_4) + ANGLE_8, -1);
@@ -1601,7 +967,7 @@ int poly_index;
 
 
  poly_index = POLY_0;
- start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE, TRI_WALK);
 
  for (i = 0; i < 5; i ++)
 	{
@@ -1609,23 +975,21 @@ int poly_index;
   add_outline_vertex_at_last_poly_vertex(6);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  dshape[dshape_init.current_dshape].outline_base_vertex = 0;
 
 // centre bit:
- start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE, TRI_WALK);
 
  for (i = 0; i < 5; i ++)
 	{
   add_vertex_vector(i * ANGLE_5, 7, 0);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  for (i = 0; i < 5; i ++)
 	{
-  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
   int base_angle;
   base_angle = i * ANGLE_5;
   add_vertex_vector(base_angle + 200, 9, 0);
@@ -1635,7 +999,6 @@ int poly_index;
   add_vertex_vector(base_angle + ANGLE_5 - 50, STATIC_PENT_BASE_SIZE - 3, 1);
   add_vertex_vector(base_angle + ANGLE_5 - 200, 9, 0);
   add_poly_fill_source(xpart(base_angle + ANGLE_16 + 20, 12), ypart(base_angle + ANGLE_16 + 20, 12)); // xpart/ypart using floating point, but that's okay for poly_fill_source
-  fix_display_triangles_walk();
 
 	}
 
@@ -1680,7 +1043,7 @@ int poly_index;
 
 
  poly_index = POLY_0;
- start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
@@ -1688,23 +1051,21 @@ int poly_index;
   add_outline_vertex_at_last_poly_vertex(6);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  dshape[dshape_init.current_dshape].outline_base_vertex = 0;
 
 // centre bit:
- start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
   add_vertex_vector(i * ANGLE_6, 7, 0);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  for (i = 0; i < 6; i ++)
 	{
-  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
   int base_angle;
   base_angle = i * ANGLE_6;
   add_vertex_vector(base_angle + 200, 9, 0);
@@ -1714,7 +1075,6 @@ int poly_index;
   add_vertex_vector(base_angle + ANGLE_6 - 50, STATIC_HEX_BASE_SIZE - 3, 1);
   add_vertex_vector(base_angle + ANGLE_6 - 200, 9, 0);
   add_poly_fill_source(xpart(base_angle + ANGLE_16 + 20, 12), ypart(base_angle + ANGLE_16 + 20, 12)); // xpart/ypart using floating point, but that's okay for poly_fill_source
-  fix_display_triangles_walk();
 
 	}
 
@@ -1763,7 +1123,7 @@ int poly_index;
 
 
  poly_index = POLY_0;
- start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
@@ -1771,23 +1131,21 @@ int poly_index;
   add_outline_vertex_at_last_poly_vertex(6);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  dshape[dshape_init.current_dshape].outline_base_vertex = 0;
 
 // centre bit:
- start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
   add_vertex_vector(i * ANGLE_6, 9, 0);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  for (i = 0; i < 6; i ++)
 	{
-  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
   int base_angle;
   base_angle = i * ANGLE_6;
   add_vertex_vector(base_angle + 150, 11, 0);
@@ -1805,7 +1163,6 @@ int poly_index;
   add_vertex_vector(base_angle + ANGLE_6 - 50, STATIC_HEX_B_BASE_SIZE - 3, 1);
   add_vertex_vector(base_angle + ANGLE_6 - 150, 11, 0);
   add_poly_fill_source(xpart(base_angle + ANGLE_16 + 20, 12), ypart(base_angle + ANGLE_16 + 20, 12)); // xpart/ypart using floating point, but that's okay for poly_fill_source
-  fix_display_triangles_walk();
 
 	}
 
@@ -1851,7 +1208,7 @@ int poly_index;
 
 
  poly_index = POLY_0;
- start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
@@ -1859,21 +1216,19 @@ int poly_index;
   add_outline_vertex_at_last_poly_vertex(6);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
  dshape[dshape_init.current_dshape].outline_base_vertex = 0;
 
 // centre bit:
- start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_CORE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
   add_vertex_vector(i * ANGLE_6, 12, 0);
 	}
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 /*
- start_dshape_poly(poly_index++, 1, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 1, COL_LEVEL_BASE, TRI_WALK);
 
  for (i = 0; i < 6; i ++)
 	{
@@ -1884,7 +1239,7 @@ int poly_index;
 
  for (i = 0; i < 6; i ++)
 	{
-  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
+  start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN, TRI_WALK);
   int base_angle;
   base_angle = i * ANGLE_6;
   add_vertex_vector(base_angle + 120, 14, 0);
@@ -1902,7 +1257,6 @@ int poly_index;
   add_vertex_vector(base_angle + ANGLE_6 - 50, STATIC_HEX_C_BASE_SIZE - 3, 1);
   add_vertex_vector(base_angle + ANGLE_6 - 120, 14, 0);
   add_poly_fill_source(xpart(base_angle + ANGLE_16 + 20, 16), ypart(base_angle + ANGLE_16 + 20, 16)); // xpart/ypart using floating point, but that's okay for poly_fill_source
-  fix_display_triangles_walk();
 
 	}
 
@@ -1927,123 +1281,61 @@ int poly_index;
 
  start_dshape(NSHAPE_COMPONENT_LONG6, KEYWORD_COMPONENT_LONG6);
 
- add_link_at_xy(0, // link_index
-																34, 0, // centre
-																41, -8, // left
-																41, 8, // right
-																47, 0, // far
-																50, 0, // link
-																45, 0); // object
+	// centre, left, right, far, link, object
+	const int long6_links[] = {
+		34, 0, 41, -8, 41, 8, 47, 0, 50, 0, 45, 0,
+		13, 15, 21, 20, 6, 26, 16, 27, 14, 30, 15, 24,
+		-13, 15, -6, 26, -21, 20, -16, 27, -14, 30, -15, 24,
+		-34, 0, -41, 8, -41, -8, -47, 0, -50, 0, -45, 0,
+		-13, -15, -21, -20, -6, -26, -16, -27, -14, -30, -15, -24,
+		13, -15, 6, -26, 21, -20, 16, -27, 14, -30, 15, -24
+	};
+	add_links(6, long6_links);
 
-
- add_link_at_xy(1, // link_index
-																13, 15, // centre
-																21, 20, // left
-																6, 26, // right
-																16, 27, // far
-																14, 30, // link
-																15, 24); // object
-
- add_link_at_xy(2, // link_index
-																-13, 15, // centre
-																-6, 26, // left
-																-21, 20, // right
-																-16, 27, // far
-																-14, 30, // link
-																-15, 24); // object
-
- add_link_at_xy(3, // link_index
-																-34, 0, // centre
-																-41, 8, // left
-																-41, -8, // right
-																-47, 0, // far
-																-50, 0, // link
-																-45, 0); // object
-
- add_link_at_xy(4, // link_index
-																-13, -15, // centre
-																-21, -20, // left
-																-6, -26, // right
-																-16, -27, // far
-																-14, -30, // link
-																-15, -24); // object
-
- add_link_at_xy(5, // link_index
-																13, -15, // centre
-																6, -26, // left
-																21, -20, // right
-																16, -27, // far
-																14, -30, // link
-																15, -24); // object
-
+	const int long6_collision[] = {43, 0, -43, 0, -3, -27, 3, -27, 3, 27, -3, 27, -40, -10, -40, 10, 40, -10, 40, 10};
+	add_collision_vertices(10, long6_collision);
+	
  poly_index = POLY_0;
- start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE);
+ start_dshape_poly(poly_index++, 0, COL_LEVEL_BASE, TRI_WALK);
 
- add_vertex(43, 0, 1);
+ add_vertex(43, 0, 0);
  add_outline_vertex_at_last_poly_vertex(4);
  add_vertex(14, 22, 0);
  add_outline_vertex_at_last_poly_vertex(4);
  add_vertex(-14, 22, 0);
  add_outline_vertex_at_last_poly_vertex(4);
- add_vertex(-43, -0, 1);
+ add_vertex(-43, -0, 0);
  add_outline_vertex_at_last_poly_vertex(4);
  add_vertex(-14, -22, 0);
  add_outline_vertex_at_last_poly_vertex(4);
  add_vertex(14, -22, 0);
  add_outline_vertex_at_last_poly_vertex(4);
  add_poly_fill_source(0, 0);
- fix_display_triangles_walk();
 
 // pentagon
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
- add_vertex(-3, -27, 1);
- add_vertex(3, -27, 1);
- add_vertex(20, 0, 0);
- add_vertex(3, 27, 1);
- add_vertex(-3, 27, 1);
- add_vertex(-20, 0, 0);
+ const int long6_0[] = {-3, -27, 3, -27, 20, 0, 3, 27, -3, 27, -20, 0};
+ dshape_poly(1, COL_LEVEL_MAIN, TRI_WALK, 6, long6_0);
  add_poly_fill_source(0, -10);
- fix_display_triangles_walk();
 
 // left-up
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
- add_vertex(-13, -14, 0);
- add_vertex(-24, -19, 0);
- add_vertex(-40, -10, 1);
- add_vertex(-32, -1, 0);
- add_vertex(-22, -1, 0);
+ const int long6_1[] = {-13, -14, -24, -19, -40, -10, -32, -1, -22, -1};
+ dshape_poly(1, COL_LEVEL_MAIN, TRI_WALK, 5, long6_1);
  add_poly_fill_source(-23, -7);
- fix_display_triangles_walk();
 
 // left-down
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
- add_vertex(-13, 14, 0);
- add_vertex(-24, 19, 0);
- add_vertex(-40, 10, 1);
- add_vertex(-32, 1, 0);
- add_vertex(-22, 1, 0);
+ const int long6_2[] = {-13, 14, -24, 19, -40, 10, -32, 1, -22, 1};
+ dshape_poly(1, COL_LEVEL_MAIN, TRI_WALK, 5, long6_2);
  add_poly_fill_source(-23, 7);
- fix_display_triangles_walk();
 
 // right-up
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
- add_vertex(13, -14, 0);
- add_vertex(24, -19, 0);
- add_vertex(40, -10, 1);
- add_vertex(32, -1, 0);
- add_vertex(22, -1, 0);
+ const int long6_3[] = {13, -14, 24, -19, 40, -10, 32, -1, 22, -1};
+ dshape_poly(1, COL_LEVEL_MAIN, TRI_WALK, 5, long6_3);
  add_poly_fill_source(23, -7);
- fix_display_triangles_walk();
 
 // right-down
- start_dshape_poly(poly_index++, 1, COL_LEVEL_MAIN);
- add_vertex(13, 14, 0);
- add_vertex(24, 19, 0);
- add_vertex(40, 10, 1);
- add_vertex(32, 1, 0);
- add_vertex(22, 1, 0);
+ const int long6_4[] = {13, 14, 24, 19, 40, 10, 32, 1, 22, 1};
+ dshape_poly(1, COL_LEVEL_MAIN, TRI_WALK, 5, long6_4);
  add_poly_fill_source(23, 7);
- fix_display_triangles_walk();
 
 
 
@@ -2075,122 +1367,55 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_DROP, KEYWORD_COMPONENT_DROP);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               34, 0, // centre
-	               40, -7, // left
-	               40, 7, // right
-	               47, 0, // far
-	               50, 0, // link
-	               45, 0); // object
+	// centre, left, right, far, link, object
+	const int drop_links[] = {
+		34, 0, 40, -7, 40, 7, 47, 0, 50, 0, 45, 0,
+		11, -14, 8, -22, 24, -18, 18, -26, 19, -28, 17, -24,
+		11, 14, 24, 18, 8, 22, 18, 26, 19, 28, 17, 24,
+		-34, 0, -39, 7, -39, -7, -47, 0, -50, 0, -45, 0,
+		-14, -18, -23, -23, -7, -25, -17, -29, -18, -30, -16, -27,
+		-14, 18, -7, 25, -23, 23, -17, 29, -18, 30, -16, 27
+	};
+	add_links(6, drop_links);
 
-	add_link_at_xy(1, // link_index
-	               11, -14, // centre
-	               8, -22, // left
-	               24, -18, // right
-	               18, -26, // far
-	               19, -28, // link
-	               17, -24); // object
+	const int drop_collision[] = {-17, 25, -17, -25, -4, -26, -4, 26, -40, -10, -40, 10, 40, -10, 40, 10};
+	add_collision_vertices(8, drop_collision);
 
-	add_link_at_xy(2, // link_index
-	               11, 14, // centre
-	               24, 18, // left
-	               8, 22, // right
-	               18, 26, // far
-	               19, 28, // link
-	               17, 24); // object
-
-	add_link_at_xy(3, // link_index
-	               -34, 0, // centre
-	               -39, 7, // left
-	               -39, -7, // right
-	               -47, 0, // far
-	               -50, 0, // link
-	               -45, 0); // object
-
-	add_link_at_xy(4, // link_index
-	               -14, -18, // centre
-	               -23, -23, // left
-	               -7, -25, // right
-	               -17, -29, // far
-	               -18, -30, // link
-	               -16, -27); // object
-
-	add_link_at_xy(5, // link_index
-	               -14, 18, // centre
-	               -7, 25, // left
-	               -23, 23, // right
-	               -17, 29, // far
-	               -18, 30, // link
-	               -16, 27); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(44, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(18, 20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-17, 25, 1);
+	add_vertex(-17, 25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-43, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-17, -25, 1);
+	add_vertex(-17, -25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(18, -20, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-26, 0, 0);
-	add_vertex(-4, -26, 1);
-	add_vertex(5, -24, 0);
-	add_vertex(15, 0, 0);
-	add_vertex(5, 24, 0);
-	add_vertex(-4, 26, 1);
+	const int drop_0[] = {-26, 0, -4, -26, 5, -24, 15, 0, 5, 24, -4, 26};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, drop_0);
 	add_poly_fill_source(-1, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-15, -16, 0);
-	add_vertex(-26, -23, 0);
-	add_vertex(-40, -10, 1);
-	add_vertex(-33, -1, 0);
-	add_vertex(-28, -1, 0);
+	const int drop_1[] = {-15, -16, -26, -23, -40, -10, -33, -1, -28, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, drop_1);
 	add_poly_fill_source(-28, -10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-15, 16, 0);
-	add_vertex(-26, 23, 0);
-	add_vertex(-40, 10, 1);
-	add_vertex(-33, 1, 0);
-	add_vertex(-28, 1, 0);
+	const int drop_2[] = {-15, 16, -26, 23, -40, 10, -33, 1, -28, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, drop_2);
 	add_poly_fill_source(-28, 10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(27, -17, 0);
-	add_vertex(40, -10, 1);
-	add_vertex(32, -1, 0);
-	add_vertex(17, -1, 0);
-	add_vertex(12, -12, 0);
+	const int drop_3[] = {27, -17, 40, -10, 32, -1, 17, -1, 12, -12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, drop_3);
 	add_poly_fill_source(25, -8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(27, 17, 0);
-	add_vertex(40, 10, 1);
-	add_vertex(32, 1, 0);
-	add_vertex(17, 1, 0);
-	add_vertex(12, 12, 0);
+	const int drop_4[] = {27, 17, 40, 10, 32, 1, 17, 1, 12, 12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, drop_4);
 	add_poly_fill_source(25, 8);
-	fix_display_triangles_fan();
 
 
 // noncore shapes have mirrored_object_noncentre, for use when they're not on the design centreline
@@ -2218,56 +1443,21 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_SIDE, KEYWORD_COMPONENT_SIDE);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               0, -18, // centre
-	               -8, -24, // left
-	               8, -24, // right
-	               0, -30, // far
-	               0, -31, // link
-	               0, -27); // object
+	// centre, left, right, far, link, object
+	const int side_links[] = {
+		0, -18, -8, -24, 8, -24, 0, -30, 0, -31, 0, -27,
+		0, 18, 8, 24, -8, 24, 0, 30, 0, 31, 0, 27,
+		20, -14, 18, -22, 32, -10, 27, -22, 28, -23, 26, -20,
+		20, 14, 32, 10, 18, 22, 27, 22, 28, 23, 26, 20,
+		-20, -14, -32, -10, -18, -22, -27, -22, -28, -23, -26, -20,
+		-20, 14, -18, 22, -32, 10, -27, 22, -28, 23, -26, 20
+	};
+	add_links(6, side_links);
 
-	add_link_at_xy(1, // link_index
-	               0, 18, // centre
-	               8, 24, // left
-	               -8, 24, // right
-	               0, 30, // far
-	               0, 31, // link
-	               0, 27); // object
+	const int side_collision[] = {-16, -24, -16, 24, 16, -24, 16, 24, 43, -5, 43, 4, -43, -5, -43, 4};
+	add_collision_vertices(8, side_collision);
 
-	add_link_at_xy(2, // link_index
-	               20, -14, // centre
-	               18, -22, // left
-	               32, -10, // right
-	               27, -22, // far
-	               28, -23, // link
-	               26, -20); // object
-
-	add_link_at_xy(3, // link_index
-	               20, 14, // centre
-	               32, 10, // left
-	               18, 22, // right
-	               27, 22, // far
-	               28, 23, // link
-	               26, 20); // object
-
-	add_link_at_xy(4, // link_index
-	               -20, -14, // centre
-	               -32, -10, // left
-	               -18, -22, // right
-	               -27, -22, // far
-	               -28, -23, // link
-	               -26, -20); // object
-
-	add_link_at_xy(5, // link_index
-	               -20, 14, // centre
-	               -18, 22, // left
-	               -32, 10, // right
-	               -27, 22, // far
-	               -28, 23, // link
-	               -26, 20); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(37, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -2294,84 +1484,34 @@ int poly_index;
 	add_vertex(25, -19, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, -17, 0);
-	add_vertex(-11, -25, 0);
-	add_vertex(-16, -24, 1);
-	add_vertex(-18, -13, 0);
-	add_vertex(-7, -3, 0);
-	add_vertex(-1, -7, 0);
+	const int side_0[] = {-1, -17, -11, -25, -16, -24, -18, -13, -7, -3, -1, -7};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_0);
 	add_poly_fill_source(-9, -14);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, 17, 0);
-	add_vertex(-11, 25, 0);
-	add_vertex(-16, 24, 1);
-	add_vertex(-18, 13, 0);
-	add_vertex(-7, 3, 0);
-	add_vertex(-1, 7, 0);
+	const int side_1[] = {-1, 17, -11, 25, -16, 24, -18, 13, -7, 3, -1, 7};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_1);
 	add_poly_fill_source(-9, 14);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(1, -17, 0);
-	add_vertex(11, -25, 0);
-	add_vertex(16, -24, 1);
-	add_vertex(18, -13, 0);
-	add_vertex(7, -3, 0);
-	add_vertex(1, -7, 0);
+	const int side_2[] = {1, -17, 11, -25, 16, -24, 18, -13, 7, -3, 1, -7};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_2);
 	add_poly_fill_source(9, -14);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(1, 17, 0);
-	add_vertex(11, 25, 0);
-	add_vertex(16, 24, 1);
-	add_vertex(18, 13, 0);
-	add_vertex(7, 3, 0);
-	add_vertex(1, 7, 0);
+	const int side_3[] = {1, 17, 11, 25, 16, 24, 18, 13, 7, 3, 1, 7};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_3);
 	add_poly_fill_source(9, 14);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(0, -6, 0);
-	add_vertex(-6, -2, 0);
-	add_vertex(-6, 2, 0);
-	add_vertex(0, 6, 0);
-	add_vertex(6, 2, 0);
-	add_vertex(6, -2, 0);
+	const int side_4[] = {0, -6, -6, -2, -6, 2, 0, 6, 6, 2, 6, -2};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_4);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(20, -12, 0);
-	add_vertex(43, -5, 1);
-	add_vertex(43, 4, 1);
-	add_vertex(20, 12, 0);
-	add_vertex(8, 2, 0);
-	add_vertex(8, -2, 0);
+	const int side_5[] = {20, -12, 43, -5, 43, 4, 20, 12, 8, 2, 8, -2};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_5);
 	add_poly_fill_source(23, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-20, -12, 0);
-	add_vertex(-43, -5, 1);
-	add_vertex(-43, 4, 1);
-	add_vertex(-20, 12, 0);
-	add_vertex(-8, 2, 0);
-	add_vertex(-8, -2, 0);
+	const int side_6[] = {-20, -12, -43, -5, -43, 4, -20, 12, -8, 2, -8, -2};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, side_6);
 	add_poly_fill_source(-23, 0);
-	fix_display_triangles_fan();
 
 // noncore shapes have mirrored_object_noncentre, for use when they're not on the design centreline
  nshape[NSHAPE_COMPONENT_SIDE].mirrored_object_noncentre [0] = 1;
@@ -2397,40 +1537,19 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_LONG4, KEYWORD_COMPONENT_LONG4);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               36, 0, // centre
-	               42, -7, // left
-	               42, 7, // right
-	               52, 0, // far
-	               54, 0, // link
-	               49, 0); // object
+	// centre, left, right, far, link, object
+	const int long4_links[] = {
+		36, 0, 42, -7, 42, 7, 52, 0, 54, 0, 49, 0,
+		0, 15, 7, 21, -7, 21, 0, 27, 0, 29, 0, 25,
+		-25, 0, -28, 8, -28, -8, -39, 0, -41, 0, -35, 0,
+		0, -15, -7, -21, 7, -21, 0, -27, 0, -29, 0, -25
+	};
+	add_links(4, long4_links);
 
-	add_link_at_xy(1, // link_index
-	               0, 15, // centre
-	               7, 21, // left
-	               -7, 21, // right
-	               0, 27, // far
-	               0, 29, // link
-	               0, 25); // object
+	const int long4_collision[] = {42, 10, 10, 21, 42, -10, 10, -21, -27, -11, -10, -21, -27, 11, -10, 21};
+	add_collision_vertices(8, long4_collision);
 
-	add_link_at_xy(2, // link_index
-	               -25, 0, // centre
-	               -28, 8, // left
-	               -28, -8, // right
-	               -39, 0, // far
-	               -41, 0, // link
-	               -35, 0); // object
-
-	add_link_at_xy(3, // link_index
-	               0, -15, // centre
-	               -7, -21, // left
-	               7, -21, // right
-	               0, -27, // far
-	               0, -29, // link
-	               0, -25); // object
-
-
-	start_dshape_poly(poly_index++, 1, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 1, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(50, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -2441,60 +1560,26 @@ int poly_index;
 	add_vertex(0, 23, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(3, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(1, 13, 0);
-	add_vertex(1, 9, 0);
-	add_vertex(24, 1, 0);
-	add_vertex(34, 1, 0);
-	add_vertex(42, 10, 1);
-	add_vertex(10, 21, 1);
+	const int long4_0[] = {1, 13, 1, 9, 24, 1, 34, 1, 42, 10, 10, 21};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, long4_0);
 	add_poly_fill_source(18, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(1, -13, 0);
-	add_vertex(1, -9, 0);
-	add_vertex(24, -1, 0);
-	add_vertex(34, -1, 0);
-	add_vertex(42, -10, 1);
-	add_vertex(10, -21, 1);
+	const int long4_1[] = {1, -13, 1, -9, 24, -1, 34, -1, 42, -10, 10, -21};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, long4_1);
 	add_poly_fill_source(18, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, -13, 0);
-	add_vertex(-1, -9, 0);
-	add_vertex(-12, -1, 0);
-	add_vertex(-23, -1, 0);
-	add_vertex(-27, -11, 1);
-	add_vertex(-10, -21, 1);
+	const int long4_2[] = {-1, -13, -1, -9, -12, -1, -23, -1, -27, -11, -10, -21};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, long4_2);
 	add_poly_fill_source(-12, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, 13, 0);
-	add_vertex(-1, 9, 0);
-	add_vertex(-12, 1, 0);
-	add_vertex(-23, 1, 0);
-	add_vertex(-27, 11, 1);
-	add_vertex(-10, 21, 1);
+	const int long4_3[] = {-1, 13, -1, 9, -12, 1, -23, 1, -27, 11, -10, 21};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, long4_3);
 	add_poly_fill_source(-12, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(0, -7, 0);
-	add_vertex(-10, 0, 0);
-	add_vertex(0, 7, 0);
-	add_vertex(21, 0, 0);
+	const int long4_4[] = {0, -7, -10, 0, 0, 7, 21, 0};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, long4_4);
 	add_poly_fill_source(2, 0);
-	fix_display_triangles_fan();
 
  nshape[NSHAPE_COMPONENT_LONG4].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_LONG4].mirrored_object_noncentre [1] = 3;
@@ -2515,40 +1600,19 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_BOX, KEYWORD_COMPONENT_BOX);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               22, 0, // centre
-	               27, -11, // left
-	               27, 11, // right
-	               34, 0, // far
-	               40, 0, // link
-	               35, 0); // object
+	// centre, left, right, far, link, object
+	const int box_links[] = {
+		22, 0, 27, -11, 27, 11, 34, 0, 40, 0, 35, 0,
+		0, 22, 11, 27, -11, 27, 0, 34, 0, 40, 0, 35,
+		-22, 0, -27, 11, -27, -11, -34, 0, -40, 0, -35, 0,
+		0, -22, -11, -27, 11, -27, 0, -34, 0, -40, 0, -35
+	};
+	add_links(4, box_links);
 
-	add_link_at_xy(1, // link_index
-	               0, 22, // centre
-	               11, 27, // left
-	               -11, 27, // right
-	               0, 34, // far
-	               0, 40, // link
-	               0, 35); // object
+	const int box_collision[] = {28, 16, 16, 28, 28, -16, 16, -28, -28, -16, -16, -28, -28, 16, -16, 28};
+	add_collision_vertices(8, box_collision);
 
-	add_link_at_xy(2, // link_index
-	               -22, 0, // centre
-	               -27, 11, // left
-	               -27, -11, // right
-	               -34, 0, // far
-	               -40, 0, // link
-	               -35, 0); // object
-
-	add_link_at_xy(3, // link_index
-	               0, -22, // centre
-	               -11, -27, // left
-	               11, -27, // right
-	               0, -34, // far
-	               0, -40, // link
-	               0, -35); // object
-
-
-	start_dshape_poly(poly_index++, 1, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 1, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(31, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -2559,60 +1623,26 @@ int poly_index;
 	add_vertex(0, 31, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(1, 14, 0);
-	add_vertex(14, 1, 0);
-	add_vertex(20, 1, 0);
-	add_vertex(28, 16, 1);
-	add_vertex(16, 28, 1);
-	add_vertex(1, 20, 0);
+	const int box_0[] = {1, 14, 14, 1, 20, 1, 28, 16, 16, 28, 1, 20};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, box_0);
 	add_poly_fill_source(13, 13);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(1, -14, 0);
-	add_vertex(14, -1, 0);
-	add_vertex(20, -1, 0);
-	add_vertex(28, -16, 1);
-	add_vertex(16, -28, 1);
-	add_vertex(1, -20, 0);
+	const int box_1[] = {1, -14, 14, -1, 20, -1, 28, -16, 16, -28, 1, -20};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, box_1);
 	add_poly_fill_source(13, -13);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, -14, 0);
-	add_vertex(-14, -1, 0);
-	add_vertex(-20, -1, 0);
-	add_vertex(-28, -16, 1);
-	add_vertex(-16, -28, 1);
-	add_vertex(-1, -20, 0);
+	const int box_2[] = {-1, -14, -14, -1, -20, -1, -28, -16, -16, -28, -1, -20};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, box_2);
 	add_poly_fill_source(-13, -13);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-1, 14, 0);
-	add_vertex(-14, 1, 0);
-	add_vertex(-20, 1, 0);
-	add_vertex(-28, 16, 1);
-	add_vertex(-16, 28, 1);
-	add_vertex(-1, 20, 0);
+	const int box_3[] = {-1, 14, -14, 1, -20, 1, -28, 16, -16, 28, -1, 20};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, box_3);
 	add_poly_fill_source(-13, 13);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(0, -12, 0);
-	add_vertex(-12, 0, 0);
-	add_vertex(0, 12, 0);
-	add_vertex(12, 0, 0);
+	const int box_4[] = {0, -12, -12, 0, 0, 12, 12, 0};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, box_4);
 	add_poly_fill_source(0, 0);
-	fix_display_triangles_fan();
 
 	nshape[NSHAPE_COMPONENT_BOX].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_BOX].mirrored_object_noncentre [1] = 3;
@@ -2636,113 +1666,52 @@ int poly_index;
 
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               34, 0, // centre
-	               41, -8, // left
-	               41, 8, // right
-	               47, 0, // far
-	               50, 0, // link
-	               45, 0); // object
+	// centre, left, right, far, link, object
+	const int long5_links[] = {
+		34, 0, 41, -8, 41, 8, 47, 0, 50, 0, 45, 0,
+		-27, -8, -39, -5, -30, -16, -40, -12, -43, -13, -39, -11,
+		-27, 8, -30, 16, -39, 5, -40, 12, -43, 13, -39, 11,
+		-8, -17, -17, -22, 3, -22, -8, -28, -8, -32, -8, -27,
+		-8, 17, 3, 22, -17, 22, -8, 28, -8, 32, -8, 27
+	};
+	add_links(5, long5_links);
 
-	add_link_at_xy(1, // link_index
-	               -27, -8, // centre
-	               -39, -5, // left
-	               -30, -16, // right
-	               -40, -12, // far
-	               -43, -13, // link
-	               -39, -11); // object
+	const int long5_collision[] = {46, 0, -10, 25, -10, -25, -42, 3, -42, -3, -29, -17, -29, 17, 40, -10, 40, 10};
+	add_collision_vertices(9, long5_collision);
 
-	add_link_at_xy(2, // link_index
-	               -27, 8, // centre
-	               -30, 16, // left
-	               -39, 5, // right
-	               -40, 12, // far
-	               -43, 13, // link
-	               -39, 11); // object
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
-	add_link_at_xy(3, // link_index
-	               -8, -17, // centre
-	               -17, -22, // left
-	               3, -22, // right
-	               -8, -28, // far
-	               -8, -32, // link
-	               -8, -27); // object
-
-	add_link_at_xy(4, // link_index
-	               -8, 17, // centre
-	               3, 22, // left
-	               -17, 22, // right
-	               -8, 28, // far
-	               -8, 32, // link
-	               -8, 27); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
-
-	add_vertex(46, 0, 1);
+	add_vertex(46, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-10, 25, 1);
+	add_vertex(-10, 25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-35, 9, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-35, -9, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-10, -25, 1);
+	add_vertex(-10, -25, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-8, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-13, -10, 0);
-	add_vertex(-2, 0, 0);
-	add_vertex(-13, 10, 0);
-	add_vertex(-42, 3, 1);
-	add_vertex(-42, -3, 1);
+	const int long5_0[] = {-13, -10, -2, 0, -13, 10, -42, 3, -42, -3};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, long5_0);
 	add_poly_fill_source(-22, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-9, -16, 0);
-	add_vertex(-20, -22, 0);
-	add_vertex(-29, -17, 1);
-	add_vertex(-26, -9, 0);
-	add_vertex(-13, -12, 0);
+	const int long5_1[] = {-9, -16, -20, -22, -29, -17, -26, -9, -13, -12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, long5_1);
 	add_poly_fill_source(-19, -15);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-9, 16, 0);
-	add_vertex(-20, 22, 0);
-	add_vertex(-29, 17, 1);
-	add_vertex(-26, 9, 0);
-	add_vertex(-13, 12, 0);
+	const int long5_2[] = {-9, 16, -20, 22, -29, 17, -26, 9, -13, 12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, long5_2);
 	add_poly_fill_source(-19, 15);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, -11, 0);
-	add_vertex(-7, -16, 0);
-	add_vertex(6, -21, 0);
-	add_vertex(40, -10, 1);
-	add_vertex(32, -1, 0);
-	add_vertex(0, -1, 0);
+	const int long5_3[] = {-11, -11, -7, -16, 6, -21, 40, -10, 32, -1, 0, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, long5_3);
 	add_poly_fill_source(10, -10);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, 11, 0);
-	add_vertex(-7, 16, 0);
-	add_vertex(6, 21, 0);
-	add_vertex(40, 10, 1);
-	add_vertex(32, 1, 0);
-	add_vertex(0, 1, 0);
+	const int long5_4[] = {-11, 11, -7, 16, 6, 21, 40, 10, 32, 1, 0, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, long5_4);
 	add_poly_fill_source(10, 10);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
  add_mirror_axis(ANGLE_2, 0);
@@ -2767,48 +1736,20 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_SNUB, KEYWORD_COMPONENT_SNUB);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               25, 0, // centre
-	               34, -8, // left
-	               34, 8, // right
-	               41, 0, // far
-	               43, 0, // link
-	               39, 0); // object
+	// centre, left, right, far, link, object
+	const int snub_links[] = {
+		25, 0, 34, -8, 34, 8, 41, 0, 43, 0, 39, 0,
+		-28, -10, -41, -8, -26, -19, -37, -19, -38, -21, -35, -17,
+		-28, 10, -26, 19, -41, 8, -37, 19, -38, 21, -35, 17,
+		6, -17, -1, -27, 16, -22, 7, -28, 7, -30, 7, -26,
+		6, 17, 16, 22, -1, 27, 7, 28, 7, 30, 7, 26
+	};
+	add_links(5, snub_links);
 
-	add_link_at_xy(1, // link_index
-	               -28, -10, // centre
-	               -41, -8, // left
-	               -26, -19, // right
-	               -37, -19, // far
-	               -38, -21, // link
-	               -35, -17); // object
+	const int snub_collision[] = {-44, 6, -44, -6, -3, -28, -24, -21, -3, 28, -24, 21, 34, -10, 34, 10};
+	add_collision_vertices(8, snub_collision);
 
-	add_link_at_xy(2, // link_index
-	               -28, 10, // centre
-	               -26, 19, // left
-	               -41, 8, // right
-	               -37, 19, // far
-	               -38, 21, // link
-	               -35, 17); // object
-
-	add_link_at_xy(3, // link_index
-	               6, -17, // centre
-	               -1, -27, // left
-	               16, -22, // right
-	               7, -28, // far
-	               7, -30, // link
-	               7, -26); // object
-
-	add_link_at_xy(4, // link_index
-	               6, 17, // centre
-	               16, 22, // left
-	               -1, 27, // right
-	               7, 28, // far
-	               7, 30, // link
-	               7, 26); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(39, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -2823,61 +1764,26 @@ int poly_index;
 	add_vertex(6, -27, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-10, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-25, -9, 0);
-	add_vertex(-2, -3, 0);
-	add_vertex(1, 0, 0);
-	add_vertex(-2, 3, 0);
-	add_vertex(-25, 9, 0);
-	add_vertex(-44, 6, 1);
-	add_vertex(-44, -6, 1);
+	const int snub_0[] = {-25, -9, -2, -3, 1, 0, -2, 3, -25, 9, -44, 6, -44, -6};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 7, snub_0);
 	add_poly_fill_source(-20, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-3, -28, 1);
-	add_vertex(-24, -21, 1);
-	add_vertex(-26, -11, 0);
-	add_vertex(-2, -5, 0);
-	add_vertex(5, -16, 0);
+	const int snub_1[] = {-3, -28, -24, -21, -26, -11, -2, -5, 5, -16};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, snub_1);
 	add_poly_fill_source(-10, -16);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-3, 28, 1);
-	add_vertex(-24, 21, 1);
-	add_vertex(-26, 11, 0);
-	add_vertex(-2, 5, 0);
-	add_vertex(5, 16, 0);
+	const int snub_2[] = {-3, 28, -24, 21, -26, 11, -2, 5, 5, 16};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, snub_2);
 	add_poly_fill_source(-10, 16);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(6, -15, 0);
-	add_vertex(18, -21, 0);
-	add_vertex(34, -10, 1);
-	add_vertex(24, -1, 0);
-	add_vertex(2, -1, 0);
-	add_vertex(-1, -4, 0);
+	const int snub_3[] = {6, -15, 18, -21, 34, -10, 24, -1, 2, -1, -1, -4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, snub_3);
 	add_poly_fill_source(13, -8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(6, 15, 0);
-	add_vertex(18, 21, 0);
-	add_vertex(34, 10, 1);
-	add_vertex(24, 1, 0);
-	add_vertex(2, 1, 0);
-	add_vertex(-1, 4, 0);
+	const int snub_4[] = {6, 15, 18, 21, 34, 10, 24, 1, 2, 1, -1, 4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, snub_4);
 	add_poly_fill_source(13, 8);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
  add_mirror_axis(ANGLE_2, 0);
@@ -2896,40 +1802,19 @@ int poly_index;
 
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               -7, 29, // centre
-	               -4, 43, // left
-	               -21, 28, // right
-	               -13, 41, // far
-	               -15, 45, // link
-	               -13, 41); // object
+	// centre, left, right, far, link, object
+	const int cap_links[] = {
+		-7, 29, -4, 43, -21, 28, -13, 41, -15, 45, -13, 41,
+		-19, 10, -25, 23, -30, 7, -31, 16, -33, 18, -30, 16,
+		-19, -10, -30, -7, -25, -23, -31, -16, -33, -18, -30, -16,
+		-7, -29, -21, -28, -4, -43, -13, -41, -15, -45, -13, -41
+	};
+	add_links(4, cap_links);
 
-	add_link_at_xy(1, // link_index
-	               -19, 10, // centre
-	               -25, 23, // left
-	               -30, 7, // right
-	               -31, 16, // far
-	               -33, 18, // link
-	               -30, 16); // object
+	const int cap_collision[] = {-9, 40, -27, 13, -27, -13, -9, -40, -32, 4, -32, -4, 7, -38, 0, -49, -24, -26, 7, 38, 0, 49, -24, 26};
+	add_collision_vertices(12, cap_collision);
 
-	add_link_at_xy(2, // link_index
-	               -19, -10, // centre
-	               -30, -7, // left
-	               -25, -23, // right
-	               -31, -16, // far
-	               -33, -18, // link
-	               -30, -16); // object
-
-	add_link_at_xy(3, // link_index
-	               -7, -29, // centre
-	               -21, -28, // left
-	               -4, -43, // right
-	               -13, -41, // far
-	               -15, -45, // link
-	               -13, -41); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(3, -36, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -2941,65 +1826,37 @@ int poly_index;
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(2, 36, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-9, 40, 1);
+	add_vertex(-9, 40, 0);
 	add_outline_vertex_at_last_poly_vertex(4);
-	add_vertex(-27, 13, 1);
+	add_vertex(-27, 13, 0);
 	add_outline_vertex_at_last_poly_vertex(4);
 	add_vertex(-16, 0, 0);
 //	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-27, -13, 1);
+	add_vertex(-27, -13, 0);
 	add_outline_vertex_at_last_poly_vertex(4);
-	add_vertex(-9, -40, 1);
+	add_vertex(-9, -40, 0);
 	add_outline_vertex_at_last_poly_vertex(4);
 	add_poly_fill_source(-6, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-10, -12, 0);
-	add_vertex(12, -3, 0);
-	add_vertex(12, 3, 0);
-	add_vertex(-10, 12, 0);
-	add_vertex(-32, 4, 1);
-	add_vertex(-32, -4, 1);
+	const int cap_0[] = {-10, -12, 12, -3, 12, 3, -10, 12, -32, 4, -32, -4};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, cap_0);
 	add_poly_fill_source(-10, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(12, -6, 0);
-	add_vertex(7, -38, 1);
-	add_vertex(0, -49, 1);
-	add_vertex(-9, -14, 0);
+	const int cap_1[] = {12, -6, 7, -38, 0, -49, -9, -14};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, cap_1);
 	add_poly_fill_source(2, -26);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, -14, 0);
-	add_vertex(-18, -11, 0);
-	add_vertex(-24, -26, 1);
-	add_vertex(-7, -27, 0);
+	const int cap_2[] = {-11, -14, -18, -11, -24, -26, -7, -27};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, cap_2);
 	add_poly_fill_source(-15, -19);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(12, 6, 0);
-	add_vertex(7, 38, 1);
-	add_vertex(0, 49, 1);
-	add_vertex(-9, 14, 0);
+	const int cap_3[] = {12, 6, 7, 38, 0, 49, -9, 14};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, cap_3);
 	add_poly_fill_source(2, 26);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, 14, 0);
-	add_vertex(-18, 11, 0);
-	add_vertex(-24, 26, 1);
-	add_vertex(-7, 27, 0);
+	const int cap_4[] = {-11, 14, -18, 11, -24, 26, -7, 27};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, cap_4);
 	add_poly_fill_source(-15, 19);
-	fix_display_triangles_fan();
 
  add_mirror_axis(0, -1);
  add_mirror_axis(ANGLE_2, -1);
@@ -3022,74 +1879,40 @@ int poly_index;
 
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               29, 0, // centre
-	               35, -6, // left
-	               35, 6, // right
-	               43, 0, // far
-	               45, 0, // link
-	               42, 0); // object
+	// centre, left, right, far, link, object
+	const int tri_links[] = {
+		29, 0, 35, -6, 35, 6, 43, 0, 45, 0, 42, 0,
+		-3, -12, -12, -20, 4, -20, -4, -26, -4, -25, -4, -23,
+		-3, 12, 4, 20, -12, 20, -4, 26, -4, 25, -4, 23
+	};
+	add_links(3, tri_links);
 
-	add_link_at_xy(1, // link_index
-	               -3, -12, // centre
-	               -12, -20, // left
-	               4, -20, // right
-	               -4, -26, // far
-	               -4, -25, // link
-	               -4, -23); // object
+	const int tri_collision[] = {41, 0, -3, 21, -3, -21, -15, 20, -28, 0, -15, -20, 6, -20, 35, -8, 6, 20, 35, 8};
+	add_collision_vertices(10, tri_collision);
 
-	add_link_at_xy(2, // link_index
-	               -3, 12, // centre
-	               4, 20, // left
-	               -12, 20, // right
-	               -4, 26, // far
-	               -4, 25, // link
-	               -4, 23); // object
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
-
-	add_vertex(41, 0, 1);
+	add_vertex(41, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-3, 21, 1);
+	add_vertex(-3, 21, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-27, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-3, -21, 1);
+	add_vertex(-3, -21, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(2, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(3, 0, 0);
-	add_vertex(-4, 11, 0);
-	add_vertex(-15, 20, 1);
-	add_vertex(-28, 0, 1);
-	add_vertex(-15, -20, 1);
-	add_vertex(-4, -11, 0);
+	const int tri_0[] = {3, 0, -4, 11, -15, 20, -28, 0, -15, -20, -4, -11};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, tri_0);
 	add_poly_fill_source(-10, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(4, -1, 0);
-	add_vertex(-2, -11, 0);
-	add_vertex(6, -20, 1);
-	add_vertex(35, -8, 1);
-	add_vertex(28, -1, 0);
+	const int tri_1[] = {4, -1, -2, -11, 6, -20, 35, -8, 28, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, tri_1);
 	add_poly_fill_source(14, -8);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(4, 1, 0);
-	add_vertex(-2, 11, 0);
-	add_vertex(6, 20, 1);
-	add_vertex(35, 8, 1);
-	add_vertex(28, 1, 0);
+	const int tri_2[] = {4, 1, -2, 11, 6, 20, 35, 8, 28, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, tri_2);
 	add_poly_fill_source(14, 8);
-	fix_display_triangles_fan();
 
  add_mirror_axis(ANGLE_2, 0);
 
@@ -3106,40 +1929,19 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_PRONG, KEYWORD_COMPONENT_PRONG);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               20, -11, // centre
-	               16, -22, // left
-	               31, -8, // right
-	               28, -19, // far
-	               31, -21, // link
-	               27, -18); // object
+	// centre, left, right, far, link, object
+	const int prong_links[] = {
+		20, -11, 16, -22, 31, -8, 28, -19, 31, -21, 27, -18,
+		20, 11, 31, 8, 16, 22, 28, 19, 31, 21, 27, 18,
+		0, -10, -10, -17, 5, -21, -3, -24, -4, -26, -3, -23,
+		0, 10, 5, 21, -10, 17, -3, 24, -4, 26, -3, 23
+	};
+	add_links(4, prong_links);
 
-	add_link_at_xy(1, // link_index
-	               20, 11, // centre
-	               31, 8, // left
-	               16, 22, // right
-	               28, 19, // far
-	               31, 21, // link
-	               27, 18); // object
+	const int prong_collision[] = {-53, 5, -53, -5, 13, -25, 8, -25, 13, 25, 8, 25, 43, -3, 43, 3};
+	add_collision_vertices(8, prong_collision);
 
-	add_link_at_xy(2, // link_index
-	               0, -10, // centre
-	               -10, -17, // left
-	               5, -21, // right
-	               -3, -24, // far
-	               -4, -26, // link
-	               -3, -23); // object
-
-	add_link_at_xy(3, // link_index
-	               0, 10, // centre
-	               5, 21, // left
-	               -10, 17, // right
-	               -3, 24, // far
-	               -4, 26, // link
-	               -3, 23); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(33, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -3156,51 +1958,22 @@ int poly_index;
 	add_vertex(24, -17, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(7, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(7, 0, 0);
-	add_vertex(-2, 9, 0);
-	add_vertex(-13, 17, 0);
-	add_vertex(-53, 5, 1);
-	add_vertex(-53, -5, 1);
-	add_vertex(-13, -17, 0);
-	add_vertex(-1, -9, 0);
+	const int prong_0[] = {7, 0, -2, 9, -13, 17, -53, 5, -53, -5, -13, -17, -1, -9};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 7, prong_0);
 	add_poly_fill_source(-18, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, -1, 0);
-	add_vertex(13, -1, 0);
-	add_vertex(19, -9, 0);
-	add_vertex(13, -25, 1);
-	add_vertex(8, -25, 1);
-	add_vertex(1, -9, 0);
+	const int prong_1[] = {8, -1, 13, -1, 19, -9, 13, -25, 8, -25, 1, -9};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, prong_1);
 	add_poly_fill_source(10, -11);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(8, 1, 0);
-	add_vertex(13, 1, 0);
-	add_vertex(19, 9, 0);
-	add_vertex(13, 25, 1);
-	add_vertex(8, 25, 1);
-	add_vertex(1, 9, 0);
+	const int prong_2[] = {8, 1, 13, 1, 19, 9, 13, 25, 8, 25, 1, 9};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, prong_2);
 	add_poly_fill_source(10, 11);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(14, 0, 0);
-	add_vertex(21, -9, 0);
-	add_vertex(43, -3, 1);
-	add_vertex(43, 3, 1);
-	add_vertex(21, 9, 0);
+	const int prong_3[] = {14, 0, 21, -9, 43, -3, 43, 3, 21, 9};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, prong_3);
 	add_poly_fill_source(28, 0);
-	fix_display_triangles_fan();
 
  nshape[NSHAPE_COMPONENT_PRONG].mirrored_object_noncentre [0] = 1;
  nshape[NSHAPE_COMPONENT_PRONG].mirrored_object_noncentre [1] = 0;
@@ -3217,32 +1990,18 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_FORK, KEYWORD_COMPONENT_FORK);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               7, 0, // centre
-	               14, -7, // left
-	               14, 7, // right
-	               21, 0, // far
-	               24, 0, // link
-	               21, 0); // object
+	// centre, left, right, far, link, object
+	const int fork_links[] = {
+		7, 0, 14, -7, 14, 7, 21, 0, 24, 0, 21, 0,
+		-13, -14, -21, -11, -11, -26, -22, -23, -25, -25, -22, -23,
+		-13, 14, -11, 26, -21, 11, -22, 23, -25, 25, -22, 23
+	};
+	add_links(3, fork_links);
 
-	add_link_at_xy(1, // link_index
-	               -13, -14, // centre
-	               -21, -11, // left
-	               -11, -26, // right
-	               -22, -23, // far
-	               -25, -25, // link
-	               -22, -23); // object
+	const int fork_collision[] = {-7, -41, 1, -41, 15, -10, -7, 41, 1, 41, 15, 10, -38, -4, -38, 4};
+	add_collision_vertices(8, fork_collision);
 
-	add_link_at_xy(2, // link_index
-	               -13, 14, // centre
-	               -11, 26, // left
-	               -21, 11, // right
-	               -22, 23, // far
-	               -25, 25, // link
-	               -22, 23); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(16, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -3259,39 +2018,18 @@ int poly_index;
 	add_outline_vertex_at_xy(4, -36);
 //	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-4, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-4, -1, 0);
-	add_vertex(-12, -13, 0);
-	add_vertex(-7, -41, 1);
-	add_vertex(1, -41, 1);
-	add_vertex(15, -10, 1);
-	add_vertex(6, -1, 0);
+	const int fork_0[] = {-4, -1, -12, -13, -7, -41, 1, -41, 15, -10, 6, -1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, fork_0);
 	add_poly_fill_source(0, -17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-4, 1, 0);
-	add_vertex(-12, 13, 0);
-	add_vertex(-7, 41, 1);
-	add_vertex(1, 41, 1);
-	add_vertex(15, 10, 1);
-	add_vertex(6, 1, 0);
+	const int fork_1[] = {-4, 1, -12, 13, -7, 41, 1, 41, 15, 10, 6, 1};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 6, fork_1);
 	add_poly_fill_source(0, 17);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-5, 0, 0);
-	add_vertex(-13, -12, 0);
-	add_vertex(-38, -4, 1);
-	add_vertex(-38, 4, 1);
-	add_vertex(-13, 12, 0);
+	const int fork_2[] = {-5, 0, -13, -12, -38, -4, -38, 4, -13, 12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, fork_2);
 	add_poly_fill_source(-21, 0);
-	fix_display_triangles_fan();
 
  nshape[NSHAPE_COMPONENT_FORK].mirrored_object_noncentre [0] = 0;
  nshape[NSHAPE_COMPONENT_FORK].mirrored_object_noncentre [1] = 2;
@@ -3311,48 +2049,20 @@ int poly_index;
 
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               -27, 0, // centre
-	               -32, 8, // left
-	               -32, -8, // right
-	               -39, 0, // far
-	               -42, 0, // link
-	               -39, 0); // object
+	// centre, left, right, far, link, object
+	const int bowl_links[] = {
+		-27, 0, -32, 8, -32, -8, -39, 0, -42, 0, -39, 0,
+		-12, -33, -19, -26, -13, -42, -22, -37, -26, -39, -22, -37,
+		-12, 33, -13, 42, -19, 26, -22, 37, -26, 39, -22, 37,
+		9, -8, 14, -21, 16, -6, 20, -13, 23, -13, 19, -13,
+		9, 8, 16, 6, 14, 21, 20, 13, 23, 13, 19, 13
+	};
+	add_links(5, bowl_links);
 
-	add_link_at_xy(1, // link_index
-	               -12, -33, // centre
-	               -19, -26, // left
-	               -13, -42, // right
-	               -22, -37, // far
-	               -26, -39, // link
-	               -22, -37); // object
+	const int bowl_collision[] = {-36, 0, 17, -4, 17, 4, -25, 0, 13, -23, 0, -49, -13, -54, 13, 23, 0, 49, -13, 54, -32, -12, -32, 12};
+	add_collision_vertices(12, bowl_collision);
 
-	add_link_at_xy(2, // link_index
-	               -12, 33, // centre
-	               -13, 42, // left
-	               -19, 26, // right
-	               -22, 37, // far
-	               -26, 39, // link
-	               -22, 37); // object
-
-	add_link_at_xy(3, // link_index
-	               9, -8, // centre
-	               14, -21, // left
-	               16, -6, // right
-	               20, -13, // far
-	               23, -13, // link
-	               19, -13); // object
-
-	add_link_at_xy(4, // link_index
-	               9, 8, // centre
-	               16, 6, // left
-	               14, 21, // right
-	               20, 13, // far
-	               23, 13, // link
-	               19, 13); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(15, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -3364,7 +2074,7 @@ int poly_index;
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-18, 22, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-36, 0, 1);
+	add_vertex(-36, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-18, -22, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -3375,55 +2085,26 @@ int poly_index;
 	add_vertex(16, -12, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-6, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-10, -12, 0);
-	add_vertex(17, -4, 1);
-	add_vertex(17, 4, 1);
-	add_vertex(-10, 12, 0);
-	add_vertex(-25, 0, 1);
+	const int bowl_0[] = {-10, -12, 17, -4, 17, 4, -10, 12, -25, 0};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, bowl_0);
 	add_poly_fill_source(-2, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(7, -9, 0);
-	add_vertex(13, -23, 1);
-	add_vertex(0, -49, 1);
-	add_vertex(-13, -54, 1);
-	add_vertex(-9, -14, 0);
+	const int bowl_1[] = {7, -9, 13, -23, 0, -49, -13, -54, -9, -14};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, bowl_1);
 	add_poly_fill_source(0, -29);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(7, 9, 0);
-	add_vertex(13, 23, 1);
-	add_vertex(0, 49, 1);
-	add_vertex(-13, 54, 1);
-	add_vertex(-9, 14, 0);
+	const int bowl_2[] = {7, 9, 13, 23, 0, 49, -13, 54, -9, 14};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, bowl_2);
 	add_poly_fill_source(0, 29);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, -15, 0);
-	add_vertex(-12, -30, 0);
-	add_vertex(-32, -12, 1);
-	add_vertex(-26, -2, 0);
+	const int bowl_3[] = {-11, -15, -12, -30, -32, -12, -26, -2};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, bowl_3);
 	add_poly_fill_source(-20, -14);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, 15, 0);
-	add_vertex(-12, 30, 0);
-	add_vertex(-32, 12, 1);
-	add_vertex(-26, 2, 0);
+	const int bowl_4[] = {-11, 15, -12, 30, -32, 12, -26, 2};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, bowl_4);
 	add_poly_fill_source(-20, 14);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
  add_mirror_axis(0, 0);
@@ -3442,48 +2123,20 @@ int poly_index;
  start_dshape(NSHAPE_COMPONENT_PEAK, KEYWORD_COMPONENT_PEAK);
 
 	poly_index = POLY_0;
-	add_link_at_xy(0, // link_index
-	               -19, 0, // centre
-	               -25, 8, // left
-	               -25, -8, // right
-	               -34, 0, // far
-	               -37, 0, // link
-	               -32, 0); // object
+	// centre, left, right, far, link, object
+	const int peak_links[] = {
+		-19, 0, -25, 8, -25, -8, -34, 0, -37, 0, -32, 0,
+		-11, -26, -23, -30, -3, -33, -14, -37, -15, -40, -14, -35,
+		-11, 26, -3, 33, -23, 30, -14, 37, -15, 40, -14, 35,
+		12, -15, 16, -23, 22, -10, 22, -19, 24, -20, 20, -18,
+		12, 15, 22, 10, 16, 23, 22, 19, 24, 20, 20, 18
+	};
+	add_links(5, peak_links);
 
-	add_link_at_xy(1, // link_index
-	               -11, -26, // centre
-	               -23, -30, // left
-	               -3, -33, // right
-	               -14, -37, // far
-	               -15, -40, // link
-	               -14, -35); // object
+	const int peak_collision[] = {-30, 0, 27, -1, 27, 1, 16, -26, 2, -36, 16, 26, 2, 36, -43, -33, -43, 33};
+	add_collision_vertices(9, peak_collision);
 
-	add_link_at_xy(2, // link_index
-	               -11, 26, // centre
-	               -3, 33, // left
-	               -23, 30, // right
-	               -14, 37, // far
-	               -15, 40, // link
-	               -14, 35); // object
-
-	add_link_at_xy(3, // link_index
-	               12, -15, // centre
-	               16, -23, // left
-	               22, -10, // right
-	               22, -19, // far
-	               24, -20, // link
-	               20, -18); // object
-
-	add_link_at_xy(4, // link_index
-	               12, 15, // centre
-	               22, 10, // left
-	               16, 23, // right
-	               22, 19, // far
-	               24, 20, // link
-	               20, 18); // object
-
-
-	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY);
+	start_dshape_poly(poly_index++, 0, PROC_COL_UNDERLAY, TRI_FAN);
 
 	add_vertex(22, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -3495,7 +2148,7 @@ int poly_index;
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-22, 10, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
-	add_vertex(-30, 0, 1);
+	add_vertex(-30, 0, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_vertex(-22, -10, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
@@ -3506,63 +2159,30 @@ int poly_index;
 	add_vertex(20, -18, 0);
 	add_outline_vertex_at_last_poly_vertex(6);
 	add_poly_fill_source(-9, 0);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, -24, 0);
-	add_vertex(26, -7, 0);
-	add_vertex(27, -1, 1);
-	add_vertex(-18, -1, 0);
-	add_vertex(-26, -12, 0);
+	const int peak_0[] = {-11, -24, 26, -7, 27, -1, -18, -1, -26, -12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, peak_0);
 	add_poly_fill_source(0, -9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-11, 24, 0);
-	add_vertex(26, 7, 0);
-	add_vertex(27, 1, 1);
-	add_vertex(-18, 1, 0);
-	add_vertex(-26, 12, 0);
+	const int peak_1[] = {-11, 24, 26, 7, 27, 1, -18, 1, -26, 12};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 5, peak_1);
 	add_poly_fill_source(0, 9);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(11, -16, 0);
-	add_vertex(16, -26, 1);
-	add_vertex(2, -36, 1);
-	add_vertex(-9, -25, 0);
+	const int peak_2[] = {11, -16, 16, -26, 2, -36, -9, -25};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, peak_2);
 	add_poly_fill_source(5, -25);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(11, 16, 0);
-	add_vertex(16, 26, 1);
-	add_vertex(2, 36, 1);
-	add_vertex(-9, 25, 0);
+	const int peak_3[] = {11, 16, 16, 26, 2, 36, -9, 25};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, peak_3);
 	add_poly_fill_source(5, 25);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-13, -25, 0);
-	add_vertex(-43, -33, 1);
-	add_vertex(-38, -16, 0);
-	add_vertex(-26, -14, 0);
+	const int peak_4[] = {-13, -25, -43, -33, -38, -16, -26, -14};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, peak_4);
 	add_poly_fill_source(-30, -22);
-	fix_display_triangles_fan();
 
-	start_dshape_poly(poly_index++, 1, PROC_COL_MAIN_1);
-
-	add_vertex(-13, 25, 0);
-	add_vertex(-43, 33, 1);
-	add_vertex(-38, 16, 0);
-	add_vertex(-26, 14, 0);
+	const int peak_5[] = {-13, 25, -43, 33, -38, 16, -26, 14};
+	dshape_poly(1, PROC_COL_MAIN_1, TRI_FAN, 4, peak_5);
 	add_poly_fill_source(-30, 22);
-	fix_display_triangles_fan();
 
  add_mirror_axis_at_link(0, -1); // -1 means no link opposite 0
  add_mirror_axis(0, 0);
@@ -3622,7 +2242,7 @@ static void start_dshape(int ds, int keyword_index)
 
 }
 
-static void start_dshape_poly(int poly, int layer, int poly_colour_level)
+static void start_dshape_poly(int poly, int layer, int poly_colour_level, int triangulation)
 {
 
 #ifdef SANITY_CHECK
@@ -3640,9 +2260,9 @@ static void start_dshape_poly(int poly, int layer, int poly_colour_level)
 
 
 		dshape[dshape_init.current_nshape].display_vertices [poly] = 0;
-		dshape[dshape_init.current_nshape].display_triangles [poly] = 0;
 		dshape[dshape_init.current_nshape].poly_layer [poly] = layer;
 		dshape[dshape_init.current_nshape].poly_colour_level [poly] = poly_colour_level;
+		dshape[dshape_init.current_nshape].triangulation[poly] = triangulation;
 
 //  dshape_init.current_dshape = ds;
   dshape_init.current_poly = poly;
@@ -3653,6 +2273,32 @@ static void start_dshape_poly(int poly, int layer, int poly_colour_level)
   collision_mask_poly[dshape_init.current_nshape].polys ++;
   collision_mask_poly[dshape_init.current_nshape].vertices [poly] = 0;
 
+}
+
+void dshape_poly(int layer, int poly_colour_level, int triangulation, int num_vtx, const int* coords)
+{
+	int poly = dshape[dshape_init.current_nshape].polys;
+	dshape[dshape_init.current_nshape].display_vertices [poly] = num_vtx;
+	dshape[dshape_init.current_nshape].poly_layer [poly] = layer;
+	dshape[dshape_init.current_nshape].poly_colour_level [poly] = poly_colour_level;
+	dshape[dshape_init.current_nshape].triangulation[poly] = triangulation;
+
+	dshape_init.current_poly = poly;
+	dshape[dshape_init.current_nshape].polys ++;
+
+	collision_mask_poly[dshape_init.current_nshape].polys ++;
+	collision_mask_poly[dshape_init.current_nshape].vertices [poly] = num_vtx;
+
+	int i;
+	float x, y;
+	for(i = 0; i < num_vtx; ++i)
+	{
+		x = coords[2*i]; y = coords[2*i+1];
+		dshape [dshape_init.current_dshape].display_vertex_angle [dshape_init.current_poly] [i] = atan2(y, x);
+		dshape [dshape_init.current_dshape].display_vertex_dist [dshape_init.current_poly] [i] = hypot(y, x);
+		collision_mask_poly[dshape_init.current_dshape].vertex_x [dshape_init.current_poly] [i] = x;
+		collision_mask_poly[dshape_init.current_dshape].vertex_y [dshape_init.current_poly] [i] = y;
+	}
 }
 
 static void add_poly_fill_source(int x, int y)
@@ -3667,6 +2313,54 @@ static void add_poly_fill_source(int x, int y)
  collision_mask_poly[dshape_init.current_dshape].fill_source_x [dshape_init.current_poly] = x;
  collision_mask_poly[dshape_init.current_dshape].fill_source_y [dshape_init.current_poly] = y;
 
+}
+
+void add_collision_vertices_fixed(int num_vtx, const al_fixed* coords)
+{
+	int i;
+	al_fixed x, y;
+	for (i = 0; i < num_vtx; ++i)
+	{
+		x = coords[2*i]; y = coords[2*i+1];
+		nshape[dshape_init.current_nshape].vertex_angle_fixed [i] = get_angle(y, x);
+		nshape[dshape_init.current_nshape].vertex_dist_fixed [i] = distance(y, x);
+		nshape[dshape_init.current_nshape].vertex_dist_pixel [i] = al_fixtoi(nshape[dshape_init.current_nshape].vertex_dist_fixed [i]);
+		if (nshape[dshape_init.current_nshape].max_length < nshape[dshape_init.current_nshape].vertex_dist_fixed [i])
+			nshape[dshape_init.current_nshape].max_length = nshape[dshape_init.current_nshape].vertex_dist_fixed [i];
+	}
+	nshape[dshape_init.current_nshape].vertices += num_vtx;
+}
+
+void add_vertices_fixed(int num_vtx, const al_fixed* coords)
+{
+	int i;
+	al_fixed x, y;
+	for(i = 0; i < num_vtx; ++i)
+	{
+		x = coords[2*i]; y = coords[2*i+1];
+		dshape [dshape_init.current_dshape].display_vertex_angle [dshape_init.current_poly] [i] = atan2(y, x);
+		dshape [dshape_init.current_dshape].display_vertex_dist [dshape_init.current_poly] [i] = hypot(y, x) / (1 << 16);
+		collision_mask_poly[dshape_init.current_dshape].vertex_x [dshape_init.current_poly] [i] = al_fixtoi(x);
+		collision_mask_poly[dshape_init.current_dshape].vertex_y [dshape_init.current_poly] [i] = al_fixtoi(y);
+	}
+	collision_mask_poly[dshape_init.current_dshape].vertices [dshape_init.current_poly] += num_vtx;
+	dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly] += num_vtx;
+}
+
+void add_collision_vertices(int num_vtx, const int* coords)
+{
+	int i;
+	al_fixed x, y;
+	for (i = 0; i < num_vtx; ++i)
+	{
+		x = al_itofix(coords[2*i]); y = al_itofix(coords[2*i+1]);
+		nshape[dshape_init.current_nshape].vertex_angle_fixed [i] = get_angle(y, x);
+		nshape[dshape_init.current_nshape].vertex_dist_fixed [i] = distance(y, x);
+		nshape[dshape_init.current_nshape].vertex_dist_pixel [i] = al_fixtoi(nshape[dshape_init.current_nshape].vertex_dist_fixed [i]);
+		if (nshape[dshape_init.current_nshape].max_length < nshape[dshape_init.current_nshape].vertex_dist_fixed [i])
+			nshape[dshape_init.current_nshape].max_length = nshape[dshape_init.current_nshape].vertex_dist_fixed [i];
+	}
+	nshape[dshape_init.current_nshape].vertices += num_vtx;
 }
 
 // display vertices must be added in an order that reflects how they will be drawn.
@@ -3877,8 +2571,8 @@ static void add_outline_vertex_at_last_poly_vertex(int extra_distance)
 	dshape[dshape_init.current_nshape].outline_vertex_dist_fixed [dshape[dshape_init.current_dshape].outline_vertices] = dshape_init.last_vertex_dist_fixed + al_itofix(extra_distance);
 
 // these are float values used only for display:
-	dshape[dshape_init.current_nshape].outline_vertex_angle [dshape[dshape_init.current_dshape].outline_vertices] = fixed_to_radians(dshape_init.last_vertex_angle);
-	dshape[dshape_init.current_nshape].outline_vertex_dist [dshape[dshape_init.current_dshape].outline_vertices] = al_fixtof(dshape_init.last_vertex_dist_fixed) + extra_distance;
+	dshape[dshape_init.current_nshape].outline_vertex_pos [dshape[dshape_init.current_dshape].outline_vertices][0] = cos(fixed_to_radians(dshape_init.last_vertex_angle)) * (al_fixtof(dshape_init.last_vertex_dist_fixed) + extra_distance);
+	dshape[dshape_init.current_nshape].outline_vertex_pos [dshape[dshape_init.current_dshape].outline_vertices][1] = sin(fixed_to_radians(dshape_init.last_vertex_angle)) * (al_fixtof(dshape_init.last_vertex_dist_fixed) + extra_distance);
 
 	dshape[dshape_init.current_dshape].outline_vertices ++;
 
@@ -3898,8 +2592,8 @@ static void add_outline_vertex_at_xy(int x, int y)
 	dshape[dshape_init.current_nshape].outline_vertex_dist_fixed [dshape[dshape_init.current_dshape].outline_vertices] = distance(al_itofix(y), al_itofix(x));
 
 // these are float values used only for display:
-	dshape[dshape_init.current_nshape].outline_vertex_angle [dshape[dshape_init.current_dshape].outline_vertices] = fixed_to_radians(dshape[dshape_init.current_nshape].outline_vertex_angle_fixed [dshape[dshape_init.current_dshape].outline_vertices]);
-	dshape[dshape_init.current_nshape].outline_vertex_dist [dshape[dshape_init.current_dshape].outline_vertices] = al_fixtof(dshape[dshape_init.current_nshape].outline_vertex_dist_fixed [dshape[dshape_init.current_dshape].outline_vertices]);
+	dshape[dshape_init.current_nshape].outline_vertex_pos [dshape[dshape_init.current_dshape].outline_vertices][0] = x;
+	dshape[dshape_init.current_nshape].outline_vertex_pos [dshape[dshape_init.current_dshape].outline_vertices][1] = y;
 
 	dshape[dshape_init.current_dshape].outline_vertices ++;
 
@@ -3927,168 +2621,6 @@ void add_link_vector(int angle, int dist)
 
 }*/
 
-
-static void add_display_triangle(int v1, int v2, int v3)
-{
-	dshape [dshape_init.current_dshape].display_triangle_index [dshape_init.current_poly] [dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly]] [0] = v1;
-	dshape [dshape_init.current_dshape].display_triangle_index [dshape_init.current_poly] [dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly]] [1] = v2;
-	dshape [dshape_init.current_dshape].display_triangle_index [dshape_init.current_poly] [dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly]] [2] = v3;
-	dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly] ++;
-
-//fpr("\nADT %i poly %i (%i,%i,%i) dt %i", dshape_init.current_dshape, dshape_init.current_poly, v1,v2,v3,dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly]);
-
-}
-
-
-/*
-static void fix_display_triangles_walk(void)
-{
- int triangle_vertex [3] = {0, 1, 2};
- int next_walk_vertex = 1;
- int next_vertex_index = 3;
-
- int total_vertices = dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly] - 1;
-
- while(TRUE)
-	{
-		add_display_triangle(triangle_vertex [0], triangle_vertex [1], triangle_vertex [2]);
-		triangle_vertex [next_walk_vertex] = next_vertex_index;
-		next_vertex_index ++;
-
-		next_walk_vertex ++;
-		if (next_walk_vertex == 3)
-			next_walk_vertex = 0;
-		if (next_vertex_index > total_vertices)
-			break;
-
-	};
-/ *
- while(low_v < stop_point && high_v >= stop_point && low_v < high_v)
-	{
-		add_display_triangle(low_v, high_v, low_v + 1);
-		if (high_v <= stop_point)
-			break;
-		add_display_triangle(high_v, low_v + 1, high_v - 1);
-  if (dshape_init.current_dshape == NSHAPE_CORE_STATIC_PENT
-	  && dshape_init.current_poly == 1)
-	 {
-		 fpr("\n A: %i, %i, %i", low_v, high_v, low_v + 1);
-		 fpr("\n B: %i, %i, %i", high_v, low_v + 1, high_v - 1);
-	 }
-		low_v ++;
-		high_v --;
-	};
-
- if (dshape_init.current_dshape == NSHAPE_CORE_STATIC_PENT
-	 && dshape_init.current_poly == 1)
-	 wait_for_space();
-* /
-
-//fpr("\nFinished shape %i poly %i dt %i", dshape_init.current_dshape, dshape_init.current_poly, dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly]);
-}
-*/
-
-
-static void fix_display_triangles_walk(void)
-{
- int low_v, high_v;
-
- low_v = 0;
- high_v = dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly] - 1;
-
- int triangles = 0;
- int total_triangles = dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly] - 2;
-
-
- while(TRUE)
-	{
-		add_display_triangle(low_v, high_v, low_v + 1);
-		triangles ++;
-		if (triangles >= total_triangles)
-			break;
-//		if (high_v <= stop_point)
-//			break;
-		add_display_triangle(high_v, low_v + 1, high_v - 1);
-		triangles ++;
-		if (triangles >= total_triangles)
-			break;
-		low_v ++;
-		high_v --;
-	};
-
-}
-
-// fans out from vertex 0
-static void fix_display_triangles_fan(void)
-{
-
- int i;
- int vertices = dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly];
-
- for (i = 1; i < vertices - 1; i++)
-	{
-		add_display_triangle(0, i, i + 1);
-	}
-
-
-}
-
-
-/*
-
-static void fix_display_triangles_walk(void)
-{
- int low_v, high_v;
-
- low_v = 0;
- high_v = dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly] - 1;
-
-// int stop_point = high_v - 2;
-
-// polygons with odd numbers of vertices draw an additional triangle:
-// if (dshape[dshape_init.current_dshape].display_vertices [dshape_init.current_poly] & 1)
-//		stop_point = high_v - 1;
-/ *
- if (dshape_init.current_dshape == NSHAPE_CORE_STATIC_PENT
-	 && dshape_init.current_poly == 1)
-	{
-		fpr("\n low_v %i high_v %i stop_point %i", low_v, high_v, stop_point);
-
-	}* /
-
-// while(low_v < stop_point)// && high_v >= stop_point)
- while(TRUE)// && high_v >= stop_point)
-	{
-		add_display_triangle(low_v, high_v, low_v + 1);
-  if (dshape_init.current_dshape == NSHAPE_CORE_STATIC_PENT
-	  && dshape_init.current_poly == 1)
-	 {
-		 fpr("\n A: %i, %i, %i", low_v, high_v, low_v + 1);
-	 }
-//		if (high_v <= stop_point)
-//			break;
-		add_display_triangle(high_v, low_v + 1, high_v - 1);
-  if (dshape_init.current_dshape == NSHAPE_CORE_STATIC_PENT
-	  && dshape_init.current_poly == 1)
-	 {
-		 fpr("\n B: %i, %i, %i", high_v, low_v + 1, high_v - 1);
-	 }
-		low_v ++;
-		high_v --;
-	};
-
- if (dshape_init.current_dshape == NSHAPE_CORE_STATIC_PENT
-	 && dshape_init.current_poly == 1)
-	 wait_for_space();
-
-
-//fpr("\nFinished shape %i poly %i dt %i", dshape_init.current_dshape, dshape_init.current_poly, dshape [dshape_init.current_dshape].display_triangles [dshape_init.current_poly]);
-}
-
-
-
-*/
-
 static void finish_shape(void)
 {
 
@@ -4096,16 +2628,6 @@ static void finish_shape(void)
  struct nshape_struct* nsh = &nshape[dshape_init.current_nshape];
 
  int i;
-
- float outline_vertex_x [OUTLINE_VERTICES];
- float outline_vertex_y [OUTLINE_VERTICES];
-
- for (i = 0; i < dsh->outline_vertices; i ++)
-	{
-		outline_vertex_x [i] = cos(dsh->outline_vertex_angle [i]) * dsh->outline_vertex_dist [i];
-		outline_vertex_y [i] = sin(dsh->outline_vertex_angle [i]) * dsh->outline_vertex_dist [i];
-// these values are used just below
-	}
 
  for (i = 0; i < dsh->outline_vertices; i ++)
 	{
@@ -4116,17 +2638,11 @@ static void finish_shape(void)
 		if (next_vertex == dsh->outline_vertices)
 			next_vertex = 0;
 
-		float mid_point_x = (outline_vertex_x [i]	+ outline_vertex_x [previous_vertex]) / 2;
-		float mid_point_y = (outline_vertex_y [i]	+ outline_vertex_y [previous_vertex]) / 2;
+		dsh->outline_vertex_sides [i] [0] [0] = (dsh->outline_vertex_pos[i][0]	+ dsh->outline_vertex_pos[previous_vertex][0]) / 2;
+		dsh->outline_vertex_sides [i] [0] [1] = (dsh->outline_vertex_pos[i][1]	+ dsh->outline_vertex_pos[previous_vertex][1]) / 2;
 
-		dsh->outline_vertex_side_angle_offset [i] [0] = atan2(mid_point_y, mid_point_x) - dsh->outline_vertex_angle [i];
-		dsh->outline_vertex_side_angle_dist [i] [0] = hypot(mid_point_y, mid_point_x); // distance from centre
-
-		mid_point_x = (outline_vertex_x [i]	+ outline_vertex_x [next_vertex]) / 2;
-		mid_point_y = (outline_vertex_y [i]	+ outline_vertex_y [next_vertex]) / 2;
-
-		dsh->outline_vertex_side_angle_offset [i] [1] = atan2(mid_point_y, mid_point_x) - dsh->outline_vertex_angle [i];
-		dsh->outline_vertex_side_angle_dist [i] [1] = hypot(mid_point_y, mid_point_x); // distance from centre
+		dsh->outline_vertex_sides [i] [1] [0] = (dsh->outline_vertex_pos[i][0]	+ dsh->outline_vertex_pos[next_vertex][0]) / 2;
+		dsh->outline_vertex_sides [i] [1] [1] = (dsh->outline_vertex_pos[i][1]	+ dsh->outline_vertex_pos[next_vertex][1]) / 2;
 
 	}
 
@@ -4287,6 +2803,20 @@ static void add_link_at_xy(int link_index, int link_x, int link_y, int left_x, i
 																						al_itofix(object_x), al_itofix(object_y));
 
 
+}
+
+void add_links(int num_links, const int* coords)
+{
+	int i;
+	for(i = 0; i < num_links; ++i)
+	{
+		add_link_at_xy_fixed(i, al_itofix(coords[12*i]), al_itofix(coords[12*i+1]),
+							 al_itofix(coords[12*i+2]), al_itofix(coords[12*i+3]),
+							 al_itofix(coords[12*i+4]), al_itofix(coords[12*i+5]),
+							 al_itofix(coords[12*i+6]), al_itofix(coords[12*i+7]),
+							 al_itofix(coords[12*i+8]), al_itofix(coords[12*i+9]),
+							 al_itofix(coords[12*i+10]), al_itofix(coords[12*i+11]));
+	}
 }
 
 // wrapper function around add_link_at_xy_fixed()

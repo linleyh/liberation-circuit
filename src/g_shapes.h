@@ -82,6 +82,13 @@ NSHAPE_COMPONENT_BOWL,
 NSHAPES
 };
 
+enum
+{
+	TRI_FAN,
+	TRI_WALK,
+	TRIANGULATION_METHODS
+};
+
 // This struct contains gameplay properties of shapes
 struct nshape_struct
 {
@@ -137,12 +144,11 @@ struct dshape_struct
  int poly_layer [DSHAPE_POLYS]; // which display layer this poly is on (non-overlapping polys can be on the same layer)
  int poly_colour_level [DSHAPE_POLYS]; // intensity of colour for this poly
  int display_vertices [DSHAPE_POLYS];
- int display_triangles [DSHAPE_POLYS];
 
  float display_vertex_angle [DSHAPE_POLYS] [DSHAPE_DISPLAY_VERTICES]; // used for display
  float display_vertex_dist [DSHAPE_POLYS] [DSHAPE_DISPLAY_VERTICES]; // used for display
 
-	int display_triangle_index [DSHAPE_POLYS] [DSHAPE_DISPLAY_VERTICES] [3]; // not sure about the DSHAPE_DISPLAY_VERTICES dimension
+	int triangulation [DSHAPE_POLYS]; // triangulation method used for each polygon
 	int poly_fill_source [DSHAPE_POLYS] [2]; // x/y coordinates of the source used for floodfill for the dshape's collision mask. Any point inside the polygon will do.
 // poly_fill_source is a gameplay property rather than a display property so it kind of belongs in nshape_struct. But nshape ignores polygons entirely. Doesn't really matter anyway.
 
@@ -165,13 +171,11 @@ struct dshape_struct
 	int outline_vertices;
 	al_fixed outline_vertex_angle_fixed [OUTLINE_VERTICES];
 	al_fixed outline_vertex_dist_fixed [OUTLINE_VERTICES];
-	float outline_vertex_angle [OUTLINE_VERTICES];
-	float outline_vertex_dist [OUTLINE_VERTICES];
+	float outline_vertex_pos [OUTLINE_VERTICES] [2];
 	int outline_base_vertex;
 
 // these are used in displaying the interface shatter animation. They indicate a midpoint between the vertex and the previous [0] or next [1] vertex
- float outline_vertex_side_angle_offset [OUTLINE_VERTICES] [2]; // offset from outline vertex's angle
- float outline_vertex_side_angle_dist [OUTLINE_VERTICES] [2]; // distance from centre of outline (not distance from outline vertex)
+ float outline_vertex_sides [OUTLINE_VERTICES] [2] [2];
 
 };
 
