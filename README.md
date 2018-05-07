@@ -6,15 +6,18 @@ To play the prebuilt binaries on Windows, [download the latest release](https://
 
 ## Screenshots
 
-![a screenshot](http://i.imgur.com/pPIJ03I.png)
-
-![another screenshot](http://i.imgur.com/QKWzkqA.png)
+![a screenshot](https://i.imgur.com/pPIJ03I.png)
+![another screenshot](https://i.imgur.com/QKWzkqA.png)
 
 ## Compiling
 
-It should compile on any OS supported by Allegro 5 - to build, compile the c files in the source directory and link with Allegro 5. More detailed instructions are below. More detail about the source file structure is at the start of `m_main.c`.
+It should compile on any OS supported by Allegro 5 - to build, compile the c files
+ in the source directory and link with Allegro 5. More detailed instructions are
+ below. More detail about the source file structure is at the start of `m_main.c`.
 
-The executable should go in the "bin" subdirectory (the same directory as the "init.txt" file). The game requires write access to this directory to save mission progress. If this isn't okay, you can specify a path in the fopen calls at about lines 2808 and 2860 of `h_story.c`.
+The executable should go in the "bin" subdirectory (the same directory as the "init.txt" file).
+The game requires write access to this directory to save mission progress. If this isn't okay, you can
+specify a path in the fopen calls at about lines 2808 and 2860 of `h_story.c`.
 
 Don't try to compile the `.c` files in the /proc or /story subdirectories! They are code used by the game itself.
 
@@ -34,23 +37,25 @@ in C++).
 ## Compiling on Linux
 
 Packages needed for Liberation Circuit on Debian GNU/Linux or Ubuntu:
+
 - liballegro-acodec5-dev
 - liballegro-audio5-dev
 - liballegro-dialog5-dev
 - liballegro-image5-dev
 - liballegro5-dev
 
+To build using cmake (using the cmake scripts by Kyle Findlay; The
+following instructions are from u/JCanseco on reddit)
 
 > I did compile it with ccmake ncurses frontend on Antergos (based on Arch Linux).
-> 
-> mkdir build;cd build;ccmake ..
-> 
+>
+> mkdir build, cd build, cmake ..
+>
 > Adding this line to CMAKE_EXE_LINKER_FLAGS was enough:
-> 
+>
 > -lallegro_image -lallegro_primitives -lallegro_color -lallegro_acodec -lallegro_audio -lallegro_dialog -lallegro_font -lallegro_main -lallegro -lm
-> 
+>
 > make -j4 and it compiled fine with Allegro 5.2.2. Extracted zip data on bin folder and it did run fine.
-
 
 ## Compiling on macOS
 
@@ -71,7 +76,7 @@ If you are using a Retina screen, you may want to set the double_fonts option to
 
 Thanks to:
 
-* Nils Dagsson Moskopp (erlehmann) <nils+liberationcircuit@dieweltistgarnichtso.net> for very useful feedback on the alpha and beta versions.
-* zugz (from the tigsource forum) for very useful feedback on the beta.
-* Serge Zaitsev's [cucu](http://zserge.com/blog/cucu-part1.html) for a very clear explanation of how to write a simple C compiler.
-* Batuhan Bozkurt's [otomata](http://www.earslap.com/page/otomata.html) for the basis of the cellular automata-based procedural music generation.
+- [Nils Dagsson Moskopp](https://github.com/erlehmann) for very useful feedback on the alpha and beta versions.
+- zugz (from the tigsource forum) for very useful feedback on the beta.
+- Serge Zaitsev's [cucu](http://zserge.com/blog/cucu-part1.html) for a very clear explanation of how to write a simple C compiler.
+- Batuhan Bozkurt's [otomata](http://www.earslap.com/page/otomata.html) for the basis of the cellular automata-based procedural music generation.
