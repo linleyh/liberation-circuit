@@ -12,8 +12,8 @@ To play the prebuilt binaries on Windows, [download the latest release](https://
 ## Compiling
 
 It should compile on any OS supported by Allegro 5 - to build, compile the c files
- in the source directory and link with Allegro 5. More detailed instructions are
- below. More detail about the source file structure is at the start of `m_main.c`.
+in the source directory and link with Allegro 5. More detailed instructions are
+below. More detail about the source file structure is at the start of `m_main.c`.
 
 The executable should go in the "bin" subdirectory (the same directory as the "init.txt" file).
 The game requires write access to this directory to save mission progress. If this isn't okay, you can
