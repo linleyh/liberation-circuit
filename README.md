@@ -21,8 +21,8 @@ specify a path in the fopen calls at about lines 2808 and 2860 of `h_story.c`.
 
 Don't try to compile the `.c` files in the /proc or /story subdirectories! They are code used by the game itself.
 
-- Manual.html has extensive detail about the game, including documentation for the in-game API.
-- Edit init.txt to set screen resolution and other options (fullscreen, sound volume, key rebinding, colourblind mode etc).
+- [Manual.html](bin/Manual.html) has extensive detail about the game, including documentation for the in-game API.
+- Edit [init.txt](bin/init.txt) to set screen resolution and other options (fullscreen, sound volume, key rebinding, colourblind mode etc).
 
 To build using do/redo (using the .do scripts by Nils Dagsson Moskopp):
 
@@ -72,9 +72,7 @@ libcirc
 
 If you are using a Retina screen, you may want to set the double_fonts option to make the text larger (edit init.txt to do this).
 
-## Credits
-
-Thanks to:
+## Thanks to:
 
 - [Nils Dagsson Moskopp](https://github.com/erlehmann) for very useful feedback on the alpha and beta versions.
 - zugz (from the tigsource forum) for very useful feedback on the beta.
