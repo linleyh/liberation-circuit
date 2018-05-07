@@ -1,4 +1,4 @@
-# liberation-circuit
+# Liberation Circuit
 
 This is the release version of Liberation Circuit, an RTS/programming game.
 
