@@ -4,6 +4,8 @@ This is the release version of Liberation Circuit, an RTS/programming game.
 
 To play the prebuilt binaries on Windows, [download the latest release](https://github.com/linleyh/liberation-circuit/releases) and run `LibCirc.exe`.
 
+Vanilla has set up a [Discord server](https://discord.gg/8q7DFaM) to discuss strategy and things.
+
 ## Screenshots
 
 ![a screenshot](https://i.imgur.com/pPIJ03I.png)
