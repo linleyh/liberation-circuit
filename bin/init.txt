@@ -73,19 +73,6 @@ vol_effect 80
 #      tries to capture the mouse in the game window during gameplay.
 #      May not work in Mac OSX.
 #
-#  savefile
-#      By default, the game saves mission progress in the msn.dat file in the
-#      same directory as the executable.
-#      If you want the game to save this file somewhere else, you can use the
-#      savefile option to specify a diffent path and filename.
-#            example:
-#            savefile mission.dat
-#            savefile ../mission.dat
-#            savefile c:/games/savefiles/libcirc/msn.dat
-#      The path and filename can't have any spaces.
-#      The path is optional (e.g. the first example just saves to mission.dat in
-#      the execution directory) but there must be a file name.
-#
 
 
 

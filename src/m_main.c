@@ -402,6 +402,9 @@ void init_at_startup(void)
 
    al_init_image_addon();
 
+   al_set_org_name("linleyh");
+   al_set_app_name("libcirc");
+
    fprintf(stdout, "Liberation Circuit");
    fprintf(stdout, "\nCopyright 2017 Linley Henzell");
    fprintf(stdout, "\nVersion 1.3");
@@ -444,7 +447,18 @@ fpr("\nInitialising:");
    settings.option [OPTION_CAPTURE_MOUSE] = 0;
    settings.option [OPTION_DOUBLE_FONTS] = 0;
    settings.option [OPTION_LARGE_FONTS] = 0;
-   strcpy(settings.path_to_msn_dat_file, "msn.dat");
+
+   ALLEGRO_PATH *data_path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   al_make_directory(al_path_cstr(data_path, ALLEGRO_NATIVE_PATH_SEP));
+   al_set_path_filename(data_path, "msn.dat");
+   strcpy(settings.path_to_msn_dat_file, al_path_cstr(data_path, ALLEGRO_NATIVE_PATH_SEP));
+   al_destroy_path(data_path);
+
+   ALLEGRO_PATH *init_path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+   al_make_directory(al_path_cstr(init_path, ALLEGRO_NATIVE_PATH_SEP));
+   al_set_path_filename(init_path, "init.txt");
+   strcpy(settings.path_to_init_txt_file, al_path_cstr(init_path, ALLEGRO_NATIVE_PATH_SEP));
+   al_destroy_path(init_path);
 
    init_key_maps(); // must be before read_initfile() as keys may be remapped
 
@@ -725,6 +739,16 @@ void read_initfile(void)
   return;
  }
 
+ if (al_filename_exists(settings.path_to_init_txt_file)) {
+  initfile = freopen(settings.path_to_init_txt_file, "rt", initfile);
+  assert(initfile);
+ } else {
+  FILE *user_initfile = fopen(settings.path_to_init_txt_file, "wt");
+  char ch;
+  while((ch = fgetc(initfile)) != EOF) fputc(ch, user_initfile);
+  fclose(user_initfile);
+ }
+
  int read_in = fread(buffer, 1, INITFILE_SIZE, initfile);
 
  if (ferror(initfile)
@@ -1001,20 +1025,6 @@ static int default_templates_loaded [PLAYERS] = {0,0,0,0};
 		}
 		 else
 				fpr("\nFailed to read default template path for player %i: too many templates.\n(path [%s])", player_index, read_default_template_path);
-// the file will actually be loaded at a later stage of initialisation.
-  return bpos;
- }
-
-
- if (strcmp(initfile_word, "savefile") == 0)
- {
-// read file name:
-  char read_savefile_path [INITFILE_WORD_LENGTH]; // currently INITFILE_WORD_LENGTH should be FILE_PATH_LENGTH
-  bpos = read_initfile_word(read_savefile_path, buffer, buffer_length, bpos);
-  if (bpos == -1)
-			return -1;
-		strncpy(settings.path_to_msn_dat_file, read_savefile_path, FILE_PATH_LENGTH - 5);
-		fpr("\nSave file set to [%s].", settings.path_to_msn_dat_file);
 // the file will actually be loaded at a later stage of initialisation.
   return bpos;
  }
