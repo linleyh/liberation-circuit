@@ -6,12 +6,12 @@ OBJECTS = $(shell find src/ -name '*.c' | sed -e 's/\.c$$/.o/g')
 
 .PHONY: all clean
 
-all: bin/lc
+all: bin/libcirc
 
 clean:
-	rm -f bin/lc src/*.o
+	rm -f bin/libcirc src/*.o
 
-bin/lc: $(OBJECTS)
+bin/libcirc: $(OBJECTS)
 	gcc $(CFLAGS) -o $@ $? $(LIBS)
 
 %.o: %.c $(HEADERS)
