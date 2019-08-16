@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Appdata file for Liberation Circuit, copyleft 2019 by suve <veg@svgames.pl> -->
+<component type="desktop">
+<id>liberation-circuit.desktop</id>
+        <metadata_license>CC-BY-SA-4.0</metadata_license>
+        <project_license>GPL-3.0-only</project_license>
+        <name>Liberation Circuit</name>
+        <summary>Real-time strategy game with programmable units</summary>
+        <description>
+                <p>
+			Escape from a hostile computer system! Harvest data to create an armada of battle-processes to aid your escape! Take command directly and play the game as an RTS, or use the game's built-in editor and compiler to write your own unit AI in a simplified version of C.
+		</p>
+        </description>
+        <screenshots>
+                <screenshot type="default">
+                        <image>https://img.itch.zone/aW1hZ2UvMTI2NjM5LzU4MzA0My5wbmc=/original/Jggr2K.png</image>
+                </screenshot>
+                <screenshot>
+                        <image>https://img.itch.zone/aW1hZ2UvMTI2NjM5LzU4MzA0Mi5wbmc=/original/LlkQx0.png</image>
+                </screenshot>
+                <screenshot>
+                        <image>https://img.itch.zone/aW1hZ2UvMTI2NjM5LzU4MzA0NS5wbmc=/original/W1wz8h.png</image>
+                </screenshot>
+        </screenshots>
+        <url type="homepage">https://linleyh.itch.io/liberation-circuit</url>
+        <url type="bugtracker">https://github.com/linleyh/liberation-circuit/issues</url>
+</component>
+
