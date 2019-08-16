@@ -760,7 +760,7 @@ if (bcp_state.bcp_mode == BCP_MODE_EMPTY)
 			  text_x += (strlen(operand_string) + 1) * font[FONT_BASIC].width;
 //			  text_x += 7*font[FONT_BASIC].width;//((sts->bcode.op[tdb->debugger_line[line_index].bcode_address + 1] / 10) + 1) * font[FONT_BASIC].width;
 				 sprintf(operand_string, "%i", sts->bcode.op[tdb->debugger_line[line_index].bcode_address + 2]);
- 			 al_draw_textf(font[FONT_BASIC].fnt, colours.base [BCODE_PANEL_COL_NUMBER] [SHADE_HIGH], text_x, line_y, ALLEGRO_ALIGN_LEFT, operand_string);
+ 			 al_draw_textf(font[FONT_BASIC].fnt, colours.base [BCODE_PANEL_COL_NUMBER] [SHADE_HIGH], text_x, line_y, ALLEGRO_ALIGN_LEFT, "%s", operand_string);
 			 if (instruction_set[opcode].operands > 2)
  			{
 // 				sprintf(number_string, "%i", sts->bcode.op[tdb->debugger_line[line_index].bcode_address + 2]);
