@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Liberation Circuit
+Comment=Real-time strategy game with programmable units
+Exec=liberation-circuit
+Icon=liberation-circuit
+Terminal=false
+Categories=Game;
+StartupNotify=false
