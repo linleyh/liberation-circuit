@@ -380,7 +380,7 @@ int load_source_file(const char* file_path, struct source_struct* target_source)
 
   if (src_pos >= SOURCE_TEXT_LINE_LENGTH - 1)
   {
-   target_source->text [src_line] [src_pos] = '\0'; // if line is too long, terminate it and start new line
+   target_source->text [src_line] [SOURCE_TEXT_LINE_LENGTH-1] = '\0'; // if line is too long, terminate it and start new line
    if (!line_finished) // line is too long and was not terminated by newline
    {
     start_log_line(MLOG_COL_ERROR);
