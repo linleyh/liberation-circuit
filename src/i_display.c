@@ -72,7 +72,7 @@ void draw_proc_fail_cloud(struct cloud_struct* cl, float x, float y);
 static void print_object_information(float text_x, float text_y, int col, const char* ostring, int value, int print_value);
 
 #define VERTEX_LIST_SIZE 32
-float vertex_list [VERTEX_LIST_SIZE] [2];
+static float vertex_list [VERTEX_LIST_SIZE] [2];
 
 // call this after setting up the vertex_list array with an appropriate number of vertices
 //static void add_outline_poly_layer(int layer, int vertices, ALLEGRO_COLOR fill_col, ALLEGRO_COLOR edge_col);
