@@ -40,7 +40,7 @@ struct completionstruct completion;
 
 extern struct editorstruct editor; // defined in e_editor.c
 extern struct coloursstruct colours;
-struct fontstruct font [FONTS];
+extern struct fontstruct font [FONTS];
 
 
 //#define COMPLETION_TABLE_SIZE 1200

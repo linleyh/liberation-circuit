@@ -185,7 +185,7 @@ ALLEGRO_BITMAP* vision_mask;
 
 //ALLEGRO_BITMAP* packet_bmp;
 
-struct fontstruct font [FONTS];
+extern struct fontstruct font [FONTS];
 
 extern struct game_struct game; // in g_game.c
 extern struct dshape_struct dshape [NSHAPES]; // uses same indices as NSHAPES
