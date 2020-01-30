@@ -54,7 +54,7 @@ extern ALLEGRO_EVENT_QUEUE* fps_queue;
 extern struct game_struct game; // in g_game.c
 extern struct view_struct view;
 
-char mstring [MENU_STRING_LENGTH];
+extern char mstring [MENU_STRING_LENGTH];
 
 void display_standard_panel(int pan);
 static void print_sysmenu_help(float base_x, float base_y);

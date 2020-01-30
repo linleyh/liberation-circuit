@@ -79,7 +79,7 @@ static void reset_map_for_menu(void);
 static void print_key_codes(void);
 
 
-char mstring [MENU_STRING_LENGTH];
+extern char mstring [MENU_STRING_LENGTH];
 
 #define ELEMENT_NAME_SIZE 30
 
