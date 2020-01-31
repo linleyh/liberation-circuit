@@ -51,7 +51,7 @@ extern ALLEGRO_EVENT_QUEUE* fps_queue;
 extern struct game_struct game; // in g_game.c
 extern struct view_struct view;
 
-char mstring [MENU_STRING_LENGTH];
+extern char mstring [MENU_STRING_LENGTH];
 
 
 

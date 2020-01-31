@@ -1113,7 +1113,7 @@ static void draw_a_story_box(int region_index, float draw_x, float draw_y, times
 }
 
 
-float vertex_list [6] [2];
+static float vertex_list [6] [2];
 
 static void add_orthogonal_hexagon_story(int layer, float x, float y, float size, ALLEGRO_COLOR col1)
 {

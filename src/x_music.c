@@ -41,7 +41,7 @@ extern ALLEGRO_TIMER* sound_timer;
 
 extern struct sound_configstruct sound_config; // in x_sound.c
 
-float tone [TONES];
+extern float tone [TONES];
 
 extern struct synthstruct synth;
 
