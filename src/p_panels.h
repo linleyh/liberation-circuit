@@ -339,7 +339,7 @@ enum
 ELEMENT_FIT_FIXED, // fixed size
 ELEMENT_FIT_SUBPANEL_W, // element expands to fit subpanel width
 ELEMENT_FIT_SUBPANEL_H,
-ELEMENT_FIT_FILL, // elemend expands to fit whole subpanel
+ELEMENT_FIT_FILL, // element expands to fit whole subpanel
 ELEMENT_FIT_FILL_WITH_V_SCROLLBAR, // element expands to fit subpanel, leaving space for a vertical scrollbar
 ELEMENT_FIT_FILL_WITH_H_SCROLLBAR,
 ELEMENT_FIT_FILL_WITH_SCROLLBARS,
