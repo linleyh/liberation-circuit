@@ -78,5 +78,5 @@ If you are using a Retina screen, you may want to set the double_fonts option to
 
 - [Nils Dagsson Moskopp](https://github.com/erlehmann) for very useful feedback on the alpha and beta versions.
 - zugz (from the tigsource forum) for very useful feedback on the beta.
-- Serge Zaitsev's [cucu](http://zserge.com/blog/cucu-part1.html) for a very clear explanation of how to write a simple C compiler.
+- Serge Zaitsev's [cucu](https://zserge.com/posts/cucu-part1/) for a very clear explanation of how to write a simple C compiler.
 - Batuhan Bozkurt's [otomata](http://www.earslap.com/page/otomata.html) for the basis of the cellular automata-based procedural music generation.
