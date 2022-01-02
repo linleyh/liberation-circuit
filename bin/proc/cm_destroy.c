@@ -1,5 +1,3 @@
-
-
 #process "destroyer"
 
 // This process has objects with the following auto classes:
@@ -18,77 +16,70 @@ class auto_allocate;
 class auto_stability;
 
 core_pent_A, 0, 
-  {object_repair, 0},
-  {object_downlink, -1251, 
-    {component_cap, // component 1
-      {object_uplink, 0},
-      {object_none, 0},
-      {object_burst:auto_att_main, 1448},
-      {object_burst:auto_att_main, 433},
-    }
-  },
-  {object_downlink, 289, 
-    {component_prong, // component 2
-      {object_uplink, 0},
-      {object_move:auto_move:auto_retro, -416},
-      {object_move:auto_move, -1972},
-      {object_move:auto_move, 1770},
-    }
-  },
-  {object_downlink, -289, 
-    {component_prong, // component 3
-      {object_move:auto_move:auto_retro, 416},
-      {object_uplink, 0},
-      {object_move:auto_move, -1770},
-      {object_move:auto_move, 1972},
-    }
-  },
-  {object_downlink, 1251, 
-    {component_cap, // component 4
-      {object_burst:auto_att_main, -433},
-      {object_burst:auto_att_main, -1448},
-      {object_none, 0},
-      {object_uplink, 0},
-    }
-  },
+	{object_repair, 0},
+	{object_downlink, -1251, 
+		{component_cap, // component 1
+			{object_uplink, 0},
+			{object_none, 0},
+			{object_burst:auto_att_main, 1448},
+			{object_burst:auto_att_main, 433},
+		}
+	},
+	{object_downlink, 289, 
+		{component_prong, // component 2
+			{object_uplink, 0},
+			{object_move:auto_move:auto_retro, -416},
+			{object_move:auto_move, -1972},
+			{object_move:auto_move, 1770},
+		}
+	},
+	{object_downlink, -289, 
+		{component_prong, // component 3
+			{object_move:auto_move:auto_retro, 416},
+			{object_uplink, 0},
+			{object_move:auto_move, -1770},
+			{object_move:auto_move, 1972},
+		}
+	},
+	{object_downlink, 1251, 
+		{component_cap, // component 4
+			{object_burst:auto_att_main, -433},
+			{object_burst:auto_att_main, -1448},
+			{object_none, 0},
+			{object_uplink, 0},
+		}
+	},
 #code
 
-
-
-
 // Process AI modes (these reflect the capabilities of the process)
-enum
-{
-  MODE_IDLE, // process isn't doing anything ongoing
-  MODE_MOVE, // process is moving to target_x, target_y
-  MODE_MOVE_ATTACK, // process is moving, but will attack anything it finds along the way
-  MODE_ATTACK, // process is attacking a target it was commanded to attack
-  MODE_ATTACK_FOUND, // process is attacking a target it found itself
-  MODE_GUARD, // process is circling a friendly process
-  MODES
+enum {
+	MODE_IDLE, // process isn't doing anything ongoing
+	MODE_MOVE, // process is moving to target_x, target_y
+	MODE_MOVE_ATTACK, // process is moving, but will attack anything it finds along the way
+	MODE_ATTACK, // process is attacking a target it was commanded to attack
+	MODE_ATTACK_FOUND, // process is attacking a target it found itself
+	MODE_GUARD, // process is circling a friendly process
+	MODES
 };
 
 // Commands that the user may give the process
 // (these are fixed and should not be changed, although not all processes accept all commands)
-enum
-{
-  COM_NONE, // no command
-  COM_LOCATION, // user has right-clicked somewhere on the display or map
-  COM_TARGET, // user has right-clicked on an enemy process
-  COM_FRIEND, // user has right-clicked on a friendly process
-  COM_DATA_WELL // user has right-clicked on a data well
+enum {
+	COM_NONE, // no command
+	COM_LOCATION, // user has right-clicked somewhere on the display or map
+	COM_TARGET, // user has right-clicked on an enemy process
+	COM_FRIEND, // user has right-clicked on a friendly process
+	COM_DATA_WELL // user has right-clicked on a data well
 };
 
 // Targetting information
 // Targetting memory allows processes to track targets (enemy or friend)
 // The following enums are used as indices in the process' targetting memory
-enum
-{
-  TARGET_PARENT, // a newly built process starts with its builder in address 0
-  TARGET_MAIN, // main target
-  TARGET_GUARD, // target of guard command
+enum {
+	TARGET_PARENT, // a newly built process starts with its builder in address 0
+	TARGET_MAIN, // main target
+	TARGET_GUARD, // target of guard command
 };
-
 
 // Variable declaration and initialisation
 //  (note that declaration and initialisation cannot be combined)
@@ -118,15 +109,14 @@ int scan_result; // used to hold the results of a scan of nearby processes
 int self_destruct_primed; // counter for confirming self-destruct command (ctrl-right-click on self)
 int initialised; // set to 1 after initialisation code below run the first time
 
-if (!initialised)
-{
-   // initialisation code goes here (not all autocoded processes have initialisation code)
-  initialised = 1;
-  attack_mode(0); // attack objects (if present) will all fire together
-  // move the process forward a bit to stop it obstructing the next process to be built
-  mode = MODE_MOVE;
-  move_x = core_x + cos(angle, 300);
-  move_y = core_y + sin(angle, 300);
+if (!initialised) {
+	// initialisation code goes here (not all autocoded processes have initialisation code)
+	initialised = 1;
+	attack_mode(0); // attack objects (if present) will all fire together
+	// move the process forward a bit to stop it obstructing the next process to be built
+	mode = MODE_MOVE;
+	move_x = core_x + cos(angle, 300);
+	move_y = core_y + sin(angle, 300);
 }
 
 int verbose; // if 1, process will print various things to the console
